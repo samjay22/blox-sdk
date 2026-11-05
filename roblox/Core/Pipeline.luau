@@ -22,7 +22,8 @@ export type Config = {
 	runtime: Types.Runtime,
 	backend: Types.Backend,
 	auth: Types.AuthProvider,
-	hosts: { [string]: string },
+	origins: { [string]: string },
+	baseUrls: { [string]: string },
 	concurrency: number,
 	queueCapacity: number,
 	requestsPerMinute: number,
@@ -66,7 +67,7 @@ export type State = {
 --- Compose stateful stages once. No middleware closure chains are rebuilt per call.
 function Pipeline.new(config: Config): State
 	local hosts: { [string]: Host } = {}
-	for _, host in config.hosts do
+	for _, host in config.origins do
 		if not hosts[host] then
 			hosts[host] =
 				{ gate = Gate.new(config.concurrency, config.queueCapacity), breaker = Breaker.new() }
@@ -154,7 +155,7 @@ local function execute(
 	deadline: number
 ): Types.Result<any>
 	local config, runtime = self.config, self.config.runtime
-	local hostName = config.hosts[spec.service]
+	local hostName = config.origins[spec.service]
 	local host = self.hosts[hostName]
 	local hooks = config.hooks
 	local public = table.find(spec.authKinds, "none") ~= nil
@@ -397,7 +398,7 @@ function Pipeline.call(
 	if stop then
 		return stop
 	end
-	local url = self.config.hosts[spec.service] .. path
+	local url = self.config.baseUrls[spec.service] .. path
 	local generation = if self.config.auth.version then self.config.auth.version() else 0
 	local key = spec.id
 		.. " "

@@ -16,7 +16,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /actuator/health/liveness; access: public/authenticated.
+--- GET /audit-service/actuator/health/liveness via gateway; access: public/authenticated.
 function Service.liveness(
 	self: Service,
 	req: Types.LivenessCall?,
@@ -24,7 +24,7 @@ function Service.liveness(
 ): Core.Result<Types.LivenessResultValue>
 	return self._invoke(Endpoints["audit.liveness"], (req or {}), opts, self._universe)
 end
---- GET /actuator/health/readiness; access: public/authenticated.
+--- GET /audit-service/actuator/health/readiness via gateway; access: public/authenticated.
 function Service.readiness(
 	self: Service,
 	req: Types.ReadinessCall?,
@@ -32,7 +32,7 @@ function Service.readiness(
 ): Core.Result<Types.ReadinessResultValue>
 	return self._invoke(Endpoints["audit.readiness"], (req or {}), opts, self._universe)
 end
---- GET /api/audit/actions; access: READ.
+--- GET /audit-service/api/audit/actions via gateway; access: READ.
 function Service.actions(
 	self: Service,
 	req: Types.ActionsCall?,
@@ -57,7 +57,7 @@ function Service.actionsPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- GET /api/audit/events; access: READ.
+--- GET /audit-service/api/audit/events via gateway; access: READ.
 function Service.list(
 	self: Service,
 	req: Types.ListCall?,
@@ -82,7 +82,7 @@ function Service.listPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- POST /api/audit/events; access: READ_WRITE.
+--- POST /audit-service/api/audit/events via gateway; access: READ_WRITE.
 function Service.append(
 	self: Service,
 	req: Types.AppendCall,
@@ -90,7 +90,7 @@ function Service.append(
 ): Core.Result<Types.AppendResultValue>
 	return self._invoke(Endpoints["audit.append"], { body = req }, opts, self._universe)
 end
---- POST /api/audit/events/batch; access: READ_WRITE.
+--- POST /audit-service/api/audit/events/batch via gateway; access: READ_WRITE.
 function Service.batch(
 	self: Service,
 	req: Types.BatchCall,
@@ -98,7 +98,7 @@ function Service.batch(
 ): Core.Result<Types.BatchResultValue>
 	return self._invoke(Endpoints["audit.batch"], { body = req }, opts, self._universe)
 end
---- GET /api/audit/events/{id}; access: READ.
+--- GET /audit-service/api/audit/events/{id} via gateway; access: READ.
 function Service.get(
 	self: Service,
 	req: Types.GetCall,
@@ -106,7 +106,7 @@ function Service.get(
 ): Core.Result<Types.GetResultValue>
 	return self._invoke(Endpoints["audit.get"], req, opts, self._universe)
 end
---- GET /api/audit/retention; access: ADMIN.
+--- GET /audit-service/api/audit/retention via gateway; access: ADMIN.
 function Service.retention(
 	self: Service,
 	req: Types.RetentionCall?,
@@ -114,7 +114,7 @@ function Service.retention(
 ): Core.Result<Types.RetentionResultValue>
 	return self._invoke(Endpoints["audit.retention"], (req or {}), opts, self._universe)
 end
---- PUT /api/audit/retention; access: ADMIN.
+--- PUT /audit-service/api/audit/retention via gateway; access: ADMIN.
 function Service.putRetention(
 	self: Service,
 	req: Types.PutRetentionCall,
@@ -122,7 +122,7 @@ function Service.putRetention(
 ): Core.Result<Types.PutRetentionResultValue>
 	return self._invoke(Endpoints["audit.putRetention"], { body = req }, opts, self._universe)
 end
---- GET /api/audit/summary; access: READ.
+--- GET /audit-service/api/audit/summary via gateway; access: READ.
 function Service.summary(
 	self: Service,
 	req: Types.SummaryCall,
@@ -147,7 +147,7 @@ function Service.summaryPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- GET /health; access: public/authenticated.
+--- GET /audit-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,
@@ -155,7 +155,7 @@ function Service.healthProxy(
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["audit.healthProxy"], (req or {}), opts, self._universe)
 end
---- GET /info; access: public/authenticated.
+--- GET /audit-service/info via gateway; access: public/authenticated.
 function Service.info(
 	self: Service,
 	req: Types.InfoCall?,
@@ -163,7 +163,7 @@ function Service.info(
 ): Core.Result<Types.InfoResultValue>
 	return self._invoke(Endpoints["audit.info"], (req or {}), opts, self._universe)
 end
---- GET /metrics; access: public/authenticated.
+--- GET /audit-service/metrics via gateway; access: public/authenticated.
 function Service.metrics(
 	self: Service,
 	req: Types.MetricsCall?,

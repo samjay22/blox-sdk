@@ -8,6 +8,30 @@ from collections import Counter
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 ALIASES={'mm':'matchmaking','code':'codes'}
+# Independent deployment contract: do not import the generator's routing declarations.
+GATEWAY='https://lb1.blox-api.com'
+PREFIXES={
+    'auth':'/auth-service', 'data':'/data-service', 'matchmaking':'/matchmaking-service',
+    'party':'/party-service', 'codes':'/code-service', 'audit':'/audit-service',
+    'config':'/remote-config-service', 'leaderboards':'/leaderboard-service',
+    'economy':'/economy-service',
+}
+
+
+def assert_gateway_coverage(endpoints: list[dict], routing: str) -> None:
+    """Verify every generated gateway target independently, including the reserved config prefix."""
+    gateway = re.search(r'gatewayUrl\s*=\s*"([^"]+)"', routing)
+    prefixes = dict(re.findall(r'\["([^"]+)"\]\s*=\s*"([^"]+)"', routing))
+    assert gateway and gateway[1] == GATEWAY, 'Incorrect default gateway'
+    assert prefixes == PREFIXES, 'Incorrect or missing gateway service prefix'
+    assert {e['service'] for e in endpoints} == set(PREFIXES), 'Unrouted service'
+    wire_routes = set()
+    for e in endpoints:
+        path = e['path']
+        assert path.startswith('/') and not path.startswith('//'), 'Expected backend-relative path'
+        assert not any(path.startswith(p+'/') or path == p for p in PREFIXES.values()), 'Prefix applied twice'
+        wire_routes.add((e['method'], GATEWAY+prefixes[e['service']]+path))
+    assert len(wire_routes) == len(endpoints), 'Duplicate gateway routes'
 
 def mapping_arguments(text: str, start: int) -> str:
     """Read mapping arguments independently; quoted regex/path parentheses are not delimiters."""
@@ -75,6 +99,7 @@ def main() -> None:
     """Fail closed when a route, controller schema or expected alias is missing."""
     routes=json.loads((ROOT/'routes.json').read_text())
     endpoints=json.loads((ROOT/'spec/endpoints.json').read_text())['endpoints']
+    assert_gateway_coverage(endpoints, (ROOT/'src/Core/Routing.luau').read_text())
     expected={(ALIASES.get(r['svc'],r['svc']),r['method'],r['path']) for r in routes}
     actual={(e['service'],e['method'],e['path']) for e in endpoints}
     assert len(expected)==len(routes),'Duplicate inventory routes'
@@ -91,9 +116,12 @@ def main() -> None:
         assert not e['cacheable'] or e['method']=='GET',e['id']
         module=(ROOT/'src/Services'/f'{e["service"].capitalize()}.luau').read_text()
         assert 'function Service.'+e['name']+'(' in module,e['id']
+        assert f'--- {e["method"]} {PREFIXES[e["service"]]}{e["path"]} via gateway;' in module,e['id']
+        assert f'Endpoints["{e["id"]}"]' in module,e['id']
     counts=Counter(x[0] for x in expected)
     totals=Counter(e['service'] for e in endpoints)
     for service in sorted(counts): print(f'{service}: {counts[service]}/{counts[service]} inventory routes (100%); {totals[service]} exposed')
     print(f'Controllers: {len(controller_routes())}/{len(controller_routes())} new-service routes (100%)')
     print(f'Total: {len(expected)}/{len(expected)} inventory + {len(actual-expected)} additive = {len(actual)} endpoints')
+    print(f'Gateway: {GATEWAY}; all {len(PREFIXES)} prefixes / {len(actual)} wire routes verified')
 if __name__=='__main__':main()

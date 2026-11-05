@@ -14,7 +14,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- POST /api/auth/login; access: public/authenticated.
+--- POST /party-service/api/auth/login via gateway; access: public/authenticated.
 function Service.login(
 	self: Service,
 	req: Types.LoginCall,
@@ -22,7 +22,7 @@ function Service.login(
 ): Core.Result<Types.LoginResultValue>
 	return self._invoke(Endpoints["party.login"], { body = req }, opts, self._universe)
 end
---- POST /api/auth/logout; access: public/authenticated.
+--- POST /party-service/api/auth/logout via gateway; access: public/authenticated.
 function Service.logout(
 	self: Service,
 	req: Types.LogoutCall?,
@@ -30,7 +30,7 @@ function Service.logout(
 ): Core.Result<Types.LogoutResultValue>
 	return self._invoke(Endpoints["party.logout"], { body = req }, opts, self._universe)
 end
---- POST /api/auth/refresh; access: public/authenticated.
+--- POST /party-service/api/auth/refresh via gateway; access: public/authenticated.
 function Service.refreshToken(
 	self: Service,
 	req: Types.RefreshTokenCall,
@@ -38,7 +38,7 @@ function Service.refreshToken(
 ): Core.Result<Types.RefreshTokenResultValue>
 	return self._invoke(Endpoints["party.refreshToken"], { body = req }, opts, self._universe)
 end
---- GET /api/party/all; access: ADMIN.
+--- GET /party-service/api/party/all via gateway; access: ADMIN.
 function Service.getAllParties(
 	self: Service,
 	req: Types.GetAllPartiesCall?,
@@ -46,7 +46,7 @@ function Service.getAllParties(
 ): Core.Result<Types.GetAllPartiesResultValue>
 	return self._invoke(Endpoints["party.getAllParties"], (req or {}), opts, self._universe)
 end
---- POST /api/party/create; access: READ_WRITE.
+--- POST /party-service/api/party/create via gateway; access: READ_WRITE.
 function Service.createParty(
 	self: Service,
 	req: Types.CreatePartyCall,
@@ -54,7 +54,7 @@ function Service.createParty(
 ): Core.Result<Types.CreatePartyResultValue>
 	return self._invoke(Endpoints["party.createParty"], { body = req }, opts, self._universe)
 end
---- POST /api/party/delete; access: READ_WRITE.
+--- POST /party-service/api/party/delete via gateway; access: READ_WRITE.
 function Service.deleteParty(
 	self: Service,
 	req: Types.DeletePartyCall,
@@ -62,7 +62,7 @@ function Service.deleteParty(
 ): Core.Result<Types.DeletePartyResultValue>
 	return self._invoke(Endpoints["party.deleteParty"], { body = req }, opts, self._universe)
 end
---- POST /api/party/leadership/transfer; access: READ_WRITE.
+--- POST /party-service/api/party/leadership/transfer via gateway; access: READ_WRITE.
 function Service.transferLeadership(
 	self: Service,
 	req: Types.TransferLeadershipCall,
@@ -70,7 +70,7 @@ function Service.transferLeadership(
 ): Core.Result<Types.TransferLeadershipResultValue>
 	return self._invoke(Endpoints["party.transferLeadership"], { body = req }, opts, self._universe)
 end
---- POST /api/party/member/add; access: READ_WRITE.
+--- POST /party-service/api/party/member/add via gateway; access: READ_WRITE.
 function Service.addMember(
 	self: Service,
 	req: Types.AddMemberCall,
@@ -78,7 +78,7 @@ function Service.addMember(
 ): Core.Result<Types.AddMemberResultValue>
 	return self._invoke(Endpoints["party.addMember"], { body = req }, opts, self._universe)
 end
---- POST /api/party/member/kick; access: READ_WRITE.
+--- POST /party-service/api/party/member/kick via gateway; access: READ_WRITE.
 function Service.kickMember(
 	self: Service,
 	req: Types.KickMemberCall,
@@ -86,7 +86,7 @@ function Service.kickMember(
 ): Core.Result<Types.KickMemberResultValue>
 	return self._invoke(Endpoints["party.kickMember"], { body = req }, opts, self._universe)
 end
---- POST /api/party/member/leave; access: READ_WRITE.
+--- POST /party-service/api/party/member/leave via gateway; access: READ_WRITE.
 function Service.leaveParty(
 	self: Service,
 	req: Types.LeavePartyCall,
@@ -94,7 +94,7 @@ function Service.leaveParty(
 ): Core.Result<Types.LeavePartyResultValue>
 	return self._invoke(Endpoints["party.leaveParty"], { body = req }, opts, self._universe)
 end
---- POST /api/party/member/remove; access: READ_WRITE.
+--- POST /party-service/api/party/member/remove via gateway; access: READ_WRITE.
 function Service.removeMember(
 	self: Service,
 	req: Types.RemoveMemberCall,
@@ -102,7 +102,7 @@ function Service.removeMember(
 ): Core.Result<Types.RemoveMemberResultValue>
 	return self._invoke(Endpoints["party.removeMember"], { body = req }, opts, self._universe)
 end
---- GET /api/party/owner/{ownerId}; access: READ.
+--- GET /party-service/api/party/owner/{ownerId} via gateway; access: READ.
 function Service.getPartyByOwner(
 	self: Service,
 	req: Types.GetPartyByOwnerCall,
@@ -110,7 +110,7 @@ function Service.getPartyByOwner(
 ): Core.Result<Types.GetPartyByOwnerResultValue>
 	return self._invoke(Endpoints["party.getPartyByOwner"], req, opts, self._universe)
 end
---- GET /api/party/{partyId}; access: READ.
+--- GET /party-service/api/party/{partyId} via gateway; access: READ.
 function Service.getParty(
 	self: Service,
 	req: Types.GetPartyCall,
@@ -118,7 +118,7 @@ function Service.getParty(
 ): Core.Result<Types.GetPartyResultValue>
 	return self._invoke(Endpoints["party.getParty"], req, opts, self._universe)
 end
---- GET /api/poll/health; access: public/authenticated.
+--- GET /party-service/api/poll/health via gateway; access: public/authenticated.
 function Service.health(
 	self: Service,
 	req: Types.HealthCall?,
@@ -126,7 +126,7 @@ function Service.health(
 ): Core.Result<Types.HealthResultValue>
 	return self._invoke(Endpoints["party.health"], (req or {}), opts, self._universe)
 end
---- GET /api/poll/updates; access: public/authenticated.
+--- GET /party-service/api/poll/updates via gateway; access: public/authenticated.
 function Service.getUpdates(
 	self: Service,
 	req: Types.GetUpdatesCall,
@@ -134,7 +134,7 @@ function Service.getUpdates(
 ): Core.Result<Types.GetUpdatesResultValue>
 	return self._invoke(Endpoints["party.getUpdates"], req, opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /party-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,

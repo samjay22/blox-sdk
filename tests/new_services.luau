@@ -48,7 +48,7 @@ local function failed(result: Core.Result<any>, kind: string)
 end
 --- Register contract-specific runtime regressions in the existing deterministic harness.
 return function(test: (string, () -> ()) -> ())
-	test("new origins, exact permissions, bearer key and scoped paths", function()
+	test("gateway prefixes, exact permissions, bearer key and scoped paths", function()
 		local s = Scheduler.new()
 		local urls: { string } = {}
 		local c, f = client(s, {
@@ -97,10 +97,10 @@ return function(test: (string, () -> ()) -> ())
 			failed(c.audit:append(event()), "Local")
 		end)
 		check(f.count() == 4)
-		check(urls[1] == "https://audit.blox-api.com/api/audit/events?universeId=123")
-		check(urls[2] == "https://config.blox-api.com/api/config/universes/123/entries")
-		check(urls[3] == "https://leaderboards.blox-api.com/api/leaderboards/universes/123/boards")
-		check(urls[4] == "https://economy.blox-api.com/api/economy/universes/123/currencies")
+		check(urls[1] == "https://lb1.blox-api.com/audit-service/api/audit/events?universeId=123")
+		check(urls[2] == "https://lb1.blox-api.com/remote-config-service/api/config/universes/123/entries")
+		check(urls[3] == "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/universes/123/boards")
+		check(urls[4] == "https://lb1.blox-api.com/economy-service/api/economy/universes/123/currencies")
 	end)
 	test("user JWT works for new services and never leaks into URLs", function()
 		local s = Scheduler.new()

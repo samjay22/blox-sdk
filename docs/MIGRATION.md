@@ -1,5 +1,18 @@
 # Migrating game servers to service-account keys
 
+## Gateway routing change
+
+All nine services now default to `https://lb1.blox-api.com` plus their [service prefix](../README.md#gateway-routing).
+Permit `lb1.blox-api.com` in Roblox Secret destination restrictions. Change the gateway once with
+`gatewayUrl = "https://gateway.example"`; do not append a service prefix to that option.
+For an intentional direct host, replace `hosts = { data = "https://direct.example" }` with
+`services = { data = { baseUrl = "https://direct.example" } }`. That service's prefix is omitted.
+The old `hosts` field is rejected; there are no per-host defaults, aliases or fallback shims.
+Config routes through `/remote-config-service`, never the gateway-reserved `/config-service`.
+Gateway-routed services now share the same per-origin queue and circuit breaker.
+
+## Service-account keys
+
 1. Audit the game server's actual endpoints against `ENDPOINTS.md`. Most gameplay paths need READ_WRITE; schema changes, code administration, ban management and game-mode management require the service's ADMIN level. Global account/catalog/service-account administration is user-token-only.
 2. With a SUPER_ADMIN user token, create one universe-scoped service account using `auth:createServiceAccount`. Supply only necessary case-sensitive service permissions. Creation returns the key once; do not log the result.
 3. Store that key in Roblox Secrets with appropriate destination restrictions. Do not put it in a ModuleScript string, ReplicatedStorage, attributes, or client remotes. Service accounts cannot be reassigned to another universe.

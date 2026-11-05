@@ -2,7 +2,9 @@
 local Types = require("../Types/Core")
 local Session = require("../Auth/UserSession")
 local Universe = require("./Universe")
+local Routing = require("./Routing")
 local Config = {}
+export type ServiceConfig = { baseUrl: string? }
 export type Config = {
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,
@@ -12,7 +14,8 @@ export type Config = {
 	universeId: (string | number)?,
 	levels: Types.ServiceLevels?,
 	userSession: { store: Session.TokenStore?, role: string? }?,
-	hosts: { [string]: string }?,
+	gatewayUrl: string?,
+	services: { [string]: ServiceConfig }?,
 	concurrency: number?,
 	queueCapacity: number?,
 	requestsPerMinute: number?,
@@ -25,17 +28,6 @@ export type Config = {
 	staleIfError: number?,
 	hooks: Types.Hooks?,
 }
-Config.hosts = table.freeze({
-	auth = "https://security.blox-api.com",
-	data = "https://data.blox-api.com",
-	matchmaking = "https://matchmaking.blox-api.com",
-	party = "https://party.blox-api.com",
-	codes = "https://codes.blox-api.com",
-	audit = "https://audit.blox-api.com",
-	config = "https://config.blox-api.com",
-	leaderboards = "https://leaderboards.blox-api.com",
-	economy = "https://economy.blox-api.com",
-})
 local known = table.freeze({
 	backend = true,
 	runtime = true,
@@ -45,7 +37,8 @@ local known = table.freeze({
 	universeId = true,
 	levels = true,
 	userSession = true,
-	hosts = true,
+	gatewayUrl = true,
+	services = true,
 	concurrency = true,
 	queueCapacity = true,
 	requestsPerMinute = true,
@@ -127,27 +120,46 @@ function Config.number(
 	)
 	return resolved
 end
---- Enforce HTTPS origins only, preventing userinfo/query/header-injection credential leaks.
-function Config.origins(overrides: { [string]: string }?): { [string]: string }
-	local hosts = table.clone(Config.hosts) :: { [string]: string }
-	if overrides then
-		for service, origin in overrides do
-			assert(hosts[service] ~= nil, "Unknown host service")
-			assert(type(origin) == "string", "Hosts must be HTTPS origins")
-			local hostname, port = string.match(origin, "^https://([A-Za-z0-9][A-Za-z0-9%.%-]*):(%d+)$")
-			if not hostname then
-				hostname = string.match(origin, "^https://([A-Za-z0-9][A-Za-z0-9%.%-]*)$")
+--- Normalize HTTPS origins without exposing values; allow one optional trailing slash.
+local function origin(value: string): string
+	assert(type(value) == "string", "URL must be an HTTPS origin")
+	value = string.gsub(value, "/$", "")
+	local hostname, port = string.match(value, "^https://([A-Za-z0-9][A-Za-z0-9%.%-]*):(%d+)$")
+	if not hostname then
+		hostname = string.match(value, "^https://([A-Za-z0-9][A-Za-z0-9%.%-]*)$")
+	end
+	assert(hostname ~= nil, "URL must be an HTTPS origin without paths or credentials")
+	if port then
+		local number = tonumber(port)
+		assert(number ~= nil and number >= 1 and number <= 65535, "Invalid HTTPS port")
+		port = if number == 443 then nil else tostring(number)
+	end
+	return "https://" .. string.lower(hostname) .. (if port then ":" .. port else "")
+end
+--- Resolve immutable wire bases separately from origins so gateway services share admission state.
+function Config.resolve(config: Config): ({ [string]: string }, { [string]: string })
+	local gateway = origin(if config.gatewayUrl == nil then Routing.gatewayUrl else config.gatewayUrl)
+	local origins: { [string]: string } = {}
+	local bases: { [string]: string } = {}
+	for service, prefix in Routing.prefixes do
+		origins[service] = gateway
+		bases[service] = gateway .. prefix
+	end
+	if config.services ~= nil then
+		assert(type(config.services) == "table", "services must be a table")
+		for service, options in config.services do
+			assert(Routing.prefixes[service] ~= nil, "Unknown service override")
+			assert(type(options) == "table", "Service override must be a table")
+			for name in options :: any do
+				assert(name == "baseUrl", "Unknown service override field")
 			end
-			assert(hostname ~= nil, "Hosts must be HTTPS origins without paths or credentials")
-			if port then
-				local number = tonumber(port)
-				assert(number ~= nil and number >= 1 and number <= 65535, "Invalid HTTPS port")
-				port = if number == 443 then nil else tostring(number)
+			if options.baseUrl ~= nil then
+				local direct = origin(options.baseUrl)
+				origins[service] = direct
+				bases[service] = direct
 			end
-			origin = "https://" .. string.lower(hostname) .. (if port then ":" .. port else "")
-			hosts[service] = origin
 		end
 	end
-	return table.freeze(hosts)
+	return table.freeze(origins), table.freeze(bases)
 end
 return table.freeze(Config)

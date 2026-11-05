@@ -14,7 +14,7 @@ rojo build default.project.json -o BloxSDK.rbxm
 
 Insert the resulting ModuleScript into **ServerScriptService** or **ServerStorage**, never ReplicatedStorage. Alternatively, map `roblox/` into your game's Rojo tree. `wally.toml` describes a server-only package; this repository has **not** been published to a registry.
 
-Enable outbound HTTP and configure a Roblox secret for the required `*.blox-api.com` destinations. This is a server SDK; requiring it does not start a loop or send a request.
+Enable outbound HTTP and configure a Roblox secret permitted for `lb1.blox-api.com` (or your explicit override destinations). This is a server SDK; requiring it does not start a loop or send a request.
 
 ```luau
 local BloxSDK = require(game.ServerScriptService.BloxSDK)
@@ -53,7 +53,7 @@ The nine facades are `client.auth`, `.data`, `.matchmaking`, `.party`, `.codes`,
 - Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
 - Optional requests can be omitted: `client.codes:searchCodes()`.
 - `client:withUniverse(id)` shares the original client's auth, queue, rate budget, breakers, cache, and lifetime. It fills **declared path/query universe parameters** and implied Audit event universes, not arbitrary body fields. Supply other required body universe fields explicitly. Universe IDs must be positive exact integers. A service key cannot switch universes.
-- `client:health()` checks `/health` on all nine origins and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
+- `client:health()` checks `<service-prefix>/health` on the gateway for all nine services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
 
 ```luau
@@ -100,7 +100,7 @@ Session refresh is versioned and single-flight, including concurrent 401s and pr
 
 | Policy | Default |
 |---|---|
-| Origins | HTTPS security / data / matchmaking / party / codes / audit / config / leaderboards / economy `.blox-api.com` |
+| Gateway | `https://lb1.blox-api.com` + per-service prefix below |
 | Timeout | 15 seconds, end-to-end |
 | Concurrency / pending queue | 6 / 64 per origin |
 | Rate / burst / critical reserve | 450 per minute / 15 / 3 |
@@ -110,7 +110,48 @@ Session refresh is versioned and single-flight, including concurrent 401s and pr
 | Cache | Off per call unless `cacheTtl` is supplied; max 128 entries |
 | Stale-if-error | Off (`staleIfError=0`) |
 
-Origin overrides must be HTTPS origins without paths, userinfo, fragments, or queries. Configure `hosts={data="https://your-data.example"}`. Roblox secrets must also permit the destination. Default-runtime clients from the same required ModuleScript share a server token bucket; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
+Default-runtime clients from the same required ModuleScript share a server token bucket; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
+
+## Gateway routing
+
+All services default to **`https://lb1.blox-api.com`**. The gateway strips the following prefix before forwarding the unchanged backend route:
+
+| Service facade / override key | Prefix |
+|---|---|
+| `auth` | `/auth-service` |
+| `data` | `/data-service` |
+| `matchmaking` | `/matchmaking-service` |
+| `party` | `/party-service` |
+| `codes` | `/code-service` |
+| `audit` | `/audit-service` |
+| `config` | `/remote-config-service` |
+| `leaderboards` | `/leaderboard-service` |
+| `economy` | `/economy-service` |
+
+Config must use `/remote-config-service`, **not `/config-service`**: the gateway reserves `/config*`.
+
+```luau
+local client = BloxSDK.new({
+    secretName = "BLOX_SERVICE_ACCOUNT",
+    universeId = game.GameId,
+    gatewayUrl = "https://gateway.example", -- Optional: replaces the gateway for all services.
+    services = {
+        data = { baseUrl = "https://direct-data.example" }, -- Optional: bypasses gateway AND prefix.
+    },
+})
+```
+
+Both `gatewayUrl` and each `baseUrl` must be HTTPS origins without paths, userinfo, fragments, or queries; one trailing slash is accepted and removed. Hostnames and ports are canonicalized. A `baseUrl` overrides only its named service; other services still use the gateway. Unknown service keys/options are rejected. The old `hosts` option and per-host defaults are removed, with no automatic fallback. Roblox secrets must permit every configured destination.
+
+Default wire examples:
+
+- Audit events: `GET https://lb1.blox-api.com/audit-service/api/audit/events` (a scoped client adds `?universeId=...`).
+- Config snapshot: `GET https://lb1.blox-api.com/remote-config-service/api/config/universes/{id}/snapshot`.
+- Economy grant: `POST https://lb1.blox-api.com/economy-service/api/economy/universes/{id}/users/{uid}/grant`.
+
+Admission queues and circuit breakers remain **per origin**, so all gateway services share them; direct hosts have separate state unless they resolve to the same canonical origin. URL prefixes remain in cache/single-flight keys. `withUniverse`, authentication refresh/logout, health checks, pagination and helper requests all retain the same routing configuration.
+
+`tools/gen.py` declares the gateway and prefix table once and generates `src/Core/Routing.luau`, service route comments and the [endpoint reference](docs/ENDPOINTS.md). `sdk.yml` is the Selene standard-library definition, not client routing configuration. See [configuration example](examples/routing.luau).
 
 ## Development / verification (offline)
 

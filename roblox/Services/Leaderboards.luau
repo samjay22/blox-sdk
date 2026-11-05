@@ -16,7 +16,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /actuator/health/liveness; access: public/authenticated.
+--- GET /leaderboard-service/actuator/health/liveness via gateway; access: public/authenticated.
 function Service.liveness(
 	self: Service,
 	req: Types.LivenessCall?,
@@ -24,7 +24,7 @@ function Service.liveness(
 ): Core.Result<Types.LivenessResultValue>
 	return self._invoke(Endpoints["leaderboards.liveness"], (req or {}), opts, self._universe)
 end
---- GET /actuator/health/readiness; access: public/authenticated.
+--- GET /leaderboard-service/actuator/health/readiness via gateway; access: public/authenticated.
 function Service.readiness(
 	self: Service,
 	req: Types.ReadinessCall?,
@@ -32,7 +32,7 @@ function Service.readiness(
 ): Core.Result<Types.ReadinessResultValue>
 	return self._invoke(Endpoints["leaderboards.readiness"], (req or {}), opts, self._universe)
 end
---- POST /api/leaderboards/ratings/universes/{universeId}/matches; access: READ_WRITE.
+--- POST /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/matches via gateway; access: READ_WRITE.
 function Service.ratingMatch(
 	self: Service,
 	req: Types.RatingMatchCall,
@@ -40,7 +40,7 @@ function Service.ratingMatch(
 ): Core.Result<Types.RatingMatchResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingMatch"], req, opts, self._universe)
 end
---- GET /api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config; access: ADMIN.
+--- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config via gateway; access: ADMIN.
 function Service.ratingConfig(
 	self: Service,
 	req: Types.RatingConfigCall,
@@ -48,7 +48,7 @@ function Service.ratingConfig(
 ): Core.Result<Types.RatingConfigResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingConfig"], req, opts, self._universe)
 end
---- PUT /api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config; access: ADMIN.
+--- PUT /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config via gateway; access: ADMIN.
 function Service.ratingConfigure(
 	self: Service,
 	req: Types.RatingConfigureCall,
@@ -56,7 +56,7 @@ function Service.ratingConfigure(
 ): Core.Result<Types.RatingConfigureResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingConfigure"], req, opts, self._universe)
 end
---- GET /api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/top; access: READ.
+--- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/top via gateway; access: READ.
 function Service.ratingTop(
 	self: Service,
 	req: Types.RatingTopCall,
@@ -81,7 +81,7 @@ function Service.ratingTopPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- POST /api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/users; access: READ.
+--- POST /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/users via gateway; access: READ.
 function Service.ratingUsers(
 	self: Service,
 	req: Types.RatingUsersCall,
@@ -89,7 +89,7 @@ function Service.ratingUsers(
 ): Core.Result<Types.RatingUsersResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingUsers"], req, opts, self._universe)
 end
---- GET /api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/users/{userId}; access: READ.
+--- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/users/{userId} via gateway; access: READ.
 function Service.ratingUser(
 	self: Service,
 	req: Types.RatingUserCall,
@@ -97,7 +97,7 @@ function Service.ratingUser(
 ): Core.Result<Types.RatingUserResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingUser"], req, opts, self._universe)
 end
---- GET /api/leaderboards/universes/{universeId}/boards; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards via gateway; access: READ.
 function Service.list(
 	self: Service,
 	req: Types.ListCall?,
@@ -122,7 +122,7 @@ function Service.listPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- POST /api/leaderboards/universes/{universeId}/boards; access: ADMIN.
+--- POST /leaderboard-service/api/leaderboards/universes/{universeId}/boards via gateway; access: ADMIN.
 function Service.create(
 	self: Service,
 	req: Types.CreateCall,
@@ -130,7 +130,7 @@ function Service.create(
 ): Core.Result<Types.CreateResultValue>
 	return self._invoke(Endpoints["leaderboards.create"], req, opts, self._universe)
 end
---- DELETE /api/leaderboards/universes/{universeId}/boards/{name}; access: ADMIN.
+--- DELETE /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name} via gateway; access: ADMIN.
 function Service.archive(
 	self: Service,
 	req: Types.ArchiveCall,
@@ -138,7 +138,7 @@ function Service.archive(
 ): Core.Result<Types.ArchiveResultValue>
 	return self._invoke(Endpoints["leaderboards.archive"], req, opts, self._universe)
 end
---- GET /api/leaderboards/universes/{universeId}/boards/{name}; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name} via gateway; access: READ.
 function Service.get(
 	self: Service,
 	req: Types.GetCall,
@@ -146,7 +146,7 @@ function Service.get(
 ): Core.Result<Types.GetResultValue>
 	return self._invoke(Endpoints["leaderboards.get"], req, opts, self._universe)
 end
---- PATCH /api/leaderboards/universes/{universeId}/boards/{name}; access: ADMIN.
+--- PATCH /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name} via gateway; access: ADMIN.
 function Service.patch(
 	self: Service,
 	req: Types.PatchCall,
@@ -154,7 +154,7 @@ function Service.patch(
 ): Core.Result<Types.PatchResultValue>
 	return self._invoke(Endpoints["leaderboards.patch"], req, opts, self._universe)
 end
---- GET /api/leaderboards/universes/{universeId}/boards/{name}/around/{userId}; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/around/{userId} via gateway; access: READ.
 function Service.around(
 	self: Service,
 	req: Types.AroundCall,
@@ -162,7 +162,7 @@ function Service.around(
 ): Core.Result<Types.AroundResultValue>
 	return self._invoke(Endpoints["leaderboards.around"], req, opts, self._universe)
 end
---- GET /api/leaderboards/universes/{universeId}/boards/{name}/periods; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/periods via gateway; access: READ.
 function Service.periods(
 	self: Service,
 	req: Types.PeriodsCall,
@@ -187,7 +187,7 @@ function Service.periodsPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- GET /api/leaderboards/universes/{universeId}/boards/{name}/periods/{periodId}/top; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/periods/{periodId}/top via gateway; access: READ.
 function Service.periodTop(
 	self: Service,
 	req: Types.PeriodTopCall,
@@ -212,7 +212,7 @@ function Service.periodTopPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- POST /api/leaderboards/universes/{universeId}/boards/{name}/ranks; access: READ.
+--- POST /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/ranks via gateway; access: READ.
 function Service.ranks(
 	self: Service,
 	req: Types.RanksCall,
@@ -220,7 +220,7 @@ function Service.ranks(
 ): Core.Result<Types.RanksResultValue>
 	return self._invoke(Endpoints["leaderboards.ranks"], req, opts, self._universe)
 end
---- POST /api/leaderboards/universes/{universeId}/boards/{name}/rollover; access: ADMIN.
+--- POST /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/rollover via gateway; access: ADMIN.
 function Service.rollover(
 	self: Service,
 	req: Types.RolloverCall,
@@ -228,7 +228,7 @@ function Service.rollover(
 ): Core.Result<Types.RolloverResultValue>
 	return self._invoke(Endpoints["leaderboards.rollover"], req, opts, self._universe)
 end
---- POST /api/leaderboards/universes/{universeId}/boards/{name}/scores; access: READ_WRITE.
+--- POST /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/scores via gateway; access: READ_WRITE.
 function Service.submit(
 	self: Service,
 	req: Types.SubmitCall,
@@ -236,7 +236,7 @@ function Service.submit(
 ): Core.Result<Types.SubmitResultValue>
 	return self._invoke(Endpoints["leaderboards.submit"], req, opts, self._universe)
 end
---- POST /api/leaderboards/universes/{universeId}/boards/{name}/scores/batch; access: READ_WRITE.
+--- POST /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/scores/batch via gateway; access: READ_WRITE.
 function Service.batch(
 	self: Service,
 	req: Types.BatchCall,
@@ -244,7 +244,7 @@ function Service.batch(
 ): Core.Result<Types.BatchResultValue>
 	return self._invoke(Endpoints["leaderboards.batch"], req, opts, self._universe)
 end
---- GET /api/leaderboards/universes/{universeId}/boards/{name}/top; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/top via gateway; access: READ.
 function Service.top(
 	self: Service,
 	req: Types.TopCall,
@@ -269,7 +269,7 @@ function Service.topPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- DELETE /api/leaderboards/universes/{universeId}/boards/{name}/users/{userId}; access: ADMIN.
+--- DELETE /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/users/{userId} via gateway; access: ADMIN.
 function Service.remove(
 	self: Service,
 	req: Types.RemoveCall,
@@ -277,7 +277,7 @@ function Service.remove(
 ): Core.Result<Types.RemoveResultValue>
 	return self._invoke(Endpoints["leaderboards.remove"], req, opts, self._universe)
 end
---- GET /api/leaderboards/universes/{universeId}/boards/{name}/users/{userId}; access: READ.
+--- GET /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name}/users/{userId} via gateway; access: READ.
 function Service.user(
 	self: Service,
 	req: Types.UserCall,
@@ -285,7 +285,7 @@ function Service.user(
 ): Core.Result<Types.UserResultValue>
 	return self._invoke(Endpoints["leaderboards.user"], req, opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /leaderboard-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,
@@ -293,7 +293,7 @@ function Service.healthProxy(
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["leaderboards.healthProxy"], (req or {}), opts, self._universe)
 end
---- GET /info; access: public/authenticated.
+--- GET /leaderboard-service/info via gateway; access: public/authenticated.
 function Service.info(
 	self: Service,
 	req: Types.InfoCall?,
@@ -301,7 +301,7 @@ function Service.info(
 ): Core.Result<Types.InfoResultValue>
 	return self._invoke(Endpoints["leaderboards.info"], (req or {}), opts, self._universe)
 end
---- GET /metrics; access: public/authenticated.
+--- GET /leaderboard-service/metrics via gateway; access: public/authenticated.
 function Service.metrics(
 	self: Service,
 	req: Types.MetricsCall?,

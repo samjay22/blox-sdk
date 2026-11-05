@@ -18,6 +18,10 @@ Rate-waiting calls retain their admission ticket, so token starvation cannot cre
 
 Breakers are per origin, including shared custom origins. They inspect the last 20 outcomes within 30 seconds; five Network/Timeout/Server failures open the circuit for 10 seconds. Only one half-open probe is admitted. A successful probe closes/reset samples; failure reopens. Admission generations prevent a late pre-open request from closing a newer half-open circuit. Auth/validation/rate errors are not outage samples.
 
+All services now default to one load-balancer origin, so both the gate and breaker are shared across service prefixes.
+A gateway outage can open the circuit for every gateway-routed service. Explicit direct-host `baseUrl` overrides use
+their own origin state; the client-wide rate/retry budgets remain shared.
+
 ## Deadlines and native HTTP
 
 `deadline` is an **absolute `runtime.now()`/`os.clock()` timestamp**, covering queue wait, rate wait, refresh wait, transport, retry sleep, and replay. `timeout` sets the default relative budget. Set `signal.cancelled=true` to stop a caller.

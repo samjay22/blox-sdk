@@ -98,6 +98,7 @@ end
 function SDK.new(config: Config): Client
 	assert(type(config) == "table", "BloxSDK.new requires a config table")
 	Config.validate(config)
+	local origins, baseUrls = Config.resolve(config)
 	local choices = (if config.key then 1 else 0)
 		+ (if config.secretName then 1 else 0)
 		+ (if config.authProvider then 1 else 0)
@@ -141,7 +142,8 @@ function SDK.new(config: Config): Client
 		runtime = runtime,
 		backend = backend,
 		auth = auth,
-		hosts = Config.origins(config.hosts),
+		origins = origins,
+		baseUrls = baseUrls,
 		concurrency = Config.number(config.concurrency, 6, 1, 100, "concurrency", true),
 		queueCapacity = Config.number(config.queueCapacity, 64, 0, 10000, "queueCapacity", true),
 		requestsPerMinute = rpm,

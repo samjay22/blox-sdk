@@ -6,6 +6,8 @@ return function(runtime: Core.Runtime, backend: Core.Backend): SDK.Client
 	return SDK.new({
 		runtime = runtime,
 		backend = backend,
+		gatewayUrl = "https://gateway.example",
+		services = { data = { baseUrl = "https://direct.example" } },
 		levels = { PartyService = "READ", MatchmakingService = "READ_WRITE" },
 	})
 end

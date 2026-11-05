@@ -14,7 +14,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /api/codes; access: READ.
+--- GET /code-service/api/codes via gateway; access: READ.
 function Service.searchCodes(
 	self: Service,
 	req: Types.SearchCodesCall?,
@@ -22,7 +22,7 @@ function Service.searchCodes(
 ): Core.Result<Types.SearchCodesResultValue>
 	return self._invoke(Endpoints["codes.searchCodes"], (req or {}), opts, self._universe)
 end
---- POST /api/codes; access: ADMIN.
+--- POST /code-service/api/codes via gateway; access: ADMIN.
 function Service.createCode(
 	self: Service,
 	req: Types.CreateCodeCall,
@@ -30,7 +30,7 @@ function Service.createCode(
 ): Core.Result<Types.CreateCodeResultValue>
 	return self._invoke(Endpoints["codes.createCode"], { body = req }, opts, self._universe)
 end
---- POST /api/codes/redeem; access: READ_WRITE.
+--- POST /code-service/api/codes/redeem via gateway; access: READ_WRITE.
 function Service.redeem(
 	self: Service,
 	req: Types.RedeemCall,
@@ -38,7 +38,7 @@ function Service.redeem(
 ): Core.Result<Types.RedeemResultValue>
 	return self._invoke(Endpoints["codes.redeem"], { body = req }, opts, self._universe)
 end
---- DELETE /api/codes/{id}; access: ADMIN.
+--- DELETE /code-service/api/codes/{id} via gateway; access: ADMIN.
 function Service.deleteCode(
 	self: Service,
 	req: Types.DeleteCodeCall,
@@ -46,7 +46,7 @@ function Service.deleteCode(
 ): Core.Result<Types.DeleteCodeResultValue>
 	return self._invoke(Endpoints["codes.deleteCode"], req, opts, self._universe)
 end
---- GET /api/codes/{id}; access: READ.
+--- GET /code-service/api/codes/{id} via gateway; access: READ.
 function Service.getCode(
 	self: Service,
 	req: Types.GetCodeCall,
@@ -54,7 +54,7 @@ function Service.getCode(
 ): Core.Result<Types.GetCodeResultValue>
 	return self._invoke(Endpoints["codes.getCode"], req, opts, self._universe)
 end
---- PUT /api/codes/{id}; access: ADMIN.
+--- PUT /code-service/api/codes/{id} via gateway; access: ADMIN.
 function Service.updateCode(
 	self: Service,
 	req: Types.UpdateCodeCall,
@@ -62,7 +62,7 @@ function Service.updateCode(
 ): Core.Result<Types.UpdateCodeResultValue>
 	return self._invoke(Endpoints["codes.updateCode"], req, opts, self._universe)
 end
---- GET /api/codes/{id}/redemptions; access: ADMIN.
+--- GET /code-service/api/codes/{id}/redemptions via gateway; access: ADMIN.
 function Service.listRedemptions(
 	self: Service,
 	req: Types.ListRedemptionsCall,
@@ -70,7 +70,7 @@ function Service.listRedemptions(
 ): Core.Result<Types.ListRedemptionsResultValue>
 	return self._invoke(Endpoints["codes.listRedemptions"], req, opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /code-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,

@@ -8,6 +8,8 @@ flowchart TD
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
+  Generator --> Routing[Gateway URL + service prefixes]
+  Routing --> Client
   Generator --> Reference[Endpoint reference]
   Services --> Client[BloxSDK client / universe facade]
   Client --> Pipeline[Shared pipeline state]
@@ -35,6 +37,12 @@ flowchart LR
 `Pipeline` orchestrates stages; algorithms live in dedicated `Gate`, `Breaker`, `TokenBucket`, `Retry`, `Cache`, `Path`, `Validation`, and `Transport` modules. State is allocated once per client, not rebuilt as a closure stack for each call. All universe facades share that state. No background pollers or startup requests are implicit. Explicit auditWriter/configSnapshot factories own bounded background work; flush/destroy owns their shared lifecycle.
 
 Generated methods only adapt typed arguments to `Invoke`. The untyped entry validates request structure, generated DTO schemas, scope/access hints, and declared parameters. Unknown request fields are rejected; unknown response fields are tolerated for forward compatibility. Arbitrary `JsonNode` payloads remain open JSON. Java nullable fields are represented conservatively as optional; semantic Bean Validation constraints remain server-enforced.
+
+`tools/gen.py` owns the gateway and prefix declarations; generated `Core/Routing` supplies frozen defaults.
+`Core/Config` resolves `gatewayUrl` and optional `services[service].baseUrl` into immutable origin and wire-base maps
+before accessing Roblox or credentials. `Pipeline` joins the wire base to the encoded backend path exactly once.
+Origins, not prefixed bases, key gates and breakers: the default nine services share one gateway origin.
+Explicit direct-host overrides omit the gateway prefix. See [all prefixes and URL examples](../README.md#gateway-routing).
 
 The backend interface is `(HttpRequest) -> HttpResponse`; the runtime supplies monotonic/unix clocks, random, scheduler, encoder, and decoder. Exactly one transport-edge protected call contains credential application, encoding, backend invocation, decoding, and response validation. Optional observer callbacks have their own protected boundary, never receive bodies/headers, and cannot fail requests.
 

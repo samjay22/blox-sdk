@@ -1,8 +1,10 @@
 # Audit, Config, Leaderboards and Economy
 
 All four facades share the existing Bearer service-account/user-session authentication, admission limits,
-error results, retry budget and backoff. Hosts are `audit`, `config`, `leaderboards` and `economy` at
-`https://<host>.blox-api.com`. Exact permission names: `AuditService`, `ConfigService`,
+error results, retry budget and backoff. All use `https://lb1.blox-api.com`, with prefixes
+`/audit-service`, `/remote-config-service`, `/leaderboard-service` and `/economy-service`, respectively.
+Never use `/config-service`; `/config*` is gateway-reserved. See the [complete prefix table and overrides](../README.md#gateway-routing).
+Exact permission names: `AuditService`, `ConfigService`,
 `LeaderboardService` (singular), `EconomyService`.
 
 Use `universeId` on client construction or `withUniverse(id)`. Universe selectors must be positive

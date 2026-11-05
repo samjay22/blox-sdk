@@ -13,6 +13,7 @@ local ServiceAccount = require("../src/Auth/ServiceAccount")
 local Json = require("../src/Core/Json")
 local Validation = require("../src/Core/Validation")
 local Schemas = require("../src/Core/Schemas")
+local GatewayTests = require("./gateway")
 local passed = 0
 --- Fail with a consistent assertion message when a test omits a custom one.
 local function check(value: unknown, message: string?): ()
@@ -245,7 +246,10 @@ test("GET success auth headers and immutable metadata", function()
 			body = s.json({ universeId = 123 }),
 			check = function(req: Core.HttpRequest)
 				header = req.Headers.Authorization == "Bearer " .. key()
-				check(req.Url == "https://data.blox-api.com/api/universes/schema/defaults?universeId=123")
+				check(
+					req.Url
+						== "https://lb1.blox-api.com/data-service/api/universes/schema/defaults?universeId=123"
+				)
 			end,
 		},
 	})
@@ -297,7 +301,7 @@ test("deadline drops late response and releases native slot only on completion",
 		failure(c.data:getSchemaVersions(), "RateLimited")
 	end)
 	check(f.count() == 1 and s.pending() == 0 and s.time() >= 2)
-	check(c._state.hosts["https://data.blox-api.com"].gate.active == 0)
+	check(c._state.hosts["https://lb1.blox-api.com"].gate.active == 0)
 end)
 
 test("concurrent identical GETs single-flight; cache snapshots immutable", function()
@@ -355,7 +359,7 @@ test("cancellation removes waiting ticket without consuming another slot", funct
 		s.runtime.wait(0.02)
 		signal.cancelled = true
 	end)
-	check(cancelled and f.count() == 1 and c._state.hosts["https://data.blox-api.com"].gate.queued == 0)
+	check(cancelled and f.count() == 1 and c._state.hosts["https://lb1.blox-api.com"].gate.queued == 0)
 end)
 
 test("concurrent 401s refresh once, replay once with rotated tokens", function()
@@ -371,7 +375,7 @@ test("concurrent 401s refresh once, replay once with rotated tokens", function()
 			delay = 0.1,
 			check = function(req: Core.HttpRequest)
 				check(
-					req.Url == "https://security.blox-api.com/api/auth/refresh"
+					req.Url == "https://lb1.blox-api.com/auth-service/api/auth/refresh"
 						and req.Headers.Authorization == nil
 				)
 			end,
@@ -476,7 +480,7 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
-test("all 234 generated endpoint response contracts execute offline", function()
+test("all 234 generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
 	for id, spec in SDK.endpoints do
 		local s = Scheduler.new()
@@ -510,30 +514,56 @@ test("all 234 generated endpoint response contracts execute offline", function()
 					{ fixture(Schemas.definitions[spec.service][dto], Schemas.definitions[spec.service]) }
 			end
 		end
-		local c, f = client(s, { { status = status, body = body } }, {
-			authProvider = {
-				kind = "custom",
-				apply = function(_h: Core.Headers) end,
-				onUnauthorized = function(_v: number?): boolean
-					return false
-				end,
-			},
-		})
-		s.run(function()
-			local facade = (c :: any)[spec.service]
-			local name = string.match(id, "%.(.+)$") :: string
-			local argument = if spec.bodyType
-					and #spec.pathParams == 0
-					and #spec.queryParams == 0
-				then request.body
-				else request
-			local r = facade[name](facade, argument)
-			check(r.ok, "Endpoint failed " .. id)
-		end)
-		check(f.count() == 1)
-		count += 1
+		for _, mode in { "default", "gateway", "direct" } do
+			local base = if mode == "default"
+				then "https://lb1.blox-api.com"
+				else "https://gateway.example:8443"
+			base ..= GatewayTests.prefixes[spec.service]
+			if mode == "direct" then
+				base = "https://direct.example"
+			end
+			local expectedUrl = base .. (Path.build(spec, request, nil) :: string)
+			local c, f = client(s, {
+				{
+					status = status,
+					body = body,
+					check = function(wire: Core.HttpRequest)
+						check(
+							wire.Url == expectedUrl and wire.Method == spec.method,
+							"Incorrect gateway route " .. id
+						)
+					end,
+				},
+			}, {
+				gatewayUrl = if mode == "default" then nil else "https://GATEWAY.example:8443/",
+				services = if mode == "direct"
+					then { [spec.service] = { baseUrl = "https://DIRECT.example:443/" } }
+					else nil,
+				authProvider = {
+					kind = "custom",
+					apply = function(_h: Core.Headers) end,
+					onUnauthorized = function(_v: number?): boolean
+						return false
+					end,
+				},
+			})
+			s.run(function()
+				local facade = (c :: any)[spec.service]
+				local name = string.match(id, "%.(.+)$") :: string
+				local argument = if spec.bodyType
+						and #spec.pathParams == 0
+						and #spec.queryParams == 0
+					then request.body
+					else request
+				local r = facade[name](facade, argument)
+				check(r.ok, "Endpoint failed " .. id)
+			end)
+			check(f.count() == 1)
+			c:destroy()
+			count += 1
+		end
 	end
-	check(count == 234)
+	check(count == 234 * 3)
 end)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
@@ -670,7 +700,7 @@ test("universe facade fills string matchmaking identifiers", function()
 			body = s.json({}),
 			check = function(req: Core.HttpRequest)
 				url = req.Url
-					== "https://matchmaking.blox-api.com/api/matchmaking/123/gamemodes/ranked/queue/count"
+					== "https://lb1.blox-api.com/matchmaking-service/api/matchmaking/123/gamemodes/ranked/queue/count"
 			end,
 		},
 	})
@@ -794,4 +824,5 @@ test("successful mutation invalidates cached reads", function()
 	check(f.count() == 3)
 end)
 require("./new_services")(test)
+GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

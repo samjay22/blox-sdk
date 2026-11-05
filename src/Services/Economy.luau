@@ -15,7 +15,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /actuator/health/liveness; access: public/authenticated.
+--- GET /economy-service/actuator/health/liveness via gateway; access: public/authenticated.
 function Service.liveness(
 	self: Service,
 	req: Types.LivenessCall?,
@@ -23,7 +23,7 @@ function Service.liveness(
 ): Core.Result<Types.LivenessResultValue>
 	return self._invoke(Endpoints["economy.liveness"], (req or {}), opts, self._universe)
 end
---- GET /actuator/health/readiness; access: public/authenticated.
+--- GET /economy-service/actuator/health/readiness via gateway; access: public/authenticated.
 function Service.readiness(
 	self: Service,
 	req: Types.ReadinessCall?,
@@ -31,7 +31,7 @@ function Service.readiness(
 ): Core.Result<Types.ReadinessResultValue>
 	return self._invoke(Endpoints["economy.readiness"], (req or {}), opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/balances/batch; access: READ.
+--- POST /economy-service/api/economy/universes/{universeId}/balances/batch via gateway; access: READ.
 function Service.batch(
 	self: Service,
 	req: Types.BatchCall,
@@ -56,7 +56,7 @@ function Service.batchPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- GET /api/economy/universes/{universeId}/currencies; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/currencies via gateway; access: READ.
 function Service.currencies(
 	self: Service,
 	req: Types.CurrenciesCall?,
@@ -81,7 +81,7 @@ function Service.currenciesPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- PATCH /api/economy/universes/{universeId}/currencies; access: ADMIN.
+--- PATCH /economy-service/api/economy/universes/{universeId}/currencies via gateway; access: ADMIN.
 function Service.patchCurrency(
 	self: Service,
 	req: Types.PatchCurrencyCall,
@@ -89,7 +89,7 @@ function Service.patchCurrency(
 ): Core.Result<Types.PatchCurrencyResultValue>
 	return self._invoke(Endpoints["economy.patchCurrency"], req, opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/currencies; access: ADMIN.
+--- POST /economy-service/api/economy/universes/{universeId}/currencies via gateway; access: ADMIN.
 function Service.createCurrency(
 	self: Service,
 	req: Types.CreateCurrencyCall,
@@ -97,7 +97,7 @@ function Service.createCurrency(
 ): Core.Result<Types.CreateCurrencyResultValue>
 	return self._invoke(Endpoints["economy.createCurrency"], req, opts, self._universe)
 end
---- GET /api/economy/universes/{universeId}/ledger/{entryId}; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/ledger/{entryId} via gateway; access: READ.
 function Service.entry(
 	self: Service,
 	req: Types.EntryCall,
@@ -105,7 +105,7 @@ function Service.entry(
 ): Core.Result<Types.EntryResultValue>
 	return self._invoke(Endpoints["economy.entry"], req, opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/ledger/{entryId}/reverse; access: ADMIN.
+--- POST /economy-service/api/economy/universes/{universeId}/ledger/{entryId}/reverse via gateway; access: ADMIN.
 function Service.reverse(
 	self: Service,
 	req: Types.ReverseCall,
@@ -113,7 +113,7 @@ function Service.reverse(
 ): Core.Result<Types.ReverseResultValue>
 	return self._invoke(Endpoints["economy.reverse"], req, opts, self._universe)
 end
---- GET /api/economy/universes/{universeId}/products; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/products via gateway; access: READ.
 function Service.products(
 	self: Service,
 	req: Types.ProductsCall?,
@@ -138,7 +138,7 @@ function Service.productsPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- DELETE /api/economy/universes/{universeId}/products/{robloxProductId}; access: ADMIN.
+--- DELETE /economy-service/api/economy/universes/{universeId}/products/{robloxProductId} via gateway; access: ADMIN.
 function Service.deleteProduct(
 	self: Service,
 	req: Types.DeleteProductCall,
@@ -146,7 +146,7 @@ function Service.deleteProduct(
 ): Core.Result<Types.DeleteProductResultValue>
 	return self._invoke(Endpoints["economy.deleteProduct"], req, opts, self._universe)
 end
---- GET /api/economy/universes/{universeId}/products/{robloxProductId}; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/products/{robloxProductId} via gateway; access: READ.
 function Service.product(
 	self: Service,
 	req: Types.ProductCall,
@@ -154,7 +154,7 @@ function Service.product(
 ): Core.Result<Types.ProductResultValue>
 	return self._invoke(Endpoints["economy.product"], req, opts, self._universe)
 end
---- PUT /api/economy/universes/{universeId}/products/{robloxProductId}; access: ADMIN.
+--- PUT /economy-service/api/economy/universes/{universeId}/products/{robloxProductId} via gateway; access: ADMIN.
 function Service.putProduct(
 	self: Service,
 	req: Types.PutProductCall,
@@ -162,7 +162,7 @@ function Service.putProduct(
 ): Core.Result<Types.PutProductResultValue>
 	return self._invoke(Endpoints["economy.putProduct"], req, opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/receipts; access: READ_WRITE.
+--- POST /economy-service/api/economy/universes/{universeId}/receipts via gateway; access: READ_WRITE.
 function Service.receipt(
 	self: Service,
 	req: Types.ReceiptCall,
@@ -170,7 +170,7 @@ function Service.receipt(
 ): Core.Result<Types.ReceiptResultValue>
 	return self._invoke(Endpoints["economy.receipt"], req, opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/receipts/{purchaseId}/refund; access: ADMIN.
+--- POST /economy-service/api/economy/universes/{universeId}/receipts/{purchaseId}/refund via gateway; access: ADMIN.
 function Service.refund(
 	self: Service,
 	req: Types.RefundCall,
@@ -178,7 +178,7 @@ function Service.refund(
 ): Core.Result<Types.RefundResultValue>
 	return self._invoke(Endpoints["economy.refund"], req, opts, self._universe)
 end
---- GET /api/economy/universes/{universeId}/reconcile; access: ADMIN.
+--- GET /economy-service/api/economy/universes/{universeId}/reconcile via gateway; access: ADMIN.
 function Service.reconcile(
 	self: Service,
 	req: Types.ReconcileCall?,
@@ -203,7 +203,7 @@ function Service.reconcilePages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- POST /api/economy/universes/{universeId}/transfer; access: READ_WRITE.
+--- POST /economy-service/api/economy/universes/{universeId}/transfer via gateway; access: READ_WRITE.
 function Service.transfer(
 	self: Service,
 	req: Types.TransferCall,
@@ -211,7 +211,7 @@ function Service.transfer(
 ): Core.Result<Types.TransferResultValue>
 	return self._invoke(Endpoints["economy.transfer"], req, opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/users/{userId}/adjust; access: ADMIN.
+--- POST /economy-service/api/economy/universes/{universeId}/users/{userId}/adjust via gateway; access: ADMIN.
 function Service.adjust(
 	self: Service,
 	req: Types.AdjustCall,
@@ -219,7 +219,7 @@ function Service.adjust(
 ): Core.Result<Types.AdjustResultValue>
 	return self._invoke(Endpoints["economy.adjust"], req, opts, self._universe)
 end
---- GET /api/economy/universes/{universeId}/users/{userId}/balances; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/users/{userId}/balances via gateway; access: READ.
 function Service.balances(
 	self: Service,
 	req: Types.BalancesCall,
@@ -244,7 +244,7 @@ function Service.balancesPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- GET /api/economy/universes/{universeId}/users/{userId}/balances/{code}; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/users/{userId}/balances/{code} via gateway; access: READ.
 function Service.balance(
 	self: Service,
 	req: Types.BalanceCall,
@@ -252,7 +252,7 @@ function Service.balance(
 ): Core.Result<Types.BalanceResultValue>
 	return self._invoke(Endpoints["economy.balance"], req, opts, self._universe)
 end
---- POST /api/economy/universes/{universeId}/users/{userId}/grant; access: READ_WRITE.
+--- POST /economy-service/api/economy/universes/{universeId}/users/{userId}/grant via gateway; access: READ_WRITE.
 function Service.grant(
 	self: Service,
 	req: Types.GrantCall,
@@ -260,7 +260,7 @@ function Service.grant(
 ): Core.Result<Types.GrantResultValue>
 	return self._invoke(Endpoints["economy.grant"], req, opts, self._universe)
 end
---- GET /api/economy/universes/{universeId}/users/{userId}/ledger; access: READ.
+--- GET /economy-service/api/economy/universes/{universeId}/users/{userId}/ledger via gateway; access: READ.
 function Service.ledger(
 	self: Service,
 	req: Types.LedgerCall,
@@ -285,7 +285,7 @@ function Service.ledgerPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- POST /api/economy/universes/{universeId}/users/{userId}/spend; access: READ_WRITE.
+--- POST /economy-service/api/economy/universes/{universeId}/users/{userId}/spend via gateway; access: READ_WRITE.
 function Service.spend(
 	self: Service,
 	req: Types.SpendCall,
@@ -293,7 +293,7 @@ function Service.spend(
 ): Core.Result<Types.SpendResultValue>
 	return self._invoke(Endpoints["economy.spend"], req, opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /economy-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,
@@ -301,7 +301,7 @@ function Service.healthProxy(
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["economy.healthProxy"], (req or {}), opts, self._universe)
 end
---- GET /info; access: public/authenticated.
+--- GET /economy-service/info via gateway; access: public/authenticated.
 function Service.info(
 	self: Service,
 	req: Types.InfoCall?,
@@ -309,7 +309,7 @@ function Service.info(
 ): Core.Result<Types.InfoResultValue>
 	return self._invoke(Endpoints["economy.info"], (req or {}), opts, self._universe)
 end
---- GET /metrics; access: public/authenticated.
+--- GET /economy-service/metrics via gateway; access: public/authenticated.
 function Service.metrics(
 	self: Service,
 	req: Types.MetricsCall?,

@@ -1,5 +1,11 @@
 # Changelog
 
+## Gateway routing
+
+- Default all nine services to `https://lb1.blox-api.com` with generated stripPrefix routes, including `/remote-config-service`.
+- Add one `gatewayUrl` override and optional `services[service].baseUrl` direct-host overrides; remove old per-host defaults and `hosts`.
+- Preserve per-origin admission/breakers, update generated facades and Roblox projection, and verify gateway/direct URLs offline.
+
 ## 0.1.0 — 2026-11-05 (unreleased)
 
 - Unified server-side SDK: 134/134 inventory routes plus 16 additive auth routes.

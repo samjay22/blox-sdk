@@ -25,6 +25,30 @@ class ContractTests(unittest.TestCase):
         """Generation does not depend on time, external repositories or input object identity."""
         self.assertEqual(GEN.generate(copy.deepcopy(self.doc)),GEN.generate(copy.deepcopy(self.doc)))
 
+    def test_gateway_contract_and_coverage_mutations(self) -> None:
+        """Coverage rejects gateway drift, the reserved config route, omissions and double prefixes."""
+        checker = runpy.run_path(str(ROOT/'tools/check-coverage'))
+        generated = GEN.generate(copy.deepcopy(self.doc))
+        routing = generated[ROOT/'src/Core/Routing.luau']
+        verify = checker['assert_gateway_coverage']
+        verify(self.doc['endpoints'], routing)
+        for before, after in (
+            ('https://lb1.blox-api.com', 'https://old.example'),
+            ('/remote-config-service', '/config-service'),
+            ('/code-service', '/codes-service'),
+            ('/leaderboard-service', '/leaderboards-service'),
+            ('["economy"]', '["unknown"]'),
+        ):
+            with self.subTest(after=after), self.assertRaises(AssertionError):
+                verify(self.doc['endpoints'], routing.replace(before, after))
+        endpoints = copy.deepcopy(self.doc['endpoints'])
+        endpoints[0]['path'] = '/auth-service' + endpoints[0]['path']
+        with self.assertRaises(AssertionError):
+            verify(endpoints, routing)
+        endpoints = [e for e in self.doc['endpoints'] if e['service'] != 'audit']
+        with self.assertRaises(AssertionError):
+            verify(endpoints, routing)
+
     def test_every_inventory_route_exactly_once(self) -> None:
         """Coverage keys include service so the five /health paths cannot mask omissions."""
         routes=json.loads((ROOT/'routes.json').read_text())

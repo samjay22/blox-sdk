@@ -73,9 +73,11 @@ local http={
   requests+=1
   assert(request.Headers.Authorization==prefixed,"Secret was not preserved as a header object")
   if string.find(request.Url,"/api/audit/events/batch",1,true) then
+   assert(request.Url=="https://lb1.blox-api.com/audit-service/api/audit/events/batch","Incorrect native audit gateway route")
    assert(string.find(request.Body,'"idemKey":"offline-guid-1"',1,true),"Missing native GUID")
    return {StatusCode=202,Body=scheduler.json({accepted=1,duplicate=0}),Headers={}}
   end
+  assert(request.Url=="https://lb1.blox-api.com/data-service/api/universes/schema/defaults?universeId=123","Incorrect native data gateway route")
   return {StatusCode=200,Body=scheduler.json({}),Headers={}}
  end,
 }

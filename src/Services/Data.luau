@@ -13,7 +13,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /api/admin/backups; access: ADMIN.
+--- GET /data-service/api/admin/backups via gateway; access: ADMIN.
 function Service.listSnapshots(
 	self: Service,
 	req: Types.ListSnapshotsCall?,
@@ -21,7 +21,7 @@ function Service.listSnapshots(
 ): Core.Result<Types.ListSnapshotsResultValue>
 	return self._invoke(Endpoints["data.listSnapshots"], (req or {}), opts, self._universe)
 end
---- POST /api/admin/backups; access: ADMIN.
+--- POST /data-service/api/admin/backups via gateway; access: ADMIN.
 function Service.createManualSnapshot(
 	self: Service,
 	req: Types.CreateManualSnapshotCall?,
@@ -29,7 +29,7 @@ function Service.createManualSnapshot(
 ): Core.Result<Types.CreateManualSnapshotResultValue>
 	return self._invoke(Endpoints["data.createManualSnapshot"], (req or {}), opts, self._universe)
 end
---- POST /api/admin/backups/trigger-all; access: ADMIN.
+--- POST /data-service/api/admin/backups/trigger-all via gateway; access: ADMIN.
 function Service.triggerScheduledBackup(
 	self: Service,
 	req: Types.TriggerScheduledBackupCall?,
@@ -37,7 +37,7 @@ function Service.triggerScheduledBackup(
 ): Core.Result<Types.TriggerScheduledBackupResultValue>
 	return self._invoke(Endpoints["data.triggerScheduledBackup"], (req or {}), opts, self._universe)
 end
---- GET /api/admin/backups/universe/{universeId}; access: ADMIN.
+--- GET /data-service/api/admin/backups/universe/{universeId} via gateway; access: ADMIN.
 function Service.getSnapshotsByUniverse(
 	self: Service,
 	req: Types.GetSnapshotsByUniverseCall?,
@@ -45,7 +45,7 @@ function Service.getSnapshotsByUniverse(
 ): Core.Result<Types.GetSnapshotsByUniverseResultValue>
 	return self._invoke(Endpoints["data.getSnapshotsByUniverse"], (req or {}), opts, self._universe)
 end
---- DELETE /api/admin/backups/{snapshotId}; access: ADMIN.
+--- DELETE /data-service/api/admin/backups/{snapshotId} via gateway; access: ADMIN.
 function Service.deleteSnapshot(
 	self: Service,
 	req: Types.DeleteSnapshotCall,
@@ -53,7 +53,7 @@ function Service.deleteSnapshot(
 ): Core.Result<Types.DeleteSnapshotResultValue>
 	return self._invoke(Endpoints["data.deleteSnapshot"], req, opts, self._universe)
 end
---- GET /api/admin/backups/{snapshotId}; access: ADMIN.
+--- GET /data-service/api/admin/backups/{snapshotId} via gateway; access: ADMIN.
 function Service.getSnapshot(
 	self: Service,
 	req: Types.GetSnapshotCall,
@@ -61,7 +61,7 @@ function Service.getSnapshot(
 ): Core.Result<Types.GetSnapshotResultValue>
 	return self._invoke(Endpoints["data.getSnapshot"], req, opts, self._universe)
 end
---- POST /api/admin/backups/{snapshotId}/rollback; access: ADMIN.
+--- POST /data-service/api/admin/backups/{snapshotId}/rollback via gateway; access: ADMIN.
 function Service.rollbackToSnapshot(
 	self: Service,
 	req: Types.RollbackToSnapshotCall,
@@ -69,7 +69,7 @@ function Service.rollbackToSnapshot(
 ): Core.Result<Types.RollbackToSnapshotResultValue>
 	return self._invoke(Endpoints["data.rollbackToSnapshot"], req, opts, self._universe)
 end
---- GET /api/admin/pending-updates; access: ADMIN.
+--- GET /data-service/api/admin/pending-updates via gateway; access: ADMIN.
 function Service.getPendingUpdates(
 	self: Service,
 	req: Types.GetPendingUpdatesCall?,
@@ -77,7 +77,7 @@ function Service.getPendingUpdates(
 ): Core.Result<Types.GetPendingUpdatesResultValue>
 	return self._invoke(Endpoints["data.getPendingUpdates"], (req or {}), opts, self._universe)
 end
---- GET /api/admin/schema-migrations; access: ADMIN.
+--- GET /data-service/api/admin/schema-migrations via gateway; access: ADMIN.
 function Service.getAllSchemaMigrations(
 	self: Service,
 	req: Types.GetAllSchemaMigrationsCall?,
@@ -85,7 +85,7 @@ function Service.getAllSchemaMigrations(
 ): Core.Result<Types.GetAllSchemaMigrationsResultValue>
 	return self._invoke(Endpoints["data.getAllSchemaMigrations"], (req or {}), opts, self._universe)
 end
---- GET /api/admin/schema-versions; access: ADMIN.
+--- GET /data-service/api/admin/schema-versions via gateway; access: ADMIN.
 function Service.getAllSchemaVersions(
 	self: Service,
 	req: Types.GetAllSchemaVersionsCall?,
@@ -93,7 +93,7 @@ function Service.getAllSchemaVersions(
 ): Core.Result<Types.GetAllSchemaVersionsResultValue>
 	return self._invoke(Endpoints["data.getAllSchemaVersions"], (req or {}), opts, self._universe)
 end
---- GET /api/admin/user-data; access: ADMIN.
+--- GET /data-service/api/admin/user-data via gateway; access: ADMIN.
 function Service.getAllUserData(
 	self: Service,
 	req: Types.GetAllUserDataCall?,
@@ -101,7 +101,7 @@ function Service.getAllUserData(
 ): Core.Result<Types.GetAllUserDataResultValue>
 	return self._invoke(Endpoints["data.getAllUserData"], (req or {}), opts, self._universe)
 end
---- GET /api/admin/user-data/grouped; access: ADMIN.
+--- GET /data-service/api/admin/user-data/grouped via gateway; access: ADMIN.
 function Service.getAllUserDataGroupedByUniverse(
 	self: Service,
 	req: Types.GetAllUserDataGroupedByUniverseCall?,
@@ -111,7 +111,7 @@ function Service.getAllUserDataGroupedByUniverse(
 >
 	return self._invoke(Endpoints["data.getAllUserDataGroupedByUniverse"], (req or {}), opts, self._universe)
 end
---- GET /api/admin/users/{robloxUserId}/data; access: ADMIN.
+--- GET /data-service/api/admin/users/{robloxUserId}/data via gateway; access: ADMIN.
 function Service.getUserDataByRobloxUserId(
 	self: Service,
 	req: Types.GetUserDataByRobloxUserIdCall,
@@ -119,7 +119,7 @@ function Service.getUserDataByRobloxUserId(
 ): Core.Result<Types.GetUserDataByRobloxUserIdResultValue>
 	return self._invoke(Endpoints["data.getUserDataByRobloxUserId"], req, opts, self._universe)
 end
---- POST /api/auth/login; access: public/authenticated.
+--- POST /data-service/api/auth/login via gateway; access: public/authenticated.
 function Service.login(
 	self: Service,
 	req: Types.LoginCall,
@@ -127,7 +127,7 @@ function Service.login(
 ): Core.Result<Types.LoginResultValue>
 	return self._invoke(Endpoints["data.login"], { body = req }, opts, self._universe)
 end
---- POST /api/auth/logout; access: public/authenticated.
+--- POST /data-service/api/auth/logout via gateway; access: public/authenticated.
 function Service.logout(
 	self: Service,
 	req: Types.LogoutCall?,
@@ -135,7 +135,7 @@ function Service.logout(
 ): Core.Result<Types.LogoutResultValue>
 	return self._invoke(Endpoints["data.logout"], { body = req }, opts, self._universe)
 end
---- POST /api/auth/refresh; access: public/authenticated.
+--- POST /data-service/api/auth/refresh via gateway; access: public/authenticated.
 function Service.refreshToken(
 	self: Service,
 	req: Types.RefreshTokenCall,
@@ -143,7 +143,7 @@ function Service.refreshToken(
 ): Core.Result<Types.RefreshTokenResultValue>
 	return self._invoke(Endpoints["data.refreshToken"], { body = req }, opts, self._universe)
 end
---- POST /api/universes/schema; access: ADMIN.
+--- POST /data-service/api/universes/schema via gateway; access: ADMIN.
 function Service.createOrUpdateSchema(
 	self: Service,
 	req: Types.CreateOrUpdateSchemaCall,
@@ -151,7 +151,7 @@ function Service.createOrUpdateSchema(
 ): Core.Result<Types.CreateOrUpdateSchemaResultValue>
 	return self._invoke(Endpoints["data.createOrUpdateSchema"], req, opts, self._universe)
 end
---- GET /api/universes/schema/defaults; access: READ.
+--- GET /data-service/api/universes/schema/defaults via gateway; access: READ.
 function Service.getSchemaDefaults(
 	self: Service,
 	req: Types.GetSchemaDefaultsCall?,
@@ -159,7 +159,7 @@ function Service.getSchemaDefaults(
 ): Core.Result<Types.GetSchemaDefaultsResultValue>
 	return self._invoke(Endpoints["data.getSchemaDefaults"], (req or {}), opts, self._universe)
 end
---- GET /api/universes/schema/versions; access: READ.
+--- GET /data-service/api/universes/schema/versions via gateway; access: READ.
 function Service.getSchemaVersions(
 	self: Service,
 	req: Types.GetSchemaVersionsCall?,
@@ -167,7 +167,7 @@ function Service.getSchemaVersions(
 ): Core.Result<Types.GetSchemaVersionsResultValue>
 	return self._invoke(Endpoints["data.getSchemaVersions"], (req or {}), opts, self._universe)
 end
---- GET /api/universes/users/data; access: READ.
+--- GET /data-service/api/universes/users/data via gateway; access: READ.
 function Service.getAllUserDataForUniverse(
 	self: Service,
 	req: Types.GetAllUserDataForUniverseCall?,
@@ -175,7 +175,7 @@ function Service.getAllUserDataForUniverse(
 ): Core.Result<Types.GetAllUserDataForUniverseResultValue>
 	return self._invoke(Endpoints["data.getAllUserDataForUniverse"], (req or {}), opts, self._universe)
 end
---- PUT /api/universes/users/data/bulk; access: READ_WRITE.
+--- PUT /data-service/api/universes/users/data/bulk via gateway; access: READ_WRITE.
 function Service.bulkUpdateUserData(
 	self: Service,
 	req: Types.BulkUpdateUserDataCall,
@@ -183,7 +183,7 @@ function Service.bulkUpdateUserData(
 ): Core.Result<Types.BulkUpdateUserDataResultValue>
 	return self._invoke(Endpoints["data.bulkUpdateUserData"], req, opts, self._universe)
 end
---- POST /api/universes/users/data/sync; access: READ_WRITE.
+--- POST /data-service/api/universes/users/data/sync via gateway; access: READ_WRITE.
 function Service.syncUserDataBatch(
 	self: Service,
 	req: Types.SyncUserDataBatchCall,
@@ -191,7 +191,7 @@ function Service.syncUserDataBatch(
 ): Core.Result<Types.SyncUserDataBatchResultValue>
 	return self._invoke(Endpoints["data.syncUserDataBatch"], req, opts, self._universe)
 end
---- DELETE /api/universes/users/{robloxUserId}/data; access: READ_WRITE.
+--- DELETE /data-service/api/universes/users/{robloxUserId}/data via gateway; access: READ_WRITE.
 function Service.deleteUserData(
 	self: Service,
 	req: Types.DeleteUserDataCall,
@@ -199,7 +199,7 @@ function Service.deleteUserData(
 ): Core.Result<Types.DeleteUserDataResultValue>
 	return self._invoke(Endpoints["data.deleteUserData"], req, opts, self._universe)
 end
---- GET /api/universes/users/{robloxUserId}/data; access: READ.
+--- GET /data-service/api/universes/users/{robloxUserId}/data via gateway; access: READ.
 function Service.getUserData(
 	self: Service,
 	req: Types.GetUserDataCall,
@@ -207,7 +207,7 @@ function Service.getUserData(
 ): Core.Result<Types.GetUserDataResultValue>
 	return self._invoke(Endpoints["data.getUserData"], req, opts, self._universe)
 end
---- POST /api/universes/users/{robloxUserId}/data; access: READ_WRITE.
+--- POST /data-service/api/universes/users/{robloxUserId}/data via gateway; access: READ_WRITE.
 function Service.createUserData(
 	self: Service,
 	req: Types.CreateUserDataCall,
@@ -215,7 +215,7 @@ function Service.createUserData(
 ): Core.Result<Types.CreateUserDataResultValue>
 	return self._invoke(Endpoints["data.createUserData"], req, opts, self._universe)
 end
---- PUT /api/universes/users/{robloxUserId}/data; access: READ_WRITE.
+--- PUT /data-service/api/universes/users/{robloxUserId}/data via gateway; access: READ_WRITE.
 function Service.updateUserData(
 	self: Service,
 	req: Types.UpdateUserDataCall,
@@ -223,7 +223,7 @@ function Service.updateUserData(
 ): Core.Result<Types.UpdateUserDataResultValue>
 	return self._invoke(Endpoints["data.updateUserData"], req, opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /data-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,

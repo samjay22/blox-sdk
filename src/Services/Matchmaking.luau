@@ -13,7 +13,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- POST /api/auth/login; access: public/authenticated.
+--- POST /matchmaking-service/api/auth/login via gateway; access: public/authenticated.
 function Service.login(
 	self: Service,
 	req: Types.LoginCall,
@@ -21,7 +21,7 @@ function Service.login(
 ): Core.Result<Types.LoginResultValue>
 	return self._invoke(Endpoints["matchmaking.login"], { body = req }, opts, self._universe)
 end
---- POST /api/auth/logout; access: public/authenticated.
+--- POST /matchmaking-service/api/auth/logout via gateway; access: public/authenticated.
 function Service.logout(
 	self: Service,
 	req: Types.LogoutCall?,
@@ -29,7 +29,7 @@ function Service.logout(
 ): Core.Result<Types.LogoutResultValue>
 	return self._invoke(Endpoints["matchmaking.logout"], { body = req }, opts, self._universe)
 end
---- POST /api/auth/refresh; access: public/authenticated.
+--- POST /matchmaking-service/api/auth/refresh via gateway; access: public/authenticated.
 function Service.refreshToken(
 	self: Service,
 	req: Types.RefreshTokenCall,
@@ -37,7 +37,7 @@ function Service.refreshToken(
 ): Core.Result<Types.RefreshTokenResultValue>
 	return self._invoke(Endpoints["matchmaking.refreshToken"], { body = req }, opts, self._universe)
 end
---- GET /api/bans; access: ADMIN.
+--- GET /matchmaking-service/api/bans via gateway; access: ADMIN.
 function Service.getAllBannedPlayers(
 	self: Service,
 	req: Types.GetAllBannedPlayersCall?,
@@ -45,7 +45,7 @@ function Service.getAllBannedPlayers(
 ): Core.Result<Types.GetAllBannedPlayersResultValue>
 	return self._invoke(Endpoints["matchmaking.getAllBannedPlayers"], (req or {}), opts, self._universe)
 end
---- POST /api/bans; access: ADMIN.
+--- POST /matchmaking-service/api/bans via gateway; access: ADMIN.
 function Service.banPlayer(
 	self: Service,
 	req: Types.BanPlayerCall,
@@ -53,7 +53,7 @@ function Service.banPlayer(
 ): Core.Result<Types.BanPlayerResultValue>
 	return self._invoke(Endpoints["matchmaking.banPlayer"], { body = req }, opts, self._universe)
 end
---- POST /api/bans/bulk; access: ADMIN.
+--- POST /matchmaking-service/api/bans/bulk via gateway; access: ADMIN.
 function Service.bulkBanPlayers(
 	self: Service,
 	req: Types.BulkBanPlayersCall,
@@ -61,7 +61,7 @@ function Service.bulkBanPlayers(
 ): Core.Result<Types.BulkBanPlayersResultValue>
 	return self._invoke(Endpoints["matchmaking.bulkBanPlayers"], { body = req }, opts, self._universe)
 end
---- GET /api/bans/check; access: READ.
+--- GET /matchmaking-service/api/bans/check via gateway; access: READ.
 function Service.checkBanStatus(
 	self: Service,
 	req: Types.CheckBanStatusCall,
@@ -69,7 +69,7 @@ function Service.checkBanStatus(
 ): Core.Result<Types.CheckBanStatusResultValue>
 	return self._invoke(Endpoints["matchmaking.checkBanStatus"], req, opts, self._universe)
 end
---- POST /api/bans/cleanup; access: ADMIN.
+--- POST /matchmaking-service/api/bans/cleanup via gateway; access: ADMIN.
 function Service.removeExpiredBans(
 	self: Service,
 	req: Types.RemoveExpiredBansCall?,
@@ -77,7 +77,7 @@ function Service.removeExpiredBans(
 ): Core.Result<Types.RemoveExpiredBansResultValue>
 	return self._invoke(Endpoints["matchmaking.removeExpiredBans"], (req or {}), opts, self._universe)
 end
---- GET /api/bans/universe/{universeId}; access: READ.
+--- GET /matchmaking-service/api/bans/universe/{universeId} via gateway; access: READ.
 function Service.getBannedPlayersByUniverse(
 	self: Service,
 	req: Types.GetBannedPlayersByUniverseCall?,
@@ -90,7 +90,7 @@ function Service.getBannedPlayersByUniverse(
 		self._universe
 	)
 end
---- DELETE /api/bans/universe/{universeId}/bulk; access: ADMIN.
+--- DELETE /matchmaking-service/api/bans/universe/{universeId}/bulk via gateway; access: ADMIN.
 function Service.bulkUnbanPlayers(
 	self: Service,
 	req: Types.BulkUnbanPlayersCall,
@@ -98,7 +98,7 @@ function Service.bulkUnbanPlayers(
 ): Core.Result<Types.BulkUnbanPlayersResultValue>
 	return self._invoke(Endpoints["matchmaking.bulkUnbanPlayers"], req, opts, self._universe)
 end
---- GET /api/bans/universe/{universeId}/permanent; access: READ.
+--- GET /matchmaking-service/api/bans/universe/{universeId}/permanent via gateway; access: READ.
 function Service.getPermanentBans(
 	self: Service,
 	req: Types.GetPermanentBansCall?,
@@ -106,7 +106,7 @@ function Service.getPermanentBans(
 ): Core.Result<Types.GetPermanentBansResultValue>
 	return self._invoke(Endpoints["matchmaking.getPermanentBans"], (req or {}), opts, self._universe)
 end
---- DELETE /api/bans/universe/{universeId}/player/{userId}; access: ADMIN.
+--- DELETE /matchmaking-service/api/bans/universe/{universeId}/player/{userId} via gateway; access: ADMIN.
 function Service.unbanPlayer(
 	self: Service,
 	req: Types.UnbanPlayerCall,
@@ -114,7 +114,7 @@ function Service.unbanPlayer(
 ): Core.Result<Types.UnbanPlayerResultValue>
 	return self._invoke(Endpoints["matchmaking.unbanPlayer"], req, opts, self._universe)
 end
---- GET /api/bans/universe/{universeId}/player/{userId}; access: READ.
+--- GET /matchmaking-service/api/bans/universe/{universeId}/player/{userId} via gateway; access: READ.
 function Service.getBannedPlayer(
 	self: Service,
 	req: Types.GetBannedPlayerCall,
@@ -122,7 +122,7 @@ function Service.getBannedPlayer(
 ): Core.Result<Types.GetBannedPlayerResultValue>
 	return self._invoke(Endpoints["matchmaking.getBannedPlayer"], req, opts, self._universe)
 end
---- PUT /api/bans/universe/{universeId}/player/{userId}; access: ADMIN.
+--- PUT /matchmaking-service/api/bans/universe/{universeId}/player/{userId} via gateway; access: ADMIN.
 function Service.updateBan(
 	self: Service,
 	req: Types.UpdateBanCall,
@@ -130,7 +130,7 @@ function Service.updateBan(
 ): Core.Result<Types.UpdateBanResultValue>
 	return self._invoke(Endpoints["matchmaking.updateBan"], req, opts, self._universe)
 end
---- GET /api/bans/universe/{universeId}/temporary; access: READ.
+--- GET /matchmaking-service/api/bans/universe/{universeId}/temporary via gateway; access: READ.
 function Service.getTemporaryBans(
 	self: Service,
 	req: Types.GetTemporaryBansCall?,
@@ -138,7 +138,7 @@ function Service.getTemporaryBans(
 ): Core.Result<Types.GetTemporaryBansResultValue>
 	return self._invoke(Endpoints["matchmaking.getTemporaryBans"], (req or {}), opts, self._universe)
 end
---- GET /api/gamemodes; access: READ.
+--- GET /matchmaking-service/api/gamemodes via gateway; access: READ.
 function Service.getGameModes(
 	self: Service,
 	req: Types.GetGameModesCall?,
@@ -146,7 +146,7 @@ function Service.getGameModes(
 ): Core.Result<Types.GetGameModesResultValue>
 	return self._invoke(Endpoints["matchmaking.getGameModes"], (req or {}), opts, self._universe)
 end
---- POST /api/gamemodes; access: ADMIN.
+--- POST /matchmaking-service/api/gamemodes via gateway; access: ADMIN.
 function Service.createGameMode(
 	self: Service,
 	req: Types.CreateGameModeCall,
@@ -154,7 +154,7 @@ function Service.createGameMode(
 ): Core.Result<Types.CreateGameModeResultValue>
 	return self._invoke(Endpoints["matchmaking.createGameMode"], { body = req }, opts, self._universe)
 end
---- DELETE /api/gamemodes/{id}; access: ADMIN.
+--- DELETE /matchmaking-service/api/gamemodes/{id} via gateway; access: ADMIN.
 function Service.deleteGameMode(
 	self: Service,
 	req: Types.DeleteGameModeCall,
@@ -162,7 +162,7 @@ function Service.deleteGameMode(
 ): Core.Result<Types.DeleteGameModeResultValue>
 	return self._invoke(Endpoints["matchmaking.deleteGameMode"], req, opts, self._universe)
 end
---- PUT /api/gamemodes/{id}; access: ADMIN.
+--- PUT /matchmaking-service/api/gamemodes/{id} via gateway; access: ADMIN.
 function Service.updateGameMode(
 	self: Service,
 	req: Types.UpdateGameModeCall,
@@ -170,7 +170,7 @@ function Service.updateGameMode(
 ): Core.Result<Types.UpdateGameModeResultValue>
 	return self._invoke(Endpoints["matchmaking.updateGameMode"], req, opts, self._universe)
 end
---- GET /api/gamemodes/{id}/criteria/explain; access: READ.
+--- GET /matchmaking-service/api/gamemodes/{id}/criteria/explain via gateway; access: READ.
 function Service.explainCriteria(
 	self: Service,
 	req: Types.ExplainCriteriaCall,
@@ -178,7 +178,7 @@ function Service.explainCriteria(
 ): Core.Result<Types.ExplainCriteriaResultValue>
 	return self._invoke(Endpoints["matchmaking.explainCriteria"], req, opts, self._universe)
 end
---- GET /api/gamemodes/{name}; access: READ.
+--- GET /matchmaking-service/api/gamemodes/{name} via gateway; access: READ.
 function Service.getGameModeByName(
 	self: Service,
 	req: Types.GetGameModeByNameCall,
@@ -186,7 +186,7 @@ function Service.getGameModeByName(
 ): Core.Result<Types.GetGameModeByNameResultValue>
 	return self._invoke(Endpoints["matchmaking.getGameModeByName"], req, opts, self._universe)
 end
---- POST /api/matchmaking/process/{universeId}; access: ADMIN.
+--- POST /matchmaking-service/api/matchmaking/process/{universeId} via gateway; access: ADMIN.
 function Service.processMatchmaking(
 	self: Service,
 	req: Types.ProcessMatchmakingCall?,
@@ -194,7 +194,7 @@ function Service.processMatchmaking(
 ): Core.Result<Types.ProcessMatchmakingResultValue>
 	return self._invoke(Endpoints["matchmaking.processMatchmaking"], (req or {}), opts, self._universe)
 end
---- DELETE /api/matchmaking/queue; access: READ_WRITE.
+--- DELETE /matchmaking-service/api/matchmaking/queue via gateway; access: READ_WRITE.
 function Service.removePlayer(
 	self: Service,
 	req: Types.RemovePlayerCall?,
@@ -202,7 +202,7 @@ function Service.removePlayer(
 ): Core.Result<Types.RemovePlayerResultValue>
 	return self._invoke(Endpoints["matchmaking.removePlayer"], (req or {}), opts, self._universe)
 end
---- POST /api/matchmaking/queue; access: READ_WRITE.
+--- POST /matchmaking-service/api/matchmaking/queue via gateway; access: READ_WRITE.
 function Service.joinQueue(
 	self: Service,
 	req: Types.JoinQueueCall,
@@ -210,7 +210,7 @@ function Service.joinQueue(
 ): Core.Result<Types.JoinQueueResultValue>
 	return self._invoke(Endpoints["matchmaking.joinQueue"], { body = req }, opts, self._universe)
 end
---- DELETE /api/matchmaking/queue/flush; access: ADMIN.
+--- DELETE /matchmaking-service/api/matchmaking/queue/flush via gateway; access: ADMIN.
 function Service.flushQueue(
 	self: Service,
 	req: Types.FlushQueueCall?,
@@ -218,7 +218,7 @@ function Service.flushQueue(
 ): Core.Result<Types.FlushQueueResultValue>
 	return self._invoke(Endpoints["matchmaking.flushQueue"], (req or {}), opts, self._universe)
 end
---- GET /api/matchmaking/queue/metrics; access: READ.
+--- GET /matchmaking-service/api/matchmaking/queue/metrics via gateway; access: READ.
 function Service.getQueueMetrics(
 	self: Service,
 	req: Types.GetQueueMetricsCall?,
@@ -226,7 +226,7 @@ function Service.getQueueMetrics(
 ): Core.Result<Types.GetQueueMetricsResultValue>
 	return self._invoke(Endpoints["matchmaking.getQueueMetrics"], (req or {}), opts, self._universe)
 end
---- POST /api/matchmaking/queue/multi; access: READ_WRITE.
+--- POST /matchmaking-service/api/matchmaking/queue/multi via gateway; access: READ_WRITE.
 function Service.joinQueues(
 	self: Service,
 	req: Types.JoinQueuesCall,
@@ -234,7 +234,7 @@ function Service.joinQueues(
 ): Core.Result<Types.JoinQueuesResultValue>
 	return self._invoke(Endpoints["matchmaking.joinQueues"], { body = req }, opts, self._universe)
 end
---- POST /api/matchmaking/queue/remove; access: READ_WRITE.
+--- POST /matchmaking-service/api/matchmaking/queue/remove via gateway; access: READ_WRITE.
 function Service.removePlayerPost(
 	self: Service,
 	req: Types.RemovePlayerPostCall,
@@ -242,7 +242,7 @@ function Service.removePlayerPost(
 ): Core.Result<Types.RemovePlayerPostResultValue>
 	return self._invoke(Endpoints["matchmaking.removePlayerPost"], { body = req }, opts, self._universe)
 end
---- GET /api/matchmaking/queue/status; access: READ.
+--- GET /matchmaking-service/api/matchmaking/queue/status via gateway; access: READ.
 function Service.getPlayerQueueStatus(
 	self: Service,
 	req: Types.GetPlayerQueueStatusCall,
@@ -250,7 +250,7 @@ function Service.getPlayerQueueStatus(
 ): Core.Result<Types.GetPlayerQueueStatusResultValue>
 	return self._invoke(Endpoints["matchmaking.getPlayerQueueStatus"], req, opts, self._universe)
 end
---- POST /api/matchmaking/queue/status/bulk; access: READ.
+--- POST /matchmaking-service/api/matchmaking/queue/status/bulk via gateway; access: READ.
 function Service.getBulkQueueStatus(
 	self: Service,
 	req: Types.GetBulkQueueStatusCall,
@@ -258,7 +258,7 @@ function Service.getBulkQueueStatus(
 ): Core.Result<Types.GetBulkQueueStatusResultValue>
 	return self._invoke(Endpoints["matchmaking.getBulkQueueStatus"], { body = req }, opts, self._universe)
 end
---- POST /api/matchmaking/validate; access: READ.
+--- POST /matchmaking-service/api/matchmaking/validate via gateway; access: READ.
 function Service.validateQueue(
 	self: Service,
 	req: Types.ValidateQueueCall,
@@ -266,7 +266,7 @@ function Service.validateQueue(
 ): Core.Result<Types.ValidateQueueResultValue>
 	return self._invoke(Endpoints["matchmaking.validateQueue"], { body = req }, opts, self._universe)
 end
---- GET /api/matchmaking/{universeId}/gamemodes/{gameModeName}/queue/count; access: READ.
+--- GET /matchmaking-service/api/matchmaking/{universeId}/gamemodes/{gameModeName}/queue/count via gateway; access: READ.
 function Service.getQueueCount(
 	self: Service,
 	req: Types.GetQueueCountCall,
@@ -274,7 +274,7 @@ function Service.getQueueCount(
 ): Core.Result<Types.GetQueueCountResultValue>
 	return self._invoke(Endpoints["matchmaking.getQueueCount"], req, opts, self._universe)
 end
---- GET /api/matchmaking/{universeId}/gamemodes/{gameModeName}/wait-estimate; access: READ.
+--- GET /matchmaking-service/api/matchmaking/{universeId}/gamemodes/{gameModeName}/wait-estimate via gateway; access: READ.
 function Service.getWaitEstimate(
 	self: Service,
 	req: Types.GetWaitEstimateCall,
@@ -282,7 +282,7 @@ function Service.getWaitEstimate(
 ): Core.Result<Types.GetWaitEstimateResultValue>
 	return self._invoke(Endpoints["matchmaking.getWaitEstimate"], req, opts, self._universe)
 end
---- GET /api/roblox/keys; access: ADMIN.
+--- GET /matchmaking-service/api/roblox/keys via gateway; access: ADMIN.
 function Service.getAllApiKeys(
 	self: Service,
 	req: Types.GetAllApiKeysCall?,
@@ -290,7 +290,7 @@ function Service.getAllApiKeys(
 ): Core.Result<Types.GetAllApiKeysResultValue>
 	return self._invoke(Endpoints["matchmaking.getAllApiKeys"], (req or {}), opts, self._universe)
 end
---- PATCH /api/roblox/keys; access: ADMIN.
+--- PATCH /matchmaking-service/api/roblox/keys via gateway; access: ADMIN.
 function Service.createOrUpdateApiKey(
 	self: Service,
 	req: Types.CreateOrUpdateApiKeyCall,
@@ -298,7 +298,7 @@ function Service.createOrUpdateApiKey(
 ): Core.Result<Types.CreateOrUpdateApiKeyResultValue>
 	return self._invoke(Endpoints["matchmaking.createOrUpdateApiKey"], { body = req }, opts, self._universe)
 end
---- POST /api/roblox/keys; access: ADMIN.
+--- POST /matchmaking-service/api/roblox/keys via gateway; access: ADMIN.
 function Service.createApiKey(
 	self: Service,
 	req: Types.CreateApiKeyCall,
@@ -306,7 +306,7 @@ function Service.createApiKey(
 ): Core.Result<Types.CreateApiKeyResultValue>
 	return self._invoke(Endpoints["matchmaking.createApiKey"], { body = req }, opts, self._universe)
 end
---- DELETE /api/roblox/keys/me; access: READ_WRITE.
+--- DELETE /matchmaking-service/api/roblox/keys/me via gateway; access: READ_WRITE.
 function Service.deleteApiKeyForCurrentUniverse(
 	self: Service,
 	req: Types.DeleteApiKeyForCurrentUniverseCall?,
@@ -319,7 +319,7 @@ function Service.deleteApiKeyForCurrentUniverse(
 		self._universe
 	)
 end
---- GET /api/roblox/keys/me; access: READ.
+--- GET /matchmaking-service/api/roblox/keys/me via gateway; access: READ.
 function Service.getApiKeyForCurrentUniverse(
 	self: Service,
 	req: Types.GetApiKeyForCurrentUniverseCall?,
@@ -332,7 +332,7 @@ function Service.getApiKeyForCurrentUniverse(
 		self._universe
 	)
 end
---- HEAD /api/roblox/keys/me; access: READ.
+--- HEAD /matchmaking-service/api/roblox/keys/me via gateway; access: READ.
 function Service.checkApiKeyExistsForCurrentUniverse(
 	self: Service,
 	req: Types.CheckApiKeyExistsForCurrentUniverseCall?,
@@ -347,7 +347,7 @@ function Service.checkApiKeyExistsForCurrentUniverse(
 		self._universe
 	)
 end
---- PUT /api/roblox/keys/me; access: READ_WRITE.
+--- PUT /matchmaking-service/api/roblox/keys/me via gateway; access: READ_WRITE.
 function Service.updateApiKeyForCurrentUniverse(
 	self: Service,
 	req: Types.UpdateApiKeyForCurrentUniverseCall,
@@ -360,7 +360,7 @@ function Service.updateApiKeyForCurrentUniverse(
 		self._universe
 	)
 end
---- DELETE /api/roblox/keys/{universeId}; access: ADMIN.
+--- DELETE /matchmaking-service/api/roblox/keys/{universeId} via gateway; access: ADMIN.
 function Service.deleteApiKey(
 	self: Service,
 	req: Types.DeleteApiKeyCall?,
@@ -368,7 +368,7 @@ function Service.deleteApiKey(
 ): Core.Result<Types.DeleteApiKeyResultValue>
 	return self._invoke(Endpoints["matchmaking.deleteApiKey"], (req or {}), opts, self._universe)
 end
---- GET /api/roblox/keys/{universeId}; access: READ.
+--- GET /matchmaking-service/api/roblox/keys/{universeId} via gateway; access: READ.
 function Service.getApiKeyByUniverseId(
 	self: Service,
 	req: Types.GetApiKeyByUniverseIdCall?,
@@ -376,7 +376,7 @@ function Service.getApiKeyByUniverseId(
 ): Core.Result<Types.GetApiKeyByUniverseIdResultValue>
 	return self._invoke(Endpoints["matchmaking.getApiKeyByUniverseId"], (req or {}), opts, self._universe)
 end
---- HEAD /api/roblox/keys/{universeId}; access: READ.
+--- HEAD /matchmaking-service/api/roblox/keys/{universeId} via gateway; access: READ.
 function Service.checkApiKeyExists(
 	self: Service,
 	req: Types.CheckApiKeyExistsCall?,
@@ -384,7 +384,7 @@ function Service.checkApiKeyExists(
 ): Core.Result<Types.CheckApiKeyExistsResultValue>
 	return self._invoke(Endpoints["matchmaking.checkApiKeyExists"], (req or {}), opts, self._universe)
 end
---- PUT /api/roblox/keys/{universeId}; access: ADMIN.
+--- PUT /matchmaking-service/api/roblox/keys/{universeId} via gateway; access: ADMIN.
 function Service.updateApiKey(
 	self: Service,
 	req: Types.UpdateApiKeyCall,
@@ -392,7 +392,7 @@ function Service.updateApiKey(
 ): Core.Result<Types.UpdateApiKeyResultValue>
 	return self._invoke(Endpoints["matchmaking.updateApiKey"], req, opts, self._universe)
 end
---- GET /api/universes/getAllUniverses; access: ADMIN.
+--- GET /matchmaking-service/api/universes/getAllUniverses via gateway; access: ADMIN.
 function Service.getAllUniverses(
 	self: Service,
 	req: Types.GetAllUniversesCall?,
@@ -400,7 +400,7 @@ function Service.getAllUniverses(
 ): Core.Result<Types.GetAllUniversesResultValue>
 	return self._invoke(Endpoints["matchmaking.getAllUniverses"], (req or {}), opts, self._universe)
 end
---- GET /api/universes/me; access: READ.
+--- GET /matchmaking-service/api/universes/me via gateway; access: READ.
 function Service.getUniverseInfoForCurrentUniverse(
 	self: Service,
 	req: Types.GetUniverseInfoForCurrentUniverseCall?,
@@ -415,7 +415,7 @@ function Service.getUniverseInfoForCurrentUniverse(
 		self._universe
 	)
 end
---- GET /api/universes/{universeId}; access: ADMIN.
+--- GET /matchmaking-service/api/universes/{universeId} via gateway; access: ADMIN.
 function Service.getUniverseInfo(
 	self: Service,
 	req: Types.GetUniverseInfoCall?,
@@ -423,7 +423,7 @@ function Service.getUniverseInfo(
 ): Core.Result<Types.GetUniverseInfoResultValue>
 	return self._invoke(Endpoints["matchmaking.getUniverseInfo"], (req or {}), opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /matchmaking-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,
@@ -431,7 +431,7 @@ function Service.healthProxy(
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["matchmaking.healthProxy"], (req or {}), opts, self._universe)
 end
---- GET /metrics; access: public/authenticated.
+--- GET /matchmaking-service/metrics via gateway; access: public/authenticated.
 function Service.metrics(
 	self: Service,
 	req: Types.MetricsCall?,
@@ -439,7 +439,7 @@ function Service.metrics(
 ): Core.Result<Types.MetricsResultValue>
 	return self._invoke(Endpoints["matchmaking.metrics"], (req or {}), opts, self._universe)
 end
---- GET /{universeId}/gamemodes/{gameModeName}/wait-estimate; access: READ.
+--- GET /matchmaking-service/{universeId}/gamemodes/{gameModeName}/wait-estimate via gateway; access: READ.
 function Service.getWaitEstimateAlias(
 	self: Service,
 	req: Types.GetWaitEstimateAliasCall,

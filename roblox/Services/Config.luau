@@ -16,7 +16,7 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /actuator/health/liveness; access: public/authenticated.
+--- GET /remote-config-service/actuator/health/liveness via gateway; access: public/authenticated.
 function Service.liveness(
 	self: Service,
 	req: Types.LivenessCall?,
@@ -24,7 +24,7 @@ function Service.liveness(
 ): Core.Result<Types.LivenessResultValue>
 	return self._invoke(Endpoints["config.liveness"], (req or {}), opts, self._universe)
 end
---- GET /actuator/health/readiness; access: public/authenticated.
+--- GET /remote-config-service/actuator/health/readiness via gateway; access: public/authenticated.
 function Service.readiness(
 	self: Service,
 	req: Types.ReadinessCall?,
@@ -32,7 +32,7 @@ function Service.readiness(
 ): Core.Result<Types.ReadinessResultValue>
 	return self._invoke(Endpoints["config.readiness"], (req or {}), opts, self._universe)
 end
---- GET /api/config/universes/{universeId}/entries; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/entries via gateway; access: READ.
 function Service.entries(
 	self: Service,
 	req: Types.EntriesCall?,
@@ -57,7 +57,7 @@ function Service.entriesPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- DELETE /api/config/universes/{universeId}/entries/{key}; access: READ_WRITE.
+--- DELETE /remote-config-service/api/config/universes/{universeId}/entries/{key} via gateway; access: READ_WRITE.
 function Service.deleteEntry(
 	self: Service,
 	req: Types.DeleteEntryCall,
@@ -65,7 +65,7 @@ function Service.deleteEntry(
 ): Core.Result<Types.DeleteEntryResultValue>
 	return self._invoke(Endpoints["config.deleteEntry"], req, opts, self._universe)
 end
---- GET /api/config/universes/{universeId}/entries/{key}; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/entries/{key} via gateway; access: READ.
 function Service.entry(
 	self: Service,
 	req: Types.EntryCall,
@@ -73,7 +73,7 @@ function Service.entry(
 ): Core.Result<Types.EntryResultValue>
 	return self._invoke(Endpoints["config.entry"], req, opts, self._universe)
 end
---- PUT /api/config/universes/{universeId}/entries/{key}; access: READ_WRITE.
+--- PUT /remote-config-service/api/config/universes/{universeId}/entries/{key} via gateway; access: READ_WRITE.
 function Service.putEntry(
 	self: Service,
 	req: Types.PutEntryCall,
@@ -81,7 +81,7 @@ function Service.putEntry(
 ): Core.Result<Types.PutEntryResultValue>
 	return self._invoke(Endpoints["config.putEntry"], req, opts, self._universe)
 end
---- POST /api/config/universes/{universeId}/evaluate; access: READ.
+--- POST /remote-config-service/api/config/universes/{universeId}/evaluate via gateway; access: READ.
 function Service.evaluate(
 	self: Service,
 	req: Types.EvaluateCall,
@@ -89,7 +89,7 @@ function Service.evaluate(
 ): Core.Result<Types.EvaluateResultValue>
 	return self._invoke(Endpoints["config.evaluate"], req, opts, self._universe)
 end
---- GET /api/config/universes/{universeId}/flags; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/flags via gateway; access: READ.
 function Service.flags(
 	self: Service,
 	req: Types.FlagsCall?,
@@ -114,7 +114,7 @@ function Service.flagsPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- DELETE /api/config/universes/{universeId}/flags/{key}; access: READ_WRITE.
+--- DELETE /remote-config-service/api/config/universes/{universeId}/flags/{key} via gateway; access: READ_WRITE.
 function Service.deleteFlag(
 	self: Service,
 	req: Types.DeleteFlagCall,
@@ -122,7 +122,7 @@ function Service.deleteFlag(
 ): Core.Result<Types.DeleteFlagResultValue>
 	return self._invoke(Endpoints["config.deleteFlag"], req, opts, self._universe)
 end
---- GET /api/config/universes/{universeId}/flags/{key}; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/flags/{key} via gateway; access: READ.
 function Service.flag(
 	self: Service,
 	req: Types.FlagCall,
@@ -130,7 +130,7 @@ function Service.flag(
 ): Core.Result<Types.FlagResultValue>
 	return self._invoke(Endpoints["config.flag"], req, opts, self._universe)
 end
---- PUT /api/config/universes/{universeId}/flags/{key}; access: READ_WRITE.
+--- PUT /remote-config-service/api/config/universes/{universeId}/flags/{key} via gateway; access: READ_WRITE.
 function Service.putFlag(
 	self: Service,
 	req: Types.PutFlagCall,
@@ -138,7 +138,7 @@ function Service.putFlag(
 ): Core.Result<Types.PutFlagResultValue>
 	return self._invoke(Endpoints["config.putFlag"], req, opts, self._universe)
 end
---- POST /api/config/universes/{universeId}/flags/{key}/evaluate; access: READ.
+--- POST /remote-config-service/api/config/universes/{universeId}/flags/{key}/evaluate via gateway; access: READ.
 function Service.evaluateFlag(
 	self: Service,
 	req: Types.EvaluateFlagCall,
@@ -146,7 +146,7 @@ function Service.evaluateFlag(
 ): Core.Result<Types.EvaluateFlagResultValue>
 	return self._invoke(Endpoints["config.evaluateFlag"], req, opts, self._universe)
 end
---- GET /api/config/universes/{universeId}/history; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/history via gateway; access: READ.
 function Service.history(
 	self: Service,
 	req: Types.HistoryCall?,
@@ -171,7 +171,7 @@ function Service.historyPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
---- GET /api/config/universes/{universeId}/maintenance; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/maintenance via gateway; access: READ.
 function Service.maintenance(
 	self: Service,
 	req: Types.MaintenanceCall?,
@@ -179,7 +179,7 @@ function Service.maintenance(
 ): Core.Result<Types.MaintenanceResultValue>
 	return self._invoke(Endpoints["config.maintenance"], (req or {}), opts, self._universe)
 end
---- PUT /api/config/universes/{universeId}/maintenance; access: ADMIN.
+--- PUT /remote-config-service/api/config/universes/{universeId}/maintenance via gateway; access: ADMIN.
 function Service.putMaintenance(
 	self: Service,
 	req: Types.PutMaintenanceCall,
@@ -187,7 +187,7 @@ function Service.putMaintenance(
 ): Core.Result<Types.PutMaintenanceResultValue>
 	return self._invoke(Endpoints["config.putMaintenance"], req, opts, self._universe)
 end
---- POST /api/config/universes/{universeId}/rollback; access: ADMIN.
+--- POST /remote-config-service/api/config/universes/{universeId}/rollback via gateway; access: ADMIN.
 function Service.rollback(
 	self: Service,
 	req: Types.RollbackCall,
@@ -195,7 +195,7 @@ function Service.rollback(
 ): Core.Result<Types.RollbackResultValue>
 	return self._invoke(Endpoints["config.rollback"], req, opts, self._universe)
 end
---- GET /api/config/universes/{universeId}/snapshot; access: READ.
+--- GET /remote-config-service/api/config/universes/{universeId}/snapshot via gateway; access: READ.
 function Service.snapshot(
 	self: Service,
 	req: Types.SnapshotCall?,
@@ -203,7 +203,7 @@ function Service.snapshot(
 ): Core.Result<Types.SnapshotResultValue>
 	return self._invoke(Endpoints["config.snapshot"], (req or {}), opts, self._universe)
 end
---- GET /health; access: public/authenticated.
+--- GET /remote-config-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(
 	self: Service,
 	req: Types.HealthProxyCall?,
@@ -211,7 +211,7 @@ function Service.healthProxy(
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["config.healthProxy"], (req or {}), opts, self._universe)
 end
---- GET /info; access: public/authenticated.
+--- GET /remote-config-service/info via gateway; access: public/authenticated.
 function Service.info(
 	self: Service,
 	req: Types.InfoCall?,
@@ -219,7 +219,7 @@ function Service.info(
 ): Core.Result<Types.InfoResultValue>
 	return self._invoke(Endpoints["config.info"], (req or {}), opts, self._universe)
 end
---- GET /metrics; access: public/authenticated.
+--- GET /remote-config-service/metrics via gateway; access: public/authenticated.
 function Service.metrics(
 	self: Service,
 	req: Types.MetricsCall?,

@@ -2,6 +2,22 @@
 
 234 endpoints. `routes.json` coverage is checked independently.
 
+Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
+
+| Service | Gateway stripPrefix |
+|---|---|
+| `auth` | `/auth-service` |
+| `data` | `/data-service` |
+| `matchmaking` | `/matchmaking-service` |
+| `party` | `/party-service` |
+| `codes` | `/code-service` |
+| `audit` | `/audit-service` |
+| `config` | `/remote-config-service` |
+| `leaderboards` | `/leaderboard-service` |
+| `economy` | `/economy-service` |
+
+Paths below are backend-relative: wire URL = gateway + service prefix + path. Config uses `/remote-config-service`, never `/config-service` (the gateway reserves `/config*`). An explicit `services = { data = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
+
 Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.
 
 | Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |
