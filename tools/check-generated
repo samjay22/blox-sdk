@@ -1,0 +1,6 @@
+#!/bin/sh
+# Verify source generation and Roblox import-path projection without modifying tracked files.
+set -eu
+cd "$(dirname "$0")/.."
+python3 tools/gen.py --check
+python3 tools/build-roblox.py --check

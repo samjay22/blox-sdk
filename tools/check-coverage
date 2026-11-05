@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Assert exact route coverage, uniqueness, schema integrity and additive auth routes."""
+from __future__ import annotations
+import json
+import re
+from service_contracts import SOURCES
+from collections import Counter
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+ALIASES={'mm':'matchmaking','code':'codes'}
+
+def mapping_arguments(text: str, start: int) -> str:
+    """Read mapping arguments independently; quoted regex/path parentheses are not delimiters."""
+    while start < len(text) and text[start].isspace(): start += 1
+    if start >= len(text) or text[start] != '(': return ''
+    depth, quoted, escaped = 1, False, False
+    for i in range(start+1, len(text)):
+        c = text[i]
+        if quoted:
+            if escaped: escaped = False
+            elif c == chr(92): escaped = True
+            elif c == '"': quoted = False
+        elif c == '"': quoted = True
+        elif c == '(': depth += 1
+        elif c == ')':
+            depth -= 1
+            if depth == 0: return text[start+1:i].strip()
+    raise AssertionError('Unbalanced controller mapping')
+
+
+def mapping_path(args: str) -> str:
+    """Support literal routes and fail closed on arrays/constants instead of dropping routes."""
+    if not args: return ''
+    named = re.search(r'(?:^|,)\s*(?:value|path)\s*=\s*(.*)', args)
+    candidate = named[1] if named else args
+    match = re.match(r'"([^"\n]*)"(?:\s*,|\s*$)', candidate)
+    assert match, f'Unsupported mapping path syntax: {args}'
+    return match[1]
+
+
+def controller_routes() -> set[tuple[str,str,str]]:
+    """Independently scan all annotated source classes, regardless of their filenames."""
+    found = set()
+    for service, root in SOURCES.items():
+        files = sorted(root.glob('src/main/java/**/*.java'))
+        controllers = 0
+        for file in files:
+            text = file.read_text()
+            # Strip comments but preserve strings (including URLs containing //).
+            text = re.sub(r'"(?:\\.|[^"\\])*"|/\*.*?\*/|//[^\n]*',
+                          lambda m: m[0] if m[0].startswith('"') else '', text, flags=re.S)
+            if not re.search(r'@(RestController|Controller)\b', text): continue
+            controllers += 1
+            head, body = text.split('class ', 1)
+            base = re.search(r'@RequestMapping\b', head)
+            prefix = mapping_path(mapping_arguments(head,base.end())) if base else ''
+            for match in re.finditer(r'@(Get|Post|Put|Patch|Delete|Request)Mapping\b', body):
+                method, args = match[1].upper(), mapping_arguments(body, match.end())
+                if method == 'REQUEST':
+                    verbs = re.findall(r'RequestMethod\.(\w+)', args)
+                    assert len(verbs)==1, f'Unsupported mapping methods in {file}'
+                    method = verbs[0]
+                found.add((service, method, prefix+mapping_path(args)))
+        assert controllers, f'Missing backend controller sources: {root}'
+    return found
+
+
+def assert_controller_coverage(actual: set[tuple[str,str,str]]) -> None:
+    """Fail if even a route absent from the checked-in inventory is absent from the SDK."""
+    missing = controller_routes() - actual
+    assert not missing, f'Missing controller routes: {sorted(missing)}'
+
+
+def main() -> None:
+    """Fail closed when a route, controller schema or expected alias is missing."""
+    routes=json.loads((ROOT/'routes.json').read_text())
+    endpoints=json.loads((ROOT/'spec/endpoints.json').read_text())['endpoints']
+    expected={(ALIASES.get(r['svc'],r['svc']),r['method'],r['path']) for r in routes}
+    actual={(e['service'],e['method'],e['path']) for e in endpoints}
+    assert len(expected)==len(routes),'Duplicate inventory routes'
+    assert_controller_coverage(actual)
+    assert len(actual)==len(endpoints),'Duplicate endpoint mappings'
+    assert len({e['id'] for e in endpoints})==len(endpoints),'Duplicate SDK method IDs'
+    assert not expected-actual, f'Missing routes: {sorted(expected-actual)}'
+    required={('auth','DELETE',p) for p in ['/api/auth/accounts/{accountId}','/api/auth/accounts/{accountId}/permissions/{serviceName}','/api/auth/universes/{universeId}','/api/auth/universes/{universeId}/places/{placeId}']}
+    required|={('auth',m,'/api/auth/service-accounts'+p) for m,p in [('POST',''),('GET',''),('GET','/{id}'),('PUT','/{id}/permissions'),('POST','/{id}/rotate'),('PATCH','/{id}'),('DELETE','/{id}')]}
+    assert required<=actual,'Missing additive DELETE/service-account routes'
+    for e in endpoints:
+        assert e['source'] and e['responseJava'] and e['responseType'],e['id']
+        assert e['minimumLevel'] in (None,'READ','READ_WRITE','ADMIN'),e['id']
+        assert not e['cacheable'] or e['method']=='GET',e['id']
+        module=(ROOT/'src/Services'/f'{e["service"].capitalize()}.luau').read_text()
+        assert 'function Service.'+e['name']+'(' in module,e['id']
+    counts=Counter(x[0] for x in expected)
+    totals=Counter(e['service'] for e in endpoints)
+    for service in sorted(counts): print(f'{service}: {counts[service]}/{counts[service]} inventory routes (100%); {totals[service]} exposed')
+    print(f'Controllers: {len(controller_routes())}/{len(controller_routes())} new-service routes (100%)')
+    print(f'Total: {len(expected)}/{len(expected)} inventory + {len(actual-expected)} additive = {len(actual)} endpoints')
+if __name__=='__main__':main()

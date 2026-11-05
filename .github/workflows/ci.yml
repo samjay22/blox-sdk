@@ -1,0 +1,19 @@
+name: BloxSDK
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  offline-verification:
+    # Never execute fork-provided code on the owner's preprovisioned runner.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Provision the pinned Aftman tools and luau/luau-analyze in the runner image.
+    # Do not run installers or download tools during SDK verification.
+    runs-on: [self-hosted, macOS, ARM64]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Strict analysis, formatting, lint, dual-runtime tests, drift, coverage, Rojo
+        shell: bash
+        run: ./tools/verify

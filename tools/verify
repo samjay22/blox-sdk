@@ -1,0 +1,17 @@
+#!/bin/sh
+# All local checks are offline; no package installers or artifact publishing.
+set -eu
+cd "$(dirname "$0")/.."
+export PATH="/opt/homebrew/bin:$HOME/.aftman/bin:$PATH"
+stylua --check src tests examples roblox
+luau-analyze src tests examples
+selene src tests examples
+luau tests/run.luau
+lune run tests/run.luau
+python3 tools/gen.py --check
+python3 tools/build-roblox.py --check
+python3 tools/check-coverage
+python3 tools/verify-package.py
+rojo build default.project.json -o /private/tmp/BloxSDK.rbxm
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tools/check-package

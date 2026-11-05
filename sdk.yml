@@ -1,0 +1,24 @@
+base: luau
+name: sdk
+globals:
+  game.GetService:
+    method: true
+    args:
+      - type: string
+  task.wait:
+    args:
+      - type: number
+  task.spawn:
+    args:
+      - type: function
+  task.delay:
+    args:
+      - type: number
+      - type: function
+  task.cancel:
+    args:
+      - type: any
+  game.BindToClose:
+    method: true
+    args:
+      - type: function

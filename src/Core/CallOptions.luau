@@ -1,0 +1,47 @@
+--!strict
+local Types = require("../Types/Core")
+local Options = {}
+--- Validate user options before arithmetic or yielding; malformed values become Local results.
+function Options.valid(opts: Types.CallOptions): boolean
+	if type(opts) ~= "table" then
+		return false
+	end
+	if opts.priority ~= nil and opts.priority ~= "critical" and opts.priority ~= "bulk" then
+		return false
+	end
+	if
+		opts.retry ~= nil
+		and (type(opts.retry) ~= "number" or opts.retry % 1 ~= 0 or opts.retry < 0 or opts.retry > 10)
+	then
+		return false
+	end
+	if
+		opts.deadline ~= nil
+		and (
+			type(opts.deadline) ~= "number"
+			or opts.deadline ~= opts.deadline
+			or math.abs(opts.deadline) == math.huge
+		)
+	then
+		return false
+	end
+	if
+		opts.cacheTtl ~= nil
+		and (
+			type(opts.cacheTtl) ~= "number"
+			or opts.cacheTtl ~= opts.cacheTtl
+			or opts.cacheTtl < 0
+			or opts.cacheTtl > 3600
+		)
+	then
+		return false
+	end
+	if opts.idempotencyHint ~= nil and type(opts.idempotencyHint) ~= "boolean" then
+		return false
+	end
+	if opts.signal ~= nil and (type(opts.signal) ~= "table" or type(opts.signal.cancelled) ~= "boolean") then
+		return false
+	end
+	return true
+end
+return table.freeze(Options)

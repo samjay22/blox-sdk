@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""Verify that Wally includes every projected module, then package locally without publishing."""
+from __future__ import annotations
+import subprocess
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+
+def main() -> None:
+    """Fail if package glob traversal silently drops any source module."""
+    command=['wally','package','--output','/private/tmp/BloxSDK-package.tar.gz']
+    listing=subprocess.run(command+['--list'],cwd=ROOT,text=True,capture_output=True,check=True).stdout
+    listed=set(listing.splitlines())
+    for path in (ROOT/'roblox').rglob('*.luau'):
+        assert './'+str(path.relative_to(ROOT)) in listed, f'Package missing {path.relative_to(ROOT)}'
+    assert './default.project.json' in listed,'Package missing Rojo project'
+    subprocess.run(command,cwd=ROOT,check=True)
+    print('Verified complete server-only Wally package (not published)')
+if __name__=='__main__':main()

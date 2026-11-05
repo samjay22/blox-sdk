@@ -1,0 +1,15 @@
+{
+  "languageMode": "strict",
+  "globals": [
+    "game",
+    "task"
+  ],
+  "lint": {
+    "LocalUnused": true,
+    "FunctionUnused": true,
+    "ImportUnused": true
+  },
+  "aliases": {
+    "sdk": "./src"
+  }
+}

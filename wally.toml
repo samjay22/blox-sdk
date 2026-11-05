@@ -1,0 +1,10 @@
+[package]
+name = "blox-api/blox-sdk"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "server"
+license = "MIT"
+description = "Unified server-side Luau SDK for blox-api"
+include = ["roblox", "roblox/**", "default.project.json", "wally.toml", "LICENSE", "README.md"]
+exclude = ["**"]
+[dependencies]

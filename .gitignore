@@ -1,0 +1,6 @@
+.DS_Store
+*.rbxl
+*.rbxlx
+*.rbxm
+__pycache__/
+.test-build/

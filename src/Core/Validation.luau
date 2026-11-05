@@ -1,0 +1,214 @@
+--!strict
+local Core = require("../Types/Core")
+local Schemas = require("./Schemas")
+local Json = require("./Json")
+local Universe = require("./Universe")
+local Validation = {}
+--- Validate untrusted data against the small generated schema language, with bounded recursion.
+local function matches(
+	value: any,
+	schema: Core.Schema,
+	definitions: { [string]: Core.Schema },
+	depth: number,
+	response: boolean
+): boolean
+	if depth > 64 then
+		return false
+	end
+	local kind = schema.kind
+	if kind == "ref" then
+		local target = definitions[schema.name :: string]
+		return target ~= nil and matches(value, target, definitions, depth + 1, response)
+	elseif kind == "nullable" then
+		return value == Json.null
+			or matches(value, schema.item :: Core.Schema, definitions, depth + 1, response)
+	elseif kind == "nil" then
+		return value == nil
+	elseif kind == "union" then
+		for _, item in schema.items :: { Core.Schema } do
+			if matches(value, item, definitions, depth + 1, response) then
+				return true
+			end
+		end
+		return false
+	elseif kind == "enum" then
+		return type(value) == "string" and table.find(schema.values :: { string }, value) ~= nil
+	elseif kind == "string" or kind == "boolean" then
+		return type(value) == kind
+	elseif kind == "decimal" then
+		return (type(value) == "number" and value % 1 == 0 and math.abs(value) <= 9007199254740991)
+			or (
+				type(value) == "string"
+				and string.match(value, "^%-?%d+$") ~= nil
+				and #string.gsub(value, "^-", "") <= 38
+			)
+	elseif kind == "number" then
+		return type(value) == "number" and value == value and math.abs(value) <= 9007199254740991
+	elseif kind == "json" then
+		if value == nil or value == Json.null then
+			return true
+		end
+		local t = type(value)
+		if t == "string" or t == "boolean" then
+			return true
+		end
+		if t == "number" then
+			return value == value and math.abs(value) < math.huge
+		end
+		if t ~= "table" then
+			return false
+		end
+		for key, child in value do
+			if type(key) ~= "string" and type(key) ~= "number" then
+				return false
+			end
+			if not matches(child, schema, definitions, depth + 1, response) then
+				return false
+			end
+		end
+		return true
+	end
+	if type(value) ~= "table" or value == Json.null then
+		return false
+	end
+	if kind == "array" then
+		local count = 0
+		for key, item in value do
+			if
+				type(key) ~= "number"
+				or key % 1 ~= 0
+				or key < 1
+				or key > #value
+				or not matches(item, schema.item :: Core.Schema, definitions, depth + 1, response)
+			then
+				return false
+			end
+			count += 1
+		end
+		return count == #value
+	elseif kind == "map" then
+		for key, item in value do
+			if
+				type(key) ~= "string"
+				or not matches(item, schema.item :: Core.Schema, definitions, depth + 1, response)
+			then
+				return false
+			end
+		end
+		return true
+	elseif kind == "cursorPage" then
+		return matches(value.items, { kind = "array", item = schema.item }, definitions, depth + 1, response)
+			and (
+				value.nextCursor == nil
+				or value.nextCursor == Json.null
+				or type(value.nextCursor) == "string"
+			)
+	elseif kind == "page" then
+		return type(value.number) == "number"
+			and type(value.size) == "number"
+			and type(value.totalElements) == "number"
+			and type(value.totalPages) == "number"
+			and type(value.first) == "boolean"
+			and type(value.last) == "boolean"
+			and matches(
+				value.content,
+				{ kind = "array", item = schema.item },
+				definitions,
+				depth + 1,
+				response
+			)
+	elseif kind == "object" then
+		local fields =
+			schema.fields :: { [string]: { schema: Core.Schema, required: boolean, notBlank: boolean } }
+		for name, field in fields do
+			local child = value[name]
+			if
+				not response
+				and child ~= nil
+				and (
+					name == "idempotencyKey"
+					or name == "submissionId"
+					or name == "idemKey"
+					or name == "matchId"
+				)
+			then
+				local limit = if name == "idemKey" then 256 elseif name == "idempotencyKey" then 200 else 128
+				if
+					type(child) ~= "string"
+					or #child == 0
+					or #child > limit
+					or string.match(child, "^%s*$")
+				then
+					return false
+				end
+				if name == "idempotencyKey" and not string.match(child, "^[A-Za-z0-9._-]+$") then
+					return false
+				end
+			end
+			if child == nil then
+				if field.required then
+					return false
+				end
+			else
+				if
+					not response
+					and (name == "universeId" or name == "robloxUniverseId")
+					and not Universe.valid(child)
+				then
+					return false
+				end
+				if not matches(child, field.schema, definitions, depth + 1, response) then
+					return false
+				end
+				if
+					not response
+					and field.notBlank
+					and type(child) == "string"
+					and string.match(child, "^%s*$")
+				then
+					return false
+				end
+			end
+		end
+		-- Requests reject unknown fields so typos cannot silently discard data. Responses are forward-compatible.
+		if not response then
+			for name in value do
+				if not fields[name] then
+					return false
+				end
+			end
+		end
+		return true
+	end
+	return false
+end
+--- Validate declared DTOs without including values in errors.
+function Validation.body(endpoint: string, value: unknown): boolean
+	local schema = Schemas.endpoints[endpoint]
+	if not schema or not schema.body then
+		return value == nil
+	end
+	if value == nil then
+		return true
+	end
+	if not matches(value, schema.body, Schemas.definitions[schema.service], 0, false) then
+		return false
+	end
+	local body = value :: any
+	if endpoint == "audit.batch" then
+		return #body.events >= 1 and #body.events <= 500
+	end
+	if endpoint == "leaderboards.batch" then
+		return #body.scores >= 1 and #body.scores <= 200
+	end
+	return true
+end
+--- Verify successful responses before exposing generated static types.
+function Validation.response(endpoint: string, value: unknown, status: number?): boolean
+	if status == 204 then
+		return value == nil
+	end
+	local schema = Schemas.endpoints[endpoint]
+	return schema ~= nil and matches(value, schema.response, Schemas.definitions[schema.service], 0, true)
+end
+return table.freeze(Validation)

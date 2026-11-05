@@ -1,0 +1,143 @@
+"""Offline extraction of the four record-based service contracts; no backend execution."""
+from __future__ import annotations
+import hashlib
+import re
+from pathlib import Path
+import import_contract as java
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCES = {name: ROOT.parent / 'svc' / directory for name, directory in {
+    'audit': 'audit-service', 'config': 'config-service',
+    'leaderboards': 'leaderboard-service', 'economy': 'economy-service',
+}.items()}
+CATALOG = {'audit': 'AuditService', 'config': 'ConfigService', 'leaderboards': 'LeaderboardService', 'economy': 'EconomyService'}
+
+
+def strip_annotations(text: str) -> str:
+    """Remove balanced annotations, including regex strings and type-use annotations."""
+    while match := re.search(r'@[\w.]+', text):
+        end = match.end()
+        if text[end:end+1] == '(':
+            _, end = java.balanced(text, end)
+        text = text[:match.start()] + text[end:]
+    return re.sub(r'\s+', ' ', text).strip()
+
+
+def records(root: Path) -> dict:
+    """Extract records/enums from all source packages, including nested submission DTOs."""
+    result = {}
+    for file in sorted(root.glob('src/main/java/**/*.java')):
+        text = java.clean(file.read_text())
+        for match in re.finditer(r'\b(enum|record)\s+(\w+)\s*(?:<[^>]+>)?\s*([({])', text):
+            kind, name, opening = match.groups()
+            if name == 'Page':
+                continue  # New services use CursorPage, not Spring's Page.
+            body, _ = java.balanced(text, match.end()-1, opening, ')' if opening == '(' else '}')
+            source = str(file.relative_to(ROOT.parent))
+            if kind == 'enum':
+                result[name] = {'enum': [x.strip() for x in body.split(';')[0].split(',')], 'source': source}
+                continue
+            fields = {}
+            for item in java.split(body):
+                typ, field = strip_annotations(item).rsplit(' ', 1)
+                # Nested element @NotNull does not make an optional collection required.
+                prefix = item.split('<')[0]
+                required = bool(re.search(r'@(NotNull|NotBlank|NotEmpty)\b', prefix)) or typ in ('long','int','boolean','double')
+                fields[field] = {'java': typ, 'required': required, 'notBlank': '@NotBlank' in prefix}
+            result[name] = {'fields': fields, 'source': source}
+    return result
+
+
+def extract(service: str, root: Path) -> tuple[list[dict], dict]:
+    """Apply contract-documented wire and safety exceptions to controller/record extraction."""
+    java.CATALOG.update(CATALOG)
+    endpoints = java.endpoints_for(service, root)
+    definitions = records(root)
+    # Response references are required unless the documented nullable field is listed here.
+    nullable = {
+        'audit': {'Event': {'actorName','ipHash','requestId','metadata','idemKey'}, 'Summary': {'nextCursor'}},
+        'config': {'Entry': {'description'}, 'Flag': {'startsAt','endsAt','description','rules'}, 'State': {'maintenanceMessage'}, 'Snapshot': {'maintenanceMessage'}},
+        'leaderboards': {'Board': {'maxDeltaPerSubmit'}, 'Period': {'closedAt'}, 'Submission': {'displayName'}},
+        'economy': {'Currency': {'maxBalance'}, 'Entry': {'refType','refId','counterpartUserId','reversesId'}, 'Result': {'purchaseId','status'}},
+    }[service]
+    response_names = {
+        'audit': 'Retention Receipt Count Summary Event Submission',
+        'config': 'Entry Flag State FullState Snapshot History Evaluation',
+        'leaderboards': 'Board Entry ScoreResult Submission Standing Period Rating RatingChange MatchResult',
+        'economy': 'Currency Balance Entry Product Result Mismatch',
+    }[service].split()
+    for name in response_names:
+        for field, info in definitions[name]['fields'].items():
+            info['required'] = field not in nullable.get(name, set())
+    if service == 'config':
+        definitions['History']['fields']['change']['java'] = 'FullState'
+    definitions['HealthResponse'] = {'fields': {k: {'java':'String','required':True} for k in ('status','service','timestamp')}}
+    definitions['HealthComponent'] = {'fields': {'status': {'java':'String','required':True}}}
+    for endpoint in endpoints:
+        name = endpoint['name']
+        if service == 'audit' and name == 'retention' and endpoint['method'] == 'PUT':
+            name = 'putRetention'
+        if service == 'leaderboards' and endpoint['source'].endswith('/RatingController.java'):
+            name = 'rating' + name[0].upper() + name[1:]
+        response = endpoint['javaResponse']
+        while re.match(r'^(Mono|ResponseEntity)<.*>$', response):
+            response = response[response.index('<')+1:-1]
+        response = response.replace('Page<', 'CursorPage<')
+        endpoint.update(name=name, id=service+'.'+name, responseJava=response,
+                        responseType=name[0].upper()+name[1:]+'ResultValue', responseFormat='json',
+                        errorStatuses=[400,401,403,404,409,429,500,503],
+                        errorStatusNote='Common framework/service errors; domain rules remain authoritative.')
+        guard = endpoint['guard']
+        if 'SERVICE_ADMIN' in guard: endpoint['minimumLevel'] = 'ADMIN'
+        elif 'SERVICE_READ' in guard: endpoint['minimumLevel'] = 'READ'
+        if not endpoint['path'].startswith('/api/'):
+            endpoint.update(minimumLevel=None, requiredRole=None, authKinds=['none','serviceAccount','user','custom'])
+        if endpoint['path'] == '/health': endpoint['responseJava'] = 'HealthResponse'
+        if endpoint['method'] == 'POST' and name in ('create','createCurrency'): endpoint['statuses'] = [201]
+        if service == 'audit' and name in ('append','batch'): endpoint['statuses'] = [202]
+        if service == 'config' and name in ('evaluate','evaluateFlag'): endpoint['minimumLevel'] = 'READ'
+        # No mutation is inferred repeat-safe from PUT/DELETE alone.
+        endpoint['idempotent'] = endpoint['method'] == 'GET'
+        endpoint['retryable'] = endpoint['method'] == 'GET'
+        if service == 'economy' and name == 'batch': endpoint['minimumLevel'] = 'READ'
+        if service == 'config' and name == 'snapshot':
+            endpoint.update(responseJava='Snapshot|Void', statuses=[200,304], conditional=True, cacheable=False)
+        if service == 'audit' and name == 'retention': endpoint['cacheable'] = False
+        key = None
+        batch = None
+        if service == 'economy' and name in ('grant','spend','transfer','adjust','reverse','receipt','refund'): key = 'idempotencyKey'
+        if service == 'leaderboards' and name in ('submit','batch'): key = 'submissionId'; batch = 'scores' if name == 'batch' else None
+        if service == 'leaderboards' and name == 'ratingMatch': key = 'matchId'
+        if service == 'audit' and name in ('append','batch'): key = 'idemKey'; batch = 'events' if name == 'batch' else None
+        if key:
+            endpoint.update(idempotencyField=key, idempotencyItems=batch, idempotent=True, retryable=True)
+            dto = {'scores':'ScoreInput','events':'EventInput'}.get(batch, endpoint['bodyType'])
+            definitions[dto]['fields'][key]['required'] = False
+        # Audit scope selectors are read directly from ServerWebExchange on these routes.
+        if service == 'audit' and name == 'get':
+            endpoint['queryParams'].append({'name':'universeId','java':'Long','type':'id','required':False})
+    definitions['MetricsResponse'] = {'fields': {'names': {'java':'List<String>','required':True}}}
+    # Boot exposes these documented routes without Java controller methods.
+    for name in ('metrics','info'):
+        endpoint = dict(next(e for e in endpoints if e['path']=='/health'))
+        endpoint.update(id=service+'.'+name, name=name, path='/'+name,
+                        responseJava='MetricsResponse' if name=='metrics' else 'Map<String, Object>',
+                        responseType=name.capitalize()+'ResultValue', source=str((root/'API_CONTRACT.md').relative_to(ROOT.parent)))
+        endpoints.append(endpoint)
+    return endpoints, definitions
+
+
+def refresh(doc: dict) -> dict:
+    """Refresh only the new services, preserving the legacy curated contract verbatim."""
+    doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] not in SOURCES]
+    provenance = {}
+    for service, root in SOURCES.items():
+        if not root.is_dir(): raise FileNotFoundError(root)
+        endpoints, definitions = extract(service, root)
+        doc['endpoints'].extend(endpoints)
+        doc['types'][service] = definitions
+        for path in sorted(root.glob('src/main/java/**/*.java')) + [root/'API_CONTRACT.md']:
+            provenance[str(path.relative_to(ROOT.parent))] = hashlib.sha256(path.read_bytes()).hexdigest()
+    doc['sourceHashes'] = provenance
+    doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))
+    return doc
