@@ -135,6 +135,7 @@ export type LoginResponse = {
 	updatedTime: string?,
 	username: string?,
 }
+--- Criteria reference top-level Fields computed IDs; dotted fieldName values are rejected by the backend.
 export type MatchmakingCriteriaDTO = {
 	allowCrossRegion: boolean?,
 	bracketSize: number?,
@@ -153,9 +154,7 @@ export type MatchmakingCriteriaDTO = {
 }
 export type MultiQueueRequest = {
 	gameModeNames: { string } | string,
-	metadata: { [string]: Core.Json }?,
 	partyId: string?,
-	playerMetadata: { [string]: { [string]: Core.Json } }?,
 	robloxUniverseId: string,
 	robloxUserId: string?,
 	robloxUserIds: ({ string } | string)?,
@@ -208,10 +207,7 @@ export type QueueMetricsResponse = {
 }
 export type QueueRequest = {
 	gameModeName: string,
-	metadata: { [string]: Core.Json }?,
 	partyId: string?,
-	playerMetadata: { [string]: { [string]: Core.Json } }?,
-	queuedAt: number?,
 	robloxUniverseId: string,
 	robloxUserId: string?,
 	robloxUserIds: ({ string } | string)?,

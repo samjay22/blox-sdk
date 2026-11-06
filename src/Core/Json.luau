@@ -4,6 +4,7 @@ local Json = {}
 local null: Types.Null = { __bloxNull = true }
 Json.null = table.freeze(null)
 local arrayMarker = table.freeze({})
+local objectMarker = table.freeze({})
 local escapes: { [string]: string } = {
 	['"'] = '\\"',
 	["\\"] = "\\\\",
@@ -21,12 +22,33 @@ end
 function Json.array<T>(value: { T }): { T }
 	return (setmetatable(value, arrayMarker) :: unknown) :: { T }
 end
+--- Identify explicitly marked arrays at typed JSON boundaries.
+function Json.isArray(value: unknown): boolean
+	return type(value) == "table" and getmetatable(value :: any) == arrayMarker
+end
+--- Mark an explicitly object-shaped JSON value, distinguishing {} from [] at decode boundaries.
+function Json.object<T>(value: T): T
+	return (setmetatable(value :: any, objectMarker) :: unknown) :: T
+end
+--- Identify explicitly object-shaped decoded input before collection validation.
+function Json.isObject(value: unknown): boolean
+	return type(value) == "table" and getmetatable(value :: any) == objectMarker
+end
 --- Encode JSON exactly once, supporting explicit null PATCH fields and empty arrays.
 function Json.encode(value: unknown, schema: Types.Schema?, definitions: { [string]: Types.Schema }?): string
 	local seen: { [any]: boolean } = {}
 	local parts: { string } = {}
 	--- Append one bounded JSON node; reject cycles, metatables, nonfinite values and sparse arrays.
 	local function append(node: any, depth: number, shape: Types.Schema?)
+		-- Fields bindings are hand-typed; retain [] when explicitly removing all board bindings.
+		if shape and shape.kind == "fields" and shape.name == "Bindings" then
+			shape = {
+				kind = "object",
+				fields = {
+					leaderboards = { schema = { kind = "array" }, required = false, notBlank = false },
+				},
+			}
+		end
 		if shape and shape.kind == "ref" and definitions then
 			shape = definitions[shape.name :: string]
 		end
@@ -45,16 +67,26 @@ function Json.encode(value: unknown, schema: Types.Schema?, definitions: { [stri
 			parts[#parts + 1] = '"' .. string.gsub(node, '[%z\1-\31\\"]', escape) .. '"'
 		elseif type(node) == "number" then
 			assert(node == node and math.abs(node) < math.huge, "Invalid JSON number")
-			parts[#parts + 1] = tostring(node)
+			parts[#parts + 1] = if node % 1 == 0 and math.abs(node) <= 9007199254740991
+				then string.format("%.0f", node)
+				else tostring(node)
 		elseif type(node) == "boolean" then
 			parts[#parts + 1] = tostring(node)
 		elseif type(node) == "table" then
 			assert(not seen[node], "Cyclic JSON")
-			assert(getmetatable(node) == nil or getmetatable(node) == arrayMarker, "Invalid JSON object")
+			assert(
+				getmetatable(node) == nil
+					or getmetatable(node) == arrayMarker
+					or getmetatable(node) == objectMarker,
+				"Invalid JSON object"
+			)
 			seen[node] = true
-			local array = (shape ~= nil and shape.kind == "array")
-				or #node > 0
-				or getmetatable(node) == arrayMarker
+			local array = getmetatable(node) ~= objectMarker
+				and (
+					(shape ~= nil and shape.kind == "array")
+					or #node > 0
+					or getmetatable(node) == arrayMarker
+				)
 			parts[#parts + 1] = if array then "[" else "{"
 			local count = 0
 			if array then

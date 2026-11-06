@@ -14,14 +14,15 @@ local ServiceAccount = require(script.Auth.ServiceAccount)
 local UserSession = require(script.Auth.UserSession)
 local FakeBackend = require(script.Testing.FakeBackend)
 local Auth = require(script.Services.Auth)
-local Data = require(script.Services.Data)
 local Matchmaking = require(script.Services.Matchmaking)
 local Party = require(script.Services.Party)
 local Codes = require(script.Services.Codes)
 local Audit = require(script.Services.Audit)
 local ConfigService = require(script.Services.Config)
 local Leaderboards = require(script.Services.Leaderboards)
-local Economy = require(script.Services.Economy)
+local Fields = require(script.Services.Fields)
+local FieldsHelpers = require(script.Fields.Client)
+local FieldTypeSystem = require(script.Fields.TypeSystem)
 local AuditWriter = require(script.Core.AuditWriter)
 local SnapshotCache = require(script.Core.SnapshotCache)
 local Universe = require(script.Core.Universe)
@@ -34,20 +35,20 @@ export type Result<T> = Types.Result<T>
 type Helpers = {
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
+	fields: FieldsHelpers.State?,
 	native: boolean,
 	bound: boolean,
 }
 export type Client = typeof(setmetatable(
 	{} :: {
 		auth: Auth.Service,
-		data: Data.Service,
 		matchmaking: Matchmaking.Service,
 		party: Party.Service,
 		codes: Codes.Service,
 		audit: Audit.Service,
 		config: ConfigService.Service,
 		leaderboards: Leaderboards.Service,
-		economy: Economy.Service,
+		fields: Fields.Service,
 		_helpers: Helpers,
 		_state: Pipeline.State,
 		_invoke: Types.Invoke,
@@ -84,14 +85,13 @@ local function facade(
 		_invoke = invoke,
 		_session = session,
 		auth = Auth.new(invoke, universe),
-		data = Data.new(invoke, universe),
 		matchmaking = Matchmaking.new(invoke, universe),
 		party = Party.new(invoke, universe),
-		codes = Codes.new(invoke, universe),
+		codes = Codes.new(invoke, universe, helpers.fields),
 		audit = Audit.new(invoke, universe),
 		config = ConfigService.new(invoke, universe),
 		leaderboards = Leaderboards.new(invoke, universe),
-		economy = Economy.new(invoke, universe),
+		fields = Fields.new(invoke, universe, helpers.fields),
 	}, Client)
 end
 --- Create one server-side SDK client; invalid configuration fails before any network activity.
@@ -182,13 +182,23 @@ function SDK.new(config: Config): Client
 			return invoke(Endpoints["auth." .. action], { body = body }, { priority = "critical" }, nil)
 		end)
 	end
-	return facade(
-		state,
-		invoke,
-		config.universeId or auth.universeId,
-		session,
-		{ writers = {}, snapshots = {}, native = config.runtime == nil, bound = false }
-	)
+	local helpers: Helpers =
+		{ writers = {}, snapshots = {}, fields = nil, native = config.runtime == nil, bound = false }
+	local client: Client? = nil
+	helpers.fields = FieldsHelpers.new(runtime, invoke, function()
+		if helpers.native and not helpers.bound then
+			helpers.bound = true
+			Roblox.bindToClose(function()
+				local current = client
+				if current then
+					current:flush(20)
+					current:destroy()
+				end
+			end)
+		end
+	end)
+	client = facade(state, invoke, config.universeId or auth.universeId, session, helpers)
+	return client :: Client
 end
 --- Return another scoped facade over the same physical resource and credential lifetime.
 function Client.withUniverse(self: Client, id: string | number): Client
@@ -201,9 +211,7 @@ end
 function Client.health(self: Client): { [string]: { result: Types.Result<any>, latency: number } }
 	local results: { [string]: { result: Types.Result<any>, latency: number } } = {}
 	local runtime = self._state.config.runtime
-	for _, service in
-		{ "auth", "data", "matchmaking", "party", "codes", "audit", "config", "leaderboards", "economy" }
-	do
+	for _, service in { "auth", "matchmaking", "party", "codes", "audit", "config", "leaderboards", "fields" } do
 		local start = runtime.now()
 		local result = self._invoke(Endpoints[service .. ".healthProxy"], {}, { priority = "critical" }, nil)
 		results[service] = { result = result, latency = runtime.now() - start }
@@ -229,6 +237,9 @@ function Client.flush(self: Client, timeout: number?): boolean
 	local runtime = self._state.config.runtime
 	local deadline = runtime.now() + Config.number(timeout, 10, 0, 300, "flush timeout")
 	local drained = true
+	if self._helpers.fields then
+		drained = FieldsHelpers.close(self._helpers.fields, deadline)
+	end
 	for _, snapshot in self._helpers.snapshots do
 		snapshot:Destroy()
 	end
@@ -249,6 +260,9 @@ function Client.destroy(self: Client)
 	end
 	for _, snapshot in self._helpers.snapshots do
 		snapshot:Destroy()
+	end
+	if self._helpers.fields then
+		FieldsHelpers.destroy(self._helpers.fields)
 	end
 	Pipeline.destroy(self._state)
 	local destroy = self._state.config.auth.destroy
@@ -288,8 +302,10 @@ SDK.Auth = table.freeze({
 })
 SDK.Testing = table.freeze({ fakeBackend = FakeBackend.new })
 SDK.endpoints = Endpoints
+SDK.Fields = table.freeze({ TypeSystem = FieldTypeSystem })
 SDK.null = Json.null
 SDK.array = Json.array
+SDK.object = Json.object
 SDK.pages = Pagination.new
 SDK.cursorPages = Pagination.cursor
 return table.freeze(SDK)

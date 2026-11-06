@@ -6,7 +6,6 @@ local Scheduler = require("./Scheduler")
 local Fake = require("../src/Testing/FakeBackend")
 local Session = require("../src/Auth/UserSession")
 local Json = require("../src/Core/Json")
-local ExactNumbers = require("../src/Core/ExactNumbers")
 local Universe = require("../src/Core/Universe")
 --- Fail a regression without logging request or response payloads.
 local function check(value: unknown, _second: unknown?, _third: unknown?)
@@ -85,14 +84,14 @@ return function(test: (string, () -> ()) -> ())
 				AuditService = "READ",
 				ConfigService = "READ",
 				LeaderboardService = "READ",
-				EconomyService = "READ",
+				FieldsService = "READ",
 			},
 		})
 		s.run(function()
 			check(c.audit:list().ok)
 			check(c.config:entries().ok)
 			check(c.leaderboards:list().ok)
-			check(c.economy:currencies().ok)
+			check(c.fields:products().ok)
 			failed(c.leaderboards:rollover({ path = { name = "wins" } }), "Local")
 			failed(c.audit:append(event()), "Local")
 		end)
@@ -100,7 +99,7 @@ return function(test: (string, () -> ()) -> ())
 		check(urls[1] == "https://lb1.blox-api.com/audit-service/api/audit/events?universeId=123")
 		check(urls[2] == "https://lb1.blox-api.com/remote-config-service/api/config/universes/123/entries")
 		check(urls[3] == "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/universes/123/boards")
-		check(urls[4] == "https://lb1.blox-api.com/economy-service/api/economy/universes/123/currencies")
+		check(urls[4] == "https://lb1.blox-api.com/fields-service/api/fields/universes/123/products")
 	end)
 	test("user JWT works for new services and never leaks into URLs", function()
 		local s = Scheduler.new()
@@ -120,7 +119,7 @@ return function(test: (string, () -> ()) -> ())
 			},
 		}, { userSession = { store = store }, universeId = 123 })
 		s.run(function()
-			check(c.economy:currencies().ok)
+			check(c.fields:products().ok)
 		end)
 		check(f.count() == 1)
 	end)
@@ -159,90 +158,6 @@ return function(test: (string, () -> ()) -> ())
 			failed(global.config:entries({ path = { universeId = -1 } }), "Validation")
 		end)
 		check(f.count() == 0)
-	end)
-	test("all seven economy operations generate retry-stable keys without changing caller input", function()
-		for _, name in { "grant", "spend", "transfer", "adjust", "reverse", "receipt", "refund" } do
-			local s = Scheduler.new()
-			local bodies: { string } = {}
-			local request: any =
-				{ path = { userId = 7 }, body = { currency = "COIN", amount = 5, reason = "test grant" } }
-			if name == "transfer" then
-				request = {
-					body = {
-						fromUserId = 7,
-						toUserId = 8,
-						currency = "COIN",
-						amount = 5,
-						reason = "test transfer",
-					},
-				}
-			elseif name == "adjust" then
-				request.body = { currency = "COIN", delta = -1, reason = "admin adjustment" }
-			elseif name == "reverse" then
-				request = { path = { entryId = "entry" }, body = { reason = "reverse reason" } }
-			elseif name == "receipt" then
-				request = { body = { purchaseId = "purchase", userId = 7, productId = 8 } }
-			elseif name == "refund" then
-				request = { path = { purchaseId = "purchase" }, body = { reason = "refund reason" } }
-			end
-			local capture = function(r: Core.HttpRequest)
-				table.insert(bodies, r.Body :: string)
-			end
-			local c, f = client(s, {
-				{ status = 503, check = capture },
-				{ body = s.json({ entries = Json.array({}), replayed = true }), check = capture },
-			})
-			s.run(function()
-				check((c.economy :: any)[name](c.economy, request).ok)
-			end)
-			check(f.count() == 2 and bodies[1] == bodies[2])
-			check(string.find(bodies[1], '"idempotencyKey":"'))
-			check(request.body.idempotencyKey == nil)
-		end
-	end)
-	test("explicit keys preserved, independent calls get different keys, bad keys never dispatch", function()
-		local s = Scheduler.new()
-		local bodies: { string } = {}
-		local capture = function(r: Core.HttpRequest)
-			table.insert(bodies, r.Body :: string)
-		end
-		local result = s.json({ entries = Json.array({}), replayed = false })
-		local c, f = client(s, {
-			{ body = result, check = capture },
-			{ body = result, check = capture },
-			{
-				body = result,
-				check = capture,
-			},
-		})
-		s.run(function()
-			check(c.economy:grant({
-				path = { userId = 7 },
-				body = { currency = "COIN", amount = 1, reason = "reward" },
-			}).ok)
-			check(c.economy:grant({
-				path = { userId = 7 },
-				body = { currency = "COIN", amount = 1, reason = "reward" },
-			}).ok)
-			check(c.economy:grant({
-				path = { userId = 7 },
-				body = {
-					currency = "COIN",
-					amount = 1,
-					reason = "reward",
-					idempotencyKey = "saved-operation",
-				},
-			}).ok)
-			failed(
-				c.economy:grant({
-					path = { userId = 7 },
-					body = { currency = "COIN", amount = 1, reason = "reward", idempotencyKey = "" },
-				}),
-				"Validation"
-			)
-		end)
-		check(f.count() == 3 and bodies[1] ~= bodies[2])
-		check(string.find(bodies[3], '"idempotencyKey":"saved-operation"', 1, true))
 	end)
 	test("leaderboard single and batch submission IDs survive retries and caller mutation", function()
 		local s = Scheduler.new()
@@ -354,7 +269,7 @@ return function(test: (string, () -> ()) -> ())
 			local b = pages()
 			check(b and b.ok)
 			check(pages() == nil)
-			local failures = c.economy:currenciesPages()
+			local failures = c.fields:productsPages()
 			local bad = failures()
 			check(bad and not bad.ok)
 			check(failures() == nil)
@@ -553,80 +468,6 @@ return function(test: (string, () -> ()) -> ())
 			check(f.count() >= 3 and s.pending() == 0)
 		end
 	)
-	test("Economy preserves exact large integers and accepts explicit integer strings", function()
-		check(
-			ExactNumbers.preserve(
-				'{"balance":12345678901234567890123456789012345678,"text":"12345678901234567890"}'
-			) == '{"balance":"12345678901234567890123456789012345678","text":"12345678901234567890"}'
-		)
-		local s = Scheduler.new()
-		local large = "12345678901234567890123456789012345678"
-		local response = {
-			universeId = 123,
-			userId = 7,
-			currencyCode = "COIN",
-			balance = large,
-			version = 1,
-			updatedAt = "2026-11-05T00:00:00Z",
-		}
-		local registered = s.json(response)
-		local raw = string.gsub(registered, '"' .. large .. '"', large)
-		local c, f = client(s, {
-			{ body = raw },
-			{
-				body = s.json({ entries = Json.array({}), replayed = false }),
-				check = function(r)
-					check(string.find(r.Body :: string, '"amount":"1000000000000"', 1, true))
-				end,
-			},
-		})
-		s.run(function()
-			local result = c.economy:balance({ path = { userId = 7, code = "COIN" } })
-			check(result.ok and result.value.balance == large)
-			check(c.economy:grant({
-				path = { userId = 7 },
-				body = { currency = "COIN", amount = "1000000000000", reason = "reward" },
-			}).ok)
-			failed(
-				c.economy:grant({
-					path = { userId = 7 },
-					body = { currency = "COIN", amount = 1.5, reason = "reward" },
-				}),
-				"Validation"
-			)
-		end)
-		check(f.count() == 2)
-	end)
-	test("cursor iterators snapshot nested path, body and query filters at creation", function()
-		local s = Scheduler.new()
-		local inspect = function(r: Core.HttpRequest)
-			check(string.find(r.Url, "/universes/123/balances/batch?", 1, true))
-			check(string.find(r.Url, "limit=50", 1, true))
-			check(string.find(r.Body :: string, '"userIds":[7]', 1, true))
-		end
-		local c, f = client(s, {
-			{ body = s.json({ items = Json.array({}), nextCursor = "next" }), check = inspect },
-			{ body = s.json({ items = Json.array({}) }), check = inspect },
-		})
-		local request = {
-			path = { universeId = 123 },
-			query = { limit = 50 },
-			body = {
-				userIds = { 7 },
-				codes = { "COIN" },
-			},
-		}
-		local pages = c.economy:batchPages(request)
-		request.path.universeId = 456
-		request.query.limit = 1
-		request.body.userIds[1] = 8
-		s.run(function()
-			check((pages() :: any).ok)
-			check((pages() :: any).ok)
-			check(pages() == nil)
-		end)
-		check(f.count() == 2)
-	end)
 	test("keyed 401 replay preserves key while refreshing at most once", function()
 		local s = Scheduler.new()
 		local refreshed = 0

@@ -11,7 +11,7 @@ def main() -> None:
     for p in (ROOT/'roblox').rglob('*.luau'):
         key='src/BloxSDK' if p.name=='init.luau' else 'src/'+str(p.relative_to(ROOT/'roblox').with_suffix(''))
         sources[key]=p.read_text()
-    for p in (ROOT/'tests').glob('*.luau'):sources['tests/'+p.stem]=p.read_text()
+    for p in (ROOT/'tests').rglob('*.luau'):sources['tests/'+str(p.relative_to(ROOT/'tests').with_suffix(''))]=p.read_text()
     parts=['--!strict','local sources = {}']
     for key,source in sorted(sources.items()):
         assert ']===]' not in source
@@ -59,9 +59,12 @@ for id,source in sources do assert(loadstring(source,"@syntax/"..id), "Projected
 loadModule("tests/run")
 -- Exercise the default Roblox adapter without making any network calls.
 local scheduler=loadModule("tests/Scheduler").new()
+local wireJson=loadModule("src/Core/Json")
 local prefixed={AddPrefix=function() error("Prefix must be applied once") end}
 local rawSecret={AddPrefix=function(_,prefix) assert(prefix=="Bearer ","Incorrect Secret prefix");return prefixed end}
 local requests=0
+local fieldsMode=false
+local presenceStates={}
 local server=true
 local closeCallbacks={}
 local guid=0
@@ -77,8 +80,20 @@ local http={
    assert(string.find(request.Body,'"idemKey":"offline-guid-1"',1,true),"Missing native GUID")
    return {StatusCode=202,Body=scheduler.json({accepted=1,duplicate=0}),Headers={}}
   end
-  assert(request.Url=="https://lb1.blox-api.com/data-service/api/universes/schema/defaults?universeId=123","Incorrect native data gateway route")
-  return {StatusCode=200,Body=scheduler.json({}),Headers={}}
+  if fieldsMode then
+   local path="https://lb1.blox-api.com/fields-service/api/fields/universes/123"
+   if request.Url==path.."/schema" then
+    return {StatusCode=200,Headers={},Body=scheduler.json({universeId=123,schemaVersion=1,definitions={{universeId=123,id="Currency.Gems",type={kind="int",min=0},scope="PLAYER",status="ACTIVE",history="LEDGER",writeLevel="READ_WRITE",definitionVersion=1,description="",createdAt="now",updatedAt="now"}}})}
+   elseif request.Url==path.."/players/7/document" then
+    return {StatusCode=200,Headers={},Body=scheduler.json({userId=7,seq=0,data={Currency={Gems=0}},versions={["Currency.Gems"]=0}})}
+   end
+   assert(request.Url==path.."/players/7/presence" and request.Method=="PUT","Unexpected Fields native route")
+   local online=string.find(request.Body,'"online":true',1,true)~=nil
+   table.insert(presenceStates,online)
+   return {StatusCode=200,Headers={},Body=scheduler.json({userId=7,online=online,sessionId="native-session",placeId=1})}
+  end
+  assert(request.Url=="https://lb1.blox-api.com/fields-service/api/fields/universes/123/schema","Incorrect native Fields gateway route")
+  return {StatusCode=200,Body=scheduler.json({universeId=123,schemaVersion=0,definitions=wireJson.array({})}),Headers={}}
  end,
 }
 base.game={BindToClose=function(_,callback) table.insert(closeCallbacks,callback) end,GetService=function(_,name)
@@ -89,7 +104,7 @@ end}
 base.task={wait=scheduler.runtime.wait,spawn=scheduler.runtime.spawn,delay=scheduler.runtime.delay,cancel=scheduler.runtime.cancel}
 local sdk=loadModule("src/BloxSDK")
 local client=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
-scheduler.run(function() assert(client.data:getSchemaDefaults().ok,"Default adapter request failed") end)
+scheduler.run(function() assert(client.fields:schema().ok,"Default adapter request failed") end)
 assert(requests==1,"Unexpected HTTP request count")
 local writer=client:auditWriter({batchSize=10})
 client:withUniverse(123):auditWriter()
@@ -99,6 +114,18 @@ assert(requests==1,"Enqueue must not block or dispatch inline")
 scheduler.run(closeCallbacks[1])
 assert(requests==2 and writer:Pending()==0 and client._state.destroyed,"BindToClose failed to drain audit queue")
 client:destroy()
+fieldsMode=true
+local fieldsClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
+scheduler.run(function()
+ local loaded=fieldsClient.fields:LoadProfile(123,7)
+ assert(loaded.ok,"Native profile load failed")
+ assert(loaded.value:StartPresence(1,"native-session").ok,"Native presence acquisition failed")
+ assert(#closeCallbacks==2,"Fields must register exactly one additional client shutdown callback")
+ closeCallbacks[2]()
+end)
+assert(#presenceStates==2 and presenceStates[1] and not presenceStates[2],"Fields BindToClose must release presence")
+assert(fieldsClient._state.destroyed and scheduler.pending()==0,"Fields tasks survived shutdown")
+print("PASS projected Fields BindToClose flush, session release and profile lifecycle")
 server=false
 local ok=pcall(sdk.new,{key="bsa_"..string.rep("a",8).."_"..string.rep("b",43),universeId=123})
 assert(not ok,"Client-side construction must fail")

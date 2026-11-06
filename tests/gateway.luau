@@ -14,14 +14,13 @@ end
 -- Independent deployment expectations, not copied from the generated runtime table.
 Tests.prefixes = table.freeze({
 	auth = "/auth-service",
-	data = "/data-service",
 	matchmaking = "/matchmaking-service",
 	party = "/party-service",
 	codes = "/code-service",
 	audit = "/audit-service",
 	config = "/remote-config-service",
 	leaderboards = "/leaderboard-service",
-	economy = "/economy-service",
+	fields = "/fields-service",
 }) :: { [string]: string }
 --- Register offline URL, override, validation and shared-origin regressions.
 function Tests.register(test: (string, () -> ()) -> ())
@@ -34,14 +33,14 @@ function Tests.register(test: (string, () -> ()) -> ())
 			check(origins[service] == Routing.gatewayUrl and bases[service] == Routing.gatewayUrl .. prefix)
 		end
 		local options: { [string]: Config.ServiceConfig } =
-			{ data = { baseUrl = "https://DIRECT.example:0443/" }, config = {} }
+			{ fields = { baseUrl = "https://DIRECT.example:0443/" }, config = {} }
 		local customOrigins, customBases =
 			Config.resolve({ gatewayUrl = "https://GATEWAY.example:8443/", services = options })
-		check(customOrigins.data == "https://direct.example" and customBases.data == customOrigins.data)
+		check(customOrigins.fields == "https://direct.example" and customBases.fields == customOrigins.fields)
 		check(customBases.config == "https://gateway.example:8443/remote-config-service")
-		options.data.baseUrl = "https://changed.example"
-		check(customBases.data == "https://direct.example")
-		check(bases.data == "https://lb1.blox-api.com/data-service")
+		options.fields.baseUrl = "https://changed.example"
+		check(customBases.fields == "https://direct.example")
+		check(bases.fields == "https://lb1.blox-api.com/fields-service")
 	end)
 
 	test("invalid URLs and removed hosts option fail before runtime or credential access", function()
@@ -64,7 +63,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 			"//secret.invalid",
 		}
 		for _, value in invalid do
-			for _, config in { { gatewayUrl = value }, { services = { data = { baseUrl = value } } } } do
+			for _, config in { { gatewayUrl = value }, { services = { fields = { baseUrl = value } } } } do
 				local ok, message = pcall(SDK.new, config :: any)
 				check(not ok and string.find(tostring(message), "HTTPS", 1, true))
 				check(not string.find(tostring(message), "hidden", 1, true))
@@ -72,11 +71,11 @@ function Tests.register(test: (string, () -> ()) -> ())
 			end
 		end
 		local badConfigs: { any } = {
-			{ hosts = { data = "https://direct.example" } },
+			{ hosts = { fields = "https://direct.example" } },
 			{ services = false },
 			{ services = { missing = {} } },
-			{ services = { data = false } },
-			{ services = { data = { baseURL = "https://direct.example" } } },
+			{ services = { fields = false } },
+			{ services = { fields = { baseURL = "https://direct.example" } } },
 		}
 		for _, config in badConfigs do
 			local ok, message = pcall(SDK.new, config :: any)
@@ -84,7 +83,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 		end
 	end)
 
-	test("health covers all nine prefixes with custom gateways and direct-host exceptions", function()
+	test("health covers all eight prefixes with custom gateways and direct-host exceptions", function()
 		local policies: { SDK.Config } = {
 			{},
 			{ gatewayUrl = "https://gateway.example/" },
@@ -118,19 +117,19 @@ function Tests.register(test: (string, () -> ()) -> ())
 					check(seen[url])
 				end
 			end)
-			check(c:metrics().attempts == 9)
+			check(c:metrics().attempts == 8)
 			c:destroy()
 		end
 	end)
 
-	test("audit list, config snapshot and economy grant use exact gateway URLs", function()
+	test("audit list, config snapshot and Fields transaction use exact gateway URLs", function()
 		local s = Scheduler.new()
 		local urls: { string } = {}
 		local methods: { string } = {}
 		local fake = Fake.new(s.runtime, {
 			{ body = s.json({ items = SDK.array({}) }) },
 			{ body = s.json({ version = 1, entries = {}, flags = SDK.array({}), maintenance = false }) },
-			{ body = s.json({ entries = SDK.array({}), replayed = false }) },
+			{ body = s.json({ txId = "tx", results = SDK.array({}), seq = {}, replayed = false }) },
 		})
 		local c = SDK.new({
 			runtime = s.runtime,
@@ -144,9 +143,9 @@ function Tests.register(test: (string, () -> ()) -> ())
 		s.run(function()
 			check(c.audit:list().ok)
 			check(c:withUniverse(123).config:snapshot().ok)
-			check(c:withUniverse(123).economy:grant({
+			check(c:withUniverse(123).fields:transaction({
 				path = { userId = 7 },
-				body = { currency = "COIN", amount = "100", reason = "reward" },
+				body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 100 } }, reason = "reward" },
 			}).ok)
 		end)
 		check(urls[1] == "https://lb1.blox-api.com/audit-service/api/audit/events" and methods[1] == "GET")
@@ -155,7 +154,8 @@ function Tests.register(test: (string, () -> ()) -> ())
 				and methods[2] == "GET"
 		)
 		check(
-			urls[3] == "https://lb1.blox-api.com/economy-service/api/economy/universes/123/users/7/grant"
+			urls[3]
+					== "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/7/transactions"
 				and methods[3] == "POST"
 		)
 	end)
@@ -168,7 +168,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 			local urls: { string } = {}
 			local fake = Fake.new(s.runtime, {
 				{ body = s.json({ accessToken = "new", refreshToken = "rotated", expiresIn = 3600 }) },
-				{ body = s.json({}) },
+				{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = SDK.array({}) }) },
 				{ body = s.json({ message = "ok" }) },
 			})
 			local c = SDK.new({
@@ -182,16 +182,14 @@ function Tests.register(test: (string, () -> ()) -> ())
 				end,
 			})
 			s.run(function()
-				check(c:withUniverse(123).data:getSchemaDefaults().ok)
+				check(c:withUniverse(123).fields:schema().ok)
 				check(c:logout().ok)
 			end)
 			local authBase = if direct
 				then "https://direct.example"
 				else "https://gateway.example/auth-service"
 			check(urls[1] == authBase .. "/api/auth/refresh")
-			check(
-				urls[2] == "https://gateway.example/data-service/api/universes/schema/defaults?universeId=123"
-			)
+			check(urls[2] == "https://gateway.example/fields-service/api/fields/universes/123/schema")
 			check(urls[3] == authBase .. "/api/auth/logout" and store.get() == nil)
 		end
 	end)
@@ -209,7 +207,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 		})
 		s.run(function()
 			s.runtime.spawn(function()
-				check(c.data:healthProxy().ok)
+				check(c.auth:healthProxy().ok)
 			end)
 			s.runtime.wait(0.01)
 			local blocked = c.party:healthProxy()
@@ -235,7 +233,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 		})
 		s.run(function()
 			for _ = 1, 5 do
-				check(not c.data:healthProxy().ok)
+				check(not c.auth:healthProxy().ok)
 			end
 			local blocked = c.party:healthProxy()
 			check(not blocked.ok and blocked.error.kind == "CircuitOpen")

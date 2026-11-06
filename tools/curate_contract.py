@@ -72,7 +72,6 @@ def main() -> None:
         if e['path']=='/health' or e['path']=='/api/auth/health': response='HealthResponse'
         if svc=='matchmaking': response=map_responses.get(old,response)
         if svc=='matchmaking' and old=='createGameMode': e['minimumLevel']='ADMIN'
-        if svc=='data' and old=='getUserData': response='UserDataDto|List<UserDataDto>'
         if svc=='party' and old=='leaveParty': response='PartyResponse|Void'
         if svc=='auth' and old.endswith('Rest'): e['statuses']=[204]
         if svc=='auth' and old=='validateToken': e['statuses']=[200,401]

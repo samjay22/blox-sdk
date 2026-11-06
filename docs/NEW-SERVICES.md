@@ -1,24 +1,24 @@
-# Audit, Config, Leaderboards and Economy
+# Audit, Config, Leaderboards and Fields
 
 All four facades share the existing Bearer service-account/user-session authentication, admission limits,
 error results, retry budget and backoff. All use `https://lb1.blox-api.com`, with prefixes
-`/audit-service`, `/remote-config-service`, `/leaderboard-service` and `/economy-service`, respectively.
+`/audit-service`, `/remote-config-service`, `/leaderboard-service` and `/fields-service`, respectively.
 Never use `/config-service`; `/config*` is gateway-reserved. See the [complete prefix table and overrides](../README.md#gateway-routing).
 Exact permission names: `AuditService`, `ConfigService`,
-`LeaderboardService` (singular), `EconomyService`.
+`LeaderboardService` (singular), `FieldsService`.
 
 Use `universeId` on client construction or `withUniverse(id)`. Universe selectors must be positive
 integers: numbers must be exactly representable (at most 2^53-1); canonical decimal strings support
 path/query IDs up to Java's signed 64-bit maximum. DTO numeric IDs remain limited to safe Luau integers.
 Audit has implied/query scope; writes fill a missing event universe from the client scope. Config,
-Leaderboards and Economy use path universes. Explicit contradictory body scope is rejected locally;
+Leaderboards and Fields use path universes. Explicit contradictory body scope is rejected locally;
 the backend is always the authorization authority. Arbitrary metadata fields are not scope selectors.
 
 ## Idempotency and retries
 
 The SDK privately copies each logical request and generates omitted keys **before** dispatch:
 
-- Economy grant, spend, transfer, adjust, reverse, receipt and refund: `idempotencyKey`.
+- Fields transaction, reversal, restore, purchase and refund: `idempotencyKey`.
 - Leaderboard submissions: `submissionId`, one per score in a batch; rating matches: `matchId`.
 - Audit append/batch: `idemKey`, one per event.
 
@@ -26,8 +26,8 @@ The exact body/key is reused across automatic retries and eligible authorization
 inputs are not mutated. Separate calls generate different keys. Native Roblox uses `GenerateGUID(false)`;
 injected runtimes can supply `guid`, otherwise timestamp, sequence and random components are used.
 Keys are not credentials. Supply/persist your own keys when replaying across calls, restarts or uncertain
-failures. Economy keys are universe-wide and durable; Audit deduplication ends when retention deletes
-the event. Reusing a key for a different payload is not a safe retry (Economy/Leaderboards return 409).
+failures. Fields keys are universe-wide and durable; Audit deduplication ends when retention deletes
+the event. Reusing a key for a different payload is not a safe retry (Fields/Leaderboards return 409).
 
 Only contract-declared safe/idempotent operations retry, using the existing earned budget and full-jitter
 backoff. GETs with side effects remain excluded. Manual leaderboard rollover, config rollback and other
@@ -39,7 +39,7 @@ conservatively single-attempt. A Network/Timeout result never proves that a writ
 
 Every cursor-bearing method has a generated `<method>Pages(request?, options?, maximum?)` helper, e.g.
 `client.audit:listPages`, `client.config:entriesPages`, `client.leaderboards:ratingTopPages`, and
-`client.economy:ledgerPages`. Mixed requests retain their path, body and filters. No request is made until
+`client.fields:ledgerPages`. Mixed requests retain their path, body and filters. No request is made until
 the returned iterator is called. Each call yields a **Result containing a whole page**, then nil at the
 end. Missing/null/empty `nextCursor` ends iteration; failures yield once, rather than hiding incomplete
 results. Cursor cycles and the default 10,000-page bound produce a terminal Local error. These are live
@@ -84,14 +84,9 @@ with `:Disconnect()`; callbacks run asynchronously on first load and each change
 304/equal versions. Listener exceptions are isolated. `:Destroy()` stops polling and disconnects
 listeners. Shared client flush/destroy stops owned caches. No polling starts merely by requiring the SDK.
 
-## Economy exact amounts
+## Fields typed gameplay
 
-Amounts are integer smallest units. DTOs accept safe integral numbers or decimal strings (up to 38
-digits); send strings when precision matters. Before decoding Economy JSON, unsafe integer numeric
-tokens are preserved as strings, so a 38-digit ledger balance is never silently rounded by the runtime.
-Unsafe exponential/fractional forms fail closed. Large response IDs that cannot satisfy their numeric
-DTO schema also fail closed. Do not call `tonumber` on large balance strings or do floating-point ledger
-arithmetic. Backend asset limits, positive amounts, zero-delta rejection and business rules still apply.
-
-See `examples/audit.luau`, `config.luau`, `leaderboards.luau`, `economy.luau`, exported `src/Types/*`,
-and the generated [endpoint reference](ENDPOINTS.md) for exact method names and request shapes.
+See [Fields](FIELDS.md) for TypeExpr validation, schema caches, transactions, profiles, presence,
+products/receipts, snapshots/outbox/reconcile, generated accessors and exactness limits.
+`putDocument` does not invent a key; it retries only with an explicit key. Failed local transaction
+validation performs no network call. See `examples/fields-*.luau` and [endpoint reference](ENDPOINTS.md).

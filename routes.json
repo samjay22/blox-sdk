@@ -165,431 +165,6 @@
     "path": "/api/auth/universes/{universeId}/places/{placeId}"
   },
   {
-    "svc": "code",
-    "method": "DELETE",
-    "path": "/api/codes/{id}"
-  },
-  {
-    "svc": "code",
-    "method": "GET",
-    "path": "/api/codes"
-  },
-  {
-    "svc": "code",
-    "method": "GET",
-    "path": "/api/codes/{id}"
-  },
-  {
-    "svc": "code",
-    "method": "GET",
-    "path": "/api/codes/{id}/redemptions"
-  },
-  {
-    "svc": "code",
-    "method": "GET",
-    "path": "/health"
-  },
-  {
-    "svc": "code",
-    "method": "POST",
-    "path": "/api/codes"
-  },
-  {
-    "svc": "code",
-    "method": "POST",
-    "path": "/api/codes/redeem"
-  },
-  {
-    "svc": "code",
-    "method": "PUT",
-    "path": "/api/codes/{id}"
-  },
-  {
-    "svc": "data",
-    "method": "DELETE",
-    "path": "/api/admin/backups/{snapshotId}"
-  },
-  {
-    "svc": "data",
-    "method": "DELETE",
-    "path": "/api/universes/users/{robloxUserId}/data"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/backups"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/backups/universe/{universeId}"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/backups/{snapshotId}"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/pending-updates"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/schema-migrations"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/schema-versions"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/user-data"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/user-data/grouped"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/admin/users/{robloxUserId}/data"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/universes/schema/defaults"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/universes/schema/versions"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/universes/users/data"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/api/universes/users/{robloxUserId}/data"
-  },
-  {
-    "svc": "data",
-    "method": "GET",
-    "path": "/health"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/admin/backups"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/admin/backups/trigger-all"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/admin/backups/{snapshotId}/rollback"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/auth/login"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/auth/logout"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/auth/refresh"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/universes/schema"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/universes/users/data/sync"
-  },
-  {
-    "svc": "data",
-    "method": "POST",
-    "path": "/api/universes/users/{robloxUserId}/data"
-  },
-  {
-    "svc": "data",
-    "method": "PUT",
-    "path": "/api/universes/users/data/bulk"
-  },
-  {
-    "svc": "data",
-    "method": "PUT",
-    "path": "/api/universes/users/{robloxUserId}/data"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/bans/universe/{universeId}/bulk"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/bans/universe/{universeId}/player/{userId}"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/gamemodes/{id}"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/matchmaking/queue"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/matchmaking/queue/flush"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/roblox/keys/me"
-  },
-  {
-    "svc": "mm",
-    "method": "DELETE",
-    "path": "/api/roblox/keys/{universeId}"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/bans"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/bans/check"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/bans/universe/{universeId}"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/bans/universe/{universeId}/permanent"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/bans/universe/{universeId}/player/{userId}"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/bans/universe/{universeId}/temporary"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/gamemodes"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/gamemodes/{id}/criteria/explain"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/gamemodes/{name}"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/matchmaking/queue/metrics"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/matchmaking/queue/status"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/matchmaking/{universeId}/gamemodes/{gameModeName}/queue/count"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/matchmaking/{universeId}/gamemodes/{gameModeName}/wait-estimate"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/roblox/keys"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/roblox/keys/me"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/roblox/keys/{universeId}"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/universes/getAllUniverses"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/universes/me"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/api/universes/{universeId}"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/health"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/metrics"
-  },
-  {
-    "svc": "mm",
-    "method": "GET",
-    "path": "/{universeId}/gamemodes/{gameModeName}/wait-estimate"
-  },
-  {
-    "svc": "mm",
-    "method": "HEAD",
-    "path": "/api/roblox/keys/me"
-  },
-  {
-    "svc": "mm",
-    "method": "HEAD",
-    "path": "/api/roblox/keys/{universeId}"
-  },
-  {
-    "svc": "mm",
-    "method": "PATCH",
-    "path": "/api/roblox/keys"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/auth/login"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/auth/logout"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/auth/refresh"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/bans"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/bans/bulk"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/bans/cleanup"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/gamemodes"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/matchmaking/process/{universeId}"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/matchmaking/queue"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/matchmaking/queue/multi"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/matchmaking/queue/remove"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/matchmaking/queue/status/bulk"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/matchmaking/validate"
-  },
-  {
-    "svc": "mm",
-    "method": "POST",
-    "path": "/api/roblox/keys"
-  },
-  {
-    "svc": "mm",
-    "method": "PUT",
-    "path": "/api/bans/universe/{universeId}/player/{userId}"
-  },
-  {
-    "svc": "mm",
-    "method": "PUT",
-    "path": "/api/gamemodes/{id}"
-  },
-  {
-    "svc": "mm",
-    "method": "PUT",
-    "path": "/api/roblox/keys/me"
-  },
-  {
-    "svc": "mm",
-    "method": "PUT",
-    "path": "/api/roblox/keys/{universeId}"
-  },
-  {
     "svc": "party",
     "method": "GET",
     "path": "/api/party/all"
@@ -735,6 +310,56 @@
     "path": "/metrics"
   },
   {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/api/codes"
+  },
+  {
+    "svc": "codes",
+    "method": "POST",
+    "path": "/api/codes"
+  },
+  {
+    "svc": "codes",
+    "method": "POST",
+    "path": "/api/codes/redeem"
+  },
+  {
+    "svc": "codes",
+    "method": "DELETE",
+    "path": "/api/codes/{id}"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/api/codes/{id}"
+  },
+  {
+    "svc": "codes",
+    "method": "PUT",
+    "path": "/api/codes/{id}"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/api/codes/{id}/redemptions"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/health"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/info"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/metrics"
+  },
+  {
     "svc": "config",
     "method": "GET",
     "path": "/actuator/health/liveness"
@@ -835,127 +460,272 @@
     "path": "/metrics"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
     "path": "/actuator/health/liveness"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
     "path": "/actuator/health/readiness"
   },
   {
-    "svc": "economy",
-    "method": "POST",
-    "path": "/api/economy/universes/{universeId}/balances/batch"
-  },
-  {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
-    "path": "/api/economy/universes/{universeId}/currencies"
+    "path": "/api/fields/universes/{universeId}/definitions"
   },
   {
-    "svc": "economy",
-    "method": "PATCH",
-    "path": "/api/economy/universes/{universeId}/currencies"
-  },
-  {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/currencies"
+    "path": "/api/fields/universes/{universeId}/definitions"
   },
   {
-    "svc": "economy",
-    "method": "GET",
-    "path": "/api/economy/universes/{universeId}/ledger/{entryId}"
-  },
-  {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/ledger/{entryId}/reverse"
+    "path": "/api/fields/universes/{universeId}/definitions/preview-board"
   },
   {
-    "svc": "economy",
-    "method": "GET",
-    "path": "/api/economy/universes/{universeId}/products"
-  },
-  {
-    "svc": "economy",
+    "svc": "fields",
     "method": "DELETE",
-    "path": "/api/economy/universes/{universeId}/products/{robloxProductId}"
+    "path": "/api/fields/universes/{universeId}/definitions/{id}"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
-    "path": "/api/economy/universes/{universeId}/products/{robloxProductId}"
+    "path": "/api/fields/universes/{universeId}/definitions/{id}"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "PUT",
-    "path": "/api/economy/universes/{universeId}/products/{robloxProductId}"
+    "path": "/api/fields/universes/{universeId}/definitions/{id}"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/receipts"
+    "path": "/api/fields/universes/{universeId}/definitions/{id}/archive"
   },
   {
-    "svc": "economy",
-    "method": "POST",
-    "path": "/api/economy/universes/{universeId}/receipts/{purchaseId}/refund"
-  },
-  {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
-    "path": "/api/economy/universes/{universeId}/reconcile"
+    "path": "/api/fields/universes/{universeId}/definitions/{id}/history"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/transfer"
+    "path": "/api/fields/universes/{universeId}/definitions/{id}/unarchive"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/users/{userId}/adjust"
+    "path": "/api/fields/universes/{universeId}/fields/batch-get"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
-    "path": "/api/economy/universes/{universeId}/users/{userId}/balances"
+    "path": "/api/fields/universes/{universeId}/leaderboard-bindings"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
-    "path": "/api/economy/universes/{universeId}/users/{userId}/balances/{code}"
+    "path": "/api/fields/universes/{universeId}/ledger/{entryId}"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/users/{userId}/grant"
+    "path": "/api/fields/universes/{universeId}/ledger/{entryId}/reverse"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/ops/validate"
+  },
+  {
+    "svc": "fields",
     "method": "GET",
-    "path": "/api/economy/universes/{universeId}/users/{userId}/ledger"
+    "path": "/api/fields/universes/{universeId}/outbox"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "POST",
-    "path": "/api/economy/universes/{universeId}/users/{userId}/spend"
+    "path": "/api/fields/universes/{universeId}/outbox/{id}/retry"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/players/{userId}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/changes"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/document"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/document"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/fields"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/fields/batch-get"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/fields/{fieldId}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/ledger"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/presence"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/presence"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/receipts"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/transactions"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/presence/batch-get"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/products"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/products/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/products/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/products/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/receipts"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/receipts/{purchaseId}"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/receipts/{purchaseId}/refund"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/reconcile"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schema"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schema/luau"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schema/typescript"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/snapshots"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/snapshots"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/snapshots/policy"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/snapshots/policy"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/snapshots/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/snapshots/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/snapshots/{id}/restore"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/transactions"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/transactions/{txId}/reverse"
+  },
+  {
+    "svc": "fields",
     "method": "GET",
     "path": "/health"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
     "path": "/info"
   },
   {
-    "svc": "economy",
+    "svc": "fields",
     "method": "GET",
     "path": "/metrics"
   },
@@ -1088,5 +858,255 @@
     "svc": "leaderboards",
     "method": "GET",
     "path": "/metrics"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/auth/login"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/auth/logout"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/auth/refresh"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/bans"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/bans"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/bans/bulk"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/bans/check"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/bans/cleanup"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/bans/universe/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/bans/universe/{universeId}/bulk"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/bans/universe/{universeId}/permanent"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/bans/universe/{universeId}/player/{userId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/bans/universe/{universeId}/player/{userId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "PUT",
+    "path": "/api/bans/universe/{universeId}/player/{userId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/bans/universe/{universeId}/temporary"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/gamemodes"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/gamemodes"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/gamemodes/{id}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "PUT",
+    "path": "/api/gamemodes/{id}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/gamemodes/{id}/criteria/explain"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/gamemodes/{name}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/process/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/matchmaking/queue"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/queue"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/matchmaking/queue/flush"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/matchmaking/queue/metrics"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/queue/multi"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/queue/remove"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/matchmaking/queue/status"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/queue/status/bulk"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/validate"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/matchmaking/{universeId}/gamemodes/{gameModeName}/queue/count"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/matchmaking/{universeId}/gamemodes/{gameModeName}/wait-estimate"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/roblox/keys"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "PATCH",
+    "path": "/api/roblox/keys"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/roblox/keys"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/roblox/keys/me"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/roblox/keys/me"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "HEAD",
+    "path": "/api/roblox/keys/me"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "PUT",
+    "path": "/api/roblox/keys/me"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "DELETE",
+    "path": "/api/roblox/keys/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/roblox/keys/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "HEAD",
+    "path": "/api/roblox/keys/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "PUT",
+    "path": "/api/roblox/keys/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/universes/getAllUniverses"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/universes/me"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/universes/{universeId}"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/health"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/metrics"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/{universeId}/gamemodes/{gameModeName}/wait-estimate"
   }
 ]

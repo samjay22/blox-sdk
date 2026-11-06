@@ -8,9 +8,10 @@ import import_contract as java
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {name: ROOT.parent / 'svc' / directory for name, directory in {
     'audit': 'audit-service', 'config': 'config-service',
-    'leaderboards': 'leaderboard-service', 'economy': 'economy-service',
+    'leaderboards': 'leaderboard-service', 'fields': 'fields-service',
 }.items()}
-CATALOG = {'audit': 'AuditService', 'config': 'ConfigService', 'leaderboards': 'LeaderboardService', 'economy': 'EconomyService'}
+CATALOG = {'audit': 'AuditService', 'config': 'ConfigService', 'leaderboards': 'LeaderboardService', 'fields': 'FieldsService'}
+SOURCES.update(codes=ROOT.parent/'srv/src-roblox-code-service', matchmaking=ROOT.parent/'srv/src-mm')
 
 
 def strip_annotations(text: str) -> str:
@@ -43,6 +44,8 @@ def records(root: Path) -> dict:
                 # Nested element @NotNull does not make an optional collection required.
                 prefix = item.split('<')[0]
                 required = bool(re.search(r'@(NotNull|NotBlank|NotEmpty)\b', prefix)) or typ in ('long','int','boolean','double')
+                wire = re.search(r'@JsonProperty\("([^"]+)"\)', item)
+                if wire: field = wire[1]
                 fields[field] = {'java': typ, 'required': required, 'notBlank': '@NotBlank' in prefix}
             result[name] = {'fields': fields, 'source': source}
     return result
@@ -53,18 +56,19 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
     java.CATALOG.update(CATALOG)
     endpoints = java.endpoints_for(service, root)
     definitions = records(root)
+    if service == 'fields':
+        from fields_contract import curate
+        return curate(endpoints, definitions, root)
     # Response references are required unless the documented nullable field is listed here.
     nullable = {
         'audit': {'Event': {'actorName','ipHash','requestId','metadata','idemKey'}, 'Summary': {'nextCursor'}},
         'config': {'Entry': {'description'}, 'Flag': {'startsAt','endsAt','description','rules'}, 'State': {'maintenanceMessage'}, 'Snapshot': {'maintenanceMessage'}},
         'leaderboards': {'Board': {'maxDeltaPerSubmit'}, 'Period': {'closedAt'}, 'Submission': {'displayName'}},
-        'economy': {'Currency': {'maxBalance'}, 'Entry': {'refType','refId','counterpartUserId','reversesId'}, 'Result': {'purchaseId','status'}},
     }[service]
     response_names = {
         'audit': 'Retention Receipt Count Summary Event Submission',
         'config': 'Entry Flag State FullState Snapshot History Evaluation',
         'leaderboards': 'Board Entry ScoreResult Submission Standing Period Rating RatingChange MatchResult',
-        'economy': 'Currency Balance Entry Product Result Mismatch',
     }[service].split()
     for name in response_names:
         for field, info in definitions[name]['fields'].items():
@@ -99,13 +103,11 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
         # No mutation is inferred repeat-safe from PUT/DELETE alone.
         endpoint['idempotent'] = endpoint['method'] == 'GET'
         endpoint['retryable'] = endpoint['method'] == 'GET'
-        if service == 'economy' and name == 'batch': endpoint['minimumLevel'] = 'READ'
         if service == 'config' and name == 'snapshot':
             endpoint.update(responseJava='Snapshot|Void', statuses=[200,304], conditional=True, cacheable=False)
         if service == 'audit' and name == 'retention': endpoint['cacheable'] = False
         key = None
         batch = None
-        if service == 'economy' and name in ('grant','spend','transfer','adjust','reverse','receipt','refund'): key = 'idempotencyKey'
         if service == 'leaderboards' and name in ('submit','batch'): key = 'submissionId'; batch = 'scores' if name == 'batch' else None
         if service == 'leaderboards' and name == 'ratingMatch': key = 'matchId'
         if service == 'audit' and name in ('append','batch'): key = 'idemKey'; batch = 'events' if name == 'batch' else None
@@ -128,15 +130,22 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
 
 
 def refresh(doc: dict) -> dict:
-    """Refresh only the new services, preserving the legacy curated contract verbatim."""
-    doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] not in SOURCES]
+    """Refresh local contracts, retaining reviewed map-built Matchmaking envelopes."""
+    from consumer_contracts import refresh_consumers
+    refresh_consumers(doc)
+    records_only = {k:v for k,v in SOURCES.items() if k not in ('codes','matchmaking')}
+    doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] not in records_only]
     provenance = {}
     for service, root in SOURCES.items():
         if not root.is_dir(): raise FileNotFoundError(root)
-        endpoints, definitions = extract(service, root)
-        doc['endpoints'].extend(endpoints)
-        doc['types'][service] = definitions
-        for path in sorted(root.glob('src/main/java/**/*.java')) + [root/'API_CONTRACT.md']:
+        if service in records_only:
+            endpoints, definitions = extract(service, root)
+            doc['endpoints'].extend(endpoints)
+            doc['types'][service] = definitions
+        evidence = sorted(root.glob('src/main/java/**/*.java'))
+        evidence += [p for p in (root/'API_CONTRACT.md', root/'README.md', root/'FRONTEND_INTEGRATION_GUIDE.md') if p.is_file()]
+        evidence += sorted(root.glob('postman/*.json'))
+        for path in evidence:
             provenance[str(path.relative_to(ROOT.parent))] = hashlib.sha256(path.read_bytes()).hexdigest()
     doc['sourceHashes'] = provenance
     doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))

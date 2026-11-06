@@ -43,6 +43,9 @@ local function client(
 	local cfg: SDK.Config = options or {}
 	cfg.runtime = s.runtime
 	cfg.backend = fake.backend
+	if cfg.userSession then
+		cfg.universeId = cfg.universeId or 123
+	end
 	if not cfg.userSession and not cfg.authProvider then
 		cfg.key = key()
 		cfg.universeId = 123
@@ -70,7 +73,16 @@ local function fixture(schema: Core.Schema, defs: { [string]: Core.Schema }): an
 	if kind == "enum" then
 		return (schema.values :: { string })[1]
 	end
-	if kind == "json" then
+	if kind == "fields" and schema.name == "PlayerOperation" then
+		return { field = "Currency.Gems", op = "RESET" }
+	elseif kind == "fields" and schema.name == "PathSegment" then
+		return "Member"
+	elseif kind == "fields" and schema.name == "LeaderboardBinding" then
+		return { board = "wins", submit = "VALUE" }
+	elseif kind == "fields" and schema.name == "TypeExpr" then
+		return { kind = "int" }
+	end
+	if kind == "json" or kind == "fields" then
 		return {}
 	end
 	if kind == "union" then
@@ -230,7 +242,7 @@ test("local role and universe guards perform no HTTP", function()
 		local result = c.auth:listServiceAccounts()
 		failure(result, "Local")
 		check(not result.ok and result.error.message == "requires super-admin user token")
-		failure(c.data:getSchemaDefaults({ query = { universeId = 456 } }), "Local")
+		failure(c.fields:schema({ path = { universeId = 456 } }), "Local")
 	end)
 	check(f.count() == 0)
 	check(not pcall(function()
@@ -243,18 +255,15 @@ test("GET success auth headers and immutable metadata", function()
 	local header = false
 	local c, f = client(s, {
 		{
-			body = s.json({ universeId = 123 }),
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
 			check = function(req: Core.HttpRequest)
 				header = req.Headers.Authorization == "Bearer " .. key()
-				check(
-					req.Url
-						== "https://lb1.blox-api.com/data-service/api/universes/schema/defaults?universeId=123"
-				)
+				check(req.Url == "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schema")
 			end,
 		},
 	})
 	s.run(function()
-		check(c.data:getSchemaDefaults().ok)
+		check(c.fields:schema().ok)
 	end)
 	check(header and f.count() == 1 and table.isfrozen(SDK.endpoints))
 end)
@@ -272,33 +281,33 @@ end)
 
 test("safe GET retry honors Retry-After and caps retry budget", function()
 	local s = Scheduler.new()
-	local c, f = client(
-		s,
-		{ { status = 503, headers = { ["Retry-After"] = "2" } }, { body = s.json({}) } },
-		{ retryRatio = 1 }
-	)
+	local c, f = client(s, {
+		{ status = 503, headers = { ["Retry-After"] = "2" } },
+		{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) },
+	}, { retryRatio = 1 })
 	s.run(function()
-		check(c.data:getSchemaDefaults().ok)
+		check(c.fields:schema().ok)
 	end)
 	check(f.count() == 2 and s.time() >= 2 and c:metrics().retries == 1)
 	local s2 = Scheduler.new()
 	local c2, f2 = client(s2, { { status = 503 } }, { retryRatio = 0.2 })
 	s2.run(function()
-		failure(c2.data:getSchemaDefaults(), "Server")
+		failure(c2.fields:schema(), "Server")
 	end)
 	check(f2.count() == 1)
 end)
 
 test("deadline drops late response and releases native slot only on completion", function()
 	local s = Scheduler.new()
-	local c, f = client(
-		s,
-		{ { delay = 2, body = s.json({}) } },
-		{ timeout = 0.1, concurrency = 1, queueCapacity = 0 }
-	)
+	local c, f = client(s, {
+		{
+			delay = 2,
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
+		},
+	}, { timeout = 0.1, concurrency = 1, queueCapacity = 0 })
 	s.run(function()
-		failure(c.data:getSchemaDefaults(), "Timeout")
-		failure(c.data:getSchemaVersions(), "RateLimited")
+		failure(c.fields:schema(), "Timeout")
+		failure(c.fields:definitions(), "RateLimited")
 	end)
 	check(f.count() == 1 and s.pending() == 0 and s.time() >= 2)
 	check(c._state.hosts["https://lb1.blox-api.com"].gate.active == 0)
@@ -306,12 +315,17 @@ end)
 
 test("concurrent identical GETs single-flight; cache snapshots immutable", function()
 	local s = Scheduler.new()
-	local c, f = client(s, { { delay = 0.2, body = s.json({}) } })
+	local c, f = client(s, {
+		{
+			delay = 0.2,
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
+		},
+	})
 	local count = 0
 	s.run(function()
 		for _ = 1, 8 do
 			s.runtime.spawn(function()
-				local r = c.data:getSchemaDefaults(nil, { cacheTtl = 5 })
+				local r = c.fields:schema(nil, { cacheTtl = 5 })
 				check(r.ok)
 				count += 1
 			end)
@@ -319,7 +333,7 @@ test("concurrent identical GETs single-flight; cache snapshots immutable", funct
 	end)
 	check(f.count() == 1 and count == 8 and c:metrics().coalesced == 7)
 	s.run(function()
-		local r = c.data:getSchemaDefaults(nil, { cacheTtl = 5 })
+		local r = c.fields:schema(nil, { cacheTtl = 5 })
 		check(r.ok and table.isfrozen(r.value))
 	end)
 	check(f.count() == 1 and c:metrics().cacheHits == 1)
@@ -327,33 +341,38 @@ end)
 
 test("stale-if-error serves only eligible cached data, not authorization errors", function()
 	local s = Scheduler.new()
-	local c, f = client(
-		s,
-		{ { body = s.json({}) }, { status = 503 }, { status = 403 } },
-		{ staleIfError = 10, retries = 0 }
-	)
+	local c, f = client(s, {
+		{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) },
+		{ status = 503 },
+		{ status = 403 },
+	}, { staleIfError = 10, retries = 0 })
 	s.run(function()
-		check(c.data:getSchemaDefaults(nil, { cacheTtl = 0.1 }).ok)
+		check(c.fields:schema(nil, { cacheTtl = 0.1 }).ok)
 		s.runtime.wait(0.2)
-		local stale = c.data:getSchemaDefaults(nil, { cacheTtl = 0.1 })
+		local stale = c.fields:schema(nil, { cacheTtl = 0.1 })
 		check(stale.ok and stale.stale)
-		failure(c.data:getSchemaDefaults(nil, { cacheTtl = 0.1 }), "Forbidden")
+		failure(c.fields:schema(nil, { cacheTtl = 0.1 }), "Forbidden")
 	end)
 	check(f.count() == 3)
 end)
 
 test("cancellation removes waiting ticket without consuming another slot", function()
 	local s = Scheduler.new()
-	local c, f = client(s, { { delay = 0.3, body = s.json({}) } }, { concurrency = 1 })
+	local c, f = client(s, {
+		{
+			delay = 0.3,
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
+		},
+	}, { concurrency = 1 })
 	local signal: Core.Signal = { cancelled = false }
 	local cancelled = false
 	s.run(function()
 		s.runtime.spawn(function()
-			check(c.data:getSchemaDefaults().ok)
+			check(c.fields:schema().ok)
 		end)
 		s.runtime.wait(0.01)
 		s.runtime.spawn(function()
-			failure(c.data:getSchemaVersions(nil, { signal = signal }), "Cancelled")
+			failure(c.fields:definitions(nil, { signal = signal }), "Cancelled")
 			cancelled = true
 		end)
 		s.runtime.wait(0.02)
@@ -381,7 +400,7 @@ test("concurrent 401s refresh once, replay once with rotated tokens", function()
 			end,
 		},
 		{
-			body = s.json({}),
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
 			check = function(req: Core.HttpRequest)
 				if req.Headers.Authorization == "Bearer new" then
 					replayHeaders += 1
@@ -389,7 +408,7 @@ test("concurrent 401s refresh once, replay once with rotated tokens", function()
 			end,
 		},
 		{
-			body = s.json({}),
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
 			check = function(req: Core.HttpRequest)
 				if req.Headers.Authorization == "Bearer new" then
 					replayHeaders += 1
@@ -400,11 +419,11 @@ test("concurrent 401s refresh once, replay once with rotated tokens", function()
 	local successes = 0
 	s.run(function()
 		s.runtime.spawn(function()
-			check(c.data:getSchemaDefaults({ query = { universeId = 1 } }).ok)
+			check(c.fields:schema({ path = { universeId = 1 } }).ok)
 			successes += 1
 		end)
 		s.runtime.spawn(function()
-			check(c.data:getSchemaDefaults({ query = { universeId = 2 } }).ok)
+			check(c.fields:schema({ path = { universeId = 2 } }).ok)
 			successes += 1
 		end)
 	end)
@@ -424,7 +443,7 @@ test("failed refresh is single-flight too; replay 401 never loops", function()
 	s.run(function()
 		for i = 1, 2 do
 			s.runtime.spawn(function()
-				failure(c.data:getSchemaDefaults({ query = { universeId = i } }), "Unauthorized")
+				failure(c.fields:schema({ path = { universeId = i } }), "Unauthorized")
 			end)
 		end
 	end)
@@ -439,11 +458,11 @@ test("JWT exp reading, proactive refresh, login and logout token store", functio
 	store.set({ accessToken = "old", refreshToken = "r", expiresAt = 1700000001 })
 	local c, f = client(s, {
 		{ body = s.json({ accessToken = "new", refreshToken = "next", expiresIn = 3600 }) },
-		{ body = s.json({}) },
+		{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) },
 		{ body = s.json({ message = "ok" }) },
 	}, { userSession = { store = store } })
 	s.run(function()
-		check(c.data:getSchemaDefaults().ok)
+		check(c.fields:schema().ok)
 		check(c.auth:logout({ refreshToken = "next" }).ok)
 	end)
 	check(f.count() == 3 and store.get() == nil)
@@ -452,17 +471,21 @@ end)
 test("telemetry hook failures cannot fail calls or reveal payloads", function()
 	local s = Scheduler.new()
 	local seen = 0
-	local c = client(s, { { body = s.json({}) } }, {
-		hooks = {
-			onRequest = function(event: Core.Event)
-				check(event.endpoint ~= nil)
-				seen += 1
-				error("observer failed")
-			end,
-		},
-	})
+	local c = client(
+		s,
+		{ { body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) } },
+		{
+			hooks = {
+				onRequest = function(event: Core.Event)
+					check(event.endpoint ~= nil)
+					seen += 1
+					error("observer failed")
+				end,
+			},
+		}
+	)
 	s.run(function()
-		check(c.data:getSchemaDefaults().ok)
+		check(c.fields:schema().ok)
 	end)
 	check(seen == 1 and c:metrics().attempts == 1)
 end)
@@ -473,14 +496,14 @@ test("flush/destroy and scope facades share state", function()
 	check(c:withUniverse(123)._state == c._state)
 	s.run(function()
 		check(c:flush(1))
-		failure(c.data:getSchemaDefaults(), "Cancelled")
+		failure(c.fields:schema(), "Cancelled")
 		c:destroy()
 		c:destroy()
 	end)
 	check(f.count() == 0)
 end)
 
-test("all 234 generated endpoints use default, custom gateway and direct-host URLs offline", function()
+test("all 238 generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
 	for id, spec in SDK.endpoints do
 		local s = Scheduler.new()
@@ -513,6 +536,12 @@ test("all 234 generated endpoints use default, custom gateway and direct-host UR
 				(request.body :: any)[spec.idempotencyItems] =
 					{ fixture(Schemas.definitions[spec.service][dto], Schemas.definitions[spec.service]) }
 			end
+		end
+		if id == "fields.validateOps" then
+			request.body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 1 } } }
+		elseif id == "codes.createCode" then
+			(request.body :: any).award = { { field = "Currency.Gems", op = "ADD", delta = 1 } }
+			(request.body :: any).universeId = 1
 		end
 		for _, mode in { "default", "gateway", "direct" } do
 			local base = if mode == "default"
@@ -547,6 +576,22 @@ test("all 234 generated endpoints use default, custom gateway and direct-host UR
 					end,
 				},
 			})
+			-- Route fixtures seed a local schema; dedicated tests exercise the real Load path.
+			if id == "fields.validateOps" or id == "codes.createCode" then
+				local cached = c.fields:Schema(1)
+				cached._version = 1
+				cached._definitions["Currency.Gems"] = {
+					universeId = 1,
+					id = "Currency.Gems",
+					description = "",
+					scope = "PLAYER",
+					status = "ACTIVE",
+					type = { kind = "int" },
+					definitionVersion = 1,
+					createdAt = "now",
+					updatedAt = "now",
+				}
+			end
 			s.run(function()
 				local facade = (c :: any)[spec.service]
 				local name = string.match(id, "%.(.+)$") :: string
@@ -563,7 +608,7 @@ test("all 234 generated endpoints use default, custom gateway and direct-host UR
 			count += 1
 		end
 	end
-	check(count == 234 * 3)
+	check(count == 238 * 3)
 end)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
@@ -577,7 +622,7 @@ test("short caller deadline does not wait for or cancel shared refresh", functio
 	)
 	local returned = 0
 	s.run(function()
-		failure(c.data:getSchemaDefaults(nil, { deadline = s.time() + 0.05 }), "Timeout")
+		failure(c.fields:schema(nil, { deadline = s.time() + 0.05 }), "Timeout")
 		returned = s.time()
 	end)
 	check(returned < 0.1 and f.count() == 1 and (store.get() :: Session.Tokens).accessToken == "new")
@@ -587,11 +632,16 @@ test("destroy interrupts active callers and refresh cannot resurrect credentials
 	local s = Scheduler.new()
 	local store = Session.memoryStore()
 	store.set({ accessToken = "old", refreshToken = "r" })
-	local c, f = client(s, { { delay = 2, body = s.json({}) } }, { userSession = { store = store } })
+	local c, f = client(s, {
+		{
+			delay = 2,
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
+		},
+	}, { userSession = { store = store } })
 	local returned = 0
 	s.run(function()
 		s.runtime.spawn(function()
-			failure(c.data:getSchemaDefaults(), "Cancelled")
+			failure(c.fields:schema(), "Cancelled")
 			returned = s.time()
 		end)
 		s.runtime.wait(0.05)
@@ -612,7 +662,7 @@ test("replayed 401 terminates after one refresh", function()
 		},
 	}, { userSession = { store = store } })
 	s.run(function()
-		failure(c.data:getSchemaDefaults(), "Unauthorized")
+		failure(c.fields:schema(), "Unauthorized")
 	end)
 	check(f.count() == 3)
 end)
@@ -643,7 +693,7 @@ test("generated schema encodes empty service permissions as an array", function(
 	local serialized = false
 	local c = client(s, {
 		{
-			body = s.json({}),
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
 			check = function(req: Core.HttpRequest)
 				serialized = req.Body == "[]"
 			end,
@@ -657,22 +707,26 @@ end)
 
 test("token-starved work remains bounded by host queue capacity", function()
 	local s = Scheduler.new()
-	local c, f = client(s, { { body = s.json({}) } }, {
-		burst = 1,
-		criticalReserve = 0,
-		requestsPerMinute = 1,
-		concurrency = 1,
-		queueCapacity = 0,
-		timeout = 0.2,
-	})
+	local c, f = client(
+		s,
+		{ { body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) } },
+		{
+			burst = 1,
+			criticalReserve = 0,
+			requestsPerMinute = 1,
+			concurrency = 1,
+			queueCapacity = 0,
+			timeout = 0.2,
+		}
+	)
 	local full = false
 	s.run(function()
-		check(c.data:getSchemaDefaults().ok)
+		check(c.fields:schema().ok)
 		s.runtime.spawn(function()
-			failure(c.data:getSchemaDefaults(), "Timeout")
+			failure(c.fields:schema(), "Timeout")
 		end)
 		s.runtime.wait(0.01)
-		failure(c.data:getSchemaVersions(), "RateLimited")
+		failure(c.fields:definitions(), "RateLimited")
 		full = true
 	end)
 	check(full and f.count() == 1)
@@ -686,8 +740,8 @@ test("query typo and invalid options fail before transport", function()
 			c._invoke(SDK.endpoints["codes.searchCodes"], { query = { univrseId = 123 } }, nil, nil),
 			"Validation"
 		)
-		failure(c.data:getSchemaDefaults(nil, { retry = -1 }), "Local")
-		failure(c.data:getSchemaDefaults(nil, { deadline = 0 / 0 }), "Local")
+		failure(c.fields:schema(nil, { retry = -1 }), "Local")
+		failure(c.fields:schema(nil, { deadline = 0 / 0 }), "Local")
 	end)
 	check(f.count() == 0)
 end)
@@ -725,13 +779,13 @@ test("all error classifications and malformed successful JSON are redacted", fun
 		local s = Scheduler.new()
 		local c = client(s, { { status = status, body = "never expose this" } }, { retries = 0 })
 		s.run(function()
-			failure(c.data:getSchemaDefaults(), kind :: Core.ErrorKind)
+			failure(c.fields:schema(), kind :: Core.ErrorKind)
 		end)
 	end
 	local s = Scheduler.new()
 	local c = client(s, { { body = "invalid-json" } })
 	s.run(function()
-		failure(c.data:getSchemaDefaults(), "Network")
+		failure(c.fields:schema(), "Network")
 	end)
 end)
 
@@ -747,19 +801,6 @@ test("pagination preserves page errors and terminates lazily", function()
 		check(iterator() ~= nil)
 	end
 	check(iterator() == nil and fetched == 3)
-end)
-
-test("GET with online side effects is neither cached nor coalesced", function()
-	local s = Scheduler.new()
-	local c, f = client(s, { { delay = 0.1, body = s.json({}) }, { delay = 0.1, body = s.json({}) } })
-	s.run(function()
-		for _ = 1, 2 do
-			s.runtime.spawn(function()
-				check(c.data:getUserData({ path = { robloxUserId = 1 } }, { cacheTtl = 10 }).ok)
-			end)
-		end
-	end)
-	check(f.count() == 2 and c:metrics().coalesced == 0 and c:metrics().cacheHits == 0)
 end)
 
 test("late pre-open result cannot close a half-open probe", function()
@@ -790,7 +831,7 @@ test("refresh wait observes caller cancellation without cancelling shared refres
 	local returned = 0
 	s.run(function()
 		s.runtime.spawn(function()
-			failure(c.data:getSchemaDefaults(nil, { signal = signal }), "Cancelled")
+			failure(c.fields:schema(nil, { signal = signal }), "Cancelled")
 			returned = s.time()
 		end)
 		s.runtime.wait(0.02)
@@ -814,15 +855,24 @@ end)
 
 test("successful mutation invalidates cached reads", function()
 	local s = Scheduler.new()
-	local c, f =
-		client(s, { { body = s.json({}) }, { body = s.json({}), status = 201 }, { body = s.json({}) } })
+	local c, f = client(s, {
+		{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) },
+		{
+			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
+			status = 201,
+		},
+		{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) },
+	})
 	s.run(function()
-		check(c.data:getSchemaDefaults(nil, { cacheTtl = 10 }).ok)
+		check(c.fields:schema(nil, { cacheTtl = 10 }).ok)
 		check(c.party:createParty({ ownerId = 1, placeId = 2 }).ok)
-		check(c.data:getSchemaDefaults(nil, { cacheTtl = 10 }).ok)
+		check(c.fields:schema(nil, { cacheTtl = 10 }).ok)
 	end)
 	check(f.count() == 3)
 end)
 require("./new_services")(test)
+require("./fields")(test)
+require("./field_bindings")(test)
+require("./operations")(test)
 GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

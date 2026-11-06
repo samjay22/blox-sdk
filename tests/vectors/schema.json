@@ -1,0 +1,240 @@
+{
+  "universeId": 123,
+  "schemaVersion": 12,
+  "definitions": [
+    {
+      "id": "Currency.Gems",
+      "type": {
+        "kind": "int",
+        "min": 0,
+        "max": 1000000,
+        "maxDelta": 100000
+      },
+      "universeId": 123,
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "writeLevel": "READ_WRITE",
+      "definitionVersion": 1,
+      "description": "",
+      "createdAt": "2026-11-05T00:00:00Z",
+      "updatedAt": "2026-11-05T00:00:00Z",
+      "history": "LEDGER"
+    },
+    {
+      "id": "Currency.Coins",
+      "type": {
+        "kind": "int",
+        "min": 0,
+        "max": 1000000000
+      },
+      "universeId": 123,
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "writeLevel": "READ_WRITE",
+      "definitionVersion": 1,
+      "description": "",
+      "createdAt": "2026-11-05T00:00:00Z",
+      "updatedAt": "2026-11-05T00:00:00Z",
+      "history": "LEDGER"
+    },
+    {
+      "id": "Inventory.Items",
+      "type": {
+        "kind": "map",
+        "key": {
+          "kind": "enum",
+          "values": [
+            "SWORD",
+            "POTION"
+          ]
+        },
+        "value": {
+          "kind": "int",
+          "min": 0,
+          "max": 9999
+        },
+        "pruneZero": true
+      },
+      "universeId": 123,
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "writeLevel": "READ_WRITE",
+      "definitionVersion": 1,
+      "description": "",
+      "createdAt": "2026-11-05T00:00:00Z",
+      "updatedAt": "2026-11-05T00:00:00Z",
+      "history": "LEDGER"
+    },
+    {
+      "id": "Characters",
+      "type": {
+        "kind": "list",
+        "item": {
+          "kind": "object",
+          "members": {
+            "Id": {
+              "type": {
+                "kind": "int",
+                "min": 1
+              }
+            },
+            "Level": {
+              "type": {
+                "kind": "int",
+                "min": 1,
+                "max": 100
+              },
+              "default": 1
+            },
+            "Rarity": {
+              "type": {
+                "kind": "enum",
+                "values": [
+                  "COMMON",
+                  "RARE",
+                  "LEGENDARY"
+                ]
+              },
+              "default": "COMMON"
+            }
+          }
+        }
+      },
+      "universeId": 123,
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "writeLevel": "READ_WRITE",
+      "definitionVersion": 1,
+      "description": "",
+      "createdAt": "2026-11-05T00:00:00Z",
+      "updatedAt": "2026-11-05T00:00:00Z",
+      "history": "LEDGER"
+    },
+    {
+      "id": "Settings",
+      "type": {
+        "kind": "object",
+        "members": {
+          "Sound": {
+            "type": {
+              "kind": "bool"
+            },
+            "default": true
+          },
+          "Language": {
+            "type": {
+              "kind": "enum",
+              "values": [
+                "EN",
+                "ES",
+                "JP"
+              ]
+            },
+            "default": "EN"
+          }
+        }
+      },
+      "universeId": 123,
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "writeLevel": "READ_WRITE",
+      "definitionVersion": 1,
+      "description": "",
+      "createdAt": "2026-11-05T00:00:00Z",
+      "updatedAt": "2026-11-05T00:00:00Z",
+      "history": "LEDGER"
+    },
+    {
+      "id": "Metrics",
+      "history": "NONE",
+      "type": {
+        "kind": "object",
+        "members": {
+          "Kills": {
+            "type": {
+              "kind": "int",
+              "min": 0
+            },
+            "default": 0
+          },
+          "PlaySeconds": {
+            "type": {
+              "kind": "int",
+              "min": 0
+            },
+            "default": 0
+          }
+        }
+      },
+      "universeId": 123,
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "writeLevel": "READ_WRITE",
+      "definitionVersion": 1,
+      "description": "",
+      "createdAt": "2026-11-05T00:00:00Z",
+      "updatedAt": "2026-11-05T00:00:00Z"
+    },
+    {
+      "id": "Tags",
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "type": {
+        "kind": "set",
+        "item": {
+          "kind": "string"
+        }
+      }
+    },
+    {
+      "id": "Ranks",
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "type": {
+        "kind": "map",
+        "key": {
+          "kind": "int"
+        },
+        "value": {
+          "kind": "string"
+        }
+      }
+    },
+    {
+      "id": "Optional",
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "type": {
+        "kind": "nullable",
+        "of": {
+          "kind": "int"
+        }
+      }
+    },
+    {
+      "id": "Total",
+      "scope": "PLAYER",
+      "status": "ACTIVE",
+      "computed": {
+        "expression": "Currency.Gems + Currency.Coins",
+        "returns": "int"
+      }
+    },
+    {
+      "id": "Old",
+      "scope": "PLAYER",
+      "status": "ARCHIVED",
+      "type": {
+        "kind": "int"
+      }
+    },
+    {
+      "id": "Shared",
+      "scope": "UNIVERSE",
+      "status": "ACTIVE",
+      "type": {
+        "kind": "int"
+      }
+    }
+  ]
+}

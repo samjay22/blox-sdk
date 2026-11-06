@@ -1,0 +1,1847 @@
+[
+  {
+    "name": "absent declarations",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": null,
+    "expected": true
+  },
+  {
+    "name": "empty declarations",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {},
+    "expected": true
+  },
+  {
+    "name": "clear bindings",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": []
+    },
+    "expected": true
+  },
+  {
+    "name": "minimal VALUE",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "minimal DELTA",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "DELTA"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "order DESC",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": "DESC"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "order ASC",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": "ASC"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "order invalid null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": null
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "order invalid true",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": true
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "order invalid 7",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": 7
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "order invalid {}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": {}
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "order invalid []",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": []
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "order invalid \"desc\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": "desc"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "order invalid \"INVALID\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "order": "INVALID"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset NONE",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "NONE"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "reset DAILY",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "DAILY"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "reset WEEKLY",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "WEEKLY"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "reset MONTHLY",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "MONTHLY"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "reset SEASONAL",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "SEASONAL"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "reset invalid null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": null
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset invalid true",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": true
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset invalid 7",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": 7
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset invalid {}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": {}
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset invalid []",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": []
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset invalid \"none\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "none"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "reset invalid \"INVALID\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "reset": "INVALID"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep LAST",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": "LAST"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "keep BEST",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": "BEST"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "keep invalid null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": null
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep invalid true",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": true
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep invalid 7",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": 7
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep invalid {}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": {}
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep invalid []",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": []
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep invalid \"last\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": "last"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "keep invalid \"INVALID\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "keep": "INVALID"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "DELTA keep LAST",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "DELTA",
+          "keep": "LAST"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "DELTA keep BEST",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "DELTA",
+          "keep": "BEST"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "DELTA keep None",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "DELTA",
+          "keep": null
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board invalid null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": null,
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board invalid true",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": true,
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board invalid 5",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": 5,
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board invalid {}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": {},
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board invalid []",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": [],
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board invalid \"\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "missing board",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "submit invalid null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": null
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "submit invalid true",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": true
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "submit invalid 5",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": 5
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "submit invalid {}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": {}
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "submit invalid []",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": []
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "submit invalid \"\"",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": ""
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "missing submit",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid board bad.name",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "bad.name",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid board aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid board a b",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "a b",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid board é",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "é",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "maximum board",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "name alphabet",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "0-A_z",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "unknown member",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "aggregation": "SUM"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "binding null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        null
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "binding array",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        []
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "binding number",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        2
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "binding bool",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        true
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "valid display 4",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": "Wins"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "valid display 100",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "valid display 50",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "valid display 1",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": " "
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "invalid display 0",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": ""
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 1",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": " \t\n"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 2",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": " "
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 3",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 4",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 5",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": null
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 6",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": 3
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid display 7",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE",
+          "displayName": true
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "duplicate names",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        },
+        {
+          "board": "wins",
+          "submit": "DELTA"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "board count 32",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "b0",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b1",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b2",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b3",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b4",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b5",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b6",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b7",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b8",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b9",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b10",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b11",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b12",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b13",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b14",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b15",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b16",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b17",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b18",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b19",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b20",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b21",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b22",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b23",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b24",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b25",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b26",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b27",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b28",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b29",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b30",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b31",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "expected": true
+  },
+  {
+    "name": "board count 33",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "b0",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b1",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b2",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b3",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b4",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b5",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b6",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b7",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b8",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b9",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b10",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b11",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b12",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b13",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b14",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b15",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b16",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b17",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b18",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b19",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b20",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b21",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b22",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b23",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b24",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b25",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b26",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b27",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b28",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b29",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b30",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b31",
+          "submit": "VALUE"
+        },
+        {
+          "board": "b32",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "boards null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": null
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "boards object",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": {}
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "boards string",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": "wins"
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "non int number",
+    "action": "bindings",
+    "type": {
+      "kind": "number"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "leaderboard_requires_int"
+  },
+  {
+    "name": "non int string",
+    "action": "bindings",
+    "type": {
+      "kind": "string"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "leaderboard_requires_int"
+  },
+  {
+    "name": "non int nullable",
+    "action": "bindings",
+    "type": {
+      "kind": "nullable"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "leaderboard_requires_int"
+  },
+  {
+    "name": "non int object",
+    "action": "bindings",
+    "type": {
+      "kind": "object"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "leaderboard_requires_int"
+  },
+  {
+    "name": "non int bool",
+    "action": "bindings",
+    "type": {
+      "kind": "bool"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "leaderboard_requires_int"
+  },
+  {
+    "name": "universe bound",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "scope": "UNIVERSE",
+    "code": "invalid_definition"
+  },
+  {
+    "name": "computed bound",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "computed": true,
+    "code": "invalid_definition"
+  },
+  {
+    "name": "null type",
+    "action": "bindings",
+    "type": null,
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "leaderboard_requires_int"
+  },
+  {
+    "name": "unbound computed",
+    "action": "bindings",
+    "type": null,
+    "bindings": {
+      "leaderboards": []
+    },
+    "computed": true,
+    "scope": "UNIVERSE",
+    "expected": true
+  },
+  {
+    "name": "unknown declaration",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "other": true
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "audit NONE",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "audit": "NONE"
+    },
+    "expected": true
+  },
+  {
+    "name": "audit ALL",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "audit": "ALL"
+    },
+    "expected": true
+  },
+  {
+    "name": "audit ADMIN_ONLY",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "audit": "ADMIN_ONLY"
+    },
+    "expected": true
+  },
+  {
+    "name": "null audit",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "audit": null
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "runtime keys",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": {
+        "enabledFlag": "enabled",
+        "maxDeltaConfigKey": "limit"
+      }
+    },
+    "expected": true
+  },
+  {
+    "name": "invalid runtime null",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": null
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid runtime []",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": []
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid runtime {\"unknown\": \"flag\"}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": {
+        "unknown": "flag"
+      }
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid runtime {\"enabledFlag\": \"\"}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": {
+        "enabledFlag": ""
+      }
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid runtime {\"enabledFlag\": null}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": {
+        "enabledFlag": null
+      }
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "invalid runtime {\"maxDeltaConfigKey\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}",
+    "action": "bindings",
+    "type": {
+      "kind": "int"
+    },
+    "bindings": {
+      "runtime": {
+        "maxDeltaConfigKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    "code": "invalid_definition"
+  },
+  {
+    "name": "absent type",
+    "action": "bindings",
+    "bindings": {
+      "leaderboards": [
+        {
+          "board": "wins",
+          "submit": "VALUE"
+        }
+      ]
+    },
+    "code": "invalid_definition"
+  }
+]

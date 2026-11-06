@@ -3,8 +3,11 @@
 set -eu
 cd "$(dirname "$0")/.."
 export PATH="/opt/homebrew/bin:$HOME/.aftman/bin:$PATH"
+python3 tools/gen-vectors.py --check
+python3 tools/check-field-vectors.py
 stylua --check src tests examples roblox
-luau-analyze src tests examples
+# Installed Luau 0.703 can SIGTRAP in parallel type checking; serialize without skipping checks.
+luau-analyze -j1 src tests examples
 selene src tests examples
 luau tests/run.luau
 lune run tests/run.luau

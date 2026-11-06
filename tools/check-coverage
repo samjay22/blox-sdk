@@ -11,10 +11,10 @@ ALIASES={'mm':'matchmaking','code':'codes'}
 # Independent deployment contract: do not import the generator's routing declarations.
 GATEWAY='https://lb1.blox-api.com'
 PREFIXES={
-    'auth':'/auth-service', 'data':'/data-service', 'matchmaking':'/matchmaking-service',
+    'auth':'/auth-service', 'matchmaking':'/matchmaking-service',
     'party':'/party-service', 'codes':'/code-service', 'audit':'/audit-service',
     'config':'/remote-config-service', 'leaderboards':'/leaderboard-service',
-    'economy':'/economy-service',
+    'fields':'/fields-service',
 }
 
 
@@ -84,7 +84,9 @@ def controller_routes() -> set[tuple[str,str,str]]:
                     verbs = re.findall(r'RequestMethod\.(\w+)', args)
                     assert len(verbs)==1, f'Unsupported mapping methods in {file}'
                     method = verbs[0]
-                found.add((service, method, prefix+mapping_path(args)))
+                path = prefix+mapping_path(args)
+                if not path.startswith('/actuator/'):
+                    found.add((service, method, path))
         assert controllers, f'Missing backend controller sources: {root}'
     return found
 
@@ -99,6 +101,8 @@ def main() -> None:
     """Fail closed when a route, controller schema or expected alias is missing."""
     routes=json.loads((ROOT/'routes.json').read_text())
     endpoints=json.loads((ROOT/'spec/endpoints.json').read_text())['endpoints']
+    modules={p.stem.lower() for p in (ROOT/'src/Services').glob('*.luau')}
+    assert modules == set(PREFIXES), 'Unexpected or missing service modules'
     assert_gateway_coverage(endpoints, (ROOT/'src/Core/Routing.luau').read_text())
     expected={(ALIASES.get(r['svc'],r['svc']),r['method'],r['path']) for r in routes}
     actual={(e['service'],e['method'],e['path']) for e in endpoints}
@@ -117,7 +121,7 @@ def main() -> None:
         module=(ROOT/'src/Services'/f'{e["service"].capitalize()}.luau').read_text()
         assert 'function Service.'+e['name']+'(' in module,e['id']
         assert f'--- {e["method"]} {PREFIXES[e["service"]]}{e["path"]} via gateway;' in module,e['id']
-        assert f'Endpoints["{e["id"]}"]' in module,e['id']
+        assert f'Endpoints["{e["id"]}"]' in module + ((ROOT/'src/Fields/Client.luau').read_text() if e['id']=='fields.validateOps' else ''),e['id']
     counts=Counter(x[0] for x in expected)
     totals=Counter(e['service'] for e in endpoints)
     for service in sorted(counts): print(f'{service}: {counts[service]}/{counts[service]} inventory routes (100%); {totals[service]} exposed')

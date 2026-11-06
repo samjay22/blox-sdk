@@ -4,6 +4,9 @@ local Core = require(script.Parent.Parent.Types.Core)
 local Schemas = require(script.Parent.Parent.Core.Schemas)
 local Json = require(script.Parent.Parent.Core.Json)
 local Universe = require(script.Parent.Parent.Core.Universe)
+local Operations = require(script.Parent.Parent.Fields.Operations)
+local Bindings = require(script.Parent.Parent.Fields.Bindings)
+local TypeSystem = require(script.Parent.Parent.Fields.TypeSystem)
 local Validation = {}
 --- Validate untrusted data against the small generated schema language, with bounded recursion.
 local function matches(
@@ -17,6 +20,16 @@ local function matches(
 		return false
 	end
 	local kind = schema.kind
+	if kind == "fields" and schema.name == "PlayerOperation" then
+		return Operations.wire(value) and matches(value, { kind = "json" }, definitions, depth + 1, response)
+	elseif kind == "fields" and schema.name == "PathSegment" then
+		return type(value) == "string"
+			or type(value) == "number" and value % 1 == 0 and value >= 0 and value <= 2147483647
+	elseif kind == "fields" and schema.name == "LeaderboardBinding" then
+		return Bindings.board(value)
+	elseif kind == "fields" and schema.name == "Bindings" then
+		return Bindings.grammar(value)
+	end
 	if kind == "ref" then
 		local target = definitions[schema.name :: string]
 		return target ~= nil and matches(value, target, definitions, depth + 1, response)
@@ -45,7 +58,7 @@ local function matches(
 			)
 	elseif kind == "number" then
 		return type(value) == "number" and value == value and math.abs(value) <= 9007199254740991
-	elseif kind == "json" then
+	elseif kind == "json" or kind == "fields" then
 		if value == nil or value == Json.null then
 			return true
 		end
@@ -73,6 +86,9 @@ local function matches(
 		return false
 	end
 	if kind == "array" then
+		if Json.isObject(value) then
+			return false
+		end
 		local count = 0
 		for key, item in value do
 			if
@@ -196,6 +212,37 @@ function Validation.body(endpoint: string, value: unknown): boolean
 		return false
 	end
 	local body = value :: any
+	if endpoint == "fields.previewBoard" then
+		return TypeSystem.compile(body.type).ok
+			and Bindings.validate({ leaderboards = { body.binding } }, body.scope, body.type, false).ok
+	elseif endpoint == "fields.create" or endpoint == "fields.update" then
+		if
+			not Bindings.validate(
+				body.bindings,
+				body.scope,
+				body.type,
+				body.computed ~= nil and body.computed ~= Json.null
+			).ok
+		then
+			return false
+		end
+		if
+			body.bindings
+			and body.bindings ~= Json.null
+			and body.bindings.leaderboards
+			and #body.bindings.leaderboards > 0
+		then
+			return TypeSystem.compile(body.type).ok
+		end
+	end
+	if endpoint == "codes.createCode" or endpoint == "codes.updateCode" then
+		if body.maxRedemptionsPerUser ~= nil and body.maxRedemptionsPerUser ~= 1 then
+			return false
+		end
+		if body.award ~= nil and (#body.award < 1 or #body.award > 100) then
+			return false
+		end
+	end
 	if endpoint == "audit.batch" then
 		return #body.events >= 1 and #body.events <= 500
 	end
@@ -210,6 +257,27 @@ function Validation.response(endpoint: string, value: unknown, status: number?):
 		return value == nil
 	end
 	local schema = Schemas.endpoints[endpoint]
-	return schema ~= nil and matches(value, schema.response, Schemas.definitions[schema.service], 0, true)
+	if not schema or not matches(value, schema.response, Schemas.definitions[schema.service], 0, true) then
+		return false
+	end
+	if endpoint == "fields.validateOps" then
+		local report: any = value
+		if #report.errors > 100 or report.valid ~= (#report.errors == 0) then
+			return false
+		end
+		local previous = -1
+		for _, issue in report.errors do
+			if
+				issue.opIndex % 1 ~= 0
+				or issue.opIndex <= previous
+				or issue.opIndex > 99
+				or #issue.path > 8
+			then
+				return false
+			end
+			previous = issue.opIndex
+		end
+	end
+	return true
 end
 return table.freeze(Validation)

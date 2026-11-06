@@ -1,8 +1,12 @@
 # BloxSDK
 
-One server-side, strict Luau SDK for **auth, player data, matchmaking, parties, codes, audit, config, leaderboards, and economy**.
+One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, and Fields**.
 
-**234 typed endpoints:** all 218 routes in `routes.json`, plus 16 controller-defined auth routes (service accounts, service catalog, DELETE aliases, and universe enable/disable). No runtime dependencies or client-side credentials.
+**238 typed endpoints:** all 222 routes in `routes.json`, plus 16 controller-defined auth routes (service accounts, service catalog, DELETE aliases, and universe enable/disable). No runtime dependencies or client-side credentials.
+
+> **Gateway permissions:** callers using `lb1` need **`Gateway` in addition to the target service
+> permission**. Code redemption also needs Fields write access; Matchmaking enrichment needs Fields
+> READ access. **`bsa_` service-account keys are universe-bound.** SDK `levels` are hints, not grants.
 
 ## Install
 
@@ -22,18 +26,18 @@ local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
     universeId = game.GameId,
     levels = { -- Optional deployment metadata, not an authorization grant.
-        DataService = "READ_WRITE",
+        FieldsService = "READ_WRITE",
         MatchmakingService = "READ_WRITE",
         PartyService = "READ_WRITE",
         CodeService = "READ_WRITE",
     },
 })
 
-local result = client.data:getUserData({ path = { robloxUserId = 123456 } })
-if result.ok then
-    -- Use result.value; global-admin unscoped reads can return a list.
-else
-    warn(result.error.kind, result.error.endpoint, result.error.status)
+local loaded = client.fields:LoadProfile(game.GameId, 123456)
+if loaded.ok then
+    local profile = loaded.value
+    local committed = profile:Transaction():Add("Currency.Gems", 10):Reason("Quest reward"):Commit()
+    if not committed.ok then warn(committed.error.code) end
 end
 
 game:BindToClose(function()
@@ -47,13 +51,13 @@ end)
 
 ## Calls and results
 
-The nine facades are `client.auth`, `.data`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, and `.economy`. All wrappers are generated from `spec/endpoints.json`.
+The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, and `.fields`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers and the Codes award builder are hand-written.
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
 - Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
 - Optional requests can be omitted: `client.codes:searchCodes()`.
 - `client:withUniverse(id)` shares the original client's auth, queue, rate budget, breakers, cache, and lifetime. It fills **declared path/query universe parameters** and implied Audit event universes, not arbitrary body fields. Supply other required body universe fields explicitly. Universe IDs must be positive exact integers. A service key cannot switch universes.
-- `client:health()` checks `<service-prefix>/health` on the gateway for all nine services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
+- `client:health()` checks `<service-prefix>/health` on the gateway for all eight services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
 
 ```luau
@@ -61,13 +65,12 @@ local joined = client.matchmaking:joinQueue({
     robloxUniverseId = tostring(game.GameId),
     robloxUserIds = { tostring(player.UserId) },
     gameModeName = "ranked",
-    metadata = { skill = 1200 }, -- Actual fields depend on your game-mode criteria.
 }, { priority = "critical", deadline = os.clock() + 5 })
 ```
 
 `Result<T>` is `{ok=true,value:T,status?,stale?}` or `{ok=false,error:BloxError}`. HTTP/network failures return results rather than throwing. Invalid construction config throws a value-free assertion. Errors include kind, HTTP status when available, endpoint ID, attempt count, and a **fully redacted** error body. There is deliberately no raw-response debug logging.
 
-`CallOptions`: absolute monotonic `deadline`, `priority` (`critical`/`bulk`), maximum `retry` count, explicit `idempotencyHint`, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. `idempotencyHint` is retained for compatibility but cannot bypass retry safety. Non-idempotent mutations are never automatically retried.
+`CallOptions`: absolute monotonic `deadline`, `priority` (`critical`/`bulk`), maximum `retry` count, explicit `idempotencyHint`, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. `idempotencyHint` is retained for compatibility but cannot bypass retry safety. Unkeyed non-idempotent mutations are never automatically retried.
 
 Responses shared by cache/single-flight are recursively frozen. Clone before editing. `BloxSDK.null` represents an explicit JSON null (e.g. clearing service-account expiration). `BloxSDK.array({})` marks an empty array in arbitrary JSON; declared DTO array fields are encoded correctly automatically.
 
@@ -76,10 +79,40 @@ Responses shared by cache/single-flight are recursively frozen. Clone before edi
 - `client:auditWriter(...)`: bounded, nonblocking enqueue/flush; max 500 events per batch, interval flush and native Roblox BindToClose integration.
 - `client:configSnapshot(30)`: conditional snapshot polling, synchronous `Get`/`IsEnabled`, `Changed` signal, last-good-state retention. `IsEnabled` reads the master switch, not per-user rollout rules.
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
-- Economy operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
-- Economy supports exact integer strings and preserves large response amounts without floating-point rounding.
+- Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
+- Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
 
-See [new-service guide](docs/NEW-SERVICES.md) and the four new service examples for lifecycle and safety details.
+See [new-service guide](docs/NEW-SERVICES.md) and the Fields examples for lifecycle and safety details.
+
+## Fields validation and Code awards
+
+`client.fields:validateOps({body={ops=...}})` accepts 1–100 subject-free operations after explicitly
+loading `client.fields:Schema(universeId):Load()`. It pre-validates through TypeSystem, collects every
+failing op with zero-based `opIndex/field/path/code`, and sends locally valid lists to Fields for current
+validation. `client.fields:Operations(universeId):Add("Currency.Gems",100):validate()` and player
+transaction `:validate()` provide dry runs without a reason, key or commit. No player state is read.
+
+Codes now take `award` directly as a list of Fields operations. Use
+`client.codes:Award(universeId):Add("Currency.Gems",100):build()` for a typed canonical snapshot;
+`createCode` also pre-validates raw lists. Redemption returns `transaction`, `replayed`, `redeemedAt`;
+CodeService applies one atomic transaction using `code-<codeId>-<userId>`. The per-user maximum must be 1.
+See [Codes guide](docs/CODES.md), [award example](examples/code-award.luau), and [Fields guide](docs/FIELDS.md).
+
+Matchmaking criteria read server-fetched Fields computed values. Use top-level computed IDs (`Elo`,
+`Level`), not dotted paths or caller-supplied metadata. See [criteria and failure semantics](docs/MATCHMAKING.md).
+
+## Static field types
+
+Save an authorized `GET /schema` response, then run the offline standard-library-only generator:
+
+```sh
+python3 tools/gen-field-types saved-schema.json --out game/GeneratedFields --sdk ../../roblox
+```
+
+Require generated `Typed` and `FieldTypes` modules. `Typed.Currency.Gems:Get(profile)` is `number`,
+`:Add(tx, delta)` requires a number, map/list accessors enforce their schema's key/item types.
+Every accessor queues through the validated transaction builder. See [complete workflow, Roblox
+projection, null/set conversion, int64 limits and examples](docs/FIELDS.md).
 
 ## User-token administration
 
@@ -119,14 +152,13 @@ All services default to **`https://lb1.blox-api.com`**. The gateway strips the f
 | Service facade / override key | Prefix |
 |---|---|
 | `auth` | `/auth-service` |
-| `data` | `/data-service` |
 | `matchmaking` | `/matchmaking-service` |
 | `party` | `/party-service` |
 | `codes` | `/code-service` |
 | `audit` | `/audit-service` |
 | `config` | `/remote-config-service` |
 | `leaderboards` | `/leaderboard-service` |
-| `economy` | `/economy-service` |
+| `fields` | `/fields-service` |
 
 Config must use `/remote-config-service`, **not `/config-service`**: the gateway reserves `/config*`.
 
@@ -136,7 +168,7 @@ local client = BloxSDK.new({
     universeId = game.GameId,
     gatewayUrl = "https://gateway.example", -- Optional: replaces the gateway for all services.
     services = {
-        data = { baseUrl = "https://direct-data.example" }, -- Optional: bypasses gateway AND prefix.
+        fields = { baseUrl = "https://fields.blox-api.com" }, -- Optional: bypasses gateway AND prefix.
     },
 })
 ```
@@ -147,7 +179,7 @@ Default wire examples:
 
 - Audit events: `GET https://lb1.blox-api.com/audit-service/api/audit/events` (a scoped client adds `?universeId=...`).
 - Config snapshot: `GET https://lb1.blox-api.com/remote-config-service/api/config/universes/{id}/snapshot`.
-- Economy grant: `POST https://lb1.blox-api.com/economy-service/api/economy/universes/{id}/users/{uid}/grant`.
+- Fields transaction: `POST https://lb1.blox-api.com/fields-service/api/fields/universes/{id}/players/{uid}/transactions`.
 
 Admission queues and circuit breakers remain **per origin**, so all gateway services share them; direct hosts have separate state unless they resolve to the same canonical origin. URL prefixes remain in cache/single-flight keys. `withUniverse`, authentication refresh/logout, health checks, pagination and helper requests all retain the same routing configuration.
 
@@ -157,7 +189,7 @@ Admission queues and circuit breakers remain **per origin**, so all gateway serv
 
 ```sh
 export PATH=/opt/homebrew/bin:$HOME/.aftman/bin:$PATH
-python3 tools/gen.py --refresh-sources # Reads the four local ~/work/svc backend trees
+python3 tools/gen.py --refresh-sources # Reads local svc backends plus Codes/Matchmaking under ~/work/srv
 python3 tools/gen.py                  # Deterministic replay from the checked-in spec
 python3 tools/build-roblox.py
 ./tools/verify
@@ -168,6 +200,8 @@ Pinned `aftman.toml` selects already-installed tools; verification never install
 ### Layout
 
 - `src/Core/`: portable transport, admission, retry/breaker/cache, validation, codecs, configuration.
+- `src/Fields/`: hand-written TypeSystem, schema, transaction/profile helpers and domain wire conversion.
+- `src/Codes/`: handwritten award builder composition and schema preflight.
 - `src/Auth/`: service keys and versioned user sessions.
 - `src/Services/`, `src/Types/`: generated typed facades and DTOs.
 - `src/BloxSDK.luau`: portable client composition; `src/init.luau`: Luau CLI package entry.
@@ -175,7 +209,7 @@ Pinned `aftman.toml` selects already-installed tools; verification never install
 - `spec/`: authoritative contracts and local Java source hashes.
 - `tools/`: generator, checks, importer (audit-only), packaging projection.
 - `tests/`: deterministic scheduler, fault/race tests, independent contract tests.
-- `examples/`: all nine services, cursor pagination, buffered audit and snapshot caching.
+- `examples/`: all eight services, cursor pagination, buffered audit and snapshot caching.
 
 See [endpoint reference](docs/ENDPOINTS.md), [architecture](docs/ARCHITECTURE.md), [fault tolerance](docs/FAULT-TOLERANCE.md), [performance](docs/PERFORMANCE.md), and [migration](docs/MIGRATION.md).
 

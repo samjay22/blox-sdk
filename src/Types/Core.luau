@@ -15,6 +15,7 @@ export type ErrorKind =
 	| "CircuitOpen"
 	| "Cancelled"
 	| "Local"
+export type OperationDiagnostic = { opIndex: number, field: string, path: { string | number }, code: string }
 export type BloxError = {
 	kind: ErrorKind,
 	message: string,
@@ -22,6 +23,13 @@ export type BloxError = {
 	endpoint: string,
 	attempts: number,
 	body: string?,
+	code: string?,
+	path: { string | number }?,
+	field: string?,
+	opIndex: number?,
+	placeId: number?,
+	errors: { OperationDiagnostic }?,
+	grantPending: boolean?,
 }
 export type Result<T> =
 	{ ok: true, value: T, status: number?, stale: boolean? }
@@ -55,7 +63,6 @@ export type Runtime = {
 export type Level = "READ" | "READ_WRITE" | "ADMIN"
 export type ServiceLevels = {
 	AuthService: Level?,
-	DataService: Level?,
 	MatchmakingService: Level?,
 	PartyService: Level?,
 	CodeService: Level?,
@@ -63,7 +70,7 @@ export type ServiceLevels = {
 	AuditService: Level?,
 	ConfigService: Level?,
 	LeaderboardService: Level?,
-	EconomyService: Level?,
+	FieldsService: Level?,
 }
 export type AuthProvider = {
 	kind: string,
@@ -99,6 +106,7 @@ export type Endpoint = {
 	idempotencyField: string?,
 	idempotencyItems: string?,
 	conditional: boolean?,
+	optionalKey: boolean?,
 }
 export type Request = {
 	version: number?,

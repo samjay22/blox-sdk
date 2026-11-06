@@ -2,7 +2,7 @@
 
 ## Retry policy
 
-Only explicitly retryable, idempotent endpoints retry by default. Safe GET/HEAD reads qualify, except the player-data GET that marks users online. Matchmaking validation and bulk status POSTs are explicitly read-only and qualify. PUT/DELETE methods are not assumed repeat-safe solely because HTTP defines them as idempotent: backend side effects and return semantics matter. Keyed Economy, leaderboard score/rating and Audit mutations generate stable keys per logical call and qualify. All other mutations have **no automatic retry**.
+Only explicitly retryable, idempotent endpoints retry by default. Safe GET/HEAD reads qualify. Matchmaking validation and bulk status POSTs are explicitly read-only and qualify. PUT/DELETE methods are not assumed repeat-safe solely because HTTP defines them as idempotent: backend side effects and return semantics matter. Keyed Fields, leaderboard score/rating and Audit mutations generate stable keys per logical call and qualify. All other mutations have **no automatic retry**.
 
 Eligible transient failures are Network, Server (5xx), and RateLimited. Eligible safe/idempotent calls receiving Unauthorized get one strategy-mediated replay, separately from transient retry accounting. Forbidden/validation/conflict/not-found/cancellation/deadline errors do not retry. A successful mutation with a lost response may already have executed; never interpret a Network/Timeout result as proof that it did not.
 
@@ -30,14 +30,14 @@ Roblox `RequestAsync` does not expose a cancellable native HTTP request or timeo
 
 ## Cache and single-flight
 
-Only marked GETs can be cached. `cacheTtl` defaults off; `staleIfError` is an additional global grace period. Stale values are served only for server/network/open-circuit errors, never 401/403, validation, or cancellation. Credential endpoints, polling and side-effecting data GETs are ineligible. Cache is bounded FIFO, not an unbounded memoizer. Successful mutations invalidate all cached data. Responses are frozen to prevent one caller corrupting others.
+Only marked GETs can be cached. `cacheTtl` defaults off; `staleIfError` is an additional global grace period. Stale values are served only for server/network/open-circuit errors, never 401/403, validation, or cancellation. Credential endpoints, polling are ineligible. Cache is bounded FIFO, not an unbounded memoizer. Successful mutations invalidate all cached data. Responses are frozen to prevent one caller corrupting others.
 
 Identical safe GETs share a flight only when retry/priority/cache policies match and there is no explicit deadline or cancellation signal. Independent policies dispatch independently rather than inheriting a leader's cancellation. Refresh single-flight separately handles caller-local deadlines/signals.
 
 ## Shutdown
 
-Owned audit writers drain before admission closes; snapshot pollers stop. Native audit writers register BindToClose automatically. See [new-service lifecycle](NEW-SERVICES.md). Issue final saves first. Call `flush(seconds)` in `BindToClose`; it closes admission and returns whether physical/logical work drained in time. Then `destroy()`. Destroy is idempotent and affects every universe facade. Closing does not silently enqueue new saves, accept fresh calls, or replay native mutations later.
+Owned audit writers drain before admission closes; snapshot/schema pollers stop and Fields presence leases are released. Native audit writers and Fields helpers register one shared BindToClose automatically. See [new-service lifecycle](NEW-SERVICES.md). Issue final saves first. Call `flush(seconds)` in `BindToClose`; it closes admission and returns whether physical/logical work drained in time. Then `destroy()`. Destroy is idempotent and affects every universe facade. Closing does not silently enqueue new saves, accept fresh calls, or replay native mutations later.
 
 ## Error taxonomy
 
-`Unauthorized` (401), `Forbidden` (403), `NotFound` (404), `Conflict` (409), `Validation` (400/422 and other unsupported 4xx), `RateLimited` (429/local backpressure), `Server` (5xx), `Network` (backend exceptions or invalid wire success payload), `Timeout` (408/deadline), `CircuitOpen`, `Cancelled`, and `Local` (client misuse). Status is absent when no trustworthy HTTP response exists. Bodies are `[redacted]`, not partially sanitized strings.
+`Unauthorized` (401), `Forbidden` (403), `NotFound` (404), `Conflict` (409), `Validation` (400/422 and other unsupported 4xx), `RateLimited` (429/local backpressure), `Server` (5xx), `Network` (backend exceptions or invalid wire success payload), `Timeout` (408/deadline), `CircuitOpen`, `Cancelled`, and `Local` (client misuse). Status is absent when no trustworthy HTTP response exists. Bodies are `[redacted]`, not partially sanitized strings. Fields preserves allowlisted machine codes such as `session_conflict`; never raw backend messages.

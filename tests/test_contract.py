@@ -37,7 +37,7 @@ class ContractTests(unittest.TestCase):
             ('/remote-config-service', '/config-service'),
             ('/code-service', '/codes-service'),
             ('/leaderboard-service', '/leaderboards-service'),
-            ('["economy"]', '["unknown"]'),
+            ('["fields"]', '["unknown"]'),
         ):
             with self.subTest(after=after), self.assertRaises(AssertionError):
                 verify(self.doc['endpoints'], routing.replace(before, after))
@@ -60,7 +60,7 @@ class ContractTests(unittest.TestCase):
 
     def test_controller_specific_access(self) -> None:
         """Assert reviewed exceptions rather than merely testing method-based heuristics."""
-        expected={'codes.createCode':'ADMIN','codes.redeem':'READ_WRITE','codes.listRedemptions':'ADMIN','matchmaking.createGameMode':'ADMIN','matchmaking.updateGameMode':'ADMIN','matchmaking.getBulkQueueStatus':'READ','matchmaking.validateQueue':'READ','matchmaking.processMatchmaking':'ADMIN','data.createOrUpdateSchema':'ADMIN','party.getAllParties':'ADMIN'}
+        expected={'codes.createCode':'ADMIN','codes.redeem':'READ_WRITE','codes.listRedemptions':'ADMIN','matchmaking.createGameMode':'ADMIN','matchmaking.updateGameMode':'ADMIN','matchmaking.getBulkQueueStatus':'READ','matchmaking.validateQueue':'READ','matchmaking.processMatchmaking':'ADMIN','party.getAllParties':'ADMIN'}
         for endpoint,level in expected.items():self.assertEqual(self.routes[endpoint]['minimumLevel'],level)
         for e in self.doc['endpoints']:
             if '/service-accounts' in e['path']:
@@ -69,8 +69,6 @@ class ContractTests(unittest.TestCase):
 
     def test_sensitive_and_side_effecting_reads(self) -> None:
         """Ensure online-state mutations and credential endpoints do not become cached GETs."""
-        data=self.routes['data.getUserData']
-        self.assertFalse(data['cacheable']);self.assertFalse(data['retryable']);self.assertFalse(data['idempotent'])
         for e in self.doc['endpoints']:
             if '/roblox/keys' in e['path'] or '/service-accounts' in e['path']:self.assertFalse(e['cacheable'])
 
@@ -78,12 +76,9 @@ class ContractTests(unittest.TestCase):
         """Assert easily-confused backend field names and nested DTOs."""
         types=self.doc['types']
         self.assertEqual(set(types['party']['CreatePartyRequest']['fields']),{'ownerId','placeId'})
-        self.assertEqual(set(types['codes']['RedeemCodeRequest']['fields']),{'code','universeId','robloxUserId','placeId','redemptionKey'})
-        self.assertIn('baseData',types['data']['CreateUserDataRequest']['fields'])
-        self.assertIn('playerMetadata',types['matchmaking']['QueueRequest']['fields'])
+        self.assertEqual(set(types['codes']['RedeemCodeRequest']['fields']),{'code','universeId','robloxUserId','placeId'})
+        self.assertNotIn('playerMetadata',types['matchmaking']['QueueRequest']['fields'])
         self.assertEqual(set(types['auth']['ServiceAccountPatchRequest']['fields']),{'enabled','description','expiresAt'})
-        self.assertEqual(self.routes['data.createManualSnapshot']['bodyType'],None)
-        self.assertIn('universeId',{p['name'] for p in self.routes['data.createManualSnapshot']['queryParams']})
 
     def test_alias_statuses_and_safety(self) -> None:
         """Legacy deletion POSTs are never automatically retried; DELETE aliases preserve 204."""
@@ -97,35 +92,67 @@ class ContractTests(unittest.TestCase):
         from service_contracts import refresh, SOURCES
         fresh = refresh(copy.deepcopy(self.doc))
         self.assertEqual(fresh, self.doc)
-        self.assertEqual(set(SOURCES), {'audit','config','leaderboards','economy'})
+        self.assertEqual(set(SOURCES), {'audit','config','leaderboards','fields','codes','matchmaking'})
 
     def test_coverage_detects_omission_without_inventory_help(self) -> None:
         """Deleting either a rating or board route fails independently of routes.json."""
         checker = runpy.run_path(str(ROOT/'tools/check-coverage'))
         actual = {(e['service'], e['method'], e['path']) for e in self.doc['endpoints']}
         checker['assert_controller_coverage'](actual)
-        for endpoint in ('leaderboards.ratingMatch','leaderboards.rollover','audit.batch','config.snapshot','economy.refund'):
+        for endpoint in ('leaderboards.ratingMatch','leaderboards.rollover','audit.batch','config.snapshot','fields.refund','fields.validateOps','fields.previewBoard','fields.leaderboardBindings'):
             e = self.routes[endpoint]
             with self.assertRaises(AssertionError):
                 checker['assert_controller_coverage'](actual-{(e['service'],e['method'],e['path'])})
+
+    def test_fields_board_provisioning_contract(self) -> None:
+        """Assert ADMIN routes, unkeyed safety and typed preview/listing boundaries independently."""
+        for name, method, path in (
+            ('previewBoard','POST','/definitions/preview-board'),
+            ('leaderboardBindings','GET','/leaderboard-bindings'),
+        ):
+            route=self.routes['fields.'+name]
+            self.assertEqual(route['path'], '/api/fields/universes/{universeId}'+path)
+            self.assertEqual(route['method'], method)
+            self.assertEqual(route['minimumLevel'], 'ADMIN')
+            self.assertEqual(route['retryable'], method=='GET')
+            self.assertEqual(route['cacheable'], method=='GET')
+            self.assertFalse(route.get('idempotencyField'))
+        types=self.doc['types']['fields']
+        candidate=types['PreviewBoardInput']['fields']
+        self.assertEqual(set(candidate), {'universeId','id','scope','type','binding'})
+        self.assertEqual({k for k,v in candidate.items() if v['required']}, {'id','type','binding'})
+        self.assertEqual(candidate['type']['java'], 'Fields.TypeExpr')
+        self.assertEqual(candidate['binding']['java'], 'Fields.LeaderboardBinding')
+        self.assertEqual(types['BindingView']['fields']['binding']['java'], 'Fields.LeaderboardBinding')
+        self.assertEqual(types['Preview']['fields']['conflicts']['java'], 'List<BoardConflict>')
+        self.assertEqual({k for k,v in types['Preview']['fields'].items() if v['required']},
+                         {'settings','effectiveSettings','status','valid','conflicts'})
+        self.assertFalse(types['Preview']['fields']['willWiden']['required'])
+        self.assertEqual(set(types['BoardSettings']['fields']),
+                         {'name','displayName','sortOrder','aggregation','resetSchedule','minScore','maxScore'})
+        self.assertTrue(all(f['required'] for f in types['BoardSettings']['fields'].values()))
+        self.assertTrue(all(f['required'] for f in types['ScoreRange']['fields'].values()))
 
     def test_new_service_contract_exceptions(self) -> None:
         """Test guards, cursor schemas, conditional JSON, decimal amounts and key carriers independently."""
         self.assertEqual(self.routes['leaderboards.ratingConfig']['minimumLevel'], 'ADMIN')
         self.assertEqual(self.routes['config.evaluate']['minimumLevel'], 'READ')
+        self.assertEqual(self.routes['fields.validateOps']['minimumLevel'], 'READ')
+        self.assertFalse(self.routes['fields.validateOps']['retryable'])
+        self.assertEqual(self.doc['types']['fields']['OpsValidationInput']['fields']['ops']['java'], 'List<Fields.PlayerOperation>')
+        self.assertTrue(self.doc['types']['fields']['OpsValidationResult']['fields']['errors']['required'])
         self.assertEqual(self.routes['audit.batch']['statuses'], [202])
         self.assertEqual(self.routes['config.snapshot']['statuses'], [200,304])
         self.assertEqual(self.routes['config.snapshot']['responseFormat'], 'json')
         self.assertFalse(self.routes['leaderboards.rollover']['retryable'])
-        for name in ('grant','spend','transfer','adjust','reverse','receipt','refund'):
-            self.assertEqual(self.routes['economy.'+name]['idempotencyField'], 'idempotencyKey')
+        for name in ('transaction','multiTransaction','reverseEntry','reverseTransaction','purchase','refund','restoreSnapshot'):
+            self.assertEqual(self.routes['fields.'+name]['idempotencyField'], 'idempotencyKey')
         for name in ('user','users','top','config','configure','match'):
             self.assertIn('leaderboards.rating'+name.capitalize(), self.routes)
         self.assertEqual(self.doc['types']['audit']['GroupBy']['enum'], ['action','actor','outcome'])
         self.assertFalse(self.doc['types']['config']['Rules']['fields']['allowUserIds']['required'])
-        self.assertEqual(self.doc['types']['economy']['AmountInput']['fields']['amount']['java'], 'BigDecimal')
         for e in self.doc['endpoints']:
-            if e['service'] in ('audit','config','economy','leaderboards') and any(p['name']=='cursor' for p in e['queryParams']):
-                self.assertTrue(e['responseJava'].startswith('CursorPage<') or e['responseJava']=='Summary')
+            if e['service'] in ('audit','config','fields','leaderboards') and any(p['name']=='cursor' for p in e['queryParams']):
+                self.assertTrue(e['responseJava'].startswith('CursorPage<') or e['responseJava'] in ('Summary','FieldPage','SnapshotDetail'))
 
 if __name__=='__main__':unittest.main()

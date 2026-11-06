@@ -1,22 +1,23 @@
 # Endpoint reference
 
-234 endpoints. `routes.json` coverage is checked independently.
+238 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
+
+**lb1 requires `Gateway` permission in addition to the target service permission. `bsa_` service-account keys are universe-bound.**
 
 | Service | Gateway stripPrefix |
 |---|---|
 | `auth` | `/auth-service` |
-| `data` | `/data-service` |
 | `matchmaking` | `/matchmaking-service` |
 | `party` | `/party-service` |
 | `codes` | `/code-service` |
 | `audit` | `/audit-service` |
 | `config` | `/remote-config-service` |
 | `leaderboards` | `/leaderboard-service` |
-| `economy` | `/economy-service` |
+| `fields` | `/fields-service` |
 
-Paths below are backend-relative: wire URL = gateway + service prefix + path. Config uses `/remote-config-service`, never `/config-service` (the gateway reserves `/config*`). An explicit `services = { data = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
+Paths below are backend-relative: wire URL = gateway + service prefix + path. Config uses `/remote-config-service`, never `/config-service` (the gateway reserves `/config*`). An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
 
 Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.
 
@@ -92,6 +93,8 @@ Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO d
 | PUT | `/api/codes/{id}` | `codes.updateCode` | ADMIN | 200 | no | no |
 | GET | `/api/codes/{id}/redemptions` | `codes.listRedemptions` | ADMIN | 200 | yes | yes |
 | GET | `/health` | `codes.healthProxy` | public / authenticated | 200 | yes | yes |
+| GET | `/info` | `codes.info` | public / authenticated | 200 | yes | yes |
+| GET | `/metrics` | `codes.metrics` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/liveness` | `config.liveness` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/readiness` | `config.readiness` | public / authenticated | 200 | yes | yes |
 | GET | `/api/config/universes/{universeId}/entries` | `config.entries` | READ | 200 | yes | yes |
@@ -112,58 +115,60 @@ Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO d
 | GET | `/health` | `config.healthProxy` | public / authenticated | 200 | yes | yes |
 | GET | `/info` | `config.info` | public / authenticated | 200 | yes | yes |
 | GET | `/metrics` | `config.metrics` | public / authenticated | 200 | yes | yes |
-| GET | `/api/admin/backups` | `data.listSnapshots` | ADMIN | 200 | yes | yes |
-| POST | `/api/admin/backups` | `data.createManualSnapshot` | ADMIN | 200 | no | no |
-| POST | `/api/admin/backups/trigger-all` | `data.triggerScheduledBackup` | ADMIN | 200 | no | no |
-| GET | `/api/admin/backups/universe/{universeId}` | `data.getSnapshotsByUniverse` | ADMIN | 200 | yes | yes |
-| DELETE | `/api/admin/backups/{snapshotId}` | `data.deleteSnapshot` | ADMIN | 200 | no | no |
-| GET | `/api/admin/backups/{snapshotId}` | `data.getSnapshot` | ADMIN | 200 | yes | yes |
-| POST | `/api/admin/backups/{snapshotId}/rollback` | `data.rollbackToSnapshot` | ADMIN | 200 | no | no |
-| GET | `/api/admin/pending-updates` | `data.getPendingUpdates` | ADMIN | 200 | yes | yes |
-| GET | `/api/admin/schema-migrations` | `data.getAllSchemaMigrations` | ADMIN | 200 | yes | yes |
-| GET | `/api/admin/schema-versions` | `data.getAllSchemaVersions` | ADMIN | 200 | yes | yes |
-| GET | `/api/admin/user-data` | `data.getAllUserData` | ADMIN | 200 | yes | yes |
-| GET | `/api/admin/user-data/grouped` | `data.getAllUserDataGroupedByUniverse` | ADMIN | 200 | yes | yes |
-| GET | `/api/admin/users/{robloxUserId}/data` | `data.getUserDataByRobloxUserId` | ADMIN | 200 | yes | yes |
-| POST | `/api/auth/login` | `data.login` | public / authenticated | 200 | no | no |
-| POST | `/api/auth/logout` | `data.logout` | public / authenticated | 200 | no | no |
-| POST | `/api/auth/refresh` | `data.refreshToken` | public / authenticated | 200 | no | no |
-| POST | `/api/universes/schema` | `data.createOrUpdateSchema` | ADMIN | 201 | no | no |
-| GET | `/api/universes/schema/defaults` | `data.getSchemaDefaults` | READ | 200 | yes | yes |
-| GET | `/api/universes/schema/versions` | `data.getSchemaVersions` | READ | 200 | yes | yes |
-| GET | `/api/universes/users/data` | `data.getAllUserDataForUniverse` | READ | 200 | yes | yes |
-| PUT | `/api/universes/users/data/bulk` | `data.bulkUpdateUserData` | READ_WRITE | 200 | no | no |
-| POST | `/api/universes/users/data/sync` | `data.syncUserDataBatch` | READ_WRITE | 200 | no | no |
-| DELETE | `/api/universes/users/{robloxUserId}/data` | `data.deleteUserData` | READ_WRITE | 204 | no | no |
-| GET | `/api/universes/users/{robloxUserId}/data` | `data.getUserData` | READ | 200 | no | no |
-| POST | `/api/universes/users/{robloxUserId}/data` | `data.createUserData` | READ_WRITE | 201 | no | no |
-| PUT | `/api/universes/users/{robloxUserId}/data` | `data.updateUserData` | READ_WRITE | 200 | no | no |
-| GET | `/health` | `data.healthProxy` | public / authenticated | 200 | yes | yes |
-| GET | `/actuator/health/liveness` | `economy.liveness` | public / authenticated | 200 | yes | yes |
-| GET | `/actuator/health/readiness` | `economy.readiness` | public / authenticated | 200 | yes | yes |
-| POST | `/api/economy/universes/{universeId}/balances/batch` | `economy.batch` | READ | 200 | no | no |
-| GET | `/api/economy/universes/{universeId}/currencies` | `economy.currencies` | READ | 200 | yes | yes |
-| PATCH | `/api/economy/universes/{universeId}/currencies` | `economy.patchCurrency` | ADMIN | 200 | no | no |
-| POST | `/api/economy/universes/{universeId}/currencies` | `economy.createCurrency` | ADMIN | 201 | no | no |
-| GET | `/api/economy/universes/{universeId}/ledger/{entryId}` | `economy.entry` | READ | 200 | yes | yes |
-| POST | `/api/economy/universes/{universeId}/ledger/{entryId}/reverse` | `economy.reverse` | ADMIN | 200 | keyed | no |
-| GET | `/api/economy/universes/{universeId}/products` | `economy.products` | READ | 200 | yes | yes |
-| DELETE | `/api/economy/universes/{universeId}/products/{robloxProductId}` | `economy.deleteProduct` | ADMIN | 204 | no | no |
-| GET | `/api/economy/universes/{universeId}/products/{robloxProductId}` | `economy.product` | READ | 200 | yes | yes |
-| PUT | `/api/economy/universes/{universeId}/products/{robloxProductId}` | `economy.putProduct` | ADMIN | 200 | no | no |
-| POST | `/api/economy/universes/{universeId}/receipts` | `economy.receipt` | READ_WRITE | 200 | keyed | no |
-| POST | `/api/economy/universes/{universeId}/receipts/{purchaseId}/refund` | `economy.refund` | ADMIN | 200 | keyed | no |
-| GET | `/api/economy/universes/{universeId}/reconcile` | `economy.reconcile` | ADMIN | 200 | yes | yes |
-| POST | `/api/economy/universes/{universeId}/transfer` | `economy.transfer` | READ_WRITE | 200 | keyed | no |
-| POST | `/api/economy/universes/{universeId}/users/{userId}/adjust` | `economy.adjust` | ADMIN | 200 | keyed | no |
-| GET | `/api/economy/universes/{universeId}/users/{userId}/balances` | `economy.balances` | READ | 200 | yes | yes |
-| GET | `/api/economy/universes/{universeId}/users/{userId}/balances/{code}` | `economy.balance` | READ | 200 | yes | yes |
-| POST | `/api/economy/universes/{universeId}/users/{userId}/grant` | `economy.grant` | READ_WRITE | 200 | keyed | no |
-| GET | `/api/economy/universes/{universeId}/users/{userId}/ledger` | `economy.ledger` | READ | 200 | yes | yes |
-| POST | `/api/economy/universes/{universeId}/users/{userId}/spend` | `economy.spend` | READ_WRITE | 200 | keyed | no |
-| GET | `/health` | `economy.healthProxy` | public / authenticated | 200 | yes | yes |
-| GET | `/info` | `economy.info` | public / authenticated | 200 | yes | yes |
-| GET | `/metrics` | `economy.metrics` | public / authenticated | 200 | yes | yes |
+| GET | `/actuator/health/liveness` | `fields.liveness` | public / authenticated | 200 | yes | yes |
+| GET | `/actuator/health/readiness` | `fields.readiness` | public / authenticated | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/definitions` | `fields.definitions` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/definitions` | `fields.create` | ADMIN | 201 | no | no |
+| POST | `/api/fields/universes/{universeId}/definitions/preview-board` | `fields.previewBoard` | ADMIN | 200 | no | no |
+| DELETE | `/api/fields/universes/{universeId}/definitions/{id}` | `fields.purge` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/definitions/{id}` | `fields.definition` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/definitions/{id}` | `fields.update` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/definitions/{id}/archive` | `fields.archive` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/definitions/{id}/history` | `fields.history` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/definitions/{id}/unarchive` | `fields.unarchive` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/fields/batch-get` | `fields.batch` | READ | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/leaderboard-bindings` | `fields.leaderboardBindings` | ADMIN | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/ledger/{entryId}` | `fields.entry` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/ledger/{entryId}/reverse` | `fields.reverseEntry` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/ops/validate` | `fields.validateOps` | READ | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/outbox` | `fields.outbox` | ADMIN | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/outbox/{id}/retry` | `fields.retryOutbox` | ADMIN | 200 | no | no |
+| DELETE | `/api/fields/universes/{universeId}/players/{userId}` | `fields.deletePlayer` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/changes` | `fields.changes` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/document` | `fields.document` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/players/{userId}/document` | `fields.putDocument` | READ_WRITE | 200 | keyed | no |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/fields` | `fields.fields` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/players/{userId}/fields/batch-get` | `fields.playerBatch` | READ | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/fields/{fieldId}` | `fields.field` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/ledger` | `fields.ledger` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/presence` | `fields.presence` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/players/{userId}/presence` | `fields.putPresence` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/receipts` | `fields.receipts` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/players/{userId}/transactions` | `fields.transaction` | READ_WRITE | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/presence/batch-get` | `fields.presenceBatch` | READ | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/products` | `fields.products` | READ | 200 | yes | yes |
+| DELETE | `/api/fields/universes/{universeId}/products/{id}` | `fields.deleteProduct` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/products/{id}` | `fields.product` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/products/{id}` | `fields.putProduct` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/receipts` | `fields.purchase` | READ_WRITE | 200 | keyed | no |
+| GET | `/api/fields/universes/{universeId}/receipts/{purchaseId}` | `fields.receipt` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/receipts/{purchaseId}/refund` | `fields.refund` | ADMIN | 200 | keyed | no |
+| GET | `/api/fields/universes/{universeId}/reconcile` | `fields.reconcile` | ADMIN | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/schema` | `fields.schema` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/schema/luau` | `fields.luau` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/schema/typescript` | `fields.typescript` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/snapshots` | `fields.snapshots` | ADMIN | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/snapshots` | `fields.createSnapshot` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/snapshots/policy` | `fields.snapshotPolicy` | ADMIN | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/snapshots/policy` | `fields.putSnapshotPolicy` | ADMIN | 200 | no | no |
+| DELETE | `/api/fields/universes/{universeId}/snapshots/{id}` | `fields.deleteSnapshot` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/snapshots/{id}` | `fields.snapshot` | ADMIN | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/snapshots/{id}/restore` | `fields.restoreSnapshot` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/transactions` | `fields.multiTransaction` | READ_WRITE | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/transactions/{txId}/reverse` | `fields.reverseTransaction` | ADMIN | 200 | keyed | no |
+| GET | `/health` | `fields.healthProxy` | public / authenticated | 200 | yes | yes |
+| GET | `/info` | `fields.info` | public / authenticated | 200 | yes | yes |
+| GET | `/metrics` | `fields.metrics` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/liveness` | `leaderboards.liveness` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/readiness` | `leaderboards.readiness` | public / authenticated | 200 | yes | yes |
 | POST | `/api/leaderboards/ratings/universes/{universeId}/matches` | `leaderboards.ratingMatch` | READ_WRITE | 200 | keyed | no |

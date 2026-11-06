@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 218 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 222 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 234 endpoints]
+  Audit --> Spec[spec/endpoints.json: 238 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
@@ -41,7 +41,7 @@ Generated methods only adapt typed arguments to `Invoke`. The untyped entry vali
 `tools/gen.py` owns the gateway and prefix declarations; generated `Core/Routing` supplies frozen defaults.
 `Core/Config` resolves `gatewayUrl` and optional `services[service].baseUrl` into immutable origin and wire-base maps
 before accessing Roblox or credentials. `Pipeline` joins the wire base to the encoded backend path exactly once.
-Origins, not prefixed bases, key gates and breakers: the default nine services share one gateway origin.
+Origins, not prefixed bases, key gates and breakers: the default eight services share one gateway origin.
 Explicit direct-host overrides omit the gateway prefix. See [all prefixes and URL examples](../README.md#gateway-routing).
 
 The backend interface is `(HttpRequest) -> HttpResponse`; the runtime supplies monotonic/unix clocks, random, scheduler, encoder, and decoder. Exactly one transport-edge protected call contains credential application, encoding, backend invocation, decoding, and response validation. Optional observer callbacks have their own protected boundary, never receive bodies/headers, and cannot fail requests.
@@ -59,3 +59,19 @@ No header pooling: each request owns its header table until native HTTP completi
 Single-flight is client-local, keyed by endpoint, canonical URL, auth generation, write-invalidation epoch, and compatible call policies. Calls with custom signals or explicit deadlines are intentionally independent. Cache entries and shared responses are deeply frozen. Any successful mutation invalidates the cache; in-flight reads retain their earlier epoch and cannot repopulate the current namespace.
 
 `flush()` drains audit writers and stops snapshot pollers before it closes admission and waits for logical/native work for a bounded duration. `destroy()` cancels waiters, clears cache/credentials, and invalidates all facades. Neither operation can undo an already-executing server mutation.
+
+## Fields ownership
+
+Generated `Services/Fields` delegates helpers to `Fields/Client`; no generated HTTP wrapper is hand-edited.
+TypeExpr is a closed exported recursive union. Schema compilation is atomic per generation. Builders
+validate all ops before calling Invoke, seal private payloads and keep one identity across retries.
+Profiles apply acknowledged after-subvalues and refresh snapshot state across sequence gaps/NONE history.
+Shared helper state owns caches, presence timers and bounded close work. See [Fields](FIELDS.md).
+
+## Shared operation templates
+
+`Fields/Operations` owns subject-free structure validation, canonicalization and ordered diagnostics.
+`Fields/OpBuilder` composes it for dry runs; `Codes/Award` reuses that builder and the same universe schema
+cache. Transactions use the shared constructor and TypeSystem, retaining full commit validation and
+per-transaction identity. Codes never choose a downstream key or emulate a player-state mutation locally.
+Generated facades delegate only the handwritten preflight; transport/retry/auth remain in one pipeline.

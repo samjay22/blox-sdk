@@ -32,7 +32,7 @@ end
 function Idempotency.prepare(spec: Core.Endpoint, request: Core.Request, runtime: Core.Runtime): Core.Request
 	local result: Core.Request = Idempotency.copy(request)
 	local field = spec.idempotencyField
-	if not field or type(result.body) ~= "table" then
+	if spec.optionalKey or not field or type(result.body) ~= "table" then
 		return result
 	end
 	local body = result.body :: { [string]: any }

@@ -1,0 +1,1337 @@
+[
+  {
+    "name": "all eligibility diagnostics",
+    "ops": [
+      {
+        "field": "Missing",
+        "op": "RESET"
+      },
+      {
+        "field": "Shared",
+        "op": "RESET"
+      },
+      {
+        "field": "Total",
+        "op": "RESET"
+      },
+      {
+        "field": "Old",
+        "op": "RESET"
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Missing",
+        "code": "unknown_field",
+        "path": []
+      },
+      {
+        "opIndex": 1,
+        "field": "Shared",
+        "code": "field_scope_mismatch",
+        "path": []
+      },
+      {
+        "opIndex": 2,
+        "field": "Total",
+        "code": "field_computed",
+        "path": []
+      },
+      {
+        "opIndex": 3,
+        "field": "Old",
+        "code": "field_archived",
+        "path": []
+      }
+    ]
+  },
+  {
+    "name": "negative delta has no hypothetical balance",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": -1
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "typed diagnostics include original paths",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 0
+      },
+      {
+        "field": "Settings",
+        "op": "SET",
+        "path": [
+          "Missing"
+        ],
+        "value": true
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Currency.Gems",
+        "code": "zero_delta",
+        "path": []
+      },
+      {
+        "opIndex": 1,
+        "field": "Settings",
+        "code": "unknown_member",
+        "path": [
+          "Missing"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "empty list",
+    "ops": [],
+    "code": "invalid_request"
+  },
+  {
+    "name": "subject zero",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "RESET",
+        "subject": 0
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "subject null",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "RESET",
+        "subject": null
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "unknown argument",
+    "ops": [
+      {
+        "field": "Missing",
+        "op": "RESET",
+        "extra": 1
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "null path",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "RESET",
+        "path": null
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "negative path",
+    "ops": [
+      {
+        "field": "Characters",
+        "op": "RESET",
+        "path": [
+          -1
+        ]
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "fractional path",
+    "ops": [
+      {
+        "field": "Characters",
+        "op": "RESET",
+        "path": [
+          0.5
+        ]
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "deep path",
+    "ops": [
+      {
+        "field": "Characters",
+        "op": "RESET",
+        "path": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "blank field",
+    "ops": [
+      {
+        "field": " ",
+        "op": "RESET"
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "blank op",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": " "
+      }
+    ],
+    "code": "invalid_request"
+  },
+  {
+    "name": "typed missing delta",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "ADD"
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Currency.Gems",
+        "code": "wrong_type",
+        "path": []
+      }
+    ]
+  },
+  {
+    "name": "unknown discriminator",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "INVALID"
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Currency.Gems",
+        "code": "op_not_applicable",
+        "path": []
+      }
+    ]
+  },
+  {
+    "name": "reset requires no player state",
+    "ops": [
+      {
+        "field": "Characters",
+        "op": "RESET",
+        "path": [
+          0
+        ]
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "zero remove count",
+    "ops": [
+      {
+        "field": "Characters",
+        "op": "REMOVE_AT",
+        "index": 0,
+        "count": 0
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Characters",
+        "code": "invalid_index",
+        "path": []
+      }
+    ]
+  },
+  {
+    "name": "string list path",
+    "ops": [
+      {
+        "field": "Characters",
+        "op": "RESET",
+        "path": [
+          "0"
+        ]
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Characters",
+        "code": "invalid_index",
+        "path": [
+          "0"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "numeric map path",
+    "ops": [
+      {
+        "field": "Inventory.Items",
+        "op": "RESET",
+        "path": [
+          0
+        ]
+      }
+    ],
+    "errors": [
+      {
+        "opIndex": 0,
+        "field": "Inventory.Items",
+        "code": "invalid_map_key",
+        "path": [
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "100 ops accepted",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "101 ops rejected",
+    "ops": [
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      },
+      {
+        "field": "Currency.Gems",
+        "op": "ADD",
+        "delta": 1
+      }
+    ],
+    "code": "invalid_request"
+  }
+]

@@ -353,6 +353,13 @@ function Pipeline.call(
 	end
 	request = prepared
 	if
+		spec.optionalKey and (type(request.body) ~= "table" or (request.body :: any).idempotencyKey == nil)
+	then
+		spec = table.clone(spec)
+		spec.idempotent = false
+		spec.retryable = false
+	end
+	if
 		request.version ~= nil
 		and (
 			not spec.conditional

@@ -2,7 +2,7 @@
 
 ## Service account keys (game servers)
 
-Use `secretName` with `universeId`, optionally supplying deployment-known `levels` under case-sensitive catalog names: AuthService, DataService, MatchmakingService, PartyService, CodeService, AuditService, ConfigService, LeaderboardService, EconomyService. These are local preflight hints, not grants; the backend is always authoritative. A missing levels table means unknown grants, not full access. A present table without the called service causes a local denial.
+Use `secretName` with `universeId`, optionally supplying deployment-known `levels` under case-sensitive catalog names: AuthService, MatchmakingService, PartyService, CodeService, AuditService, ConfigService, LeaderboardService, FieldsService. These are local preflight hints, not grants; the backend is always authoritative. A missing levels table means unknown grants, not full access. A present table without the called service causes a local denial.
 
 Readable key format is exactly `bsa_[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]{43}` (56 bytes), matching `ServiceAccountKeys.java`. The key is captured in a private provider closure. No login, refresh, JWT decoding, JSON serialization, or error formatting is performed on it.
 
@@ -49,3 +49,11 @@ Custom provider/store callbacks are trusted integration code: make synchronous p
 Login, refresh, service-account create/rotate, and unmasked Roblox API-key responses may contain credentials. They are never cached or sent to hooks. Application code must not print or persist them accidentally. Error bodies and transport exceptions are completely redacted, including when a server reflects secrets. Generated DTO optional fields do not imply a response is safe to log.
 
 Explicit null PATCH fields use `BloxSDK.null`; Lua `nil` means omission. `enabled=null` is rejected by both the schema and backend. An empty permissions list removes every grant and is encoded as `[]`.
+
+## lb1 and downstream permissions
+
+**Using lb1 requires the case-sensitive `Gateway` service permission in addition to the target service
+permission.** Add grants on the account, not merely `levels` in SDK configuration. `bsa_` keys are
+universe-bound; `withUniverse` cannot expand their authority. Direct service origins bypass the gateway,
+not the service's authorization. CodeService forwards the caller bearer to Fields: validation needs READ,
+redemption needs the applicable Fields write permissions. Matchmaking enrichment needs Fields READ.

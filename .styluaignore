@@ -1,0 +1,2 @@
+# Deterministic stdlib-only codegen goldens intentionally retain generator formatting.
+tests/golden/**

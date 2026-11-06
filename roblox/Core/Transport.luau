@@ -5,7 +5,7 @@ local Errors = require(script.Parent.Parent.Core.Errors)
 local Gate = require(script.Parent.Parent.Core.Gate)
 local Validation = require(script.Parent.Parent.Core.Validation)
 local Schemas = require(script.Parent.Parent.Core.Schemas)
-local ExactNumbers = require(script.Parent.Parent.Core.ExactNumbers)
+local JsonDecode = require(script.Parent.Parent.Core.JsonDecode)
 local Transport = {}
 --- Run encode/request/decode inside the sole wire-edge pcall; never surface raw exceptions.
 function Transport.send(
@@ -69,12 +69,19 @@ function Transport.send(
 			then
 				value = if spec.responseFormat == "text"
 					then wire.Body
-					else runtime.decode(
-						if spec.service == "economy" then ExactNumbers.preserve(wire.Body) else wire.Body
+					elseif spec.service == "fields" or spec.service == "codes" then JsonDecode.decode(
+						wire.Body
 					)
+					else runtime.decode(wire.Body)
 			end
 			if wire.StatusCode >= 200 and wire.StatusCode < 300 then
 				assert(Validation.response(spec.id, value, wire.StatusCode), "Invalid response schema")
+			end
+			if wire.StatusCode >= 400 and (spec.service == "fields" or spec.service == "codes") then
+				local decodedOk, domain = pcall(runtime.decode, wire.Body)
+				if decodedOk then
+					value = domain
+				end
 			end
 			return wire, value
 		end)
@@ -88,7 +95,7 @@ function Transport.send(
 				result = if (response.StatusCode >= 200 and response.StatusCode < 300)
 						or (spec.conditional and response.StatusCode == 304)
 					then { ok = true, value = decoded, status = response.StatusCode }
-					else Errors.http(response.StatusCode, spec.id, attempt)
+					else Errors.domain(response.StatusCode, spec.id, attempt, decoded)
 			end
 			finished = true
 		end

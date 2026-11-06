@@ -7,8 +7,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT.parent
-SOURCES = {'auth': WORK / 'srv/src-gas/global-auth-service', 'data': WORK / 'srv/src-dev-roblox-data-service', 'matchmaking': WORK / 'srv/src-mm', 'codes': WORK / 'srv/src-roblox-code-service', 'party': WORK / 'party'}
-CATALOG = dict(zip(SOURCES, ['AuthService', 'DataService', 'MatchmakingService', 'CodeService', 'PartyService']))
+SOURCES = {'auth': WORK / 'srv/src-gas/global-auth-service', 'matchmaking': WORK / 'srv/src-mm', 'codes': WORK / 'srv/src-roblox-code-service', 'party': WORK / 'party'}
+CATALOG = dict(zip(SOURCES, ['AuthService', 'MatchmakingService', 'CodeService', 'PartyService']))
 
 def clean(text: str) -> str:
     """Remove Java comments while preserving literals."""
@@ -65,6 +65,7 @@ def types_for(service: str, root: Path) -> dict:
         text = clean(file.read_text())
         for match in re.finditer(r'(?:class|record|enum)\s+(\w+)(?:\s+extends\s+(\w+))?', text):
             name, parent = match.groups()
+            if name.startswith("DataService"): continue  # Unused downstream DTOs are not SDK services.
             if match[0].startswith('enum'):
                 b = text.index('{', match.end()); body, _ = balanced(text, b, '{', '}')
                 definitions[name] = {'enum': re.findall(r'\b[A-Z][A-Z_]+\b', body.split(';')[0])}; continue
@@ -150,7 +151,6 @@ def endpoints_for(service: str, root: Path) -> list[dict]:
             if service=='auth' and ('/accounts' in path or '/password/change' in path) and not public: role = role or 'USER'
             route.update(minimumLevel=None if public or role else level, requiredRole=role, authKinds=['none','serviceAccount','user','custom'] if public else ['user','custom'] if role else ['serviceAccount','user','custom'], idempotent=method in ('GET','HEAD','PUT','DELETE'), retryable=method in ('GET','HEAD'), cacheable=method=='GET', responseFormat='text' if response.strip() in ('String','ResponseEntity<String>') else 'json')
             if '/roblox/keys' in path or service=='auth' and '/universes' not in path: route['cacheable']=False
-            if service=='data' and name=='getUserData': route.update(idempotent=False,retryable=False,cacheable=False)
             if service=='party' and '/poll/' in path: route['cacheable']=False
             statuses = [201 if 'HttpStatus.CREATED' in body else 200]
             if 'noContent()' in body: statuses = ([200,204] if 'ResponseEntity.ok(' in body else [204])
