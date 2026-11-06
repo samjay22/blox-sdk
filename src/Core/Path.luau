@@ -70,7 +70,11 @@ function Path.build(
 		for i = 1, #params do
 			local param = params[i]
 			local value = input[param.name]
-			if value == nil and (param.name == "universeId" or param.name == "robloxUniverseId") then
+			if
+				value == nil
+				and param.scopeDefault ~= false
+				and (param.name == "universeId" or param.name == "robloxUniverseId")
+			then
 				value = if universe ~= nil and param.type == "string" then tostring(universe) else universe
 			end
 			if value == nil then
@@ -79,8 +83,11 @@ function Path.build(
 				end
 			else
 				if
-					(param.name == "universeId" or param.name == "robloxUniverseId")
-					and not Universe.valid(value)
+					(
+						param.name == "universeId"
+						or param.name == "robloxUniverseId"
+						or param.name == "universe"
+					) and not Universe.valid(value)
 				then
 					return nil, "Invalid universeId"
 				end

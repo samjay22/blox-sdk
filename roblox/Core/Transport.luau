@@ -71,15 +71,20 @@ function Transport.send(
 			then
 				value = if spec.responseFormat == "text"
 					then wire.Body
-					elseif spec.service == "fields" or spec.service == "codes" then JsonDecode.decode(
-						wire.Body
-					)
+					elseif
+						spec.service == "fields"
+						or spec.service == "codes"
+						or spec.service == "auth"
+					then JsonDecode.decode(wire.Body)
 					else runtime.decode(wire.Body)
 			end
 			if wire.StatusCode >= 200 and wire.StatusCode < 300 then
 				assert(Validation.response(spec.id, value, wire.StatusCode), "Invalid response schema")
 			end
-			if wire.StatusCode >= 400 and (spec.service == "fields" or spec.service == "codes") then
+			if
+				wire.StatusCode >= 400
+				and (spec.service == "fields" or spec.service == "codes" or spec.service == "auth")
+			then
 				local decodedOk, domain = pcall(runtime.decode, wire.Body)
 				if decodedOk then
 					value = domain

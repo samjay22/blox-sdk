@@ -163,9 +163,9 @@ test("key validation, fixed offsets, redaction and opaque Secret AddPrefix", fun
 end)
 
 test("precompiled paths encode delimiters UTF8 and false query values", function()
-	local p = SDK.endpoints["auth.getAccountByUsername"]
-	local path = Path.build(p, { path = { username = "a/b ?#é" } :: { [string]: unknown } }, nil)
-	check(path == "/api/auth/accounts/username/a%2Fb%20%3F%23%C3%A9")
+	local p = SDK.endpoints["auth.getOrg"]
+	local path = Path.build(p, { path = { org = "a/b ?#é" } :: { [string]: unknown } }, nil)
+	check(path == "/api/auth/orgs/a%2Fb%20%3F%23%C3%A9")
 	local codes = Path.build(
 		SDK.endpoints["codes.searchCodes"],
 		{ query = { active = false, page = 0 } :: { [string]: unknown } },
@@ -245,9 +245,9 @@ test("local role and universe guards perform no HTTP", function()
 	local s = Scheduler.new()
 	local c, f = client(s, {})
 	s.run(function()
-		local result = c.auth:listServiceAccounts()
+		local result = c.auth:listServiceAccounts({ query = { orgId = "synthetic-org" } })
 		failure(result, "Local")
-		check(not result.ok and result.error.message == "requires super-admin user token")
+		check(not result.ok and result.error.message == "requires identity user token")
 		failure(c.fields:schema({ path = { universeId = 456 } }), "Local")
 	end)
 	check(f.count() == 0)
@@ -396,7 +396,12 @@ test("concurrent 401s refresh once, replay once with rotated tokens", function()
 		{ status = 401, delay = 0.1 },
 		{ status = 401, delay = 0.1 },
 		{
-			body = s.json({ accessToken = "new", refreshToken = "refresh-new", expiresIn = 3600 }),
+			body = s.json({
+				accessToken = "new",
+				refreshToken = "refresh-new",
+				expiresIn = 3600,
+				tokenType = "Bearer",
+			}),
 			delay = 0.1,
 			check = function(req: Core.HttpRequest)
 				check(
@@ -463,7 +468,14 @@ test("JWT exp reading, proactive refresh, login and logout token store", functio
 	local store = Session.memoryStore()
 	store.set({ accessToken = "old", refreshToken = "r", expiresAt = 1700000001 })
 	local c, f = client(s, {
-		{ body = s.json({ accessToken = "new", refreshToken = "next", expiresIn = 3600 }) },
+		{
+			body = s.json({
+				accessToken = "new",
+				refreshToken = "next",
+				expiresIn = 3600,
+				tokenType = "Bearer",
+			}),
+		},
 		{ body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }) },
 		{ body = s.json({ message = "ok" }) },
 	}, { userSession = { store = store } })
@@ -509,7 +521,7 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
-test("all 271 generated endpoints use default, custom gateway and direct-host URLs offline", function()
+test("all 277 generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
 	for id, spec in SDK.endpoints do
 		local s = Scheduler.new()
@@ -614,18 +626,24 @@ test("all 271 generated endpoints use default, custom gateway and direct-host UR
 			count += 1
 		end
 	end
-	check(count == 271 * 3)
+	check(count == 277 * 3)
 end)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
 	local s = Scheduler.new()
 	local store = Session.memoryStore()
 	store.set({ accessToken = "old", refreshToken = "r", expiresAt = 1700000001 })
-	local c, f = client(
-		s,
-		{ { delay = 1, body = s.json({ accessToken = "new", refreshToken = "next", expiresIn = 3600 }) } },
-		{ userSession = { store = store } }
-	)
+	local c, f = client(s, {
+		{
+			delay = 1,
+			body = s.json({
+				accessToken = "new",
+				refreshToken = "next",
+				expiresIn = 3600,
+				tokenType = "Bearer",
+			}),
+		},
+	}, { userSession = { store = store } })
 	local returned = 0
 	s.run(function()
 		failure(c.fields:schema(nil, { deadline = s.time() + 0.05 }), "Timeout")
@@ -662,7 +680,14 @@ test("replayed 401 terminates after one refresh", function()
 	store.set({ accessToken = "old", refreshToken = "r" })
 	local c, f = client(s, {
 		{ status = 401 },
-		{ body = s.json({ accessToken = "new", refreshToken = "next", expiresIn = 3600 }) },
+		{
+			body = s.json({
+				accessToken = "new",
+				refreshToken = "next",
+				expiresIn = 3600,
+				tokenType = "Bearer",
+			}),
+		},
 		{
 			status = 401,
 		},
@@ -678,7 +703,20 @@ test("login stores tokens and managed logout uses the current refresh token", fu
 	local store = Session.memoryStore()
 	local logoutBody = false
 	local c, f = client(s, {
-		{ body = s.json({ accessToken = "new", refreshToken = "current", expiresIn = 3600 }) },
+		{
+			body = s.json({
+				accessToken = "new",
+				refreshToken = "current",
+				expiresIn = 3600,
+				tokenType = "Bearer",
+				accountId = "u",
+				username = "user",
+				accountType = "USER",
+				createdTime = "now",
+				updatedTime = "now",
+				metadata = {},
+			}),
+		},
 		{
 			body = s.json({ message = "ok" }),
 			check = function(req: Core.HttpRequest)
@@ -699,7 +737,16 @@ test("generated schema encodes empty service permissions as an array", function(
 	local serialized = false
 	local c = client(s, {
 		{
-			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
+			body = s.json({
+				id = "key-id",
+				name = "key",
+				universeId = 123,
+				orgId = "org",
+				enabled = true,
+				createdAt = "now",
+				createdBy = "user",
+				permissions = Json.array({}),
+			}),
 			check = function(req: Core.HttpRequest)
 				serialized = req.Body == "[]"
 			end,
@@ -828,11 +875,17 @@ test("refresh wait observes caller cancellation without cancelling shared refres
 	local s = Scheduler.new()
 	local store = Session.memoryStore()
 	store.set({ accessToken = "old", refreshToken = "r", expiresAt = 1700000001 })
-	local c, f = client(
-		s,
-		{ { delay = 1, body = s.json({ accessToken = "new", refreshToken = "next", expiresIn = 3600 }) } },
-		{ userSession = { store = store } }
-	)
+	local c, f = client(s, {
+		{
+			delay = 1,
+			body = s.json({
+				accessToken = "new",
+				refreshToken = "next",
+				expiresIn = 3600,
+				tokenType = "Bearer",
+			}),
+		},
+	}, { userSession = { store = store } })
 	local signal: Core.Signal = { cancelled = false }
 	local returned = 0
 	s.run(function()
@@ -877,6 +930,7 @@ test("successful mutation invalidates cached reads", function()
 	check(f.count() == 3)
 end)
 require("./new_services")(test)
+require("./auth")(test)
 require("./fields")(test)
 require("./field_bindings")(test)
 require("./operations")(test)

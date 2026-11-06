@@ -37,6 +37,45 @@ function Errors.http(status: number, endpoint: string, attempts: number): Types.
 	local kind: Types.ErrorKind = statusKinds[status] or (if status >= 500 then "Server" else "Validation")
 	return Errors.make(kind, endpoint, attempts, "HTTP request failed", status)
 end
+local authCodes: { [string]: boolean } = table.freeze({
+	resource_not_found = true,
+	access_denied = true,
+	permission_cap = true,
+	cannot_change_own_role = true,
+	last_owner = true,
+	org_universe_limit = true,
+	org_member_limit = true,
+	org_service_account_limit = true,
+	org_creation_limit = true,
+	org_not_empty = true,
+	member_exists = true,
+	resource_conflict = true,
+	invalid_invitation = true,
+	invalid_invitation_expiry = true,
+	invalid_permissions = true,
+	invalid_cursor = true,
+	invalid_page = true,
+	UNKNOWN_SERVICE = true,
+	RATE_LIMITED = true,
+	VALIDATION_ERROR = true,
+	INVALID_REQUEST = true,
+	WEAK_PASSWORD = true,
+	INVALID_CREDENTIALS = true,
+	ACCOUNT_DISABLED = true,
+	USERNAME_EXISTS = true,
+	EMAIL_EXISTS = true,
+	TOKEN_EXPIRED = true,
+	INVALID_TOKEN = true,
+	INVALID_TOKEN_TYPE = true,
+	INVALID_SERVICE_ACCOUNT = true,
+	SERVICE_ACCOUNT_NOT_FOUND = true,
+	SERVICE_ACCOUNT_REVOKED = true,
+	SERVICE_ACCOUNT_CONFLICT = true,
+	SERVICE_NOT_FOUND = true,
+	SERVICE_EXISTS = true,
+	SERVICE_CONFLICT = true,
+	INTERNAL_ERROR = true,
+})
 local codes = table.freeze({
 	leaderboard_requires_int = true,
 	leaderboard_score_range = true,
@@ -158,6 +197,12 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 	local result = Errors.http(status, endpoint, attempts)
 	if not result.ok and type(value) == "table" then
 		local body = value :: { [string]: unknown }
+		if string.sub(endpoint, 1, 5) == "auth." then
+			local code = body.errorCode or body.error
+			if type(code) == "string" and authCodes[code] then
+				result.error.code = code
+			end
+		end
 		if type(body.errors) == "table" then
 			local list: { Types.OperationDiagnostic } = {}
 			local seen = 0

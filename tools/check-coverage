@@ -101,6 +101,8 @@ def assert_controller_coverage(actual: set[tuple[str,str,str]]) -> None:
     """Fail if even a route absent from the checked-in inventory is absent from the SDK."""
     missing = controller_routes() - actual
     assert not missing, f'Missing controller routes: {sorted(missing)}'
+    auth = {r for r in actual if r[0]=='auth'}
+    assert auth == {r for r in controller_routes() if r[0]=='auth'}, 'Removed or fabricated Auth routes'
 
 
 def main() -> None:
@@ -117,7 +119,7 @@ def main() -> None:
     assert len(actual)==len(endpoints),'Duplicate endpoint mappings'
     assert len({e['id'] for e in endpoints})==len(endpoints),'Duplicate SDK method IDs'
     assert not expected-actual, f'Missing routes: {sorted(expected-actual)}'
-    required={('auth','DELETE',p) for p in ['/api/auth/accounts/{accountId}','/api/auth/accounts/{accountId}/permissions/{serviceName}','/api/auth/universes/{universeId}','/api/auth/universes/{universeId}/places/{placeId}']}
+    required={('auth','DELETE',p) for p in ['/api/auth/universes/{universeId}/places/{placeId}']}
     required|={('auth',m,'/api/auth/service-accounts'+p) for m,p in [('POST',''),('GET',''),('GET','/{id}'),('PUT','/{id}/permissions'),('POST','/{id}/rotate'),('PATCH','/{id}'),('DELETE','/{id}')]}
     assert required<=actual,'Missing additive DELETE/service-account routes'
     for e in endpoints:

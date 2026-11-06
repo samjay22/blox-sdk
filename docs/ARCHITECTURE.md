@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 255 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 277 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 271 endpoints]
+  Audit --> Spec[spec/endpoints.json: 277 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
@@ -82,3 +82,8 @@ polling; it never owns durable execution or implicitly mutates a job. `Fields/Sc
 windows while backend workers own their timing and effects. Typed helpers provide preflight only;
 raw generated wrappers retain server-authoritative semantics. NDJSON import uses raw string transport
 and an explicit header key, while export/failure downloads return buffered text. See [Jobs](JOBS.md).
+
+Identity and scoped credentials are separate providers. `client:scoped(id)` binds a hand-written
+ScopedTokens provider to the shared pipeline without mutating its global auth. Each universe shares one
+exchange flight and token cache; identity epoch changes fence stale exchanges. Scoped Fields helper states
+share the root shutdown lifecycle but use their own credential-bound invoker.

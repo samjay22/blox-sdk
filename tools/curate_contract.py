@@ -16,9 +16,8 @@ def main() -> None:
     doc['version']=1
     types=doc['types']
     for ts in types.values():
-        ts['AccountType']={'enum':['SUPER_ADMIN','ADMIN','UNIVERSE_ACCOUNT','PENDING']}
+        ts['AccountType']={'enum':['SUPER_ADMIN','USER']}
         ts['ServiceAccessLevel']={'enum':['READ','READ_WRITE','ADMIN']}
-    types['auth']['UniverseEnabledRequest']={'fields':{'enabled':field('Boolean',True)}}
     for name in ('QueueRequest','MultiQueueRequest'):
         fs=types['matchmaking'][name]['fields']
         fs.update(robloxUserId=field('String'),metadata=field('Map<String, Object>'))
@@ -91,5 +90,7 @@ def main() -> None:
         e['errorStatusNote']='Common framework/service errors; not an exhaustive set of domain exceptions.'
         keep.append(e)
     doc['endpoints']=sorted(keep,key=lambda e:(e['service'],e['path'],e['method']))
+    from service_contracts import refresh
+    doc = refresh(doc)
     (ROOT/'spec/endpoints.json').write_text(json.dumps(doc,indent=2,sort_keys=True)+'\n')
 if __name__=='__main__':main()

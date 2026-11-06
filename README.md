@@ -2,8 +2,12 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, and Fields**.
 
-**271 typed endpoints:** all 255 routes in `routes.json`, plus 16 controller-defined auth routes (service accounts, service catalog, DELETE aliases, and universe enable/disable). Includes 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes. No runtime dependencies or client-side credentials.
+**277 typed endpoints:** every route in `routes.json`, including the organization-tenant Auth API. Includes 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes. No runtime dependencies or client-side credentials.
 
+> **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
+> Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
+> See [tenant authentication, role templates and error codes](docs/AUTH.md).
+>
 > **Gateway permissions:** callers using `lb1` need **`Gateway` in addition to the target service
 > permission**. Code redemption also needs Fields write access; Matchmaking enrichment needs Fields
 > READ access. **`bsa_` service-account keys are universe-bound.** SDK `levels` are hints, not grants.
@@ -51,7 +55,7 @@ end)
 
 ## Calls and results
 
-The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, and `.fields`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers and the Codes award builder are hand-written.
+The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, and `.fields`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written.
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
 - Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
@@ -115,20 +119,23 @@ Require generated `Typed` and `FieldTypes` modules. `Typed.Currency.Gems:Get(pro
 Every accessor queues through the validated transaction builder. See [complete workflow, Roblox
 projection, null/set conversion, int64 limits and examples](docs/FIELDS.md).
 
-## User-token administration
+## Human/tool identity and organization administration
 
 ```luau
 local admin = BloxSDK.new({ userSession = {} })
 local login = admin.auth:login({ username = suppliedUsername, password = suppliedPassword })
 if login.ok then
-    local accounts = admin.auth:listServiceAccounts()
+    local access = admin.auth:getMyAccess()
+    local accounts = admin.auth:listServiceAccounts({ query = { orgId = selectedOrgId } })
+    local scoped = admin:scoped(selectedUniverseId)
+    local schema = scoped.fields:schema() -- Exchanges once; caches and refreshes early.
     -- Do not log login, createServiceAccount, or rotateServiceAccount responses.
 end
 admin:logout() -- Uses the latest rotated refresh token and clears the local session.
 admin:destroy()
 ```
 
-Session refresh is versioned and single-flight, including concurrent 401s and proactive expiry refresh. A caller can time out without cancelling another caller's shared refresh. Custom synchronous TokenStores are supported; see [AUTH](docs/AUTH.md).
+Identity refresh and per-universe scoped exchange are separate, versioned and single-flight. `scoped(id)` returns a lazy downstream facade sharing routing, rate budget and lifetime; keep the root client for management. `withUniverse(id)` only fills route parameters and does not exchange credentials. Scoped JWTs cannot manage organizations or keys. A caller can time out without cancelling another caller's shared refresh. Custom synchronous TokenStores are supported; see [AUTH](docs/AUTH.md).
 
 ## Defaults
 
@@ -190,7 +197,7 @@ Admission queues and circuit breakers remain **per origin**, so all gateway serv
 
 ```sh
 export PATH=/opt/homebrew/bin:$HOME/.aftman/bin:$PATH
-python3 tools/gen.py --refresh-sources # Reads local svc backends plus Codes/Matchmaking under ~/work/srv
+python3 tools/gen.py --refresh-sources # Reads local svc backends plus GAS/Codes/Matchmaking under ~/work/srv
 python3 tools/gen.py                  # Deterministic replay from the checked-in spec
 python3 tools/build-roblox.py
 ./tools/verify
@@ -203,7 +210,7 @@ Pinned `aftman.toml` selects already-installed tools; verification never install
 - `src/Core/`: portable transport, admission, retry/breaker/cache, validation, codecs, configuration.
 - `src/Fields/`: hand-written TypeSystem, schema, transaction/profile helpers and domain wire conversion.
 - `src/Codes/`: handwritten award builder composition and schema preflight.
-- `src/Auth/`: service keys and versioned user sessions.
+- `src/Auth/`: service keys, identity sessions and the hand-written scoped-token cache.
 - `src/Services/`, `src/Types/`: generated typed facades and DTOs.
 - `src/BloxSDK.luau`: portable client composition; `src/init.luau`: Luau CLI package entry.
 - `roblox/`: generated, type-preserving Roblox import projection; its `init.luau` is the game entry.

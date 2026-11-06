@@ -152,7 +152,8 @@ local function execute(
 	request: Types.Request,
 	opts: Types.CallOptions,
 	url: string,
-	deadline: number
+	deadline: number,
+	auth: Types.AuthProvider
 ): Types.Result<any>
 	local config, runtime = self.config, self.config.runtime
 	local hostName = config.origins[spec.service]
@@ -166,8 +167,14 @@ local function execute(
 		if stop then
 			return stop
 		end
-		if not public and config.auth.prepare then
-			config.auth.prepare(deadline, opts.signal)
+		if not public and auth.prepare then
+			auth.prepare(deadline, opts.signal)
+		end
+		if not public and auth.ready then
+			local ready = auth.ready(deadline, opts.signal)
+			if not ready.ok then
+				return ready
+			end
 		end
 		stop = stopped(self, spec, opts, deadline, attempt)
 		if stop then
@@ -232,7 +239,7 @@ local function execute(
 		if spec.conditional and request.version ~= nil then
 			headers["If-None-Match"] = '"' .. tostring(request.version) .. '"'
 		end
-		local version = if config.auth.version then config.auth.version() else nil
+		local version = if auth.version then auth.version() else nil
 		if attempt == 0 then
 			self.budget = math.min(10, self.budget + self.config.retryRatio)
 		end
@@ -253,7 +260,7 @@ local function execute(
 			deadline,
 			opts.signal,
 			self.lifecycle,
-			if public then nil else config.auth
+			if public then nil else auth
 		)
 		local duration = runtime.now() - start
 		self.counters.latencySum += duration
@@ -287,6 +294,9 @@ local function execute(
 		if result.ok then
 			return result
 		end
+		if result.error.kind == "Unauthorized" and not public and auth.invalidate then
+			auth.invalidate(version)
+		end
 		if
 			result.error.kind == "Unauthorized"
 			and not public
@@ -295,7 +305,7 @@ local function execute(
 			and spec.idempotent
 		then
 			refreshed = true
-			if config.auth.onUnauthorized(version, deadline, opts.signal) then
+			if auth.onUnauthorized(version, deadline, opts.signal) then
 				continue
 			end
 			stop = stopped(self, spec, opts, deadline, attempt)
@@ -341,8 +351,10 @@ function Pipeline.call(
 	spec: Types.Endpoint,
 	request: Types.Request,
 	options: Types.CallOptions?,
-	universe: (string | number)?
+	universe: (string | number)?,
+	provider: Types.AuthProvider?
 ): Types.Result<any>
+	local auth = provider or self.config.auth
 	local opts: Types.CallOptions = options or {}
 	if not Options.valid(opts) then
 		return Errors.make("Local", spec.id, 0, "Invalid call options")
@@ -422,7 +434,7 @@ function Pipeline.call(
 			body.universeId = tonumber(universe)
 		end
 	end
-	local accessError = Access.check(self.config.auth, spec, request, universe)
+	local accessError = Access.check(auth, spec, request, universe)
 	if accessError then
 		return Errors.make("Local", spec.id, 0, accessError)
 	end
@@ -441,7 +453,14 @@ function Pipeline.call(
 		return stop
 	end
 	local url = self.config.baseUrls[spec.service] .. path
-	local generation = if self.config.auth.version then self.config.auth.version() else 0
+	-- Scoped authorization must refresh before cache reads, not only before HTTP.
+	if auth.ready and not table.find(spec.authKinds, "none") then
+		local ready = auth.ready(deadline, opts.signal)
+		if not ready.ok then
+			return ready
+		end
+	end
+	local generation = if auth.version then auth.version() else 0
 	local key = spec.id
 		.. " "
 		.. url
@@ -451,6 +470,10 @@ function Pipeline.call(
 		.. tostring(self.epoch)
 		.. " "
 		.. tostring(request.version)
+		.. " "
+		.. auth.kind
+		.. " "
+		.. tostring(auth.universeId)
 	local cached = if spec.cacheable then self.cache.entries[key] else nil
 	if cached and cached.expires > runtime.now() then
 		self.counters.cacheHits += 1
@@ -484,7 +507,7 @@ function Pipeline.call(
 	self.active += 1
 	self.counters.requests += 1
 	-- Retries accrue only from original logical traffic, never retries or cache hits.
-	local result = execute(self, spec, request, opts, url, deadline)
+	local result = execute(self, spec, request, opts, url, deadline, auth)
 	self.active -= 1
 	if not result.ok then
 		self.counters.failures += 1

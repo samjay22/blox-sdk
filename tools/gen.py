@@ -162,7 +162,7 @@ def generate(doc: dict) -> dict[Path,str]:
                     if not params:continue
                     fields=[]
                     for p in params:
-                        t='(string | number)' if p['type']=='id' else p['type']
+                        t=p.get('luauType') or ('(string | number)' if p['type']=='id' else p['type'])
                         fields.append(p['name']+': '+t+('?' if not p['required'] or p['name'] in ('universeId','robloxUniverseId') else ''))
                     optional=not any(p['required'] and p['name'] not in ('universeId','robloxUniverseId') for p in params)
                     groups.append(which+': {'+', '.join(fields)+'}'+('?' if optional else ''))
@@ -248,13 +248,14 @@ def generate(doc: dict) -> dict[Path,str]:
         'and prefix for that service only. See [routing configuration](../README.md#gateway-routing).', '',
     ]
     rows.extend(['', '**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedules, and alerts require FieldsService ADMIN, including previews and downloads. Only Fields `GET /health/summary` requires READ.', '', 'Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.'])
+    rows.extend(['', '**Auth IDENTITY means identity authentication, not an automatic capability grant.** Org ADMIN/OWNER gates, delegation caps, quotas and last-owner checks remain server-enforced. Scoped JWTs and machine keys cannot manage orgs/keys. Humans/tools use identity login then `client:scoped(id)` for downstream access; game servers should use `bsa_` keys. See [Auth role templates and error codes](AUTH.md).'])
     rows.extend(['', '| Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |','|---|---|---|---|---|---|---|'])
     for e in doc['endpoints']:
         retry = 'keyed apply / dry-run' if e.get('idempotencyHeader') else 'keyed' if e.get('idempotencyField') else 'yes' if e['retryable'] else 'no'
         rows.append('| '+ ' | '.join([e['method'],'`'+e['path']+'`','`'+e['id']+'`',e['requiredRole'] or e['minimumLevel'] or 'public / authenticated',', '.join(map(str,e['statuses'])),retry,'yes' if e['cacheable'] else 'no'])+' |')
     output[ROOT/'docs/ENDPOINTS.md']='\n'.join(rows)+'\n'
     provenance=json.loads((ROOT/'spec/provenance.json').read_text())
-    prefixes=('srv/src-mm/', 'srv/src-roblox-code-service/', 'svc/')
+    prefixes=('srv/src-mm/', 'srv/src-roblox-code-service/', 'srv/src-gas/', 'svc/')
     provenance['files']={k:v for k,v in provenance['files'].items() if not k.startswith(prefixes)}
     provenance['files'].update(doc.get('sourceHashes', {}))
     output[ROOT/'spec/provenance.json']=json.dumps(provenance,indent=2,sort_keys=True)+'\n'

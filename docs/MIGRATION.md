@@ -1,4 +1,34 @@
-# Migrating game servers to service-account keys
+# Migrating to organization-tenant authentication
+
+
+## Breaking Auth migration
+
+The source of truth is `~/work/srv/src-gas/API_CONTRACT.md` and its README. Refresh with
+`python3 tools/gen.py --refresh-sources`; never patch generated modules/types by hand.
+
+- Persisted identities are `USER | SUPER_ADMIN`. Registration accepts only username/password/email/metadata.
+  Removed: account-admin creation, promotion, per-account permissions, global enumeration/enable/delete,
+  `UNIVERSE_ACCOUNT` creation and `PENDING` flows. No compatibility methods remain.
+- Replace global account management with `listOrgs`, `getMyAccess`, `addMember`, `patchMember`,
+  `removeMember`, `leaveOrg` and `transferOwnership`. For scope-only contractors, supply `universeId`
+  without also granting an org role. Optional membership query selectors are **never** filled from `withUniverse`.
+- Replace unowned universe create/list/update/delete with `createOrgUniverse`, `listOrgUniverses`,
+  `getOrgUniverse`, `patchOrgUniverse`; moves are platform-only. Place routes remain.
+- Use `createInvitation` / `acceptInvitation`; no email delivery or verification transport is implied.
+- Key listing now requires `{query={orgId=...}}`; metadata includes orgId/createdBy. Keys remain universe-bound.
+  Add `Gateway` plus the target service grants when using lb1; `levels` is not an access grant.
+- Humans/tools: login on the root client, manage orgs/keys there, and use `client:scoped(id)` for services.
+  `withUniverse` does not mint a token. Scoped exchange uses identity credentials and never a scoped refresh flow.
+  Old `type:access` JWTs are rejected; existing refresh tokens rotate into identity tokens, or log in again.
+- Identity login returns no universe or service-permission list. `UNIVERSE_ACCOUNT` remains only the
+  downstream validation wire accountType for scoped JWTs and machine keys, not an identity creation option.
+- Template defaults, override precedence, quota/last-owner errors and credential handling are in [AUTH](AUTH.md).
+  Account roles and service permission levels both use ADMIN vocabulary but are not interchangeable.
+
+Backend data migration/cutover is operator work, not an SDK action. Do not run old and new auth writers together.
+Inventory Fields internal-login identities before cutover: an integration still requiring global ADMIN cannot
+silently migrate to USER. This SDK does not upgrade downstream Java DTO artifacts, promote credentials, migrate
+production data, or certify live deployments.
 
 ## Gateway routing change
 
@@ -13,8 +43,8 @@ Gateway-routed services now share the same per-origin queue and circuit breaker.
 
 ## Service-account keys
 
-1. Audit the game server's actual endpoints against `ENDPOINTS.md`. Most gameplay paths need READ_WRITE; schema changes, code administration, ban management and game-mode management require the service's ADMIN level. Global account/catalog/service-account administration is user-token-only.
-2. With a SUPER_ADMIN user token, create one universe-scoped service account using `auth:createServiceAccount`. Supply only necessary case-sensitive service permissions. Creation returns the key once; do not log the result.
+1. Audit the game server's actual endpoints against `ENDPOINTS.md`. Most gameplay paths need READ_WRITE; schema changes, code administration, ban management and game-mode management require the service's ADMIN level. Organization/key management is identity-token-only; catalog mutation is SUPER_ADMIN-only.
+2. With an identity token and org ADMIN/OWNER membership (or SUPER_ADMIN), create one universe-scoped service account using `auth:createServiceAccount`. Supply only necessary case-sensitive service permissions. Creation returns the key once; do not log the result.
 3. Store that key in Roblox Secrets with appropriate destination restrictions. Do not put it in a ModuleScript string, ReplicatedStorage, attributes, or client remotes. Service accounts cannot be reassigned to another universe.
 4. Replace login/password/refresh loops with `BloxSDK.new({secretName="...", universeId=game.GameId, levels={...}})`. No refresh timer is needed for machine identities.
 5. Replace handwritten URL code with generated methods. Body-only methods accept DTOs directly; mixed path/query/body calls are explicit. String matchmaking IDs remain strings. Keep request field names such as `robloxUniverseId`, `robloxUserIds`, `ownerId`, and `code` exactly as typed.
@@ -22,7 +52,7 @@ Gateway-routed services now share the same per-origin queue and circuit breaker.
 7. Add finite shutdown handling: finish issuing saves, `flush`, then `destroy`. A timeout is not proof that a write did not reach the server.
 8. Validate in a private server against the intended deployment. Only then retire the old account credentials and rotate/revoke unnecessary access. The SDK does not perform this operational migration for you.
 
-Legacy POST deletion endpoints remain exposed under their controller names. New DELETE aliases have `Rest` suffixes (e.g. `deletePlaceRest`). They preserve route/status behavior; they are not silently substituted for legacy methods. New service-account management methods use descriptive names: create/list/get/patch/rotate/revokeServiceAccount and setServiceAccountPermissions.
+Only the retained place-deletion POST and DELETE alias remain (`deletePlace` / `deletePlaceRest`). Removed account and unowned-universe deletion APIs have no aliases. They preserve route/status behavior; they are not silently substituted for legacy methods. New service-account management methods use descriptive names: create/list/get/patch/rotate/revokeServiceAccount and setServiceAccountPermissions.
 
 For admin tools, retain `userSession={}` and a secure TokenStore if needed. Do not give a game server a super-admin login to work around a local key rejection. A supplied `role` or `levels` field changes local diagnostics only; it cannot grant backend access.
 

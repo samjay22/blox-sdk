@@ -16,67 +16,137 @@ export type Page<T> = {
 	sort: Core.Json?,
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
+export type Accept = { token: string }
+export type Access = { memberships: { Member }, organization: Organization, universes: { Scope } }
+export type AccessEvent = {
+	action: string,
+	actor: string | Core.Null,
+	after: string | Core.Null,
+	before: string | Core.Null,
+	createdAt: string,
+	id: number,
+	orgId: string,
+	requestId: string | Core.Null,
+	target: string | Core.Null,
+}
 export type AccountCreateRequest = {
-	accountType: AccountType?,
 	email: string?,
 	metadata: { [string]: Core.Json }?,
 	password: string,
+	username: string,
+}
+export type AccountResponse = {
+	accountId: string,
+	accountType: AccountType,
+	createdTime: string,
+	email: string?,
+	enabled: boolean,
+	metadata: { [string]: Core.Json },
+	updatedTime: string,
+	username: string,
+}
+export type AccountType = "SUPER_ADMIN" | "USER"
+export type AccountUpdateRequest = { email: string?, metadata: { [string]: Core.Json }? }
+export type AddMember = {
+	overrides: { ServicePermissionResponse }?,
+	role: TenantRole,
 	universeId: number?,
 	username: string,
 }
-export type AccountPromoteRequest = { accountType: AccountType, universeId: number? }
-export type AccountResponse = {
-	accountId: string?,
-	accountType: AccountType?,
-	createdTime: string?,
-	email: string?,
-	enabled: boolean?,
-	metadata: { [string]: Core.Json }?,
-	placeIds: { number }?,
-	servicePermissions: { ServicePermissionResponse }?,
-	universeId: number?,
-	updatedTime: string?,
-	username: string?,
+export type CreateOrg = { name: string, slug: string }
+export type CreateUniverse = { name: string, universeId: number }
+export type Invitation = {
+	acceptedAt: string | Core.Null,
+	createdAt: string,
+	createdBy: string,
+	expiresAt: string,
+	id: string,
+	orgId: string,
+	revokedAt: string | Core.Null,
+	role: TenantRole,
+	targetUserId: string | Core.Null,
+	universeId: number | Core.Null,
 }
-export type AccountType = "SUPER_ADMIN" | "ADMIN" | "UNIVERSE_ACCOUNT" | "PENDING"
-export type AccountUpdateRequest = { email: string?, metadata: { [string]: Core.Json }? }
-export type HealthResponse = { database: string?, status: string, timestamp: string? }
+export type Invite = {
+	expiresInDays: number?,
+	role: TenantRole,
+	universeId: number?,
+	usernameOrEmail: string?,
+}
+export type Issued = { acceptPath: string, invitation: Invitation, token: string }
 export type LoginRequest = { password: string, username: string }
 export type LoginResponse = {
 	accessToken: string,
-	accountId: string?,
-	accountType: AccountType?,
-	createdTime: string?,
+	accountId: string,
+	accountType: AccountType,
+	createdTime: string,
 	email: string?,
 	expiresIn: number,
-	metadata: { [string]: Core.Json }?,
-	placeIds: { number }?,
+	metadata: { [string]: Core.Json },
 	refreshToken: string,
-	servicePermissions: { ServicePermissionResponse }?,
-	tokenType: string?,
-	universeId: number?,
-	updatedTime: string?,
-	username: string?,
+	tokenType: string,
+	updatedTime: string,
+	username: string,
+}
+export type Member = {
+	createdAt: string,
+	createdBy: string,
+	orgId: string,
+	role: TenantRole,
+	status: MemberStatus,
+	universeId: number | Core.Null,
+	userId: string,
+}
+export type MemberStatus = "ACTIVE" | "DISABLED"
+export type MoveUniverse = { orgId: string }
+export type Organization = {
+	createdAt: string,
+	createdBy: string,
+	id: string,
+	maxMembers: number | Core.Null,
+	maxServiceAccounts: number | Core.Null,
+	maxUniverses: number | Core.Null,
+	name: string,
+	slug: string,
+	status: Status,
 }
 export type PasswordChangeRequest = { currentPassword: string, newPassword: string }
 export type PasswordResetConfirmDto = { newPassword: string, token: string }
 export type PasswordResetRequestDto = { email: string }
+export type PatchMember = {
+	overrides: { ServicePermissionResponse }?,
+	role: TenantRole?,
+	status: MemberStatus?,
+}
+export type PatchOrg = { name: string?, slug: string?, status: Status? }
+export type PatchUniverse = { enabled: boolean?, name: string? }
 export type PlaceCreateRequest = { name: string, placeId: number }
 export type PlaceResponse = {
-	createdAt: string?,
-	name: string?,
-	placeId: number?,
-	universeId: number?,
-	updatedAt: string?,
+	createdAt: string,
+	name: string,
+	placeId: number,
+	universeId: number,
+	updatedAt: string,
+}
+export type Plan = {
+	maxMembers: number | Core.Null,
+	maxServiceAccounts: number | Core.Null,
+	maxUniverses: number | Core.Null,
 }
 export type RefreshRequest = { refreshToken: string }
 export type RefreshResponse = {
 	accessToken: string,
 	expiresIn: number,
 	refreshToken: string,
-	tokenType: string?,
+	tokenType: string,
 }
-export type ServiceAccessLevel = "READ" | "READ_WRITE" | "ADMIN"
+export type Scope = {
+	orgId: string,
+	permissions: { ServicePermissionResponse },
+	role: TenantRole,
+	universeId: number,
+}
+export type ServiceAccessLevel = "ADMIN" | "READ_WRITE" | "READ"
 export type ServiceAccountCreateRequest = {
 	description: string?,
 	expiresAt: string?,
@@ -90,91 +160,119 @@ export type ServiceAccountPatchRequest = {
 	expiresAt: (string | Core.Null)?,
 }
 export type ServiceAccountResponse = {
-	createdAt: string?,
-	createdBy: string?,
+	createdAt: string,
+	createdBy: string,
 	description: string?,
-	enabled: boolean?,
+	enabled: boolean,
 	expiresAt: string?,
-	id: string?,
+	id: string,
 	key: string?,
 	lastUsedAt: string?,
-	name: string?,
-	permissions: { ServicePermissionResponse }?,
+	name: string,
+	orgId: string,
+	permissions: { ServicePermissionResponse },
 	revokedAt: string?,
-	universeId: number?,
+	universeId: number,
 }
 export type ServiceDefinitionCreateRequest = { description: string, displayName: string, name: string }
 export type ServiceDefinitionResponse = {
-	builtIn: boolean?,
-	createdTime: string?,
-	description: string?,
-	displayName: string?,
-	name: string?,
-	updatedTime: string?,
+	builtIn: boolean,
+	createdTime: string,
+	description: string,
+	displayName: string,
+	name: string,
+	updatedTime: string,
 }
 export type ServiceDefinitionUpdateRequest = { description: string, displayName: string }
 export type ServicePermissionRequest = { accessLevel: ServiceAccessLevel, serviceName: string }
-export type ServicePermissionResponse = { accessLevel: ServiceAccessLevel?, serviceName: string? }
+export type ServicePermissionResponse = { accessLevel: ServiceAccessLevel, serviceName: string }
+export type Status = "ACTIVE" | "SUSPENDED"
+export type Template = { permissions: { ServicePermissionResponse }, role: TenantRole }
+export type TenantRole = "VIEWER" | "DEVELOPER" | "ADMIN" | "OWNER"
+export type Token = { accessToken: string, expiresIn: number, tokenType: string }
 export type TokenValidateRequest = { token: string }
 export type TokenValidateResponse = {
 	accountId: string?,
-	accountType: string?,
+	accountType: ValidationAccountType?,
 	error: string?,
 	expiresAt: string?,
+	orgId: string?,
 	placeIds: { number }?,
+	role: TenantRole?,
 	serviceAccount: boolean?,
 	servicePermissions: { ServicePermissionResponse }?,
 	universeId: number?,
 	username: string?,
-	valid: boolean?,
+	valid: boolean,
 }
-export type UniverseCreateRequest = { name: string, universeId: number }
-export type UniverseEnabledRequest = { enabled: boolean }
-export type UniverseResponse = {
-	createdAt: string?,
-	name: string?,
-	places: { PlaceResponse }?,
-	universeId: number?,
-	updatedAt: string?,
-}
-export type GetAllAccountsCall = {}
-export type GetAllAccountsResultValue = { AccountResponse }
+export type Transfer = { userId: string }
+export type Universe = { enabled: boolean, name: string, orgId: string, universeId: number }
+export type ValidationAccountType = "SUPER_ADMIN" | "USER" | "UNIVERSE_ACCOUNT"
 export type CreateAccountCall = AccountCreateRequest
 export type CreateAccountResultValue = AccountResponse
-export type CreateAdminAccountCall = AccountCreateRequest
-export type CreateAdminAccountResultValue = AccountResponse
-export type GetMeCall = {}
-export type GetMeResultValue = AccountResponse
-export type CreateUniverseAccountCall = AccountCreateRequest
-export type CreateUniverseAccountResultValue = AccountResponse
-export type GetAccountByUsernameCall = { path: { username: string } }
-export type GetAccountByUsernameResultValue = AccountResponse
-export type DeleteAccountRestCall = { path: { accountId: string } }
-export type DeleteAccountRestResultValue = nil
-export type GetAccountByIdCall = { path: { accountId: string } }
-export type GetAccountByIdResultValue = AccountResponse
-export type UpdateAccountCall = { path: { accountId: string }, body: AccountUpdateRequest }
-export type UpdateAccountResultValue = AccountResponse
-export type DeleteAccountCall = { path: { accountId: string } }
-export type DeleteAccountResultValue = nil
-export type EnableAccountCall = { path: { accountId: string } }
-export type EnableAccountResultValue = AccountResponse
-export type ListPermissionsCall = { path: { accountId: string } }
-export type ListPermissionsResultValue = { ServicePermissionResponse }
-export type UpsertPermissionCall = { path: { accountId: string }, body: ServicePermissionRequest }
-export type UpsertPermissionResultValue = ServicePermissionResponse
-export type DeletePermissionRestCall = { path: { accountId: string, serviceName: string } }
-export type DeletePermissionRestResultValue = nil
-export type DeletePermissionCall = { path: { accountId: string, serviceName: string } }
-export type DeletePermissionResultValue = nil
-export type PromoteAccountCall = { path: { accountId: string }, body: AccountPromoteRequest }
-export type PromoteAccountResultValue = AccountResponse
+export type GetCurrentAccountCall = {}
+export type GetCurrentAccountResultValue = AccountResponse
+export type UpdateCurrentAccountCall = AccountUpdateRequest
+export type UpdateCurrentAccountResultValue = AccountResponse
 export type HealthCall = {}
-export type HealthResultValue = HealthResponse
+export type HealthResultValue = { [string]: Core.Json }
+export type AcceptInvitationCall = Accept
+export type AcceptInvitationResultValue = Member
 export type LoginCall = LoginRequest
 export type LoginResultValue = LoginResponse
 export type LogoutCall = RefreshRequest
 export type LogoutResultValue = { [string]: string }
+export type GetMyAccessCall = {}
+export type GetMyAccessResultValue = { Access }
+export type ListOrgsCall = {}
+export type ListOrgsResultValue = { Organization }
+export type CreateOrgCall = CreateOrg
+export type CreateOrgResultValue = Organization
+export type DeleteOrgCall = { path: { org: string } }
+export type DeleteOrgResultValue = nil
+export type GetOrgCall = { path: { org: string } }
+export type GetOrgResultValue = Organization
+export type PatchOrgCall = { path: { org: string }, body: PatchOrg }
+export type PatchOrgResultValue = Organization
+export type GetAccessLogCall = { path: { org: string }, query: { cursor: string?, limit: number? }? }
+export type GetAccessLogResultValue = CursorPage<AccessEvent>
+export type ListInvitationsCall = { path: { org: string } }
+export type ListInvitationsResultValue = { Invitation }
+export type CreateInvitationCall = { path: { org: string }, body: Invite }
+export type CreateInvitationResultValue = Issued
+export type RevokeInvitationCall = { path: { org: string, id: string } }
+export type RevokeInvitationResultValue = nil
+export type LeaveOrgCall = { path: { org: string }, query: { universeId: (string | number)? }? }
+export type LeaveOrgResultValue = nil
+export type ListMembersCall = { path: { org: string } }
+export type ListMembersResultValue = { Member }
+export type AddMemberCall = { path: { org: string }, body: AddMember }
+export type AddMemberResultValue = Member
+export type RemoveMemberCall = {
+	path: { org: string, user: string },
+	query: { universeId: (string | number)? }?,
+}
+export type RemoveMemberResultValue = nil
+export type PatchMemberCall = {
+	path: { org: string, user: string },
+	query: { universeId: (string | number)? }?,
+	body: PatchMember,
+}
+export type PatchMemberResultValue = Member
+export type SetOrgPlanCall = { path: { org: string }, body: Plan }
+export type SetOrgPlanResultValue = Organization
+export type TransferOwnershipCall = { path: { org: string }, body: Transfer }
+export type TransferOwnershipResultValue = Member
+export type ListOrgUniversesCall = { path: { org: string } }
+export type ListOrgUniversesResultValue = { Universe }
+export type CreateOrgUniverseCall = { path: { org: string }, body: CreateUniverse }
+export type CreateOrgUniverseResultValue = Universe
+export type GetOrgUniverseCall = { path: { org: string, universe: string | number } }
+export type GetOrgUniverseResultValue = Universe
+export type PatchOrgUniverseCall = { path: { org: string, universe: string | number }, body: PatchUniverse }
+export type PatchOrgUniverseResultValue = Universe
+export type MoveUniverseCall = { path: { org: string, universe: string | number }, body: MoveUniverse }
+export type MoveUniverseResultValue = Universe
 export type ChangePasswordCall = PasswordChangeRequest
 export type ChangePasswordResultValue = { [string]: string }
 export type ConfirmResetCall = PasswordResetConfirmDto
@@ -183,7 +281,11 @@ export type RequestResetCall = PasswordResetRequestDto
 export type RequestResetResultValue = { [string]: string }
 export type RefreshCall = RefreshRequest
 export type RefreshResultValue = RefreshResponse
-export type ListServiceAccountsCall = { query: { universeId: (string | number)? }? }
+export type ListRoleTemplatesCall = {}
+export type ListRoleTemplatesResultValue = { Template }
+export type SetRoleTemplateCall = { path: { role: TenantRole }, body: { ServicePermissionResponse } }
+export type SetRoleTemplateResultValue = Template
+export type ListServiceAccountsCall = { query: { orgId: string, universeId: (string | number)? } }
 export type ListServiceAccountsResultValue = { ServiceAccountResponse }
 export type CreateServiceAccountCall = ServiceAccountCreateRequest
 export type CreateServiceAccountResultValue = ServiceAccountResponse
@@ -207,20 +309,6 @@ export type UpdateServiceCall = { path: { name: string }, body: ServiceDefinitio
 export type UpdateServiceResultValue = ServiceDefinitionResponse
 export type ValidateTokenCall = TokenValidateRequest
 export type ValidateTokenResultValue = TokenValidateResponse
-export type GetUniversesCall = {}
-export type GetUniversesResultValue = { UniverseResponse }
-export type CreateUniverseCall = UniverseCreateRequest
-export type CreateUniverseResultValue = UniverseResponse
-export type DeleteUniverseRestCall = { path: { universeId: (string | number)? }? }
-export type DeleteUniverseRestResultValue = nil
-export type GetUniverseCall = { path: { universeId: (string | number)? }? }
-export type GetUniverseResultValue = UniverseResponse
-export type SetEnabledCall = { path: { universeId: (string | number)? }?, body: UniverseEnabledRequest }
-export type SetEnabledResultValue = nil
-export type UpdateUniverseCall = { path: { universeId: (string | number)? }?, body: UniverseCreateRequest }
-export type UpdateUniverseResultValue = UniverseResponse
-export type DeleteUniverseCall = { path: { universeId: (string | number)? }? }
-export type DeleteUniverseResultValue = nil
 export type ListPlacesCall = { path: { universeId: (string | number)? }? }
 export type ListPlacesResultValue = { PlaceResponse }
 export type AddPlaceCall = { path: { universeId: (string | number)? }?, body: PlaceCreateRequest }
@@ -236,6 +324,8 @@ export type UpdatePlaceCall = {
 export type UpdatePlaceResultValue = PlaceResponse
 export type DeletePlaceCall = { path: { universeId: (string | number)?, placeId: string | number } }
 export type DeletePlaceResultValue = nil
+export type ExchangeScopedTokenCall = { path: { universe: string | number } }
+export type ExchangeScopedTokenResultValue = Token
 export type HealthProxyCall = {}
-export type HealthProxyResultValue = HealthResponse
+export type HealthProxyResultValue = { [string]: Core.Json }
 return {}

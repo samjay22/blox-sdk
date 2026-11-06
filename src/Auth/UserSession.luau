@@ -1,5 +1,6 @@
 --!strict
 local Types = require("../Types/Core")
+local Auth = require("../Types/Auth")
 local Session = {}
 local Errors = require("../Core/Errors")
 export type Tokens = { accessToken: string, refreshToken: string, expiresAt: number? }
@@ -9,6 +10,8 @@ export type Session = Types.AuthProvider & {
 	clear: () -> (),
 	logout: () -> Types.Result<any>,
 	bind: ((string, unknown) -> Types.Result<any>) -> (),
+	epoch: () -> number,
+	active: () -> boolean,
 }
 --- Make a private in-memory store; persistence is a caller-supplied security decision.
 function Session.memoryStore(): TokenStore
@@ -47,14 +50,19 @@ function Session.exp(token: string): number?
 	return tonumber(string.match(table.concat(bytes), '"exp"%s*:%s*(%d+)'))
 end
 --- Build a versioned, single-flight session. One refresh/replay per original authorization epoch.
-function Session.new(runtime: Types.Runtime, store: TokenStore?, role: string?): Session
+function Session.new(runtime: Types.Runtime, store: TokenStore?, role: Auth.AccountType?): Session
+	assert(role == nil or role == "USER" or role == "SUPER_ADMIN", "Invalid identity role")
 	local tokenStore = store or Session.memoryStore()
 	local version, busy, failedVersion = 0, false, -1
+	local epoch = 0
 	local sender: ((string, unknown) -> Types.Result<any>)? = nil
 	local closed = false
 	local provider: Session
 	--- Atomically replace a complete token pair; do not partially rotate refresh credentials.
 	local function accept(value: unknown): boolean
+		if closed then
+			return false
+		end
 		if type(value) ~= "table" then
 			return false
 		end
@@ -120,7 +128,19 @@ function Session.new(runtime: Types.Runtime, store: TokenStore?, role: string?):
 	provider = {
 		kind = "user",
 		role = role,
-		accept = accept,
+		accept = function(value: unknown): boolean
+			local accepted = accept(value)
+			if accepted then
+				epoch += 1
+			end
+			return accepted
+		end,
+		epoch = function(): number
+			return epoch
+		end,
+		active = function(): boolean
+			return not closed and tokenStore.get() ~= nil
+		end,
 		onUnauthorized = refresh,
 		version = function(): number
 			return version
@@ -129,6 +149,7 @@ function Session.new(runtime: Types.Runtime, store: TokenStore?, role: string?):
 			sender = send
 		end,
 		logout = function(): Types.Result<any>
+			epoch += 1
 			local current = tokenStore.get()
 			version += 1
 			tokenStore.set(nil)
@@ -139,10 +160,12 @@ function Session.new(runtime: Types.Runtime, store: TokenStore?, role: string?):
 			return send("logout", { refreshToken = current.refreshToken })
 		end,
 		clear = function()
+			epoch += 1
 			version += 1
 			tokenStore.set(nil)
 		end,
 		destroy = function()
+			epoch += 1
 			closed = true
 			version += 1
 			tokenStore.set(nil)

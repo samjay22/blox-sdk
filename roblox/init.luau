@@ -12,6 +12,7 @@ local Json = require(script.Core.Json)
 local Pagination = require(script.Core.Pagination)
 local ServiceAccount = require(script.Auth.ServiceAccount)
 local UserSession = require(script.Auth.UserSession)
+local ScopedTokens = require(script.Auth.ScopedTokens)
 local FakeBackend = require(script.Testing.FakeBackend)
 local Auth = require(script.Services.Auth)
 local Matchmaking = require(script.Services.Matchmaking)
@@ -32,12 +33,18 @@ Client.__index = Client
 export type Config = Config.Config
 export type CallOptions = Types.CallOptions
 export type Result<T> = Types.Result<T>
+type ScopeBinding = {
+	provider: ScopedTokens.Provider,
+	invoke: Types.Invoke,
+	fields: FieldsHelpers.State,
+}
 type Helpers = {
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
 	fields: FieldsHelpers.State?,
-	native: boolean,
-	bound: boolean,
+	fieldStates: { FieldsHelpers.State },
+	scopes: { [string]: ScopeBinding },
+	lifecycle: { native: boolean, bound: boolean },
 }
 export type Client = typeof(setmetatable(
 	{} :: {
@@ -53,6 +60,7 @@ export type Client = typeof(setmetatable(
 		_state: Pipeline.State,
 		_invoke: Types.Invoke,
 		_session: UserSession.Session?,
+		_provider: Types.AuthProvider?,
 	},
 	Client
 ))
@@ -77,13 +85,15 @@ local function facade(
 	invoke: Types.Invoke,
 	universe: (string | number)?,
 	session: UserSession.Session?,
-	helpers: Helpers
+	helpers: Helpers,
+	provider: Types.AuthProvider?
 ): Client
 	return setmetatable({
 		_state = state,
 		_helpers = helpers,
 		_invoke = invoke,
 		_session = session,
+		_provider = provider,
 		auth = Auth.new(invoke, universe),
 		matchmaking = Matchmaking.new(invoke, universe),
 		party = Party.new(invoke, universe),
@@ -182,12 +192,18 @@ function SDK.new(config: Config): Client
 			return invoke(Endpoints["auth." .. action], { body = body }, { priority = "critical" }, nil)
 		end)
 	end
-	local helpers: Helpers =
-		{ writers = {}, snapshots = {}, fields = nil, native = config.runtime == nil, bound = false }
+	local helpers: Helpers = {
+		writers = {},
+		snapshots = {},
+		fields = nil,
+		fieldStates = {},
+		scopes = {},
+		lifecycle = { native = config.runtime == nil, bound = false },
+	}
 	local client: Client? = nil
 	helpers.fields = FieldsHelpers.new(runtime, invoke, function()
-		if helpers.native and not helpers.bound then
-			helpers.bound = true
+		if helpers.lifecycle.native and not helpers.lifecycle.bound then
+			helpers.lifecycle.bound = true
 			Roblox.bindToClose(function()
 				local current = client
 				if current then
@@ -197,15 +213,56 @@ function SDK.new(config: Config): Client
 			end)
 		end
 	end)
+	table.insert(helpers.fieldStates, helpers.fields :: FieldsHelpers.State)
 	client = facade(state, invoke, config.universeId or auth.universeId, session, helpers)
 	return client :: Client
 end
 --- Return another scoped facade over the same physical resource and credential lifetime.
 function Client.withUniverse(self: Client, id: string | number): Client
 	assert(Universe.valid(id), "Invalid universeId")
-	local scoped = self._state.config.auth.universeId
+	local scoped = (self._provider or self._state.config.auth).universeId
 	assert(scoped == nil or tostring(scoped) == tostring(id), "Service account is scoped to one universe")
-	return facade(self._state, self._invoke, id, self._session, self._helpers)
+	return facade(self._state, self._invoke, id, self._session, self._helpers, self._provider)
+end
+--- Bind downstream calls to a cached scoped JWT; retain the root client for identity management.
+function Client.scoped(self: Client, id: string | number): Client
+	assert(Universe.valid(id), "Invalid universeId")
+	assert(self._provider == nil and self._session ~= nil, "Requires a managed identity client")
+	assert(not self._state.closing, "Client is closing")
+	local key = tostring(id)
+	local binding = self._helpers.scopes[key]
+	if not binding then
+		local provider = ScopedTokens.new(
+			self._state.config.runtime,
+			self._session :: UserSession.Session,
+			id,
+			function()
+				return self.auth:exchangeScopedToken({ path = { universe = id } }, { priority = "critical" })
+			end
+		)
+		local invoke: Types.Invoke = function(spec, value, opts, universe)
+			local request = requestValue(value)
+			if not request then
+				return Errors.make("Validation", spec.id, 0, "Invalid request structure")
+			end
+			return Pipeline.call(self._state, spec, request, opts, universe, provider)
+		end
+		local fields = FieldsHelpers.new(self._state.config.runtime, invoke, function()
+			if self._helpers.lifecycle.native and not self._helpers.lifecycle.bound then
+				self._helpers.lifecycle.bound = true
+				Roblox.bindToClose(function()
+					self:flush(20)
+					self:destroy()
+				end)
+			end
+		end)
+		binding = { provider = provider, invoke = invoke, fields = fields }
+		self._helpers.scopes[key] = binding
+		table.insert(self._helpers.fieldStates, fields)
+	end
+	local helpers = table.clone(self._helpers)
+	helpers.fields = binding.fields
+	return facade(self._state, binding.invoke, id, self._session, helpers, binding.provider)
 end
 --- Check every service health route, returning individual status and monotonic latency.
 function Client.health(self: Client): { [string]: { result: Types.Result<any>, latency: number } }
@@ -237,8 +294,8 @@ function Client.flush(self: Client, timeout: number?): boolean
 	local runtime = self._state.config.runtime
 	local deadline = runtime.now() + Config.number(timeout, 10, 0, 300, "flush timeout")
 	local drained = true
-	if self._helpers.fields then
-		drained = FieldsHelpers.close(self._helpers.fields, deadline)
+	for _, fields in self._helpers.fieldStates do
+		drained = FieldsHelpers.close(fields, deadline) and drained
 	end
 	for _, snapshot in self._helpers.snapshots do
 		snapshot:Destroy()
@@ -261,10 +318,15 @@ function Client.destroy(self: Client)
 	for _, snapshot in self._helpers.snapshots do
 		snapshot:Destroy()
 	end
-	if self._helpers.fields then
-		FieldsHelpers.destroy(self._helpers.fields)
+	for _, fields in self._helpers.fieldStates do
+		FieldsHelpers.destroy(fields)
 	end
 	Pipeline.destroy(self._state)
+	for _, binding in self._helpers.scopes do
+		if binding.provider.destroy then
+			binding.provider.destroy()
+		end
+	end
 	local destroy = self._state.config.auth.destroy
 	if destroy then
 		destroy()
@@ -277,8 +339,8 @@ function Client.auditWriter(self: Client, options: AuditWriter.Options?): AuditW
 		return self.audit:batch({ events = events }, opts)
 	end, options)
 	table.insert(self._helpers.writers, writer)
-	if self._helpers.native and not self._helpers.bound then
-		self._helpers.bound = true
+	if self._helpers.lifecycle.native and not self._helpers.lifecycle.bound then
+		self._helpers.lifecycle.bound = true
 		Roblox.bindToClose(function()
 			self:flush(20)
 			self:destroy()

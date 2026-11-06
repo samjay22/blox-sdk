@@ -30,7 +30,7 @@ local created = client.codes:createCode({
 Load the universe schema explicitly before building or creating; unloaded caches return
 `schema_unavailable` without an implicit request. `createCode` pre-validates even raw typed award
 lists, not just builder output. `updateCode` pre-validates supplied replacement awards using the
-scoped client's loaded schema; global administrators should use `withUniverse(id)` for that call.
+scoped client's loaded schema; human tools should use `client:scoped(id)` for that call.
 Build failures expose the first diagnostic. Use `:validate()` to collect all failing operations.
 Builder methods use the same capitalized names as transaction methods; `:build()` and `:validate()`
 are lower-case. There is no subject setter or commit method on an award builder.

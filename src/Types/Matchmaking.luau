@@ -15,7 +15,7 @@ export type Page<T> = {
 	sort: Core.Json?,
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
-export type AccountType = "SUPER_ADMIN" | "ADMIN" | "UNIVERSE_ACCOUNT" | "PENDING"
+export type AccountType = "SUPER_ADMIN" | "USER"
 export type ApiKeyResponse = { apiKey: RobloxApiKeyResponse, message: string?, success: boolean }
 export type ApiKeysResponse = { apiKeys: { RobloxApiKeyResponse }, count: number, success: boolean }
 export type BanCheckResponse = { isBanned: boolean, success: boolean, universeId: string, userId: string }
@@ -120,19 +120,16 @@ export type HealthResponse = { database: string?, status: string, timestamp: str
 export type LoginRequest = { password: string, username: string }
 export type LoginResponse = {
 	accessToken: string,
-	accountId: string?,
-	accountType: AccountType?,
-	createdTime: string?,
+	accountId: string,
+	accountType: AccountType,
+	createdTime: string,
 	email: string?,
 	expiresIn: number,
-	metadata: { [string]: Core.Json }?,
-	placeIds: { number }?,
+	metadata: { [string]: Core.Json },
 	refreshToken: string,
-	servicePermissions: { ServicePermissionResponse }?,
-	tokenType: string?,
-	universeId: number?,
-	updatedTime: string?,
-	username: string?,
+	tokenType: string,
+	updatedTime: string,
+	username: string,
 }
 --- Criteria reference top-level Fields computed IDs; dotted fieldName values are rejected by the backend.
 export type MatchmakingCriteriaDTO = {
@@ -223,7 +220,7 @@ export type RefreshResponse = {
 	accessToken: string,
 	expiresIn: number,
 	refreshToken: string,
-	tokenType: string?,
+	tokenType: string,
 }
 export type RemovePlayerQueueRequest = {
 	gameModeName: string?,
@@ -234,8 +231,6 @@ export type RemovePlayerQueueRequest = {
 }
 export type RobloxApiKeyRequest = { robloxApiKey: string, universeId: string? }
 export type RobloxApiKeyResponse = { masked: boolean?, robloxApiKey: string?, universeId: string? }
-export type ServiceAccessLevel = "READ" | "READ_WRITE" | "ADMIN"
-export type ServicePermissionResponse = { accessLevel: ServiceAccessLevel?, serviceName: string? }
 export type SuccessMessage = { message: string?, success: boolean }
 export type UnbanResponse = { message: string?, success: boolean, universeId: string, userId: string }
 export type UniverseBanListResponse = {

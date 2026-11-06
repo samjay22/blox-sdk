@@ -335,13 +335,109 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		} :: Core.Schema,
 	},
 	["auth"] = {
+		["Accept"] = {
+			["fields"] = {
+				["token"] = {
+					["notBlank"] = true,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Access"] = {
+			["fields"] = {
+				["memberships"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["organization"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
+				},
+				["universes"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "Scope" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["AccessEvent"] = {
+			["fields"] = {
+				["action"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["actor"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["after"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["before"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["createdAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["requestId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["target"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["AccountCreateRequest"] = {
 			["fields"] = {
-				["accountType"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
-				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
@@ -357,11 +453,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
-				},
 				["username"] = {
 					["notBlank"] = true,
 					["required"] = true,
@@ -370,36 +461,21 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["AccountPromoteRequest"] = {
+		["AccountResponse"] = {
 			["fields"] = {
+				["accountId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["AccountResponse"] = {
-			["fields"] = {
-				["accountId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["accountType"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
-				},
 				["createdTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
@@ -409,52 +485,28 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["enabled"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
-				},
-				["placeIds"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "number" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
-				},
-				["servicePermissions"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
-				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["AccountType"] = {
-			["kind"] = "enum",
-			["values"] = { "SUPER_ADMIN", "ADMIN", "UNIVERSE_ACCOUNT", "PENDING" },
-		} :: Core.Schema,
+		["AccountType"] = { ["kind"] = "enum", ["values"] = { "SUPER_ADMIN", "USER" } } :: Core.Schema,
 		["AccountUpdateRequest"] = {
 			["fields"] = {
 				["email"] = {
@@ -470,21 +522,171 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["HealthResponse"] = {
+		["AddMember"] = {
 			["fields"] = {
-				["database"] = {
+				["overrides"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["username"] = {
+					["notBlank"] = true,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["status"] = {
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["CreateOrg"] = {
+			["fields"] = {
+				["name"] = {
+					["notBlank"] = true,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["slug"] = {
+					["notBlank"] = true,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["CreateUniverse"] = {
+			["fields"] = {
+				["name"] = {
+					["notBlank"] = true,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Invitation"] = {
+			["fields"] = {
+				["acceptedAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["timestamp"] = {
+				["createdBy"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["expiresAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["revokedAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+				["targetUserId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Invite"] = {
+			["fields"] = {
+				["expiresInDays"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["usernameOrEmail"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Issued"] = {
+			["fields"] = {
+				["acceptPath"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["invitation"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "Invitation" } :: Core.Schema,
+				},
+				["token"] = {
+					["notBlank"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -514,17 +716,17 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["accountId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
@@ -539,49 +741,141 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["metadata"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
-				},
-				["placeIds"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "number" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
 				},
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["servicePermissions"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
-				},
 				["tokenType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Member"] = {
+			["fields"] = {
+				["createdAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["createdBy"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+				["status"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "MemberStatus" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["userId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["MemberStatus"] = { ["kind"] = "enum", ["values"] = { "ACTIVE", "DISABLED" } } :: Core.Schema,
+		["MoveUniverse"] = {
+			["fields"] = {
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Organization"] = {
+			["fields"] = {
+				["createdAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["createdBy"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["maxMembers"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["maxServiceAccounts"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["maxUniverses"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["slug"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["status"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -626,6 +920,64 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["PatchMember"] = {
+			["fields"] = {
+				["overrides"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+				["status"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "ref", ["name"] = "MemberStatus" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PatchOrg"] = {
+			["fields"] = {
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["slug"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["status"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PatchUniverse"] = {
+			["fields"] = {
+				["enabled"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["PlaceCreateRequest"] = {
 			["fields"] = {
 				["name"] = {
@@ -645,28 +997,57 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			["fields"] = {
 				["createdAt"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Plan"] = {
+			["fields"] = {
+				["maxMembers"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["maxServiceAccounts"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["maxUniverses"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -700,8 +1081,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Scope"] = {
+			["fields"] = {
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["permissions"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -709,9 +1118,9 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		["ServiceAccessLevel"] = {
 			["kind"] = "enum",
 			["values"] = {
-				"READ",
-				"READ_WRITE",
 				"ADMIN",
+				"READ_WRITE",
+				"READ",
 			},
 		} :: Core.Schema,
 		["ServiceAccountCreateRequest"] = {
@@ -777,12 +1186,12 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			["fields"] = {
 				["createdAt"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
@@ -792,7 +1201,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["enabled"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["expiresAt"] = {
@@ -802,7 +1211,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["id"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["key"] = {
@@ -817,12 +1226,17 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["name"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["permissions"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -835,7 +1249,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["universeId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -865,32 +1279,32 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			["fields"] = {
 				["builtIn"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -930,12 +1344,60 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			["fields"] = {
 				["accessLevel"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ServiceAccessLevel" } :: Core.Schema,
 				},
 				["serviceName"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Status"] = { ["kind"] = "enum", ["values"] = { "ACTIVE", "SUSPENDED" } } :: Core.Schema,
+		["Template"] = {
+			["fields"] = {
+				["permissions"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["TenantRole"] = {
+			["kind"] = "enum",
+			["values"] = {
+				"VIEWER",
+				"DEVELOPER",
+				"ADMIN",
+				"OWNER",
+			},
+		} :: Core.Schema,
+		["Token"] = {
+			["fields"] = {
+				["accessToken"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["expiresIn"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["tokenType"] = {
+					["notBlank"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -961,7 +1423,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+					["schema"] = { ["kind"] = "ref", ["name"] = "ValidationAccountType" } :: Core.Schema,
 				},
 				["error"] = {
 					["notBlank"] = false,
@@ -973,6 +1435,11 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
 				["placeIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
@@ -980,6 +1447,11 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "array",
 					} :: Core.Schema,
+				},
+				["role"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["serviceAccount"] = {
 					["notBlank"] = false,
@@ -1006,69 +1478,50 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["valid"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["UniverseCreateRequest"] = {
+		["Transfer"] = {
 			["fields"] = {
-				["name"] = {
-					["notBlank"] = true,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["universeId"] = {
+				["userId"] = {
 					["notBlank"] = false,
 					["required"] = true,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["UniverseEnabledRequest"] = {
+		["Universe"] = {
 			["fields"] = {
 				["enabled"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["UniverseResponse"] = {
-			["fields"] = {
-				["createdAt"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
 				["name"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["places"] = {
+				["orgId"] = {
 					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "ref", ["name"] = "PlaceResponse" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
-				},
-				["updatedAt"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
+		} :: Core.Schema,
+		["ValidationAccountType"] = {
+			["kind"] = "enum",
+			["values"] = { "SUPER_ADMIN", "USER", "UNIVERSE_ACCOUNT" },
 		} :: Core.Schema,
 	},
 	["codes"] = {
@@ -5329,10 +5782,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		} :: Core.Schema,
 	},
 	["matchmaking"] = {
-		["AccountType"] = {
-			["kind"] = "enum",
-			["values"] = { "SUPER_ADMIN", "ADMIN", "UNIVERSE_ACCOUNT", "PENDING" },
-		} :: Core.Schema,
+		["AccountType"] = { ["kind"] = "enum", ["values"] = { "SUPER_ADMIN", "USER" } } :: Core.Schema,
 		["ApiKeyResponse"] = {
 			["fields"] = {
 				["apiKey"] = {
@@ -5929,17 +6379,17 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["accountId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
@@ -5954,48 +6404,27 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["metadata"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
-				},
-				["placeIds"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "number" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
 				},
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["servicePermissions"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
-				},
 				["tokenType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -6432,7 +6861,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -6502,29 +6931,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["ServiceAccessLevel"] = {
-			["kind"] = "enum",
-			["values"] = {
-				"READ",
-				"READ_WRITE",
-				"ADMIN",
-			},
-		} :: Core.Schema,
-		["ServicePermissionResponse"] = {
-			["fields"] = {
-				["accessLevel"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "ref", ["name"] = "ServiceAccessLevel" } :: Core.Schema,
-				},
-				["serviceName"] = {
 					["notBlank"] = false,
 					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
@@ -6832,10 +7238,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		} :: Core.Schema,
 	},
 	["party"] = {
-		["AccountType"] = {
-			["kind"] = "enum",
-			["values"] = { "SUPER_ADMIN", "ADMIN", "UNIVERSE_ACCOUNT", "PENDING" },
-		} :: Core.Schema,
+		["AccountType"] = { ["kind"] = "enum", ["values"] = { "SUPER_ADMIN", "USER" } } :: Core.Schema,
 		["AddMemberRequest"] = {
 			["fields"] = {
 				["partyId"] = {
@@ -6965,17 +7368,17 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["accountId"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
@@ -6990,48 +7393,27 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["metadata"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
-				},
-				["placeIds"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "number" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
 				},
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
-				["servicePermissions"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = {
-						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
-						["kind"] = "array",
-					} :: Core.Schema,
-				},
 				["tokenType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7154,7 +7536,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
-					["required"] = false,
+					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7194,29 +7576,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 						["item"] = { ["kind"] = "ref", ["name"] = "PartyUpdate" } :: Core.Schema,
 						["kind"] = "array",
 					} :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["ServiceAccessLevel"] = {
-			["kind"] = "enum",
-			["values"] = {
-				"READ",
-				"READ_WRITE",
-				"ADMIN",
-			},
-		} :: Core.Schema,
-		["ServicePermissionResponse"] = {
-			["fields"] = {
-				["accessLevel"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "ref", ["name"] = "ServiceAccessLevel" } :: Core.Schema,
-				},
-				["serviceName"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -7302,6 +7661,16 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Summary" } :: Core.Schema,
 		["service"] = "audit",
 	},
+	["auth.acceptInvitation"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "Accept" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.addMember"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "AddMember" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
+		["service"] = "auth",
+	},
 	["auth.addPlace"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "PlaceCreateRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "PlaceResponse" } :: Core.Schema,
@@ -7322,9 +7691,19 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.createAdminAccount"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "AccountCreateRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
+	["auth.createInvitation"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "Invite" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Issued" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.createOrg"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "CreateOrg" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.createOrgUniverse"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "CreateUniverse" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Universe" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.createService"] = {
@@ -7337,49 +7716,38 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.createUniverse"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "UniverseCreateRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "UniverseResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.createUniverseAccount"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "AccountCreateRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.deleteAccount"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
-	["auth.deleteAccountRest"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
-	["auth.deletePermission"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
-	["auth.deletePermissionRest"] = {
-		["response"] = { ["kind"] = "nil" } :: Core.Schema,
-		["service"] = "auth",
-	},
+	["auth.deleteOrg"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.deletePlace"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.deletePlaceRest"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.deleteService"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
-	["auth.deleteUniverse"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
-	["auth.deleteUniverseRest"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
-	["auth.enableAccount"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
+	["auth.exchangeScopedToken"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "Token" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.getAccountById"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.getAccountByUsername"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.getAllAccounts"] = {
+	["auth.getAccessLog"] = {
 		["response"] = {
-			["item"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
+			["item"] = { ["kind"] = "ref", ["name"] = "AccessEvent" } :: Core.Schema,
+			["kind"] = "cursorPage",
+		} :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.getCurrentAccount"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.getMyAccess"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "Access" } :: Core.Schema,
 			["kind"] = "array",
 		} :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.getMe"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
+	["auth.getOrg"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.getOrgUniverse"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "Universe" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.getPlace"] = {
@@ -7390,28 +7758,39 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.getUniverse"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "UniverseResponse" } :: Core.Schema,
+	["auth.health"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.getUniverses"] = {
+	["auth.healthProxy"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.leaveOrg"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
+	["auth.listInvitations"] = {
 		["response"] = {
-			["item"] = { ["kind"] = "ref", ["name"] = "UniverseResponse" } :: Core.Schema,
+			["item"] = { ["kind"] = "ref", ["name"] = "Invitation" } :: Core.Schema,
 			["kind"] = "array",
 		} :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.health"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "HealthResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.healthProxy"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "HealthResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.listPermissions"] = {
+	["auth.listMembers"] = {
 		["response"] = {
-			["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
+			["item"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.listOrgUniverses"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "Universe" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.listOrgs"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
 			["kind"] = "array",
 		} :: Core.Schema,
 		["service"] = "auth",
@@ -7419,6 +7798,13 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["auth.listPlaces"] = {
 		["response"] = {
 			["item"] = { ["kind"] = "ref", ["name"] = "PlaceResponse" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.listRoleTemplates"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "Template" } :: Core.Schema,
 			["kind"] = "array",
 		} :: Core.Schema,
 		["service"] = "auth",
@@ -7447,14 +7833,29 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "auth",
 	},
+	["auth.moveUniverse"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "MoveUniverse" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Universe" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.patchMember"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PatchMember" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.patchOrg"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PatchOrg" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.patchOrgUniverse"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PatchUniverse" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Universe" } :: Core.Schema,
+		["service"] = "auth",
+	},
 	["auth.patchServiceAccount"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "ServiceAccountPatchRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.promoteAccount"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "AccountPromoteRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.refresh"] = {
@@ -7462,11 +7863,13 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "RefreshResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
+	["auth.removeMember"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.requestReset"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "PasswordResetRequestDto" } :: Core.Schema,
 		["response"] = { ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "auth",
 	},
+	["auth.revokeInvitation"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.revokeServiceAccount"] = {
 		["response"] = { ["kind"] = "nil" } :: Core.Schema,
 		["service"] = "auth",
@@ -7475,9 +7878,17 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.setEnabled"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "UniverseEnabledRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "nil" } :: Core.Schema,
+	["auth.setOrgPlan"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "Plan" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.setRoleTemplate"] = {
+		["body"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Template" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.setServiceAccountPermissions"] = {
@@ -7488,7 +7899,12 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.updateAccount"] = {
+	["auth.transferOwnership"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "Transfer" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.updateCurrentAccount"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "AccountUpdateRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
 		["service"] = "auth",
@@ -7501,16 +7917,6 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["auth.updateService"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "ServiceDefinitionUpdateRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceDefinitionResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.updateUniverse"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "UniverseCreateRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "UniverseResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.upsertPermission"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "ServicePermissionRequest" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.validateToken"] = {

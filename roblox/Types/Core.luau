@@ -82,9 +82,11 @@ export type AuthProvider = {
 	onUnauthorized: (number?, number?, Signal?) -> boolean,
 	version: (() -> number)?,
 	prepare: ((number?, Signal?) -> ())?,
+	ready: ((number?, Signal?) -> Result<any>)?,
+	invalidate: ((number?) -> ())?,
 	destroy: (() -> ())?,
 }
-export type Param = { name: string, type: string, required: boolean }
+export type Param = { name: string, type: string, required: boolean, scopeDefault: boolean? }
 export type Endpoint = {
 	id: string,
 	method: string,

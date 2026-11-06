@@ -1,5 +1,12 @@
 # Changelog
 
+## Organization tenant Auth
+
+- GAS source refresh now replaces the complete Auth surface: 277 routes with no retired account APIs.
+- Added identity-only tenant management and org-owned key APIs, scoped JWT facades with early refresh and single-flight.
+- Updated tenant errors, role templates, migration guidance and offline contract/race tests.
+
+
 ## Durable Fields jobs and live-ops
 
 - Refreshed local contracts: 271 endpoints, covering all 255 inventory routes and 16 additive auth routes.

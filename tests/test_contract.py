@@ -64,7 +64,7 @@ class ContractTests(unittest.TestCase):
         for endpoint,level in expected.items():self.assertEqual(self.routes[endpoint]['minimumLevel'],level)
         for e in self.doc['endpoints']:
             if '/service-accounts' in e['path']:
-                self.assertEqual(e['requiredRole'],'SUPER_ADMIN');self.assertNotIn('serviceAccount',e['authKinds'])
+                self.assertEqual(e['requiredRole'],'IDENTITY');self.assertNotIn('serviceAccount',e['authKinds'])
         self.assertIn('none',self.routes['party.getUpdates']['authKinds'])
 
     def test_sensitive_and_side_effecting_reads(self) -> None:
@@ -92,7 +92,7 @@ class ContractTests(unittest.TestCase):
         from service_contracts import refresh, SOURCES
         fresh = refresh(copy.deepcopy(self.doc))
         self.assertEqual(fresh, self.doc)
-        self.assertEqual(set(SOURCES), {'audit','config','leaderboards','fields','codes','matchmaking'})
+        self.assertEqual(set(SOURCES), {'audit','config','leaderboards','fields','codes','matchmaking','auth'})
 
     def test_coverage_detects_omission_without_inventory_help(self) -> None:
         """Deleting either a rating or board route fails independently of routes.json."""

@@ -16,7 +16,7 @@ export type Page<T> = {
 	sort: Core.Json?,
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
-export type AccountType = "SUPER_ADMIN" | "ADMIN" | "UNIVERSE_ACCOUNT" | "PENDING"
+export type AccountType = "SUPER_ADMIN" | "USER"
 export type AddMemberRequest = { partyId: string, requesterId: number, userId: number }
 export type CreatePartyRequest = { ownerId: number, placeId: number }
 export type DeletePartyRequest = { ownerId: number, partyId: string }
@@ -26,19 +26,16 @@ export type LeavePartyRequest = { partyId: string, userId: number }
 export type LoginRequest = { password: string, username: string }
 export type LoginResponse = {
 	accessToken: string,
-	accountId: string?,
-	accountType: AccountType?,
-	createdTime: string?,
+	accountId: string,
+	accountType: AccountType,
+	createdTime: string,
 	email: string?,
 	expiresIn: number,
-	metadata: { [string]: Core.Json }?,
-	placeIds: { number }?,
+	metadata: { [string]: Core.Json },
 	refreshToken: string,
-	servicePermissions: { ServicePermissionResponse }?,
-	tokenType: string?,
-	universeId: number?,
-	updatedTime: string?,
-	username: string?,
+	tokenType: string,
+	updatedTime: string,
+	username: string,
 }
 export type PartyMemberResponse = { joinedAt: string?, robloxUserId: number? }
 export type PartyResponse = {
@@ -62,12 +59,10 @@ export type RefreshResponse = {
 	accessToken: string,
 	expiresIn: number,
 	refreshToken: string,
-	tokenType: string?,
+	tokenType: string,
 }
 export type RemoveMemberRequest = { partyId: string, requesterId: number, userId: number }
 export type ServerUpdateResponse = { timestamp: string?, updates: { PartyUpdate }? }
-export type ServiceAccessLevel = "READ" | "READ_WRITE" | "ADMIN"
-export type ServicePermissionResponse = { accessLevel: ServiceAccessLevel?, serviceName: string? }
 export type TransferLeadershipRequest = { currentOwnerId: number, newOwnerId: number, partyId: string }
 export type LoginCall = LoginRequest
 export type LoginResultValue = LoginResponse

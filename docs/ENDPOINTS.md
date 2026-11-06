@@ -1,6 +1,6 @@
 # Endpoint reference
 
-271 endpoints. `routes.json` coverage is checked independently.
+277 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -25,6 +25,8 @@ Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO d
 
 Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.
 
+**Auth IDENTITY means identity authentication, not an automatic capability grant.** Org ADMIN/OWNER gates, delegation caps, quotas and last-owner checks remain server-enforced. Scoped JWTs and machine keys cannot manage orgs/keys. Humans/tools use identity login then `client:scoped(id)` for downstream access; game servers should use `bsa_` keys. See [Auth role templates and error codes](AUTH.md).
+
 | Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |
 |---|---|---|---|---|---|---|
 | GET | `/actuator/health/liveness` | `audit.liveness` | public / authenticated | 200 | yes | yes |
@@ -40,54 +42,60 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/health` | `audit.healthProxy` | public / authenticated | 200 | yes | yes |
 | GET | `/info` | `audit.info` | public / authenticated | 200 | yes | yes |
 | GET | `/metrics` | `audit.metrics` | public / authenticated | 200 | yes | yes |
-| GET | `/api/auth/accounts` | `auth.getAllAccounts` | ADMIN | 200 | yes | no |
 | POST | `/api/auth/accounts` | `auth.createAccount` | public / authenticated | 201 | no | no |
-| POST | `/api/auth/accounts/admin` | `auth.createAdminAccount` | SUPER_ADMIN | 201 | no | no |
-| GET | `/api/auth/accounts/me` | `auth.getMe` | USER | 200 | yes | no |
-| POST | `/api/auth/accounts/universe-account` | `auth.createUniverseAccount` | ADMIN | 201 | no | no |
-| GET | `/api/auth/accounts/username/{username}` | `auth.getAccountByUsername` | ADMIN | 200 | yes | no |
-| DELETE | `/api/auth/accounts/{accountId}` | `auth.deleteAccountRest` | USER | 204 | no | no |
-| GET | `/api/auth/accounts/{accountId}` | `auth.getAccountById` | USER | 200 | yes | no |
-| PUT | `/api/auth/accounts/{accountId}` | `auth.updateAccount` | USER | 200 | no | no |
-| POST | `/api/auth/accounts/{accountId}/delete` | `auth.deleteAccount` | USER | 204 | no | no |
-| PATCH | `/api/auth/accounts/{accountId}/enable` | `auth.enableAccount` | ADMIN | 200 | no | no |
-| GET | `/api/auth/accounts/{accountId}/permissions` | `auth.listPermissions` | ADMIN | 200 | yes | no |
-| PUT | `/api/auth/accounts/{accountId}/permissions` | `auth.upsertPermission` | ADMIN | 200 | no | no |
-| DELETE | `/api/auth/accounts/{accountId}/permissions/{serviceName}` | `auth.deletePermissionRest` | ADMIN | 204 | no | no |
-| POST | `/api/auth/accounts/{accountId}/permissions/{serviceName}/delete` | `auth.deletePermission` | ADMIN | 204 | no | no |
-| PATCH | `/api/auth/accounts/{accountId}/promote` | `auth.promoteAccount` | ADMIN | 200 | no | no |
+| GET | `/api/auth/accounts/me` | `auth.getCurrentAccount` | IDENTITY | 200 | yes | no |
+| PUT | `/api/auth/accounts/me` | `auth.updateCurrentAccount` | IDENTITY | 200 | no | no |
 | GET | `/api/auth/health` | `auth.health` | public / authenticated | 200 | yes | no |
+| POST | `/api/auth/invitations/accept` | `auth.acceptInvitation` | IDENTITY | 200 | no | no |
 | POST | `/api/auth/login` | `auth.login` | public / authenticated | 200 | no | no |
 | POST | `/api/auth/logout` | `auth.logout` | public / authenticated | 200 | no | no |
-| POST | `/api/auth/password/change` | `auth.changePassword` | USER | 200 | no | no |
+| GET | `/api/auth/me/access` | `auth.getMyAccess` | IDENTITY | 200 | yes | no |
+| GET | `/api/auth/orgs` | `auth.listOrgs` | IDENTITY | 200 | yes | no |
+| POST | `/api/auth/orgs` | `auth.createOrg` | IDENTITY | 201 | no | no |
+| DELETE | `/api/auth/orgs/{org}` | `auth.deleteOrg` | IDENTITY | 204 | no | no |
+| GET | `/api/auth/orgs/{org}` | `auth.getOrg` | IDENTITY | 200 | yes | no |
+| PATCH | `/api/auth/orgs/{org}` | `auth.patchOrg` | IDENTITY | 200 | no | no |
+| GET | `/api/auth/orgs/{org}/access-log` | `auth.getAccessLog` | IDENTITY | 200 | yes | no |
+| GET | `/api/auth/orgs/{org}/invitations` | `auth.listInvitations` | IDENTITY | 200 | yes | no |
+| POST | `/api/auth/orgs/{org}/invitations` | `auth.createInvitation` | IDENTITY | 201 | no | no |
+| DELETE | `/api/auth/orgs/{org}/invitations/{id}` | `auth.revokeInvitation` | IDENTITY | 204 | no | no |
+| POST | `/api/auth/orgs/{org}/leave` | `auth.leaveOrg` | IDENTITY | 204 | no | no |
+| GET | `/api/auth/orgs/{org}/members` | `auth.listMembers` | IDENTITY | 200 | yes | no |
+| POST | `/api/auth/orgs/{org}/members` | `auth.addMember` | IDENTITY | 200 | no | no |
+| DELETE | `/api/auth/orgs/{org}/members/{user}` | `auth.removeMember` | IDENTITY | 204 | no | no |
+| PATCH | `/api/auth/orgs/{org}/members/{user}` | `auth.patchMember` | IDENTITY | 200 | no | no |
+| PUT | `/api/auth/orgs/{org}/plan` | `auth.setOrgPlan` | SUPER_ADMIN | 200 | no | no |
+| POST | `/api/auth/orgs/{org}/transfer-ownership` | `auth.transferOwnership` | IDENTITY | 200 | no | no |
+| GET | `/api/auth/orgs/{org}/universes` | `auth.listOrgUniverses` | IDENTITY | 200 | yes | no |
+| POST | `/api/auth/orgs/{org}/universes` | `auth.createOrgUniverse` | IDENTITY | 200 | no | no |
+| GET | `/api/auth/orgs/{org}/universes/{universe}` | `auth.getOrgUniverse` | IDENTITY | 200 | yes | no |
+| PATCH | `/api/auth/orgs/{org}/universes/{universe}` | `auth.patchOrgUniverse` | IDENTITY | 200 | no | no |
+| POST | `/api/auth/orgs/{org}/universes/{universe}/move` | `auth.moveUniverse` | SUPER_ADMIN | 200 | no | no |
+| POST | `/api/auth/password/change` | `auth.changePassword` | IDENTITY | 200 | no | no |
 | POST | `/api/auth/password/reset/confirm` | `auth.confirmReset` | public / authenticated | 200 | no | no |
 | POST | `/api/auth/password/reset/request` | `auth.requestReset` | public / authenticated | 200 | no | no |
 | POST | `/api/auth/refresh` | `auth.refresh` | public / authenticated | 200 | no | no |
-| GET | `/api/auth/service-accounts` | `auth.listServiceAccounts` | SUPER_ADMIN | 200 | yes | no |
-| POST | `/api/auth/service-accounts` | `auth.createServiceAccount` | SUPER_ADMIN | 201 | no | no |
-| DELETE | `/api/auth/service-accounts/{id}` | `auth.revokeServiceAccount` | SUPER_ADMIN | 204 | no | no |
-| GET | `/api/auth/service-accounts/{id}` | `auth.getServiceAccount` | SUPER_ADMIN | 200 | yes | no |
-| PATCH | `/api/auth/service-accounts/{id}` | `auth.patchServiceAccount` | SUPER_ADMIN | 200 | no | no |
-| PUT | `/api/auth/service-accounts/{id}/permissions` | `auth.setServiceAccountPermissions` | SUPER_ADMIN | 200 | no | no |
-| POST | `/api/auth/service-accounts/{id}/rotate` | `auth.rotateServiceAccount` | SUPER_ADMIN | 200 | no | no |
+| GET | `/api/auth/role-templates` | `auth.listRoleTemplates` | IDENTITY | 200 | yes | no |
+| PUT | `/api/auth/role-templates/{role}` | `auth.setRoleTemplate` | SUPER_ADMIN | 200 | no | no |
+| GET | `/api/auth/service-accounts` | `auth.listServiceAccounts` | IDENTITY | 200 | yes | no |
+| POST | `/api/auth/service-accounts` | `auth.createServiceAccount` | IDENTITY | 201 | no | no |
+| DELETE | `/api/auth/service-accounts/{id}` | `auth.revokeServiceAccount` | IDENTITY | 204 | no | no |
+| GET | `/api/auth/service-accounts/{id}` | `auth.getServiceAccount` | IDENTITY | 200 | yes | no |
+| PATCH | `/api/auth/service-accounts/{id}` | `auth.patchServiceAccount` | IDENTITY | 200 | no | no |
+| PUT | `/api/auth/service-accounts/{id}/permissions` | `auth.setServiceAccountPermissions` | IDENTITY | 200 | no | no |
+| POST | `/api/auth/service-accounts/{id}/rotate` | `auth.rotateServiceAccount` | IDENTITY | 200 | no | no |
 | GET | `/api/auth/services` | `auth.listServices` | public / authenticated | 200 | yes | no |
 | POST | `/api/auth/services` | `auth.createService` | SUPER_ADMIN | 201 | no | no |
 | DELETE | `/api/auth/services/{name}` | `auth.deleteService` | SUPER_ADMIN | 204 | no | no |
 | PUT | `/api/auth/services/{name}` | `auth.updateService` | SUPER_ADMIN | 200 | no | no |
 | POST | `/api/auth/token/validate` | `auth.validateToken` | public / authenticated | 200, 401 | no | no |
-| GET | `/api/auth/universes` | `auth.getUniverses` | ADMIN | 200 | yes | yes |
-| POST | `/api/auth/universes` | `auth.createUniverse` | ADMIN | 201 | no | no |
-| DELETE | `/api/auth/universes/{universeId}` | `auth.deleteUniverseRest` | ADMIN | 204 | no | no |
-| GET | `/api/auth/universes/{universeId}` | `auth.getUniverse` | READ | 200 | yes | yes |
-| PATCH | `/api/auth/universes/{universeId}` | `auth.setEnabled` | ADMIN | 204 | no | no |
-| PUT | `/api/auth/universes/{universeId}` | `auth.updateUniverse` | ADMIN | 200 | no | no |
-| POST | `/api/auth/universes/{universeId}/delete` | `auth.deleteUniverse` | ADMIN | 204 | no | no |
-| GET | `/api/auth/universes/{universeId}/places` | `auth.listPlaces` | READ | 200 | yes | yes |
+| GET | `/api/auth/universes/{universeId}/places` | `auth.listPlaces` | READ | 200 | yes | no |
 | POST | `/api/auth/universes/{universeId}/places` | `auth.addPlace` | READ_WRITE | 201 | no | no |
 | DELETE | `/api/auth/universes/{universeId}/places/{placeId}` | `auth.deletePlaceRest` | READ_WRITE | 204 | no | no |
-| GET | `/api/auth/universes/{universeId}/places/{placeId}` | `auth.getPlace` | READ | 200 | yes | yes |
+| GET | `/api/auth/universes/{universeId}/places/{placeId}` | `auth.getPlace` | READ | 200 | yes | no |
 | PUT | `/api/auth/universes/{universeId}/places/{placeId}` | `auth.updatePlace` | READ_WRITE | 200 | no | no |
 | POST | `/api/auth/universes/{universeId}/places/{placeId}/delete` | `auth.deletePlace` | READ_WRITE | 204 | no | no |
+| POST | `/api/auth/universes/{universe}/token` | `auth.exchangeScopedToken` | IDENTITY | 200 | no | no |
 | GET | `/health` | `auth.healthProxy` | public / authenticated | 200 | yes | no |
 | GET | `/api/codes` | `codes.searchCodes` | READ | 200 | yes | yes |
 | POST | `/api/codes` | `codes.createCode` | ADMIN | 201 | no | no |
@@ -239,7 +247,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/bans` | `matchmaking.banPlayer` | ADMIN | 201 | no | no |
 | POST | `/api/bans/bulk` | `matchmaking.bulkBanPlayers` | ADMIN | 201 | no | no |
 | GET | `/api/bans/check` | `matchmaking.checkBanStatus` | READ | 200 | yes | yes |
-| POST | `/api/bans/cleanup` | `matchmaking.removeExpiredBans` | ADMIN | 200 | no | no |
+| POST | `/api/bans/cleanup` | `matchmaking.removeExpiredBans` | SUPER_ADMIN | 200 | no | no |
 | GET | `/api/bans/universe/{universeId}` | `matchmaking.getBannedPlayersByUniverse` | READ | 200 | yes | yes |
 | DELETE | `/api/bans/universe/{universeId}/bulk` | `matchmaking.bulkUnbanPlayers` | ADMIN | 200 | no | no |
 | GET | `/api/bans/universe/{universeId}/permanent` | `matchmaking.getPermanentBans` | READ | 200 | yes | yes |
@@ -265,7 +273,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/matchmaking/validate` | `matchmaking.validateQueue` | READ | 200 | yes | no |
 | GET | `/api/matchmaking/{universeId}/gamemodes/{gameModeName}/queue/count` | `matchmaking.getQueueCount` | READ | 200 | yes | yes |
 | GET | `/api/matchmaking/{universeId}/gamemodes/{gameModeName}/wait-estimate` | `matchmaking.getWaitEstimate` | READ | 200 | yes | yes |
-| GET | `/api/roblox/keys` | `matchmaking.getAllApiKeys` | ADMIN | 200 | yes | no |
+| GET | `/api/roblox/keys` | `matchmaking.getAllApiKeys` | SUPER_ADMIN | 200 | yes | no |
 | PATCH | `/api/roblox/keys` | `matchmaking.createOrUpdateApiKey` | ADMIN | 200 | no | no |
 | POST | `/api/roblox/keys` | `matchmaking.createApiKey` | ADMIN | 201 | no | no |
 | DELETE | `/api/roblox/keys/me` | `matchmaking.deleteApiKeyForCurrentUniverse` | READ_WRITE | 200 | no | no |
@@ -276,7 +284,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/roblox/keys/{universeId}` | `matchmaking.getApiKeyByUniverseId` | READ | 200 | yes | no |
 | HEAD | `/api/roblox/keys/{universeId}` | `matchmaking.checkApiKeyExists` | READ | 200, 404 | yes | no |
 | PUT | `/api/roblox/keys/{universeId}` | `matchmaking.updateApiKey` | ADMIN | 200 | no | no |
-| GET | `/api/universes/getAllUniverses` | `matchmaking.getAllUniverses` | ADMIN | 200 | yes | yes |
+| GET | `/api/universes/getAllUniverses` | `matchmaking.getAllUniverses` | SUPER_ADMIN | 200 | yes | yes |
 | GET | `/api/universes/me` | `matchmaking.getUniverseInfoForCurrentUniverse` | READ | 200 | yes | yes |
 | GET | `/api/universes/{universeId}` | `matchmaking.getUniverseInfo` | ADMIN | 200 | yes | yes |
 | GET | `/health` | `matchmaking.healthProxy` | public / authenticated | 200 | yes | yes |

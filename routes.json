@@ -1,170 +1,5 @@
 [
   {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/accounts"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/accounts/me"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/accounts/username/{username}"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/accounts/{accountId}"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/accounts/{accountId}/permissions"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/health"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/universes"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/universes/{universeId}"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/universes/{universeId}/places"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/api/auth/universes/{universeId}/places/{placeId}"
-  },
-  {
-    "svc": "auth",
-    "method": "GET",
-    "path": "/health"
-  },
-  {
-    "svc": "auth",
-    "method": "PATCH",
-    "path": "/api/auth/accounts/{accountId}/enable"
-  },
-  {
-    "svc": "auth",
-    "method": "PATCH",
-    "path": "/api/auth/accounts/{accountId}/promote"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/accounts"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/accounts/admin"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/accounts/universe-account"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/accounts/{accountId}/delete"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/accounts/{accountId}/permissions/{serviceName}/delete"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/login"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/logout"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/password/change"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/password/reset/confirm"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/password/reset/request"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/refresh"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/token/validate"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/universes"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/universes/{universeId}/delete"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/universes/{universeId}/places"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/universes/{universeId}/places/{placeId}/delete"
-  },
-  {
-    "svc": "auth",
-    "method": "PUT",
-    "path": "/api/auth/accounts/{accountId}"
-  },
-  {
-    "svc": "auth",
-    "method": "PUT",
-    "path": "/api/auth/accounts/{accountId}/permissions"
-  },
-  {
-    "svc": "auth",
-    "method": "PUT",
-    "path": "/api/auth/universes/{universeId}"
-  },
-  {
-    "svc": "auth",
-    "method": "PUT",
-    "path": "/api/auth/universes/{universeId}/places/{placeId}"
-  },
-  {
     "svc": "party",
     "method": "GET",
     "path": "/api/party/all"
@@ -308,6 +143,281 @@
     "svc": "audit",
     "method": "GET",
     "path": "/metrics"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/accounts"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/accounts/me"
+  },
+  {
+    "svc": "auth",
+    "method": "PUT",
+    "path": "/api/auth/accounts/me"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/health"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/invitations/accept"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/login"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/logout"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/me/access"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/orgs/{org}"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs/{org}"
+  },
+  {
+    "svc": "auth",
+    "method": "PATCH",
+    "path": "/api/auth/orgs/{org}"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs/{org}/access-log"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs/{org}/invitations"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/invitations"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/orgs/{org}/invitations/{id}"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/leave"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs/{org}/members"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/members"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/orgs/{org}/members/{user}"
+  },
+  {
+    "svc": "auth",
+    "method": "PATCH",
+    "path": "/api/auth/orgs/{org}/members/{user}"
+  },
+  {
+    "svc": "auth",
+    "method": "PUT",
+    "path": "/api/auth/orgs/{org}/plan"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/transfer-ownership"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs/{org}/universes"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/universes"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/orgs/{org}/universes/{universe}"
+  },
+  {
+    "svc": "auth",
+    "method": "PATCH",
+    "path": "/api/auth/orgs/{org}/universes/{universe}"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/universes/{universe}/move"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/password/change"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/password/reset/confirm"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/password/reset/request"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/refresh"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/role-templates"
+  },
+  {
+    "svc": "auth",
+    "method": "PUT",
+    "path": "/api/auth/role-templates/{role}"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/service-accounts"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/service-accounts"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/service-accounts/{id}"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/service-accounts/{id}"
+  },
+  {
+    "svc": "auth",
+    "method": "PATCH",
+    "path": "/api/auth/service-accounts/{id}"
+  },
+  {
+    "svc": "auth",
+    "method": "PUT",
+    "path": "/api/auth/service-accounts/{id}/permissions"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/service-accounts/{id}/rotate"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/services"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/services"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/services/{name}"
+  },
+  {
+    "svc": "auth",
+    "method": "PUT",
+    "path": "/api/auth/services/{name}"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/token/validate"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/universes/{universeId}/places"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/universes/{universeId}/places"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/universes/{universeId}/places/{placeId}"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/universes/{universeId}/places/{placeId}"
+  },
+  {
+    "svc": "auth",
+    "method": "PUT",
+    "path": "/api/auth/universes/{universeId}/places/{placeId}"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/universes/{universeId}/places/{placeId}/delete"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/universes/{universe}/token"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/health"
   },
   {
     "svc": "codes",

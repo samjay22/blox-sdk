@@ -2,6 +2,7 @@
 -- Generated Roblox projection; edit src/ and run tools/build-roblox.py.
 local Types = require(script.Parent.Parent.Types.Core)
 local Session = require(script.Parent.Parent.Auth.UserSession)
+local Auth = require(script.Parent.Parent.Types.Auth)
 local Universe = require(script.Parent.Parent.Core.Universe)
 local Routing = require(script.Parent.Parent.Core.Routing)
 local Config = {}
@@ -14,7 +15,7 @@ export type Config = {
 	secretName: string?,
 	universeId: (string | number)?,
 	levels: Types.ServiceLevels?,
-	userSession: { store: Session.TokenStore?, role: string? }?,
+	userSession: { store: Session.TokenStore?, role: Auth.AccountType? }?,
 	gatewayUrl: string?,
 	services: { [string]: ServiceConfig }?,
 	concurrency: number?,

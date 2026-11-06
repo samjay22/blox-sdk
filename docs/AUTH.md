@@ -1,59 +1,160 @@
-# Authentication
+# Authentication: organizations, identities and scoped credentials
 
-## Service account keys (game servers)
+**Game servers should use `bsa_` service-account keys. They are universe-bound and need the case-sensitive
+`Gateway` permission in addition to target service permissions when using lb1.** Store keys in Roblox Secrets,
+never ReplicatedStorage, attributes, source strings or client remotes. SDK `levels` are hints, not grants.
 
-Use `secretName` with `universeId`, optionally supplying deployment-known `levels` under case-sensitive catalog names: AuthService, MatchmakingService, PartyService, CodeService, AuditService, ConfigService, LeaderboardService, FieldsService. These are local preflight hints, not grants; the backend is always authoritative. A missing levels table means unknown grants, not full access. A present table without the called service causes a local denial.
+**Humans/tools use identity login for management, then scoped tokens for downstream service calls.**
+The source of truth is `~/work/srv/src-gas/API_CONTRACT.md` and README; backend authorization remains authoritative.
 
-Readable key format is exactly `bsa_[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]{43}` (56 bytes), matching `ServiceAccountKeys.java`. The key is captured in a private provider closure. No login, refresh, JWT decoding, JSON serialization, or error formatting is performed on it.
+## Identity and scope
 
-Roblox `HttpService:GetSecret(name)` returns an opaque Secret. Its contents cannot be validated or read locally. The provider calls `secret:AddPrefix("Bearer ")` and preserves the returned Secret object in `RequestAsync.Headers.Authorization`. Never concatenate a Secret or call `tostring` on it. String keys are validated before provider construction.
-
-Service-account management requires a **SUPER_ADMIN user token**, even when the key has AuthService ADMIN. The SDK rejects these calls locally with `requires super-admin user token`. Global admin endpoints likewise reject known machine identities. A service key's universe cannot be changed with `withUniverse` or a conflicting path/query/body universe field (including nested Audit/score batches). Backend checks still enforce resource ownership and nested/bulk scopes.
-
-## Managed user sessions
-
-Construct `BloxSDK.new({userSession={}})`, then call `client.auth:login({username=...,password=...})`. Successful login atomically installs access + refresh tokens. `client:logout()` uses the current refresh token and clears the local store; direct `client.auth:logout(req)` remains available as the raw route wrapper.
-
-Before protected calls, an expiry within 30 seconds triggers refresh. A readable JWT payload's numeric `exp` is used for scheduling only; it is **not** signature verification or trusted role discovery. The login/refresh `expiresIn` value is the fallback.
-
-A version counter distinguishes tokens used by in-flight calls. Concurrent 401s join one refresh; a late 401 from an old version replays using the already-rotated version. Each safe/idempotent original request gets at most one authorization replay; unkeyed mutations do not replay. A failed refresh is remembered for that version, preventing sequential storms. A new explicit login replaces the failed generation. Do not expect retries to recover a revoked refresh token.
-
-A shared refresh owns its finite client timeout. Short-deadline/cancelled callers can stop waiting without invalidating other callers. Login/logout/destroy advance the generation; a stale refresh cannot resurrect cleared credentials. Public login/refresh/logout routes never recursively invoke the auth strategy or send existing Authorization headers.
-
-### TokenStore
+Persisted identity `accountType` is `USER | SUPER_ADMIN`. A USER identity token has no downstream service access;
+SUPER_ADMIN identity tokens retain platform/global bypass. Both identity types exchange via
+`POST /api/auth/universes/{universe}/token`. Scoped JWTs and machine keys validate downstream as
+`UNIVERSE_ACCOUNT`, including scopes minted by SUPER_ADMIN: **no global bypass or management authority**.
 
 ```luau
-local store = {
-    get = function(): {accessToken: string, refreshToken: string, expiresAt: number?}?
-        return currentTokens
-    end,
-    set = function(tokens)
-        currentTokens = tokens
-    end,
-}
-local client = BloxSDK.new({userSession={store=store}})
+local client = BloxSDK.new({ userSession = {} })
+local login = client.auth:login({ username = username, password = password })
+if login.ok then
+    local access = client.auth:getMyAccess() -- [] is a valid empty portal, not a pending state.
+    local keys = client.auth:listServiceAccounts({ query = { orgId = selectedOrgId } })
+    local gameScope = client:scoped(selectedUniverseId)
+    local schema = gameScope.fields:schema()
+end
+client:logout()
+client:destroy()
 ```
 
-The default store is private in-memory state. Custom stores must be synchronous, non-yielding, atomic, and non-throwing. If persistence is required, arrange secure storage outside the call path; do not put tokens in attributes, replicated objects, telemetry, or DataStore keys. Share a managed client rather than sharing one mutable TokenStore across independently refreshing clients.
+`client:scoped(id)` is lazy: first protected call exchanges using the root identity. Keep/reuse the returned
+facade. The handwritten `src/Auth/ScopedTokens.luau` caches per universe, shared across repeated facades,
+and refreshes at `expiresIn - min(30 seconds, 10% of TTL)` measured from exchange start. Backend default TTL
+is 600 seconds (configurable 1–3600). Exchange is single-flight per universe and identity epoch; different
+universes remain isolated. A short deadline or cancellation stops only that waiter, not shared exchange work.
 
-Optional `userSession.role` is a caller-supplied preflight hint, never proof of privilege. Role and permission revocation is enforced server-side, not through unverified JWT payloads.
+Exchange failures fail closed (no expired/stale fallback) and share a one-second failure cooldown. A safe,
+idempotent downstream 401 can re-exchange/replay once; a second 401 stops. Unkeyed mutations never replay.
+Exchange is an unkeyed POST and is not blindly retried. Identity access-token refresh uses its own refresh
+rotation; scoped JWTs never acquire a refresh token. Login replacement, logout and destroy fence stale
+exchanges. Scoped calls share the root routing, queue, rate budget, breakers and lifetime, but not its authority.
+Destroying/flushing any facade affects the whole client. Scoped Fields helpers use the scoped invoker too.
 
-## Custom providers
+Use the root client for org/key/template management. A scoped facade rejects identity-only operations locally.
+It cannot switch universes via `withUniverse`; obtain another scope from the root. `withUniverse` on an identity
+client only fills declared universe parameters; **it does not exchange credentials**. For membership operations,
+omitted optional query `universeId` always means org-wide, even on a universe facade.
 
-Supply `authProvider={kind="custom", apply=function(headers) ... end, onUnauthorized=function() return false end}`. `apply` mutates headers without logging/serializing credentials. `onUnauthorized` returns whether one replay is appropriate. Built-in extensions accept optional observed-version, deadline, and signal arguments; custom Lua functions may ignore these. Optional `prepare`, `version`, `destroy`, scope, role, and levels support advanced providers.
+The raw generated `auth:exchangeScopedToken({path={universe=id}})` remains available for manual integrations;
+it does not populate the helper cache. Do not log or persist its token response.
 
-Custom provider/store callbacks are trusted integration code: make synchronous phases non-yielding, callbacks non-throwing, and refresh bounded. Built-in auth is tested independently. `BloxSDK.Auth.serviceAccount`, `.userSession`, and `.memoryTokenStore` expose factories for advanced integrations; an independently constructed user session needs its `bind` refresh sender wired explicitly. Prefer the managed `userSession` config.
+## Tenant roles and effective permissions
 
-## Sensitive responses
+Org roles apply to every org universe. Optional universe grants combine by maximum with org grants. A scope-only
+contractor has no org role. Disabled org membership denies all scopes; disabled universe grants do not erase an
+active org grant. Suspended orgs and disabled universes deny scoped credentials. Universe moves revoke old
+keys/invitations and invalidate old scoped JWTs; re-enabling does not undo explicit revocation.
 
-Login, refresh, service-account create/rotate, and unmasked Roblox API-key responses may contain credentials. They are never cached or sent to hooks. Application code must not print or persist them accidentally. Error bodies and transport exceptions are completely redacted, including when a server reflects secrets. Generated DTO optional fields do not imply a response is safe to log.
+Initial role templates (operators may replace them; query `listRoleTemplates` for current values):
 
-Explicit null PATCH fields use `BloxSDK.null`; Lua `nil` means omission. `enabled=null` is rejected by both the schema and backend. An empty permissions list removes every grant and is encoded as `[]`.
+| Role | Initial service grants |
+|---|---|
+| OWNER / ADMIN | ADMIN on every catalog service, including AuthService and Gateway |
+| DEVELOPER | ADMIN on FieldsService, LeaderboardService, CodeService, ConfigService, MatchmakingService, PartyService; READ on AuditService; no AuthService/Gateway |
+| VIEWER | READ on every catalog service except AuthService/Gateway |
 
-## lb1 and downstream permissions
+New catalog services initially give OWNER/ADMIN ADMIN and VIEWER READ. Explicit member overrides replace levels
+for named services; unspecified services keep defaults. Universe overrides take precedence over org overrides.
+Omit `overrides` to preserve them; `overrides={}` clears them (wire `[]`). Service levels are READ < READ_WRITE < ADMIN.
+**DEVELOPER/VIEWER defaults cannot use lb1 without an explicit Gateway grant/template change.** Direct origins
+bypass only the gateway, not service authorization. Place operations require scoped AuthService READ/READ_WRITE.
+Codes redemption additionally needs Fields write access; Matchmaking enrichment needs Fields READ.
 
-**Using lb1 requires the case-sensitive `Gateway` service permission in addition to the target service
-permission.** Add grants on the account, not merely `levels` in SDK configuration. `bsa_` keys are
-universe-bound; `withUniverse` cannot expand their authority. Direct service origins bypass the gateway,
-not the service's authorization. CodeService forwards the caller bearer to Fields: validation needs READ,
-redemption needs the applicable Fields write permissions. Matchmaking enrichment needs Fields READ.
+Org ADMIN/OWNER manage universes, keys, invitations and lower-role members and read access logs. Only OWNER
+(or SUPER_ADMIN) manages ADMIN/OWNER memberships, transfers ownership, or deletes an empty org. Management is
+org-level: a universe-only ADMIN is not an org administrator. No self-role/override edits; the final active org
+OWNER cannot leave/be removed/disabled/demoted, including by SUPER_ADMIN. Transfer promotes an existing active
+org member first; the old owner then explicitly leaves if desired. Delegations cannot exceed the actor's grants.
+Foreign resources return 404. Plan changes, org suspension, universe moves and template edits are platform-only.
+
+## Typed management API
+
+- Orgs: `createOrg`, `listOrgs`, `getOrg`, `patchOrg`, `setOrgPlan`, `deleteOrg`, `transferOwnership`.
+- Org/universe members and overrides: `listMembers`, `addMember`, `patchMember`, `removeMember`, `leaveOrg`.
+  Add scoped members with body `universeId`; patch/remove/leave scoped grants with query `universeId`.
+- Portal access: `getMyAccess` returns organizations, explicit memberships and effective universe permissions.
+- Universes: `createOrgUniverse`, `listOrgUniverses`, `getOrgUniverse`, `patchOrgUniverse`, `moveUniverse`.
+- Invitations: `createInvitation`, `listInvitations`, `revokeInvitation`, `acceptInvitation`. Creation returns
+  a one-time secret and copyable `acceptPath` with a URL fragment, not a query token. No email delivery exists.
+  Expiry is 1–14 days (default 7); acceptance is single-use and rechecks current inviter capabilities/quotas.
+- Templates: `listRoleTemplates`, `setRoleTemplate`; catalog: `listServices`, `createService`, `updateService`, `deleteService`.
+- Access log: `getAccessLog`, `getAccessLogPages`, descending org-bound cursor, limit 1–200 (default 50).
+  These are transactional immutable GAS logs, not AuditService events.
+
+Plan fields use `BloxSDK.null` for unlimited; new org defaults are 3 universes, 10 distinct members, 20 non-revoked
+keys. Disabled members and disabled/expired non-revoked keys still consume slots. Quotas include SUPER_ADMIN.
+Self-service org creation is off by default; when enabled, verified USER identities can create within their limit.
+There is no invented verification/email transport. See [endpoint reference](ENDPOINTS.md) for exact typed shapes.
+
+## Service-account keys
+
+Management requires an **identity token + org ADMIN/OWNER (or SUPER_ADMIN)**, not a SUPER_ADMIN-only global API.
+Scoped JWTs and machine keys cannot manage keys, even with AuthService ADMIN. Listing requires `orgId`, with an
+optional universe filter. Create requires universeId and permissions; org ownership is derived server-side.
+Metadata includes orgId/createdBy. Name/scope are immutable; rotation returns a replacement key once and invalidates
+the old one. PATCH accepts description/enabled/expiresAt only; explicit null clears description/expiration,
+not enabled. DELETE irreversibly revokes. Empty permission arrays remove all grants.
+
+Readable format is exactly `bsa_[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]{43}` (56 bytes). For opaque Roblox Secrets,
+`secret:AddPrefix("Bearer ")` is preserved directly in the header; never concatenate or stringify it.
+Service keys use no login, token refresh, JWT parsing or scoped exchange. `withUniverse` cannot expand scope.
+
+## Identity session lifecycle and TokenStore
+
+Successful `auth:login` atomically installs access + refresh tokens. Identity expiry within 30 seconds triggers
+single-flight refresh. JWT `exp` is used only for scheduling, never signature verification or trusted privilege
+inference; `expiresIn` is the fallback. Concurrent safe 401s join one refresh. Failed refresh is remembered for
+that token version; a new login replaces it. `client:logout()` uses the latest rotated refresh token and clears
+locally even on server failure. Public login/refresh/logout do not recursively prepare auth or send bearer headers.
+
+The default TokenStore is private in-memory state. Custom `{get=...,set=...}` stores must be synchronous,
+non-yielding, atomic and non-throwing. Do not mutate them behind a live client's back: use login/logout for identity
+replacement so the epoch invalidates scoped credentials. Do not share one store across independently refreshing
+clients. `userSession.role` is only a preflight hint, never proof of privilege.
+
+Advanced integrations may use `BloxSDK.Auth.userSession`, `.memoryTokenStore`, `.serviceAccount`, or a custom
+AuthProvider. Custom callbacks are trusted code and must not log credentials. `apply` is synchronous;
+`onUnauthorized` returns whether replay is appropriate. A custom provider must use `kind="scoped"` when it holds
+only a scoped JWT; `kind="custom"` cannot establish authority and the backend still rejects misuse.
+
+## Errors and sensitive data
+
+GAS domain errors use `{timestamp,status,error,message,errorCode,path}`; pre-controller errors use `{error,message}`;
+validation failure is HTTP 401 `{valid:false,error}`. The SDK maps HTTP status to `error.kind`, preserves known
+GAS machine codes as `error.code`, and redacts **all backend messages/bodies**. Unknown codes are discarded.
+
+| error.code | HTTP | Meaning |
+|---|---|---|
+| resource_not_found | 404 | Missing or foreign org/member/universe/invitation/key |
+| access_denied | 403 | Missing capability, suspended org, or identity required |
+| permission_cap | 403 | Delegation exceeds actor grants |
+| cannot_change_own_role | 403 | Self-role/override edit |
+| last_owner | 409 | Would remove/disable/demote final active owner |
+| org_universe_limit / org_member_limit / org_service_account_limit | 409 | Org quota exceeded |
+| org_creation_limit / org_not_empty | 409 | Self-service limit / org still owns universes |
+| member_exists / resource_conflict | 409 | Existing grant or persistence conflict |
+| invalid_invitation | 400 | Invalid, expired, consumed, revoked or wrong-recipient invite |
+| invalid_invitation_expiry / invalid_permissions / invalid_cursor / invalid_page | 400 | Invalid domain input |
+| UNKNOWN_SERVICE | 400 | Unknown permission catalog service |
+| RATE_LIMITED | 429 | Login, exchange (60/user/minute), or invitation throttling |
+| VALIDATION_ERROR / INVALID_REQUEST | 400 | Invalid DTO, JSON, unknown fields or parameters |
+
+Existing codes remain: WEAK_PASSWORD, INVALID_CREDENTIALS, ACCOUNT_DISABLED, USERNAME_EXISTS, EMAIL_EXISTS,
+TOKEN_EXPIRED, INVALID_TOKEN, INVALID_TOKEN_TYPE, INVALID_SERVICE_ACCOUNT, SERVICE_ACCOUNT_NOT_FOUND,
+SERVICE_ACCOUNT_REVOKED, SERVICE_ACCOUNT_CONFLICT, SERVICE_NOT_FOUND, SERVICE_EXISTS, SERVICE_CONFLICT,
+INTERNAL_ERROR (unexpected failure, HTTP 500).
+
+Login/refresh/scoped exchange, invitation creation and key creation/rotation return secrets. They are not stored
+in the general response cache or sent to hooks. Never print those results. Scoped tokens are retained only in
+the private helper cache. `BloxSDK.null` preserves explicit JSON null; nil is omission. Offline tests do not
+certify live gateway grants, server state, revocation timing or Roblox Secret destinations.

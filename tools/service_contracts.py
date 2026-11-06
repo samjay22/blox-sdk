@@ -1,6 +1,7 @@
 """Offline extraction of the four record-based service contracts; no backend execution."""
 from __future__ import annotations
 import hashlib
+import copy
 import re
 from pathlib import Path
 import import_contract as java
@@ -12,6 +13,7 @@ SOURCES = {name: ROOT.parent / 'svc' / directory for name, directory in {
 }.items()}
 CATALOG = {'audit': 'AuditService', 'config': 'ConfigService', 'leaderboards': 'LeaderboardService', 'fields': 'FieldsService'}
 SOURCES.update(codes=ROOT.parent/'srv/src-roblox-code-service', matchmaking=ROOT.parent/'srv/src-mm')
+SOURCES['auth'] = ROOT.parent/'srv/src-gas/global-auth-service'
 
 
 def strip_annotations(text: str) -> str:
@@ -54,6 +56,9 @@ def records(root: Path) -> dict:
 def extract(service: str, root: Path) -> tuple[list[dict], dict]:
     """Apply contract-documented wire and safety exceptions to controller/record extraction."""
     java.CATALOG.update(CATALOG)
+    if service == 'auth':
+        from auth_contract import extract as extract_auth
+        return extract_auth(root)
     endpoints = java.endpoints_for(service, root)
     definitions = records(root)
     if service == 'fields':
@@ -145,8 +150,44 @@ def refresh(doc: dict) -> dict:
         evidence = sorted(root.glob('src/main/java/**/*.java'))
         evidence += [p for p in (root/'API_CONTRACT.md', root/'README.md', root/'FRONTEND_INTEGRATION_GUIDE.md') if p.is_file()]
         evidence += sorted(root.glob('postman/*.json'))
+        if service == 'auth':
+            evidence += sorted((root.parent/'global-auth-client').glob('src/main/java/**/*.java'))
+            evidence += [root.parent/'API_CONTRACT.md', root.parent/'README.md']
         for path in evidence:
             provenance[str(path.relative_to(ROOT.parent))] = hashlib.sha256(path.read_bytes()).hexdigest()
     doc['sourceHashes'] = provenance
+    for endpoint in doc['endpoints']:
+        if endpoint['service'] != 'auth':
+            # Legacy downstream global-ADMIN guards still exist, but GAS now gives
+            # global bypass only to SUPER_ADMIN identity tokens, never scoped ones.
+            if endpoint['requiredRole'] == 'ADMIN': endpoint['requiredRole'] = 'SUPER_ADMIN'
+            if endpoint['requiredRole']:
+                endpoint['authKinds'] = [kind for kind in endpoint['authKinds'] if kind != 'scoped']
+            elif 'scoped' not in endpoint['authKinds']:
+                endpoint['authKinds'].append('scoped')
+    # Proxy login responses carry current identity data; do not retain retired grants
+    # in SDK types. This does not upgrade or edit downstream Java DTO artifacts.
+    for service in ('party','matchmaking','codes'):
+        definitions = doc['types'][service]
+        for name in ('LoginResponse','RefreshResponse','AccountType'):
+            definitions[name] = copy.deepcopy(doc['types']['auth'][name])
+        from gen import schema
+        needed: set[str] = set()
+        def visit(value: dict) -> None:
+            """Drop unreachable imported auth DTOs instead of carrying removed APIs in the spec."""
+            if value['kind']=='ref':
+                name = value['name']
+                if name in needed: return
+                needed.add(name)
+                definition = definitions[name]
+                if definition.get('parent'): visit(schema(definition['parent']))
+                for field in definition.get('fields', {}).values(): visit(schema(field['java']))
+            if 'item' in value: visit(value['item'])
+            for item in value.get('items', []): visit(item)
+        for endpoint in doc['endpoints']:
+            if endpoint['service'] != service: continue
+            visit(schema(endpoint['responseJava']))
+            if endpoint['bodyType']: visit(schema(endpoint['bodyType']))
+        doc['types'][service] = {name:definitions[name] for name in sorted(needed)}
     doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))
     return doc

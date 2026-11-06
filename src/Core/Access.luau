@@ -13,19 +13,13 @@ function Access.check(
 		if spec.requiredRole == "SUPER_ADMIN" then
 			return "requires super-admin user token"
 		end
-		if spec.requiredRole == "ADMIN" then
-			return "requires global-admin user token"
-		end
-		return "requires user token"
+		return "requires identity user token"
 	end
 	if auth.kind == "none" and not table.find(spec.authKinds, "none") then
 		return "Authentication required"
 	end
 	if spec.requiredRole == "SUPER_ADMIN" and auth.role and auth.role ~= "SUPER_ADMIN" then
 		return "requires super-admin user token"
-	end
-	if spec.requiredRole == "ADMIN" and auth.role and auth.role ~= "ADMIN" and auth.role ~= "SUPER_ADMIN" then
-		return "requires global-admin user token"
 	end
 	if spec.minimumLevel and auth.levels then
 		local granted = auth.levels[spec.serviceName]

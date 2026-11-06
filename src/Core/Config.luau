@@ -1,6 +1,7 @@
 --!strict
 local Types = require("../Types/Core")
 local Session = require("../Auth/UserSession")
+local Auth = require("../Types/Auth")
 local Universe = require("./Universe")
 local Routing = require("./Routing")
 local Config = {}
@@ -13,7 +14,7 @@ export type Config = {
 	secretName: string?,
 	universeId: (string | number)?,
 	levels: Types.ServiceLevels?,
-	userSession: { store: Session.TokenStore?, role: string? }?,
+	userSession: { store: Session.TokenStore?, role: Auth.AccountType? }?,
 	gatewayUrl: string?,
 	services: { [string]: ServiceConfig }?,
 	concurrency: number?,

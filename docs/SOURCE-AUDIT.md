@@ -1,10 +1,10 @@
 # Source audit and evidence boundary
 
-`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 255 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
+`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the GAS tenant controllers/DTOs, four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 277 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
 
 | Service | Inventory | Exposed |
 |---|---:|---:|
-| Auth | 33 | 49 |
+| Auth | 55 | 55 |
 | Matchmaking | 50 | 50 |
 | Party | 16 | 16 |
 | Codes | 10 | 10 |
@@ -12,19 +12,18 @@
 | Config | 20 | 20 |
 | Leaderboards | 26 | 26 |
 | Fields | 87 | 87 |
-| **Total** | **255 (100%)** | **271** |
+| **Total** | **277 (100%)** | **277** |
 
 Fields includes all 82 domain routes, controller health/probe routes and documented metrics/info routes.
-Additional auth endpoints retain four DELETE aliases, seven service-account operations, four service-catalog
-operations and universe lifecycle PATCH. Coverage independently scans all 188 in-scope controller mappings in the
-six refreshed backend trees; no missing route can hide behind a stale inventory.
+Auth coverage is exact against current controllers: removed routes fail coverage as well as missing routes.
+Coverage independently scans seven refreshed backend trees, so stale inventory cannot hide omissions.
 
 ## Reviewed exceptions
 
 - GameModeController's `requireUniverseWriteAccess` actually calls `isAdminForUniverse`: **create, update, and delete game modes require ADMIN**, despite the helper's name. The generic method-derived READ_WRITE heuristic is not used for this route.
 - Codes create/update/delete and redemption-history listing require CodeService ADMIN. Redeeming requires READ_WRITE.
 - Matchmaking validation and bulk status are read-only POSTs. Process/flush and ban mutation require ADMIN.
-- Auth service-account CRUD/rotation/permission replacement requires SUPER_ADMIN. Auth catalog listing requires a non-PENDING authenticated identity, not an AuthService grant. Universe/place reads and writes use the actual service guards.
+- Auth key management requires identity plus org ADMIN/OWNER (or SUPER_ADMIN). Catalog reads accept identity/scoped tokens; mutations are platform-only. Org capabilities remain server-enforced. Place operations retain AuthService guards.
 - Party `/api/poll/**` is public in the checked-in security configuration. The SDK records this rather than inventing an auth requirement. Do not treat possession of a serverId as a security boundary; review deployment policy before relying on this feed.
 - Queue DTOs inherit player IDs and retain the documented singular/comma-separated ID inputs. Caller metadata is not exposed: the service replaces it with Fields computed values. The criteria DTO wire fields are unchanged; fieldName must reference a top-level computed ID.
 - ServiceAccountPatchRequest distinguishes absent from explicit null. Only enabled/description/expiresAt are accepted. Creation/rotation can return a one-time key and are never cached.
@@ -32,9 +31,9 @@ six refreshed backend trees; no missing route can hide behind a stale inventory.
 
 ## Re-audit workflow
 
-`tools/import_contract.py` reads only the designated local controller/DTO trees and writes a scratch import to `.test-build/`. `tools/curate_contract.py` applies documented corrections to produce a *candidate* contract. It is an audit aid, **not a substitute for source review**. Never run it over a curated spec without reviewing the diff. Plain generation does not access sibling repositories. Source-refresh, contract-parity tests and the independent route-coverage checker require the six local sibling backend trees. Missing sources fail coverage rather than silently skipping it. `sourceHashes` in the spec records their Java/contract evidence.
+`tools/import_contract.py` reads only the designated local controller/DTO trees and writes a scratch import to `.test-build/`. `tools/curate_contract.py` applies documented corrections to produce a *candidate* contract. It is an audit aid, **not a substitute for source review**. Never run it over a curated spec without reviewing the diff. Plain generation does not access sibling repositories. Source-refresh, contract-parity tests and the independent route-coverage checker require the seven local sibling backend trees. Missing sources fail coverage rather than silently skipping it. `sourceHashes` in the spec records their Java/contract evidence.
 
-New-service record extraction handles nested packages, generic/type-use annotations, nullable fields, cursor pages and Fields typed-operation boundaries; snapshot JSON/304 and overloaded controller method names are explicitly reviewed. Coverage independently scans all 188 in-scope controller mappings, including literal route-array aliases, so a missing route cannot hide behind a stale inventory.
+New-service record extraction handles nested packages, generic/type-use annotations, nullable fields, cursor pages and Fields typed-operation boundaries; snapshot JSON/304 and overloaded controller method names are explicitly reviewed. Coverage independently scans all in-scope controller mappings, including literal route-array aliases, so a missing route cannot hide behind a stale inventory.
 
 For backend changes: inspect controller, DTO, security filter/config, and authorization helpers; edit the authoritative spec; regenerate; review generated signatures and endpoint metadata; add independent contract tests; run `tools/verify`. Route coverage alone does not establish correct schema/access/safety.
 
@@ -48,10 +47,9 @@ per-route guards and optional-key document saves. `tools/fields_contract.py` rec
 The TypeSystem oracle compiles actual sibling Java sources into a temporary directory with cached jars;
 it does not run Spring, a service, or database. See [Fields verification](FIELDS.md#verification-evidence).
 
-Claude Code 2.1.286 was verified locally. Exact Opus 5.5 consultation/final-review and Sonnet 5.5
-bounded-review requests were attempted only inside a network-denying wrapper. The wrapper failed before
-Claude started (`sandbox_apply: Operation not permitted`). No consultation, delegation or second opinion
-completed; model availability/compatibility remains unverified. No CLI upgrade or substitution occurred. No git write commands, backend startup, publishing or live requests occur.
+Claude Code 2.1.286 is installed. The exact Opus 5.5 consultation and second-opinion requests, and Sonnet 5.5 bounded test-review request, failed with
+`Not logged in`. No consultation or second opinion succeeded, and no model substitution/upgrade occurred.
+Independent offline checks are the verification evidence, not a claim of Claude review.
 
 ## Consumer refresh evidence
 
@@ -83,3 +81,14 @@ guards (READ only for health summary), raw NDJSON import/download metadata and h
 Typed helpers validate operations/filters against cached schema; raw generated wrappers do not replace
 server semantic validation. Offline tests verify polling, transport, typing and package projections, not
 live worker execution, database fencing, webhook delivery or remote scheduling behavior. See [Jobs](JOBS.md).
+
+## Tenant Auth refresh
+
+`tools/auth_contract.py` replaces Auth from GAS controllers, client DTOs, tenant records and API_CONTRACT wire
+semantics; unreachable imported auth DTOs are pruned. Sources include both GAS Java modules and contract/README
+hashes. Generated paths retain controller parameter names (e.g. `{universe}` for exchange). Role-template path
+roles are statically typed. Null record fields and nullable plan replacement are represented explicitly.
+Legacy downstream global-ADMIN guards are represented as SUPER_ADMIN identity-only access: scoped tokens
+do not inherit global bypass. No downstream binaries or DTO artifacts are changed.
+The handwritten scope cache is exercised with deterministic concurrency, cancellation, expiry, epoch changes,
+malformed responses, credential separation and 401 tests. No backend artifacts were upgraded or executed.

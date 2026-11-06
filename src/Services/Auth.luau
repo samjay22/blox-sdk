@@ -3,6 +3,8 @@
 local Core = require("../Types/Core")
 local Types = require("../Types/Auth")
 local Endpoints = require("../Core/Endpoints")
+local Pagination = require("../Core/Pagination")
+local Idempotency = require("../Core/Idempotency")
 local Service = {}
 Service.__index = Service
 export type Service = typeof(setmetatable(
@@ -13,14 +15,6 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
---- GET /auth-service/api/auth/accounts via gateway; access: ADMIN.
-function Service.getAllAccounts(
-	self: Service,
-	req: Types.GetAllAccountsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetAllAccountsResultValue>
-	return self._invoke(Endpoints["auth.getAllAccounts"], (req or {}), opts, self._universe)
-end
 --- POST /auth-service/api/auth/accounts via gateway; access: public/authenticated.
 function Service.createAccount(
 	self: Service,
@@ -29,117 +23,21 @@ function Service.createAccount(
 ): Core.Result<Types.CreateAccountResultValue>
 	return self._invoke(Endpoints["auth.createAccount"], { body = req }, opts, self._universe)
 end
---- POST /auth-service/api/auth/accounts/admin via gateway; access: SUPER_ADMIN.
-function Service.createAdminAccount(
+--- GET /auth-service/api/auth/accounts/me via gateway; access: IDENTITY.
+function Service.getCurrentAccount(
 	self: Service,
-	req: Types.CreateAdminAccountCall,
+	req: Types.GetCurrentAccountCall?,
 	opts: Core.CallOptions?
-): Core.Result<Types.CreateAdminAccountResultValue>
-	return self._invoke(Endpoints["auth.createAdminAccount"], { body = req }, opts, self._universe)
+): Core.Result<Types.GetCurrentAccountResultValue>
+	return self._invoke(Endpoints["auth.getCurrentAccount"], (req or {}), opts, self._universe)
 end
---- GET /auth-service/api/auth/accounts/me via gateway; access: USER.
-function Service.getMe(
+--- PUT /auth-service/api/auth/accounts/me via gateway; access: IDENTITY.
+function Service.updateCurrentAccount(
 	self: Service,
-	req: Types.GetMeCall?,
+	req: Types.UpdateCurrentAccountCall,
 	opts: Core.CallOptions?
-): Core.Result<Types.GetMeResultValue>
-	return self._invoke(Endpoints["auth.getMe"], (req or {}), opts, self._universe)
-end
---- POST /auth-service/api/auth/accounts/universe-account via gateway; access: ADMIN.
-function Service.createUniverseAccount(
-	self: Service,
-	req: Types.CreateUniverseAccountCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateUniverseAccountResultValue>
-	return self._invoke(Endpoints["auth.createUniverseAccount"], { body = req }, opts, self._universe)
-end
---- GET /auth-service/api/auth/accounts/username/{username} via gateway; access: ADMIN.
-function Service.getAccountByUsername(
-	self: Service,
-	req: Types.GetAccountByUsernameCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetAccountByUsernameResultValue>
-	return self._invoke(Endpoints["auth.getAccountByUsername"], req, opts, self._universe)
-end
---- DELETE /auth-service/api/auth/accounts/{accountId} via gateway; access: USER.
-function Service.deleteAccountRest(
-	self: Service,
-	req: Types.DeleteAccountRestCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteAccountRestResultValue>
-	return self._invoke(Endpoints["auth.deleteAccountRest"], req, opts, self._universe)
-end
---- GET /auth-service/api/auth/accounts/{accountId} via gateway; access: USER.
-function Service.getAccountById(
-	self: Service,
-	req: Types.GetAccountByIdCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetAccountByIdResultValue>
-	return self._invoke(Endpoints["auth.getAccountById"], req, opts, self._universe)
-end
---- PUT /auth-service/api/auth/accounts/{accountId} via gateway; access: USER.
-function Service.updateAccount(
-	self: Service,
-	req: Types.UpdateAccountCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.UpdateAccountResultValue>
-	return self._invoke(Endpoints["auth.updateAccount"], req, opts, self._universe)
-end
---- POST /auth-service/api/auth/accounts/{accountId}/delete via gateway; access: USER.
-function Service.deleteAccount(
-	self: Service,
-	req: Types.DeleteAccountCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteAccountResultValue>
-	return self._invoke(Endpoints["auth.deleteAccount"], req, opts, self._universe)
-end
---- PATCH /auth-service/api/auth/accounts/{accountId}/enable via gateway; access: ADMIN.
-function Service.enableAccount(
-	self: Service,
-	req: Types.EnableAccountCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.EnableAccountResultValue>
-	return self._invoke(Endpoints["auth.enableAccount"], req, opts, self._universe)
-end
---- GET /auth-service/api/auth/accounts/{accountId}/permissions via gateway; access: ADMIN.
-function Service.listPermissions(
-	self: Service,
-	req: Types.ListPermissionsCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.ListPermissionsResultValue>
-	return self._invoke(Endpoints["auth.listPermissions"], req, opts, self._universe)
-end
---- PUT /auth-service/api/auth/accounts/{accountId}/permissions via gateway; access: ADMIN.
-function Service.upsertPermission(
-	self: Service,
-	req: Types.UpsertPermissionCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.UpsertPermissionResultValue>
-	return self._invoke(Endpoints["auth.upsertPermission"], req, opts, self._universe)
-end
---- DELETE /auth-service/api/auth/accounts/{accountId}/permissions/{serviceName} via gateway; access: ADMIN.
-function Service.deletePermissionRest(
-	self: Service,
-	req: Types.DeletePermissionRestCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeletePermissionRestResultValue>
-	return self._invoke(Endpoints["auth.deletePermissionRest"], req, opts, self._universe)
-end
---- POST /auth-service/api/auth/accounts/{accountId}/permissions/{serviceName}/delete via gateway; access: ADMIN.
-function Service.deletePermission(
-	self: Service,
-	req: Types.DeletePermissionCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeletePermissionResultValue>
-	return self._invoke(Endpoints["auth.deletePermission"], req, opts, self._universe)
-end
---- PATCH /auth-service/api/auth/accounts/{accountId}/promote via gateway; access: ADMIN.
-function Service.promoteAccount(
-	self: Service,
-	req: Types.PromoteAccountCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PromoteAccountResultValue>
-	return self._invoke(Endpoints["auth.promoteAccount"], req, opts, self._universe)
+): Core.Result<Types.UpdateCurrentAccountResultValue>
+	return self._invoke(Endpoints["auth.updateCurrentAccount"], { body = req }, opts, self._universe)
 end
 --- GET /auth-service/api/auth/health via gateway; access: public/authenticated.
 function Service.health(
@@ -148,6 +46,14 @@ function Service.health(
 	opts: Core.CallOptions?
 ): Core.Result<Types.HealthResultValue>
 	return self._invoke(Endpoints["auth.health"], (req or {}), opts, self._universe)
+end
+--- POST /auth-service/api/auth/invitations/accept via gateway; access: IDENTITY.
+function Service.acceptInvitation(
+	self: Service,
+	req: Types.AcceptInvitationCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.AcceptInvitationResultValue>
+	return self._invoke(Endpoints["auth.acceptInvitation"], { body = req }, opts, self._universe)
 end
 --- POST /auth-service/api/auth/login via gateway; access: public/authenticated.
 function Service.login(
@@ -165,7 +71,200 @@ function Service.logout(
 ): Core.Result<Types.LogoutResultValue>
 	return self._invoke(Endpoints["auth.logout"], { body = req }, opts, self._universe)
 end
---- POST /auth-service/api/auth/password/change via gateway; access: USER.
+--- GET /auth-service/api/auth/me/access via gateway; access: IDENTITY.
+function Service.getMyAccess(
+	self: Service,
+	req: Types.GetMyAccessCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.GetMyAccessResultValue>
+	return self._invoke(Endpoints["auth.getMyAccess"], (req or {}), opts, self._universe)
+end
+--- GET /auth-service/api/auth/orgs via gateway; access: IDENTITY.
+function Service.listOrgs(
+	self: Service,
+	req: Types.ListOrgsCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.ListOrgsResultValue>
+	return self._invoke(Endpoints["auth.listOrgs"], (req or {}), opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs via gateway; access: IDENTITY.
+function Service.createOrg(
+	self: Service,
+	req: Types.CreateOrgCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CreateOrgResultValue>
+	return self._invoke(Endpoints["auth.createOrg"], { body = req }, opts, self._universe)
+end
+--- DELETE /auth-service/api/auth/orgs/{org} via gateway; access: IDENTITY.
+function Service.deleteOrg(
+	self: Service,
+	req: Types.DeleteOrgCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.DeleteOrgResultValue>
+	return self._invoke(Endpoints["auth.deleteOrg"], req, opts, self._universe)
+end
+--- GET /auth-service/api/auth/orgs/{org} via gateway; access: IDENTITY.
+function Service.getOrg(
+	self: Service,
+	req: Types.GetOrgCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.GetOrgResultValue>
+	return self._invoke(Endpoints["auth.getOrg"], req, opts, self._universe)
+end
+--- PATCH /auth-service/api/auth/orgs/{org} via gateway; access: IDENTITY.
+function Service.patchOrg(
+	self: Service,
+	req: Types.PatchOrgCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PatchOrgResultValue>
+	return self._invoke(Endpoints["auth.patchOrg"], req, opts, self._universe)
+end
+--- GET /auth-service/api/auth/orgs/{org}/access-log via gateway; access: IDENTITY.
+function Service.getAccessLog(
+	self: Service,
+	req: Types.GetAccessLogCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.GetAccessLogResultValue>
+	return self._invoke(Endpoints["auth.getAccessLog"], req, opts, self._universe)
+end
+--- Lazily iterate cursor pages, preserving filters and surfacing errors.
+function Service.getAccessLogPages(
+	self: Service,
+	req: Types.GetAccessLogCall,
+	opts: Core.CallOptions?,
+	maximum: number?
+): () -> Core.Result<Types.GetAccessLogResultValue>?
+	local request: Types.GetAccessLogCall = Idempotency.copy(req or {})
+	local query = table.clone(request.query or {})
+	request.query = query
+	return Pagination.cursor(function(cursor: string?): Core.Result<Types.GetAccessLogResultValue>
+		query.cursor = cursor
+		return self.getAccessLog(self, request, opts)
+	end, function(page: Types.GetAccessLogResultValue): (string | Core.Null)?
+		return page.nextCursor
+	end, maximum, query.cursor)
+end
+--- GET /auth-service/api/auth/orgs/{org}/invitations via gateway; access: IDENTITY.
+function Service.listInvitations(
+	self: Service,
+	req: Types.ListInvitationsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ListInvitationsResultValue>
+	return self._invoke(Endpoints["auth.listInvitations"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/invitations via gateway; access: IDENTITY.
+function Service.createInvitation(
+	self: Service,
+	req: Types.CreateInvitationCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CreateInvitationResultValue>
+	return self._invoke(Endpoints["auth.createInvitation"], req, opts, self._universe)
+end
+--- DELETE /auth-service/api/auth/orgs/{org}/invitations/{id} via gateway; access: IDENTITY.
+function Service.revokeInvitation(
+	self: Service,
+	req: Types.RevokeInvitationCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RevokeInvitationResultValue>
+	return self._invoke(Endpoints["auth.revokeInvitation"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/leave via gateway; access: IDENTITY.
+function Service.leaveOrg(
+	self: Service,
+	req: Types.LeaveOrgCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.LeaveOrgResultValue>
+	return self._invoke(Endpoints["auth.leaveOrg"], req, opts, self._universe)
+end
+--- GET /auth-service/api/auth/orgs/{org}/members via gateway; access: IDENTITY.
+function Service.listMembers(
+	self: Service,
+	req: Types.ListMembersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ListMembersResultValue>
+	return self._invoke(Endpoints["auth.listMembers"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/members via gateway; access: IDENTITY.
+function Service.addMember(
+	self: Service,
+	req: Types.AddMemberCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.AddMemberResultValue>
+	return self._invoke(Endpoints["auth.addMember"], req, opts, self._universe)
+end
+--- DELETE /auth-service/api/auth/orgs/{org}/members/{user} via gateway; access: IDENTITY.
+function Service.removeMember(
+	self: Service,
+	req: Types.RemoveMemberCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RemoveMemberResultValue>
+	return self._invoke(Endpoints["auth.removeMember"], req, opts, self._universe)
+end
+--- PATCH /auth-service/api/auth/orgs/{org}/members/{user} via gateway; access: IDENTITY.
+function Service.patchMember(
+	self: Service,
+	req: Types.PatchMemberCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PatchMemberResultValue>
+	return self._invoke(Endpoints["auth.patchMember"], req, opts, self._universe)
+end
+--- PUT /auth-service/api/auth/orgs/{org}/plan via gateway; access: SUPER_ADMIN.
+function Service.setOrgPlan(
+	self: Service,
+	req: Types.SetOrgPlanCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.SetOrgPlanResultValue>
+	return self._invoke(Endpoints["auth.setOrgPlan"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/transfer-ownership via gateway; access: IDENTITY.
+function Service.transferOwnership(
+	self: Service,
+	req: Types.TransferOwnershipCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.TransferOwnershipResultValue>
+	return self._invoke(Endpoints["auth.transferOwnership"], req, opts, self._universe)
+end
+--- GET /auth-service/api/auth/orgs/{org}/universes via gateway; access: IDENTITY.
+function Service.listOrgUniverses(
+	self: Service,
+	req: Types.ListOrgUniversesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ListOrgUniversesResultValue>
+	return self._invoke(Endpoints["auth.listOrgUniverses"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/universes via gateway; access: IDENTITY.
+function Service.createOrgUniverse(
+	self: Service,
+	req: Types.CreateOrgUniverseCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CreateOrgUniverseResultValue>
+	return self._invoke(Endpoints["auth.createOrgUniverse"], req, opts, self._universe)
+end
+--- GET /auth-service/api/auth/orgs/{org}/universes/{universe} via gateway; access: IDENTITY.
+function Service.getOrgUniverse(
+	self: Service,
+	req: Types.GetOrgUniverseCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.GetOrgUniverseResultValue>
+	return self._invoke(Endpoints["auth.getOrgUniverse"], req, opts, self._universe)
+end
+--- PATCH /auth-service/api/auth/orgs/{org}/universes/{universe} via gateway; access: IDENTITY.
+function Service.patchOrgUniverse(
+	self: Service,
+	req: Types.PatchOrgUniverseCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PatchOrgUniverseResultValue>
+	return self._invoke(Endpoints["auth.patchOrgUniverse"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/universes/{universe}/move via gateway; access: SUPER_ADMIN.
+function Service.moveUniverse(
+	self: Service,
+	req: Types.MoveUniverseCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.MoveUniverseResultValue>
+	return self._invoke(Endpoints["auth.moveUniverse"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/password/change via gateway; access: IDENTITY.
 function Service.changePassword(
 	self: Service,
 	req: Types.ChangePasswordCall,
@@ -197,15 +296,31 @@ function Service.refresh(
 ): Core.Result<Types.RefreshResultValue>
 	return self._invoke(Endpoints["auth.refresh"], { body = req }, opts, self._universe)
 end
---- GET /auth-service/api/auth/service-accounts via gateway; access: SUPER_ADMIN.
+--- GET /auth-service/api/auth/role-templates via gateway; access: IDENTITY.
+function Service.listRoleTemplates(
+	self: Service,
+	req: Types.ListRoleTemplatesCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.ListRoleTemplatesResultValue>
+	return self._invoke(Endpoints["auth.listRoleTemplates"], (req or {}), opts, self._universe)
+end
+--- PUT /auth-service/api/auth/role-templates/{role} via gateway; access: SUPER_ADMIN.
+function Service.setRoleTemplate(
+	self: Service,
+	req: Types.SetRoleTemplateCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.SetRoleTemplateResultValue>
+	return self._invoke(Endpoints["auth.setRoleTemplate"], req, opts, self._universe)
+end
+--- GET /auth-service/api/auth/service-accounts via gateway; access: IDENTITY.
 function Service.listServiceAccounts(
 	self: Service,
-	req: Types.ListServiceAccountsCall?,
+	req: Types.ListServiceAccountsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ListServiceAccountsResultValue>
-	return self._invoke(Endpoints["auth.listServiceAccounts"], (req or {}), opts, self._universe)
+	return self._invoke(Endpoints["auth.listServiceAccounts"], req, opts, self._universe)
 end
---- POST /auth-service/api/auth/service-accounts via gateway; access: SUPER_ADMIN.
+--- POST /auth-service/api/auth/service-accounts via gateway; access: IDENTITY.
 function Service.createServiceAccount(
 	self: Service,
 	req: Types.CreateServiceAccountCall,
@@ -213,7 +328,7 @@ function Service.createServiceAccount(
 ): Core.Result<Types.CreateServiceAccountResultValue>
 	return self._invoke(Endpoints["auth.createServiceAccount"], { body = req }, opts, self._universe)
 end
---- DELETE /auth-service/api/auth/service-accounts/{id} via gateway; access: SUPER_ADMIN.
+--- DELETE /auth-service/api/auth/service-accounts/{id} via gateway; access: IDENTITY.
 function Service.revokeServiceAccount(
 	self: Service,
 	req: Types.RevokeServiceAccountCall,
@@ -221,7 +336,7 @@ function Service.revokeServiceAccount(
 ): Core.Result<Types.RevokeServiceAccountResultValue>
 	return self._invoke(Endpoints["auth.revokeServiceAccount"], req, opts, self._universe)
 end
---- GET /auth-service/api/auth/service-accounts/{id} via gateway; access: SUPER_ADMIN.
+--- GET /auth-service/api/auth/service-accounts/{id} via gateway; access: IDENTITY.
 function Service.getServiceAccount(
 	self: Service,
 	req: Types.GetServiceAccountCall,
@@ -229,7 +344,7 @@ function Service.getServiceAccount(
 ): Core.Result<Types.GetServiceAccountResultValue>
 	return self._invoke(Endpoints["auth.getServiceAccount"], req, opts, self._universe)
 end
---- PATCH /auth-service/api/auth/service-accounts/{id} via gateway; access: SUPER_ADMIN.
+--- PATCH /auth-service/api/auth/service-accounts/{id} via gateway; access: IDENTITY.
 function Service.patchServiceAccount(
 	self: Service,
 	req: Types.PatchServiceAccountCall,
@@ -237,7 +352,7 @@ function Service.patchServiceAccount(
 ): Core.Result<Types.PatchServiceAccountResultValue>
 	return self._invoke(Endpoints["auth.patchServiceAccount"], req, opts, self._universe)
 end
---- PUT /auth-service/api/auth/service-accounts/{id}/permissions via gateway; access: SUPER_ADMIN.
+--- PUT /auth-service/api/auth/service-accounts/{id}/permissions via gateway; access: IDENTITY.
 function Service.setServiceAccountPermissions(
 	self: Service,
 	req: Types.SetServiceAccountPermissionsCall,
@@ -245,7 +360,7 @@ function Service.setServiceAccountPermissions(
 ): Core.Result<Types.SetServiceAccountPermissionsResultValue>
 	return self._invoke(Endpoints["auth.setServiceAccountPermissions"], req, opts, self._universe)
 end
---- POST /auth-service/api/auth/service-accounts/{id}/rotate via gateway; access: SUPER_ADMIN.
+--- POST /auth-service/api/auth/service-accounts/{id}/rotate via gateway; access: IDENTITY.
 function Service.rotateServiceAccount(
 	self: Service,
 	req: Types.RotateServiceAccountCall,
@@ -292,62 +407,6 @@ function Service.validateToken(
 	opts: Core.CallOptions?
 ): Core.Result<Types.ValidateTokenResultValue>
 	return self._invoke(Endpoints["auth.validateToken"], { body = req }, opts, self._universe)
-end
---- GET /auth-service/api/auth/universes via gateway; access: ADMIN.
-function Service.getUniverses(
-	self: Service,
-	req: Types.GetUniversesCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetUniversesResultValue>
-	return self._invoke(Endpoints["auth.getUniverses"], (req or {}), opts, self._universe)
-end
---- POST /auth-service/api/auth/universes via gateway; access: ADMIN.
-function Service.createUniverse(
-	self: Service,
-	req: Types.CreateUniverseCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateUniverseResultValue>
-	return self._invoke(Endpoints["auth.createUniverse"], { body = req }, opts, self._universe)
-end
---- DELETE /auth-service/api/auth/universes/{universeId} via gateway; access: ADMIN.
-function Service.deleteUniverseRest(
-	self: Service,
-	req: Types.DeleteUniverseRestCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteUniverseRestResultValue>
-	return self._invoke(Endpoints["auth.deleteUniverseRest"], (req or {}), opts, self._universe)
-end
---- GET /auth-service/api/auth/universes/{universeId} via gateway; access: READ.
-function Service.getUniverse(
-	self: Service,
-	req: Types.GetUniverseCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetUniverseResultValue>
-	return self._invoke(Endpoints["auth.getUniverse"], (req or {}), opts, self._universe)
-end
---- PATCH /auth-service/api/auth/universes/{universeId} via gateway; access: ADMIN.
-function Service.setEnabled(
-	self: Service,
-	req: Types.SetEnabledCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.SetEnabledResultValue>
-	return self._invoke(Endpoints["auth.setEnabled"], req, opts, self._universe)
-end
---- PUT /auth-service/api/auth/universes/{universeId} via gateway; access: ADMIN.
-function Service.updateUniverse(
-	self: Service,
-	req: Types.UpdateUniverseCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.UpdateUniverseResultValue>
-	return self._invoke(Endpoints["auth.updateUniverse"], req, opts, self._universe)
-end
---- POST /auth-service/api/auth/universes/{universeId}/delete via gateway; access: ADMIN.
-function Service.deleteUniverse(
-	self: Service,
-	req: Types.DeleteUniverseCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteUniverseResultValue>
-	return self._invoke(Endpoints["auth.deleteUniverse"], (req or {}), opts, self._universe)
 end
 --- GET /auth-service/api/auth/universes/{universeId}/places via gateway; access: READ.
 function Service.listPlaces(
@@ -396,6 +455,14 @@ function Service.deletePlace(
 	opts: Core.CallOptions?
 ): Core.Result<Types.DeletePlaceResultValue>
 	return self._invoke(Endpoints["auth.deletePlace"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/universes/{universe}/token via gateway; access: IDENTITY.
+function Service.exchangeScopedToken(
+	self: Service,
+	req: Types.ExchangeScopedTokenCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ExchangeScopedTokenResultValue>
+	return self._invoke(Endpoints["auth.exchangeScopedToken"], req, opts, self._universe)
 end
 --- GET /auth-service/health via gateway; access: public/authenticated.
 function Service.healthProxy(

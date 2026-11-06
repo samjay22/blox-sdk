@@ -70,7 +70,7 @@ function Service.checkBanStatus(
 ): Core.Result<Types.CheckBanStatusResultValue>
 	return self._invoke(Endpoints["matchmaking.checkBanStatus"], req, opts, self._universe)
 end
---- POST /matchmaking-service/api/bans/cleanup via gateway; access: ADMIN.
+--- POST /matchmaking-service/api/bans/cleanup via gateway; access: SUPER_ADMIN.
 function Service.removeExpiredBans(
 	self: Service,
 	req: Types.RemoveExpiredBansCall?,
@@ -283,7 +283,7 @@ function Service.getWaitEstimate(
 ): Core.Result<Types.GetWaitEstimateResultValue>
 	return self._invoke(Endpoints["matchmaking.getWaitEstimate"], req, opts, self._universe)
 end
---- GET /matchmaking-service/api/roblox/keys via gateway; access: ADMIN.
+--- GET /matchmaking-service/api/roblox/keys via gateway; access: SUPER_ADMIN.
 function Service.getAllApiKeys(
 	self: Service,
 	req: Types.GetAllApiKeysCall?,
@@ -393,7 +393,7 @@ function Service.updateApiKey(
 ): Core.Result<Types.UpdateApiKeyResultValue>
 	return self._invoke(Endpoints["matchmaking.updateApiKey"], req, opts, self._universe)
 end
---- GET /matchmaking-service/api/universes/getAllUniverses via gateway; access: ADMIN.
+--- GET /matchmaking-service/api/universes/getAllUniverses via gateway; access: SUPER_ADMIN.
 function Service.getAllUniverses(
 	self: Service,
 	req: Types.GetAllUniversesCall?,
