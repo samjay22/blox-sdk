@@ -132,7 +132,7 @@ export type LoginResponse = {
 	updatedTime: string,
 	username: string,
 }
---- Criteria reference top-level Fields computed IDs; dotted fieldName values are rejected by the backend.
+--- fieldName accepts any computed Fields ID, including namespaced IDs such as Stats.Elo (max 200 characters).
 export type MatchmakingCriteriaDTO = {
 	allowCrossRegion: boolean?,
 	bracketSize: number?,

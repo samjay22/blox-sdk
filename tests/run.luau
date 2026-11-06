@@ -799,6 +799,63 @@ test("query typo and invalid options fail before transport", function()
 	check(f.count() == 0)
 end)
 
+test("matchmaking create and update preserve namespaced computed field IDs", function()
+	local s = Scheduler.new()
+	local ids = {
+		"Elo",
+		"Stats.Elo",
+		"A.B.C.D.E.F.G.H",
+		string.rep("A", 64) .. "." .. string.rep("B", 64) .. "." .. string.rep("C", 64) .. ".Level",
+	}
+	check(#ids[4] == 200)
+	local steps: { Fake.Step } = {}
+	for _, id in ids do
+		for _, method in { "POST", "PUT" } do
+			table.insert(steps, {
+				body = s.json({
+					matchmakingCriteria = { { type = "SKILL_BASED", fieldName = id, skillRange = 200 } },
+				}),
+				check = function(req: Core.HttpRequest)
+					check(req.Method == method)
+					check(
+						req.Url
+							== "https://lb1.blox-api.com/matchmaking-service/api/gamemodes"
+								.. (if method == "PUT" then "/mode-1" else "")
+					)
+					check(string.find(req.Body :: string, '"fieldName":"' .. id .. '"', 1, true) ~= nil)
+				end,
+			})
+		end
+	end
+	local c, f = client(s, steps)
+	s.run(function()
+		for _, id in ids do
+			local criteria = { { type = "SKILL_BASED" :: "SKILL_BASED", fieldName = id, skillRange = 200 } }
+			local created = c.matchmaking:createGameMode({
+				name = "ranked",
+				universeId = "123",
+				placeId = "456",
+				matchmakingCriteria = criteria,
+			})
+			check(
+				created.ok
+					and created.value.matchmakingCriteria ~= nil
+					and created.value.matchmakingCriteria[1].fieldName == id
+			)
+			local updated = c.matchmaking:updateGameMode({
+				path = { id = "mode-1" },
+				body = { matchmakingCriteria = criteria },
+			})
+			check(
+				updated.ok
+					and updated.value.matchmakingCriteria ~= nil
+					and updated.value.matchmakingCriteria[1].fieldName == id
+			)
+		end
+	end)
+	check(f.count() == #ids * 2)
+end)
+
 test("universe facade fills string matchmaking identifiers", function()
 	local s = Scheduler.new()
 	local url = false

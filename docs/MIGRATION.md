@@ -90,8 +90,10 @@ backend or move production data during generation, testing or migration. Univers
   not a player document. History now contains the frozen operation list and receipt.
 - Use `fields:validateOps` or an op builder's lower-case `:validate()` for all-diagnostic, read-only
   player-template checks. A transaction's capitalized `:Validate()` remains its full local commit check.
-- Matchmaking criteria reference server-fetched Fields computed values. Define top-level computed IDs;
-  dotted criteria names are rejected. Stop supplying metadata in queue inputs. See [criteria guide](MATCHMAKING.md).
+- Matchmaking criteria reference server-fetched Fields computed values. `fieldName` accepts any computed
+  Fields ID, including namespaced IDs such as `Stats.Elo`, using the Fields field-id grammar (at most
+  200 characters). Dots are literal ID separators, not metadata traversal. Stop supplying metadata in
+  queue inputs. See [criteria guide and exact grammar](MATCHMAKING.md).
 - Grant **Gateway plus target-service permissions** for lb1. Also grant downstream Fields permissions
   for Codes and Matchmaking. `bsa_` keys remain universe-bound; no client scope setting changes that.
 

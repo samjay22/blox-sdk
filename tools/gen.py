@@ -143,7 +143,7 @@ def generate(doc: dict) -> dict[Path,str]:
                 pieces.append(field_name+': '+typ)
                 schemas[name]['fields'][n]={'schema':s,'required':f['required'],'notBlank':f.get('notBlank',False)}
             if svc == 'matchmaking' and name == 'MatchmakingCriteriaDTO':
-                lines.append('--- Criteria reference top-level Fields computed IDs; dotted fieldName values are rejected by the backend.')
+                lines.append('--- fieldName accepts any computed Fields ID, including namespaced IDs such as Stats.Elo (max 200 characters).')
             lines.append('export type '+name+' = {'+', '.join(pieces)+'}')
         for e in endpoints:
             cap=e['name'][0].upper()+e['name'][1:]

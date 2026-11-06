@@ -80,6 +80,21 @@ class ContractTests(unittest.TestCase):
         self.assertNotIn('playerMetadata',types['matchmaking']['QueueRequest']['fields'])
         self.assertEqual(set(types['auth']['ServiceAccountPatchRequest']['fields']),{'enabled','description','expiresAt'})
 
+    def test_matchmaking_namespaced_id_guidance(self) -> None:
+        """Keep consumer docs and regenerated type comments aligned on literal dotted IDs."""
+        generated = GEN.generate(copy.deepcopy(self.doc))[ROOT/'src/Types/Matchmaking.luau']
+        self.assertIn('fieldName accepts any computed Fields ID, including namespaced IDs', generated)
+        for name in ('README.md', 'docs/MATCHMAKING.md', 'docs/MIGRATION.md', 'docs/SOURCE-AUDIT.md'):
+            with self.subTest(path=name):
+                text = (ROOT/name).read_text()
+                self.assertIn('Stats.Elo', text)
+                self.assertNotIn('top-level computed', text)
+                self.assertNotIn('dotted criteria names are rejected', text)
+                self.assertNotIn('Dotted names are rejected', text)
+        guide = (ROOT/'docs/MATCHMAKING.md').read_text()
+        self.assertIn(r'^[A-Za-z][A-Za-z0-9_]{0,63}(\.[A-Za-z][A-Za-z0-9_]{0,63}){0,7}$', guide)
+        self.assertIn('at most 200 characters', guide)
+
     def test_alias_statuses_and_safety(self) -> None:
         """Legacy deletion POSTs are never automatically retried; DELETE aliases preserve 204."""
         for e in self.doc['endpoints']:
