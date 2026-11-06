@@ -5,6 +5,36 @@ profile helpers. Default origin: `https://lb1.blox-api.com`; stripPrefix `/field
 base `/api/fields/universes/{universeId}`. An explicit direct override may use `https://fields.blox-api.com`.
 Permission is **FieldsService** (`READ`, `READ_WRITE`, `ADMIN`). Use trusted server credentials only.
 
+## References and guarded definition changes
+
+The reference registry tracks `GAMEMODE` and `CODE` consumers per universe. The generated methods are:
+
+- `definitionReferences({path={id="Rating"}})` — READ; returns
+  `{fieldId="Rating",references={{consumerType="GAMEMODE",consumerId="ranked",label="Ranked 5v5"}}}`.
+- `putReferences({path={consumerType="GAMEMODE",consumerId="ranked"},body={label="Ranked 5v5",fields={"Rating","Region"}}})`
+  — READ_WRITE; idempotently **replaces** that consumer's entire list. `fields={}` encodes as `[]`
+  and behaves like delete. `consumerId` is a string of at most 200 characters; fields must be valid field IDs.
+- `deleteReferences({path={consumerType="GAMEMODE",consumerId="ranked"}})` — READ_WRITE; removes that consumer's references.
+
+The registry paths are `/references/{consumerType}/{consumerId}` (PUT/DELETE) and
+`/definitions/{id}/references` (GET), relative to the universe base above. The server validates ID grammar,
+limits, existence and authorization. Matchmaking maintains its game-mode references on create/update/delete;
+Codes maintains award-field references on create/delete. Consumers backfill existing records idempotently at
+startup (non-fatal on failure); a registration failure during a write fails it with 503 `fields_unavailable`.
+
+Archiving, deleting or changing the type/computed return of a referenced definition returns HTTP 409
+`field_in_use` with `{fieldId,references}`. Update/remove those consumers first. Do not erase live references
+to evade the guard. If deliberately overriding, **ADMIN and the existing audit reason are required**.
+`archive` takes `body={force=true,reason="Reviewed dependency removal"}`; `update` takes
+`query={force=true}` with the reason in `body`. Purge takes
+`query={purge=true,reason="Reviewed dependency removal",force=true}` and still requires
+an archived definition. Forced operations record the reference list in definition audit/history. Force does
+not repair consumers, convert values or bypass other validation.
+
+The SDK exposes `result.error.code == "field_in_use"` and Conflict/409, but deliberately redacts backend
+error bodies (including labels/consumer IDs). Fetch `definitionReferences` to inspect the current typed list;
+it can differ from the list at the instant the mutation was rejected. Registry reads are not cache eligible.
+
 ## Durable jobs and live-ops
 
 `client.fields:Bulk(universeId)`, `:Schedules(universeId)` and `:Jobs(universeId)` compose typed

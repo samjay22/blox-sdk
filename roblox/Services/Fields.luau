@@ -288,6 +288,14 @@ function Service.migrationPreview(
 ): Core.Result<Types.MigrationPreviewResultValue>
 	return self._invoke(Endpoints["fields.migrationPreview"], req, opts, self._universe)
 end
+--- GET /fields-service/api/fields/universes/{universeId}/definitions/{id}/references via gateway; access: READ.
+function Service.definitionReferences(
+	self: Service,
+	req: Types.DefinitionReferencesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.DefinitionReferencesResultValue>
+	return self._invoke(Endpoints["fields.definitionReferences"], req, opts, self._universe)
+end
 --- POST /fields-service/api/fields/universes/{universeId}/definitions/{id}/unarchive via gateway; access: ADMIN.
 function Service.unarchive(
 	self: Service,
@@ -731,6 +739,22 @@ function Service.reconcilePages(
 	end, function(page: Types.ReconcileResultValue): (string | Core.Null)?
 		return page.nextCursor
 	end, maximum, query.cursor)
+end
+--- DELETE /fields-service/api/fields/universes/{universeId}/references/{consumerType}/{consumerId} via gateway; access: READ_WRITE.
+function Service.deleteReferences(
+	self: Service,
+	req: Types.DeleteReferencesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.DeleteReferencesResultValue>
+	return self._invoke(Endpoints["fields.deleteReferences"], req, opts, self._universe)
+end
+--- PUT /fields-service/api/fields/universes/{universeId}/references/{consumerType}/{consumerId} via gateway; access: READ_WRITE.
+function Service.putReferences(
+	self: Service,
+	req: Types.PutReferencesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PutReferencesResultValue>
+	return self._invoke(Endpoints["fields.putReferences"], req, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/schedules via gateway; access: ADMIN.
 function Service.schedules(

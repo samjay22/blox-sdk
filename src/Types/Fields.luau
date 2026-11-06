@@ -147,6 +147,7 @@ export type DefinitionChange = {
 	createdAt: string,
 	field: string,
 	reason: string,
+	references: { FieldReference }?,
 }
 export type DefinitionInput = {
 	bindings: FieldTypes.Bindings?,
@@ -216,6 +217,9 @@ export type ExportInput = {
 }
 export type FailurePolicy = "FAIL" | "USE_DEFAULT" | "CLAMP"
 export type FieldPage = { items: { FieldView }, nextCursor: (string | Core.Null)?, seq: number }
+export type FieldReference = { consumerId: string, consumerType: ReferenceConsumerType, label: string }
+export type FieldReferenceInput = { fields: { string }, label: string }
+export type FieldReferences = { fieldId: string, references: { FieldReference } }
 export type FieldView = {
 	computed: boolean,
 	error: string?,
@@ -403,6 +407,7 @@ export type ReceiptInput = {
 }
 export type ReceiptResult = { purchaseId: string, replayed: boolean, status: string, transaction: Result }
 export type Ref = { id: string, type: string }
+export type ReferenceConsumerType = "GAMEMODE" | "CODE"
 export type RefundInput = { idempotencyKey: string?, reason: string, universeId: number? }
 export type RestoreInput = {
 	idempotencyKey: string?,
@@ -542,12 +547,16 @@ export type PreviewBoardCall = { path: { universeId: (string | number)? }?, body
 export type PreviewBoardResultValue = Preview
 export type PurgeCall = {
 	path: { universeId: (string | number)?, id: string },
-	query: { purge: boolean?, reason: string },
+	query: { purge: boolean?, reason: string, force: boolean? },
 }
 export type PurgeResultValue = Counts
 export type DefinitionCall = { path: { universeId: (string | number)?, id: string } }
 export type DefinitionResultValue = Definition
-export type UpdateCall = { path: { universeId: (string | number)?, id: string }, body: DefinitionInput }
+export type UpdateCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { force: boolean? }?,
+	body: DefinitionInput,
+}
 export type UpdateResultValue = Definition
 export type ArchiveCall = { path: { universeId: (string | number)?, id: string }, body: Action }
 export type ArchiveResultValue = Definition
@@ -563,6 +572,8 @@ export type MigrationPreviewCall = {
 	body: MigrationPreviewInput,
 }
 export type MigrationPreviewResultValue = MigrationPreview
+export type DefinitionReferencesCall = { path: { universeId: (string | number)?, id: string } }
+export type DefinitionReferencesResultValue = FieldReferences
 export type UnarchiveCall = { path: { universeId: (string | number)?, id: string }, body: Action }
 export type UnarchiveResultValue = Definition
 export type ExportCall = { path: { universeId: (string | number)? }?, body: ExportInput }
@@ -706,6 +717,15 @@ export type ReconcileCall = {
 	query: { cursor: string?, field: string?, limit: number? }?,
 }
 export type ReconcileResultValue = CursorPage<Mismatch>
+export type DeleteReferencesCall = {
+	path: { universeId: (string | number)?, consumerType: ReferenceConsumerType, consumerId: string },
+}
+export type DeleteReferencesResultValue = nil
+export type PutReferencesCall = {
+	path: { universeId: (string | number)?, consumerType: ReferenceConsumerType, consumerId: string },
+	body: FieldReferenceInput,
+}
+export type PutReferencesResultValue = nil
 export type SchedulesCall = { path: { universeId: (string | number)? }? }
 export type SchedulesResultValue = { ScheduleSummary }
 export type CreateScheduleCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }

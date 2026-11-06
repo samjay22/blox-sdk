@@ -1,6 +1,6 @@
 # Endpoint reference
 
-277 endpoints. `routes.json` coverage is checked independently.
+280 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -149,6 +149,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/fields/universes/{universeId}/definitions/{id}/history` | `fields.history` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/migrations` | `fields.migrate` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/migrations/preview` | `fields.migrationPreview` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/definitions/{id}/references` | `fields.definitionReferences` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/unarchive` | `fields.unarchive` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/export` | `fields.export` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/fields/batch-get` | `fields.batch` | READ | 200 | no | no |
@@ -191,6 +192,8 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/fields/universes/{universeId}/receipts/{purchaseId}` | `fields.receipt` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/receipts/{purchaseId}/refund` | `fields.refund` | ADMIN | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/reconcile` | `fields.reconcile` | ADMIN | 200 | yes | yes |
+| DELETE | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.deleteReferences` | READ_WRITE | 204 | yes | no |
+| PUT | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.putReferences` | READ_WRITE | 204 | yes | no |
 | GET | `/api/fields/universes/{universeId}/schedules` | `fields.schedules` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/schedules` | `fields.createSchedule` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/schedules/preview` | `fields.schedulePreview` | ADMIN | 200 | no | no |

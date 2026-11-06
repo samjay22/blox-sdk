@@ -3144,6 +3144,14 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
+				["references"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "FieldReference" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
@@ -3493,6 +3501,62 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FieldReference"] = {
+			["fields"] = {
+				["consumerId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["consumerType"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "ReferenceConsumerType" } :: Core.Schema,
+				},
+				["label"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FieldReferenceInput"] = {
+			["fields"] = {
+				["fields"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["label"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FieldReferences"] = {
+			["fields"] = {
+				["fieldId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["references"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "FieldReference" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -4606,6 +4670,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["ReferenceConsumerType"] = { ["kind"] = "enum", ["values"] = { "GAMEMODE", "CODE" } } :: Core.Schema,
 		["RefundInput"] = {
 			["fields"] = {
 				["idempotencyKey"] = {
@@ -8150,6 +8215,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.definitionReferences"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "FieldReferences" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.definitions"] = {
 		["response"] = {
 			["item"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
@@ -8162,6 +8231,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["service"] = "fields",
 	},
 	["fields.deleteProduct"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "fields" },
+	["fields.deleteReferences"] = {
+		["response"] = { ["kind"] = "nil" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.deleteSnapshot"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "SnapshotDeleted" } :: Core.Schema,
 		["service"] = "fields",
@@ -8359,6 +8432,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.putProduct"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "ProductInput" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "Product" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.putReferences"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "FieldReferenceInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "nil" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.putSnapshotPolicy"] = {
