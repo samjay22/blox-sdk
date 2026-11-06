@@ -3403,6 +3403,12 @@
           "type": "boolean"
         },
         {
+          "java": "String",
+          "name": "batchId",
+          "required": false,
+          "type": "string"
+        },
+        {
           "default": "0",
           "java": "int",
           "name": "page",
@@ -3475,6 +3481,106 @@
       "service": "codes",
       "serviceName": "CodeService",
       "source": "srv/src-roblox-code-service/src/main/java/sam/tech/controller/CodeController.java",
+      "statuses": [
+        201
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "CodeService API_CONTRACT.md; Fields remains authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasAnyRole('ADMIN', 'UNIVERSE_ADMIN')",
+      "id": "codes.exportBatch",
+      "idempotent": true,
+      "javaResponse": "Mono<ResponseEntity<String>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "exportBatch",
+      "path": "/api/codes/batches/{batchId}/export",
+      "pathParams": [
+        {
+          "java": "String",
+          "name": "batchId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseContentType": "text/csv",
+      "responseFormat": "text",
+      "responseJava": "String",
+      "responseType": "ExportBatchResultValue",
+      "retryable": true,
+      "service": "codes",
+      "serviceName": "CodeService",
+      "source": "docs/CODES.md#bulk-generation-and-batches",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "BulkCreateCodesRequest",
+      "cacheable": false,
+      "errorStatusNote": "CodeService API_CONTRACT.md; Fields remains authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasAnyRole('ADMIN', 'UNIVERSE_ADMIN')",
+      "id": "codes.bulkCreateCodes",
+      "idempotencyHeader": true,
+      "idempotent": false,
+      "javaResponse": "Mono<ResponseEntity<BulkCreateCodesResponse>>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "bulkCreateCodes",
+      "optionalKey": true,
+      "path": "/api/codes/bulk",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "BulkCreateCodesResponse",
+      "responseType": "BulkCreateCodesResultValue",
+      "retryable": false,
+      "service": "codes",
+      "serviceName": "CodeService",
+      "source": "docs/CODES.md#bulk-generation-and-batches",
       "statuses": [
         201
       ]
@@ -5817,6 +5923,13 @@
         {
           "default": "false",
           "java": "boolean",
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "default": "false",
+          "java": "boolean",
           "name": "purge",
           "required": false,
           "type": "boolean"
@@ -5826,13 +5939,6 @@
           "name": "reason",
           "required": true,
           "type": "string"
-        },
-        {
-          "default": "false",
-          "java": "boolean",
-          "name": "force",
-          "required": false,
-          "type": "boolean"
         }
       ],
       "requiredRole": null,
@@ -6016,7 +6122,15 @@
           "type": "string"
         }
       ],
-      "queryParams": [],
+      "queryParams": [
+        {
+          "default": "false",
+          "java": "boolean",
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        }
+      ],
       "requiredRole": null,
       "responseFormat": "json",
       "responseJava": "Definition",
@@ -6147,7 +6261,15 @@
           "type": "string"
         }
       ],
-      "queryParams": [],
+      "queryParams": [
+        {
+          "default": "false",
+          "java": "boolean",
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        }
+      ],
       "requiredRole": null,
       "responseFormat": "json",
       "responseJava": "JobReceipt",
@@ -7332,7 +7454,15 @@
           "type": "string"
         }
       ],
-      "queryParams": [],
+      "queryParams": [
+        {
+          "default": "false",
+          "java": "boolean",
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        }
+      ],
       "requiredRole": null,
       "responseFormat": "json",
       "responseJava": "JobReceipt",
@@ -15096,8 +15226,8 @@
     }
   ],
   "sourceHashes": {
-    "srv/src-gas/API_CONTRACT.md": "8c3fe7cd26c23e83fc77b5150f77d89ae8257da22e79265e6c5a26c948bb7d9c",
-    "srv/src-gas/README.md": "573ad1cfd8b263fbd59fcf27e6ce2d274ea119d39ff488d16fb2ec3a2959b194",
+    "srv/src-gas/API_CONTRACT.md": "6f740cd66061bb1517fa6aef160fd725dfec0b8076429323a277eeef3da4cb26",
+    "srv/src-gas/README.md": "4c33ffa97d1afec1c2262e4118fc00a6485c9b1ae6fc33fe84dcc7d56c08fa07",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountCreateRequest.java": "a46f64591f5affdc235703c0532744c3f5817dddd8762b549eb72a65eef51011",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountResponse.java": "1f26a49990456dd473b5314e5f6b7039c21ab7aed46776c14579df1ab26d7c1d",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountUpdateRequest.java": "c50b5a9a9cf6de8cbd0a455cf778ad5de0be29a8b118282a7153cf118d049205",
@@ -15136,14 +15266,16 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/HealthController.java": "5b4ef812b2c0960d2b9dbe0d0566918c026559409c4e98fb14ed0ab121b43bd2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/OrganizationController.java": "79fcb6e6a86495325058f09704354959132cb7949a71ad861e6c3e51bbc312d2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/PasswordController.java": "e838c2910fe413e993be4768ebf14bdb1e279734a7abab7f2fbffbd8a4bf3bcf",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceAccountController.java": "33343daee22fd23cb209839740f246019f82c70ec1d14032a7c32181b3b6eb1d",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceAccountController.java": "c699d686159e7ce76ef17a657e850a19ba3263678aa9b2093aab8f060b4a35a8",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceCatalogController.java": "705cdc8c0dd11d4ec49257a076501aa1a20ad1438272bf9240cdb3e6a735b3b0",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/TokenController.java": "b79eaa89184490fb4e16b5ea2ce5eb6de38b3ddb104ba6c3661e63372604d81d",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/TokenController.java": "df65eb91f37976045fb108cf9002084134ae70518204d8fc2b1d2c92df22e657",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/UniverseController.java": "ccb5e9b2f219cdbce661a2ca0114fccb1d6af802e9c9d658b664f38c88c887d1",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/SecurityErrorResponse.java": "0680ac047c150f56419d2be94a9e95c832de6af6112211dfb081cfe2f5e1bfb5",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountCreateRequest.java": "a754b634e8c4f48a26acba81e06adb66d873aff5b0cabac4a563595667cb2572",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountPatchRequest.java": "60a37ba6f59eae4005d8f548499fec4d7612e1ba75b3f4be51e8adae5a9d7f1e",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountResponse.java": "f956c71ea18245fff36035fe4fa1f3d7135b3dc997864c8decad30df8d487783",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountCreateRequest.java": "083cfe9c77b07d34841c868eced875eaa0cd7dc0f8b1d00e99c946b5555f1719",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountExpiryDeserializer.java": "74d0529d666c69e806ae757076147f471725150ce373fef61b6284e732eb109b",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountPatchRequest.java": "342d4d757966760151182546569566d5c3bd8aefb54b7d66825e4de5b76fe3b2",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountResponse.java": "daaa2a1344b88026e35d9e0121833b70b9360606b8f1d7d4e3fd35ab914f15b6",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountRotateRequest.java": "5f5da56502b666a932b66e10266a16d87d630bdc4134ae486f98ac9bb2c26a75",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceDefinitionCreateRequest.java": "378c9362d74d67726ca98701fd7a915a72d96a650f06c618a19eb3d30735c3fd",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceDefinitionResponse.java": "ddd9352cfcc5854a2890cb9d3592caed1fc97e79cb5afa4cb5329056fe94caf4",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceDefinitionUpdateRequest.java": "2fc3b42b90437515dc25459fabc1cf9c610246a8d8a91f6e77e3564abd789031",
@@ -15151,7 +15283,7 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/PasswordResetToken.java": "0dcee5a322101d8fc5ebbabc0cab70161421ac955b37a46dc3ec35ca26e4e4b6",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/Place.java": "722913f0c1a43656e9e9fb2614cddd56f054fafe283351d2c6f665a35cacc054",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/RefreshToken.java": "5fd02f0bab89d0eab3925b51cd1afbf63831a4fe1bb9fd8834a06408f2bb6902",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/ServiceAccount.java": "aa2d4d3f03e67cbe546bfb924470be5460fdbe979e56d7668afab718903b264a",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/ServiceAccount.java": "04c9bd3ad064d7047c007dfbbeb24a31ce026eca9e6625397ef87d47653b5f4f",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/ServiceDefinition.java": "5fae91a961dd7cbc37a2573e6b58e853854bf4fdcd1366b17de4efc77560bf36",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/entity/Universe.java": "cbb97c324058f96381ce3d1214a0f7bb2f3b9deea974129d0855b5112b3d6151",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/exception/AuthException.java": "bf0cd67fc79c93c137328ec7568cd72e55f37085305c23b464bf8e3640232e1c",
@@ -15164,7 +15296,7 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/PasswordResetTokenRepository.java": "e948a1ed6b72ac5292fc68b3b9b8c6046647135659c031608287049add2f2ccd",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/PlaceRepository.java": "c17e2bc89703af10f21ddaeb217151aac1df60dc563ba60ad11b320152513e4a",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/RefreshTokenRepository.java": "70ff03ce167b1a1e940f9d7678430e8fae83c51bd8c6206b897104a9b67445bc",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/ServiceAccountRepository.java": "00bf6daa60f52315ac8d314aa2ed67d91b9e8b91a78951d30c436d883ea44ac7",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/ServiceAccountRepository.java": "91022e9dd9bc11b411ca34e1d293434374441d348dbc1a993c2a317c5ef53825",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/ServiceDefinitionRepository.java": "957ab1a985788a6cb76939b9f7d0683cdc31431ebc13376c08e1aaea4ff14fe5",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/UniverseRepository.java": "320364ec67c0212f510fea5fce5acf8a1500af0f2b34e8aa6e3f30e412eaaa6c",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/AccountAuthorizationService.java": "7f894e40c5fb33bed6353d41305809b6b0aa94d5c2d1e0f99574fcf671952da8",
@@ -15177,34 +15309,35 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/PasswordService.java": "42fda816e44839ba040c5aeafc02340d04e0455fa18fe07f35fe9109945a3d39",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/RateLimitService.java": "5a57fe28c94e0aed14a5a876d58a3ed88b5d06bd1ce53615340656369ab5bd0d",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/RefreshTokenStore.java": "0c7163666155f326ede9fe276ed66d2162387fd13da1758f1969235b768a2ce6",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceAccountAuthenticationService.java": "6f73f1d50f5fdc394a5df1f820c6851a6fd277d460cc3a69be6f021552f25031",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceAccountAuthenticationService.java": "2b9b31f6505ce80bea4d859afeb6817cf8e52228f23dc6c977487cd1cb43a840",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceAccountExpiryWorker.java": "6719d52aaa0d829612d4ae7208a33033b29294089c120dcccffdb1b00c3258f2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceAccountKeys.java": "c581ac0c310b62c9e478f118bc3e1d9090684cc88218466874e06418bbcac044",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceAccountService.java": "2d9e9abf9f0b8acc6fb180eaa4291ac12ffc42da3b6315bfdfa9e3978ac81125",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceAccountService.java": "bb17a6ef82635ce104cff12d47f0226673b344508f58f4dc1afd0680960fb706",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/ServiceCatalogService.java": "19ec3b74a2d112e2f99d4233bb98fde39cec7525eec2780b0216efaf4cab754e",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/UniverseAuthorizationService.java": "310a90c6365866acd47905d4caf124f35ad4915e645e9dd56c33d212f3f1d9bd",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/UniverseService.java": "852a8fb740e4fd9317b826246b2ac0793be3900f09680021242d80d85987cffb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/InvitationService.java": "7bf0c0b2086f053c9d89cdcad7a55e51ba883a3e2fae01c2add5ca8b65ef960c",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantAuthorization.java": "ca2d5d295ea49e0501ca4014f79a3a6f49e8e2cbf6af00d50ff4eeaae0cc7818",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantKeyService.java": "8069efdf6f155e275ae343caf1a01b5ed25274304a3164c474996b7fa864de66",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "65fbdaa2a6f90be3cc3b1bd897433f6f55b45f1129de48556d371505fe9f6611",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantKeyService.java": "1fb246aeb76b71c48929cda1e8b63248b9037785272348e0daa7f0a4d4004ed7",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "41e1877bb26924bdef2d3a95a54ca9bacdee7e799dd071859d2819d597e27538",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantModels.java": "503398f3058d04514b54e1668ea500253b0cba2285dff82089b651cd0a938e63",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantPolicy.java": "a4198152e927f34b60c42fc5ae87bf4cc747662fccdcb758fcf4e105cb4b349f",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantReadService.java": "12471473677354fa4c4b413e0cd5652730eeaa2b3fbb9003c2d7dd6502300960",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRepository.java": "15684df450e47c87192b65cc6d9754d72114b2dac41ad87f97ced171bf48d4d1",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java": "bac577236e9f8b1e898f7f9e9ba8d0da2df7c5c469d0cab3a8170067f34aebdb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRole.java": "765c6ea6ef3d3b30e5f71b8c52c76902fbb1adc6aae47f06d56328fedce3fbfd",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "b9e601675ff68ac3a03f14d5098cfeddcd74588d12377898c54a56c139e7020b",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "9943ea9fc8de0a733906397999c998c60987f09029bb16362b1da8c3c957fe29",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantService.java": "c683891feae3f1e2ddedb8f1f36070744ac755d9506817529cbcafed091ad4c4",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantUniverseService.java": "a0884d995afb554e16c055e1b1536d1ca7dae95026b2324ffd8f57d3482eeee9",
-    "srv/src-mm/FRONTEND_INTEGRATION_GUIDE.md": "cafb19fd9a29ca872cbbc100feeb0823314a0e191033889bbc418c42d4a41829",
-    "srv/src-mm/README.md": "2dcdee8d8321d5e5549dec05b306aa12d79ef0498dc100ffa333ca6d72e254c7",
+    "srv/src-mm/FRONTEND_INTEGRATION_GUIDE.md": "2540c202c6beb114558f559e2f0af15d58071fb512650a845ec4e57de543e0ed",
+    "srv/src-mm/README.md": "e7b5106ad3bc0ec49d061b047d0929b7740a6c35dbcad4f6e73689a5a6372458",
     "srv/src-mm/src/main/java/sam/tech/Main.java": "8b5539e84e28ec47f19ca63247138ed879ec8583d63c05e76c808d25a6974827",
     "srv/src-mm/src/main/java/sam/tech/abstracts/BaseQueueRequest.java": "16e92d7488971424bde53c7a5c2b09d6aec8eab1246f2dd1490efef26e184702",
     "srv/src-mm/src/main/java/sam/tech/client/AuthClient.java": "b88b206d9fd97831b06d2b5d6097855e5e4d4fba132cecad370131612f870ce8",
     "srv/src-mm/src/main/java/sam/tech/client/AuthClientSupport.java": "200dcf2e5efbb71b6835a0186042fecb1a72fc31ce97e95777858e27fa577931",
-    "srv/src-mm/src/main/java/sam/tech/client/TokenClient.java": "231720128ad0d0047c7393215a5b11e4499c7e871744604043922fb751bd960f",
+    "srv/src-mm/src/main/java/sam/tech/client/TokenClient.java": "9f99c8d1bcd9e1edc173ffc9abdb4669a6684667658ed52587f0296026e6d29b",
     "srv/src-mm/src/main/java/sam/tech/client/UniverseClient.java": "ceb62010382d2ddf682cb0ff976a1b43f1d9f89fde50244ec5cd2365cc9dda87",
-    "srv/src-mm/src/main/java/sam/tech/clients/FieldsClient.java": "c8924c14039e84301067200c30d493346826adef982da8bd91df7b7f7e2e15b0",
+    "srv/src-mm/src/main/java/sam/tech/clients/FieldsClient.java": "6cc6014f72e38a6e65a997852eedf9d35b4c5095ea09d499dd8660293477b2c6",
     "srv/src-mm/src/main/java/sam/tech/clients/PartyServiceClient.java": "aac741e543196b3811d2b367c6b43fb514dc3417b5d14d3ebe085ac5f7585e7e",
     "srv/src-mm/src/main/java/sam/tech/config/AppConfig.java": "6c01b3c66f7cf90add287f4b72f3b36a1c8c1899c006c19a0794894c57bc8677",
     "srv/src-mm/src/main/java/sam/tech/config/RedisConfig.java": "3b9d0dd44374d59e1e4f07073bf4c67428a90212c4fbe2cfa4644c370667c377",
@@ -15213,9 +15346,10 @@
     "srv/src-mm/src/main/java/sam/tech/config/WorkerConfiguration.java": "23264175b145a2f3f7c52b871b072264555457df6520b84f9ff7ac67b0eb0a8f",
     "srv/src-mm/src/main/java/sam/tech/controllers/AuthController.java": "fa111970471a2021164cee32266bf28ebae8f653b6c5ca37732a7a0c2c775c4c",
     "srv/src-mm/src/main/java/sam/tech/controllers/BanController.java": "559df8833ef212771ec6632decda0344265486b92c8708d73c04087eb6569e46",
-    "srv/src-mm/src/main/java/sam/tech/controllers/GameModeController.java": "eb448e12a08720334e5aaf744dce62904ff8aa5c093da00f5181415423078e81",
+    "srv/src-mm/src/main/java/sam/tech/controllers/CriteriaSimulationController.java": "1bbe027b118f734a75ea76f9ad7b962379324b7de9ba4eadc00083f108dc8d84",
+    "srv/src-mm/src/main/java/sam/tech/controllers/GameModeController.java": "8be52701b7eb3a144c4bcdddb453e067ffbae1e918aa4a5c74cefda571ab6255",
     "srv/src-mm/src/main/java/sam/tech/controllers/HealthController.java": "ccf30b77fcf918ffa81feeac5fb29301b2bd316a2c758403847db9c8572f7f7e",
-    "srv/src-mm/src/main/java/sam/tech/controllers/MatchmakingController.java": "bedb754046e7316b3e601eda6a0700cad98284f5d2103023d387d49d0d976ee9",
+    "srv/src-mm/src/main/java/sam/tech/controllers/MatchmakingController.java": "7742146174d0f462c6434c96aec763adad3ce29fc5c73b98fcaee27ad827c5f5",
     "srv/src-mm/src/main/java/sam/tech/controllers/MetricsController.java": "cd0e2093a72b662435b5abd2784270860732ab4072346b16ad8f3565b661b903",
     "srv/src-mm/src/main/java/sam/tech/controllers/RobloxAuthController.java": "ed050ed4737fb2c97a998cdee1e5054b939a20b06054eaff647ae937185c65c3",
     "srv/src-mm/src/main/java/sam/tech/controllers/UniverseController.java": "b47c5721930c10993c8792ba8e0b0bfc93ff6ef6492a0b1c231526502a35843a",
@@ -15230,10 +15364,15 @@
     "srv/src-mm/src/main/java/sam/tech/dto/BulkQueueStatusResponse.java": "00bd6f08fbb79548a235903bed92d3f6d5fa9fc27fa9c0a24808109f8511ad1f",
     "srv/src-mm/src/main/java/sam/tech/dto/CreateGameModeRequest.java": "552d9e23c7b25fc7c6284b9c422854e4eae51c531d10331b07d25e23f2ecfa12",
     "srv/src-mm/src/main/java/sam/tech/dto/CriteriaExplanationResponse.java": "dfdcd9b17c7183f82a08fa6089c2870fff1a43252e7a4f1a4a0a406b22524fb3",
+    "srv/src-mm/src/main/java/sam/tech/dto/CriteriaSimulationRequest.java": "d5a73f68af3a9bb1d66635abed72b1636e3c53f6027987d939815a20a61834cc",
+    "srv/src-mm/src/main/java/sam/tech/dto/CriteriaSimulationResponse.java": "4b2a98a64b2450f6e147f1345bbf2b59455f4c9cb80ad434280dc6a608211a4c",
+    "srv/src-mm/src/main/java/sam/tech/dto/CriteriaTypeRequirement.java": "25ef980cc2a86b7cb8020d62095d60cd16fe0b5bfa8dfac2b36a7efb4c444539",
     "srv/src-mm/src/main/java/sam/tech/dto/CriteriaValidationError.java": "20787407c99802723a1d336e677914267d145c039f441326dbb33575e70dc8a4",
+    "srv/src-mm/src/main/java/sam/tech/dto/FieldsPlayerSample.java": "b51a6d54c907b5a38ec3937814d4f15595565a3d4d26a535f7afda21935094ce",
+    "srv/src-mm/src/main/java/sam/tech/dto/FieldsSchemaDefinition.java": "b06dfdf4514c1fd799999aaccaf53f888cb8ed0e7d341c6201987940fee32689",
     "srv/src-mm/src/main/java/sam/tech/dto/GameModeResponse.java": "ec6efc17b1e01ca821d6043b75e467e0737953025018fc20f761d9979fa23f19",
     "srv/src-mm/src/main/java/sam/tech/dto/LuauExecutionRequest.java": "b6088849306c5db2e90701098a3f1b183862acee71b856a876022a0977a285fd",
-    "srv/src-mm/src/main/java/sam/tech/dto/MatchmakingCriteriaDTO.java": "892e4e353c4578290a3997d2df4edccc4be205508985af0205a49dd2303837fc",
+    "srv/src-mm/src/main/java/sam/tech/dto/MatchmakingCriteriaDTO.java": "2e7546f43161b90f7632d7b28a5aa03d9da1834483d43327616af424b416000a",
     "srv/src-mm/src/main/java/sam/tech/dto/MultiQueueModeError.java": "7f5893b92af683ea9384ca2cf4ebc08edd501a3af2c3d9846a7241b7ce4e5ea9",
     "srv/src-mm/src/main/java/sam/tech/dto/MultiQueueRequest.java": "e9f614cca419b283e45c8ecd5e58af64d9f6458a8c229d5d5a4a6fd7f53768da",
     "srv/src-mm/src/main/java/sam/tech/dto/PartyMemberResponse.java": "c432ecc295d9a1e9ae8591fa633ccbd6d799b253d0b8a3e767487a55a65b02be",
@@ -15255,8 +15394,10 @@
     "srv/src-mm/src/main/java/sam/tech/enums/CriteriaType.java": "00d211db758f7f9c9bb938c78f73aa0f9de4a1900112694f2645a85685cfeeac",
     "srv/src-mm/src/main/java/sam/tech/exceptions/AccessDeniedException.java": "8dc05a10505f4de574295897e5827f5a358fbd23061febe07dc0ab4d5467e77a",
     "srv/src-mm/src/main/java/sam/tech/exceptions/AuthServiceException.java": "f1fa66add1132da41c1867a907a3de5471bc1d5f569d99e27b020e15acd84690",
+    "srv/src-mm/src/main/java/sam/tech/exceptions/CriteriaFieldInvalidException.java": "7fd88090af85c933616eb213b8f53dc5a1f0cc540c4f1ef26f8e2f8b15794b06",
     "srv/src-mm/src/main/java/sam/tech/exceptions/CriteriaValidationException.java": "50f9780917d97983a98e4ec0286d75e3647959755bb850c70d5c43097b9f2655",
-    "srv/src-mm/src/main/java/sam/tech/exceptions/GlobalExceptionHandler.java": "c32d88bb5d66b121903188b7c95d704822ab14f7de6a13f271272571474d5e85",
+    "srv/src-mm/src/main/java/sam/tech/exceptions/FieldsUnavailableException.java": "8a31c8f276451319847893c06b240111f71bdc5bff6ca8669d0ceceb6af4eb8f",
+    "srv/src-mm/src/main/java/sam/tech/exceptions/GlobalExceptionHandler.java": "39c010bf0f84709d1e6ce35305feef8e7e62fcca3d7e9489e7708237bd4ab432",
     "srv/src-mm/src/main/java/sam/tech/exceptions/MatchmakingException.java": "3a8a422173b47ca91a77847668ac7dd88a023f8071287e1f61d4d2eaf94863b4",
     "srv/src-mm/src/main/java/sam/tech/exceptions/MultiQueueValidationException.java": "b673051e8eac75e5fbde1b7e074b5f517e295f67366f38d5e31f883ba3d5ee4f",
     "srv/src-mm/src/main/java/sam/tech/exceptions/ResourceNotFoundException.java": "1aae4291a2e2b0e8df183ee4612fbe3d55b532e5f1366ed4344428c6449b2a4e",
@@ -15270,28 +15411,34 @@
     "srv/src-mm/src/main/java/sam/tech/impl/RedisRateLimiter.java": "c8f0cd856d6fb7d76a4e873f38cf36980de4a9944e98148601ab4c48b4c51aa5",
     "srv/src-mm/src/main/java/sam/tech/interfaces/BanOperations.java": "6511b65d14212d6504684154a711ae305f1d288b3bd4fc54c06492c64a07bedb",
     "srv/src-mm/src/main/java/sam/tech/interfaces/CacheService.java": "366466781e80bfac8a9b5a5f5e694ff7ad99b2445e6d7001f3227e19e38aa751",
-    "srv/src-mm/src/main/java/sam/tech/interfaces/GameModeOperations.java": "db31639a48295a79359f0e120fca5a32764dc0d5d56a7d6d034a3ec41d2f524b",
+    "srv/src-mm/src/main/java/sam/tech/interfaces/GameModeOperations.java": "d8b606eb38309504e908e761cd034f33b38bf8d2793154453eba57ef7ccf289c",
     "srv/src-mm/src/main/java/sam/tech/interfaces/RobloxApiKeyOperations.java": "bcc80c31b491ed03a3b06f1a495e83e9414acc959ae0eab996be76d419c46cf9",
     "srv/src-mm/src/main/java/sam/tech/logging/OpenObserveLogbackAppender.java": "24230458bb029b40ffaa387164856aa998adf19b076ff6cc1c9f6e8b6ee74716",
     "srv/src-mm/src/main/java/sam/tech/repository/BannedPlayerRepository.java": "78059be7f8e7176bee041b1f93874f36b8cef51ba6b53dca0592d36c16b576f2",
-    "srv/src-mm/src/main/java/sam/tech/repository/GameModeRepository.java": "49311d8ab8b3fad4a1859e707be0ffe806b3b23dd4f67c6f5953059216be1af8",
+    "srv/src-mm/src/main/java/sam/tech/repository/GameModeRepository.java": "92388677aa3363bb60a58ae4e043f0a90f7de2955d5da4a30e1ec506d3a9b2b2",
     "srv/src-mm/src/main/java/sam/tech/repository/UniverseApiKeysRepository.java": "f9c20fd46253c8da403562efb93e63b64b18bdc8eb6e32060e9cfe37f18fd32b",
     "srv/src-mm/src/main/java/sam/tech/responses/ErrorResponse.java": "11d30eb1599d19948f9fc2fc5fe1d7b63147ba201dee498effa8a966f1541663",
     "srv/src-mm/src/main/java/sam/tech/services/BanService.java": "2a6e73fa28f969ef09be129b88d76380030381bda46e0cf55e5dd1bc5254a88b",
-    "srv/src-mm/src/main/java/sam/tech/services/GameModeService.java": "ac11a199638efcb18fbad120014c409d680a445118cc155c4281fba1cd916cee",
+    "srv/src-mm/src/main/java/sam/tech/services/CriteriaSchemaValidator.java": "5b982bdd97131100ce814d381a1943bded40961fb763b82837671921bbc027e2",
+    "srv/src-mm/src/main/java/sam/tech/services/CriteriaSimulationService.java": "d3a0e5c12aaf51cb4a9982131436c4e5320b0bb63d9857ffa38b61e4ad448e70",
+    "srv/src-mm/src/main/java/sam/tech/services/FieldReferenceMutation.java": "8ca7e87a4aaf0484b78482d953ed838d873bab2b37aedb7c11d9dca7cdf0a752",
+    "srv/src-mm/src/main/java/sam/tech/services/GameModeFieldReferences.java": "465d347ef3a9cd7585a78abf2b49a0c497a1079925ea0fa15692a0882267cdd7",
+    "srv/src-mm/src/main/java/sam/tech/services/GameModeReferenceBackfill.java": "8f91e0947acf3d87df81ae0baa01cef8c92ec86e8c64ef6751c8eae176a2ef84",
+    "srv/src-mm/src/main/java/sam/tech/services/GameModeReferenceReconciler.java": "da10f352cb605196326e73456fb8901a170f68e5f7f7fb0b4b136a40b2cf14aa",
+    "srv/src-mm/src/main/java/sam/tech/services/GameModeService.java": "f00133f0c986c441761e61b7e7ed4dbec15f9c0e196761d5873751cec489a6a2",
     "srv/src-mm/src/main/java/sam/tech/services/MatchmakingCriteriaValidator.java": "160c27507b25ec3421c308d6d5e3a6386871c25d26004ad8828006723ae8236c",
-    "srv/src-mm/src/main/java/sam/tech/services/MatchmakingService.java": "03fb3e81fc8c6c74a7d1df6c481a76fa2b9b205227b19c55b0a9abcda874b38b",
+    "srv/src-mm/src/main/java/sam/tech/services/MatchmakingService.java": "e2df46f4b1fd93d5e2ecfa31722e5776e15062969ba659eb1e56c35b641d6c27",
     "srv/src-mm/src/main/java/sam/tech/services/RobloxApiKeyService.java": "758028cf39f98a5d64a559506f843eb9fb76aad88d761e514b3e1eed40c44c7c",
     "srv/src-mm/src/main/java/sam/tech/services/RobloxMessageDispatcher.java": "015f482df58b7d529daf3ed23b506ffee50ba0d50323cea1ad626e789a7e5eea",
     "srv/src-mm/src/main/java/sam/tech/services/RobloxScriptExecutionService.java": "a47d08010ecb8947cf2017c57a55ba1d804b3d60b42d080c7c626f6d82f01fd7",
     "srv/src-mm/src/main/java/sam/tech/services/UniverseAuthorizationService.java": "b3ad4914b3e09bf725808908407510541ea6ff51fb2016c7b583623d03cf1b90",
     "srv/src-mm/src/main/java/sam/tech/services/UniverseInfoService.java": "6baa99f13b6c27bfccf69bdbafc93c69390531809eb2d36eb9b31dfec3b8f66b",
-    "srv/src-roblox-code-service/API_CONTRACT.md": "093251a3f70db81fec256eaf9c80180da6d7a2d9d523b43ccc60cdfc8724d6c7",
-    "srv/src-roblox-code-service/README.md": "078c0a6a7ce690ac960b1a25ed7f48039e2e0ce38a6dfbbcf34a37aa98eabde0",
+    "srv/src-roblox-code-service/API_CONTRACT.md": "ff6ff9e9c01ba3caca3380d5f695ef569f029e9fbf462537f636f509668bf724",
+    "srv/src-roblox-code-service/README.md": "0fea5a143c90d7e8c24edc3953848633151e9b9fc037fde52be2fa8b0136e9b3",
     "srv/src-roblox-code-service/postman/roblox-code-service.postman_collection.json": "2d43f8766c534c065801a79e24ab9d11e00fd6d8ef9c6a0a390cd9ec987d619e",
     "srv/src-roblox-code-service/src/main/java/sam/tech/Main.java": "697545b2430a22c8429f51d044e41aa9adddbf534570590dd6507b1b502f4ead",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/client/CachedTokenClient.java": "af9b1bafb0e60e12436b07ce551107a916df6c727b4522c0bfce2a37af98a299",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/client/FieldsClient.java": "30d0b454a3e56cb60449a76a44b793e0338988236df88bdc4988940c77be6bfa",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/client/CachedTokenClient.java": "6537408f811e175892a471142e36a2201b23f4c1d6de5ea9190ae8f357d6587f",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/client/FieldsClient.java": "63f54a46f894d66f98655bfa3ef2eb6a2b877a617b2951930f3989594e3f7f2e",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/ApiDatabaseInitializationConfiguration.java": "462279bc75cf711f7fef5e513dc059ce60d7892a31b26920b38cef27fc62db52",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/FieldsProperties.java": "aec50fdc50124f34dc808998a696c8fa6b89a508275b8b704231688059ab5c55",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/GlobalExceptionHandler.java": "4ca21b14b7ac3db1bdb6fb59daa0b71964ef18a276b25f533c252f109149d810",
@@ -15304,10 +15451,13 @@
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/WebClientConfig.java": "4f10d6198bdd6952a519145a3b91032b501868d821bda4af9689a77a68bfbeb6",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/WorkerConfiguration.java": "e9fcece4095b2c09a18473529b751a669231a7eac90caf989b3280dc28dd78a8",
     "srv/src-roblox-code-service/src/main/java/sam/tech/controller/AuthContext.java": "556d5e0211547c0d5c55f5ad2d2ea30c56ad84c064d88065d196639165ab419c",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/controller/CodeController.java": "97ffcf907af70d67a119ce911558c232fa9bfb4a63dbc45a1e7ab350c2a47819",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/controller/BulkCodeController.java": "ae0a4794ccbd0417bb4e2ce91a4ad97d6acc22af704deb71428460f15b432027",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/controller/CodeController.java": "7e8cfa5d80b7352d30c212d65920a1cb5d6f31beb1a01fce760e5850dc0c14ad",
     "srv/src-roblox-code-service/src/main/java/sam/tech/controller/HealthController.java": "e19c5e131d58c605513262458c0f55ddf6dc7fc57a542e7e6fd87ca34c39a2c0",
     "srv/src-roblox-code-service/src/main/java/sam/tech/controller/ProbeController.java": "7f41f2a4ccc1ca0b39393506bb0273c623d2125f1bc633a1412be48f2af3d172",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/dto/CodeDto.java": "d7e7802dca55c36b38b40ef3ab5ddb81c7c2f6a336939e65a7edd96a75c1cb0b",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/dto/BulkCreateCodesRequest.java": "8f5ad57f993e868a01c45b30c05596f53ef9736d8fca695882d852cd4ad278fe",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/dto/BulkCreateCodesResponse.java": "6405c1d231d2cd7796f4c40e00cfea9fb582261240168fb5517913e508cfd7a4",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/dto/CodeDto.java": "e5ee4bcb38cef88b8969ed63df99602b1809a506a72441504f0d309ad7fd8588",
     "srv/src-roblox-code-service/src/main/java/sam/tech/dto/CodeRedemptionDto.java": "f5a4c8bea5781f6783eb59e39b7a3a62e9c91a0e2d2906dd47c302e8cec41470",
     "srv/src-roblox-code-service/src/main/java/sam/tech/dto/CreateCodeRequest.java": "b6ce642d24670c8078c2f69cd6ff7a42fd93628f18de96c3a203f52c47b512e9",
     "srv/src-roblox-code-service/src/main/java/sam/tech/dto/FieldOperation.java": "90d54486138c1a5759edd16e8abc0016980444734cf3d201c3e73ee485bd575e",
@@ -15320,7 +15470,7 @@
     "srv/src-roblox-code-service/src/main/java/sam/tech/dto/UpdateCodeRequest.java": "51854b278af03d46f642be050800c6bf7571dd5983d30e0f7d45f084c2a225b7",
     "srv/src-roblox-code-service/src/main/java/sam/tech/entity/CodeGrantIntent.java": "2cc7088bf0251720d09d2159fcb6943158dcd51874f5778859082ba0eb7e5209",
     "srv/src-roblox-code-service/src/main/java/sam/tech/entity/CodeRedemption.java": "080d11c184cfefc84a7a4a7ab07b30b47ab9e5c0a43d93566eb7de627926d684",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/entity/RedeemableCode.java": "4d6f557f901e1f287ef3055eb3b0e4028ae8bf7756a1b7389e7a0a5c9afd1cfa",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/entity/RedeemableCode.java": "6e751bc99f94b5f8363d285e488b0b7d56a4d81856743e76318ada6effb613bc",
     "srv/src-roblox-code-service/src/main/java/sam/tech/exception/CodeNotFoundException.java": "a67992d5945534a794be2992858aaac21bea54d8381b71f5e72054aba41d475e",
     "srv/src-roblox-code-service/src/main/java/sam/tech/exception/CodeRedemptionException.java": "94cb2bb4f03504bef1c55b741605337b2f2af6d9f196ddd91dba1168ecb17a99",
     "srv/src-roblox-code-service/src/main/java/sam/tech/exception/FieldsException.java": "cb88a36c20b86f464b15260bd94639dac9757699f01901a6781094def3262bfd",
@@ -15332,14 +15482,22 @@
     "srv/src-roblox-code-service/src/main/java/sam/tech/filter/RequestCorrelationFilter.java": "27447813aa64b118ebad928863addd18a86494049dfcb1f2425635e3d5b3a399",
     "srv/src-roblox-code-service/src/main/java/sam/tech/filter/RequestLoggingFilter.java": "ac345850ffff8e21339b47d6b0c585fbf98c78480b455c3d5d2e9a4568c3a926",
     "srv/src-roblox-code-service/src/main/java/sam/tech/logging/OpenObserveAppender.java": "5bd51e4b71a41c160141d9a2ad682383fa5ad799bbbc61090da85430c8bc26e2",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeBatchRepository.java": "c23dd5a3f81137b294e661542f3bd20c67b3c1b37e150d4186b9274583431801",
     "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeGrantIntentRepository.java": "99592df55e86e97b8093a8b0a013018634e312321e16d5d0b3636ce59f90b362",
     "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeRedemptionRepository.java": "6d0760b39f187bbd8b1d715fd553e8af595e5868452a5c86fdd0622ce3bf2493",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/RedeemableCodeRepository.java": "097ca7f2730bae4f25ec33eea9f13a724a53f6894495af2709df4c752ef3c76b",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/RedeemableCodeRepository.java": "6a7e4b5702d7e4450ec2e803929d181bbdb0462227b08264df700a0f88969b0c",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/AwardValidationService.java": "19271fc19e4ea3384e78abd4f2cc707d680166b66fd0ec00e4bc5cc8067c3adb",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeManagementService.java": "1edb9ce3586456781263128e338defb3ebb1331a0ca76fa50fc7cd96737e59b8",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeMapper.java": "edcbe14c1290ccd46f94ef33c1bb1f52287023940eb1c48744453987987c1c45",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/BulkCodeService.java": "d998de12931c40d5be9c83d65799ba04d0feb5b3786befcf9868cd69cfc30c28",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeFieldReferences.java": "790643ad9e168776e8f94894eb650272943a50fb3dab71e5a4d0c23f090f85de",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeManagementService.java": "4b5e06b0b57246a273d1fb01b7289d6aa516f4c1d4d8b16e1198ef2887369f6e",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeMapper.java": "d9d5ada3946f09c09974bc1ceda52c7d9b5d0bea465883e82ca7c34848205f9e",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeRedemptionService.java": "55ad865cc18f13e2b435edd0683535506efcf5ad7cd3a357874693cb9258f530",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeReferenceBackfill.java": "a7695d1ac99cc39c623a6b9ca436a46e93e5a806a3e98cd46989c16c1311ee6e",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeReferenceReconciler.java": "a93464e89d9292f7c763da323d5828200a3ae18a4f2995cd991aa0125b53e1f2",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/FieldReferenceMutation.java": "dde22caf381e42d2bb896c98ed7c4f86088751b137e39aad336daf6fe2b23898",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "d80fcfed1bb43ee0789a5b62aac0f5fec19b19160e84dce35892a8fa769dccc9",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/util/BulkCodeGenerator.java": "38ba1a346c66f1de131e78cb59f9372bcb89e60e2549022113e0f26107648518",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/util/CodeBatchCsv.java": "140ae577e27c93988946f82aaad4e628ca90e9905e92ff587bc7af307c761083",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/CodeNormalizer.java": "63edab89840a7b3679c40e0ab283a3c341a3f7397a4a7e97449df193dc165bc3",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/R2dbcJsonUtil.java": "18bcc00b91c67473e94c8b34f82c2dda7a1a83a28597e2c0157194960ce198ed",
@@ -15414,10 +15572,10 @@
     "svc/config-service/src/main/java/sam/tech/service/SnapshotCache.java": "6c7559537cac973cf808b892c76afd41f6109a387beaa7a2b05cdd9d12ffd082",
     "svc/config-service/src/main/java/sam/tech/service/SnapshotService.java": "4d1fb621fdbbc77c384edb6e89e60fe3cdff9935cfcd650086e070b0b6867c50",
     "svc/config-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
-    "svc/fields-service/API_CONTRACT.md": "94783cf274ec0db385ca331ab024b5f115a54df06ffb148cf6d81b20e855ef13",
-    "svc/fields-service/README.md": "8a54092a626b516fbfffaed098991d7113b6858d08c01899d7ff601dabd3b256",
+    "svc/fields-service/API_CONTRACT.md": "550eb66f21b437b529ef9d2b1dc3058989c8464472819dcc3ce2d51b8ac9d9a5",
+    "svc/fields-service/README.md": "5eda87b04444ce6a73f26021e02d2b4a323f5b5cc38cdec7664a5b8ad4cd51cf",
     "svc/fields-service/src/main/java/sam/tech/Main.java": "039a14098a9d6d1a64322d60835d63d6b868f7420be11dcda24cda55b33cb5cf",
-    "svc/fields-service/src/main/java/sam/tech/client/CachedTokenClient.java": "27d64db0c3e5574827329f2b386b7c7ff7ed461848dbb88fd1588b0d50d37304",
+    "svc/fields-service/src/main/java/sam/tech/client/CachedTokenClient.java": "6537408f811e175892a471142e36a2201b23f4c1d6de5ea9190ae8f357d6587f",
     "svc/fields-service/src/main/java/sam/tech/config/ApiDatabaseInitializationConfiguration.java": "462279bc75cf711f7fef5e513dc059ce60d7892a31b26920b38cef27fc62db52",
     "svc/fields-service/src/main/java/sam/tech/config/GlobalExceptionHandler.java": "b9b5478ee120670fba428e229bc1d97e3d4b6dc7e568bb9052613d7eee4ea752",
     "svc/fields-service/src/main/java/sam/tech/config/MetricsConfig.java": "466fb192dd52abdda0c61bcf3f63bf19318862986bf586f27d1bcf301c9d6b2b",
@@ -15430,10 +15588,11 @@
     "svc/fields-service/src/main/java/sam/tech/config/WebClientConfig.java": "4f10d6198bdd6952a519145a3b91032b501868d821bda4af9689a77a68bfbeb6",
     "svc/fields-service/src/main/java/sam/tech/config/WorkerConfiguration.java": "e9fcece4095b2c09a18473529b751a669231a7eac90caf989b3280dc28dd78a8",
     "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java": "5b334b92baa809ebace4ee57b980cf8da006893d91284d5eb64f27fc8cf6ad58",
-    "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "bbda786d6f9c299cb253b5e7417aaab53e4812a64cfd1402ffd266973b3e8c30",
+    "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "f3d16a559b5a57732f4623c5d43766e7a617fdd11e03b5bd6af3fb784c30927c",
     "svc/fields-service/src/main/java/sam/tech/controller/HealthController.java": "fe9c6fa979c4a46bd1c0fa8807b2d90a00783d0ef95bdd7dbdf9e72338f2d81e",
-    "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java": "5bbabb195ea580f5ef7177c74c4de21dfe979fbebdcb765098cc1b499c513f56",
+    "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java": "30ca7aaaaa6e4a26e56a31c84dd5d41d5343e22d5daa0e1ea576efb047ffc97f",
     "svc/fields-service/src/main/java/sam/tech/controller/OutboxController.java": "7a049b0486141bc6036b410f1709c1aed53cbdc0d37f1bc301054ec99a009f49",
+    "svc/fields-service/src/main/java/sam/tech/controller/PlayerSampleController.java": "38f3338ba54bbb2c4202e47742e7eb5b69fa8219b1f81279985aaf4b0033c87c",
     "svc/fields-service/src/main/java/sam/tech/controller/ProbeController.java": "7f41f2a4ccc1ca0b39393506bb0273c623d2125f1bc633a1412be48f2af3d172",
     "svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java": "1e8e79c8f438aacaacec912769ed6543b9aa2d1417f3a47c1c491ffc822c3976",
     "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java": "9eac77685731a2579c6577189c02bcb65b3ad56e71155fa6651f257e5ba36ef1",
@@ -15443,15 +15602,19 @@
     "svc/fields-service/src/main/java/sam/tech/fields/Cursors.java": "18340d100dbca0589f0095a3a05363c3a7f145838bd489e06c61de91b2bca4d8",
     "svc/fields-service/src/main/java/sam/tech/fields/DefinitionScanner.java": "f46b4706dd079a69bd02bef13c5d2bc132e8167f11e7b1cec781801e55a1fb53",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsException.java": "5ef6672bc29020fd603d611ce8a29cebaa2026719941fedb6fb5a381a56c7eb0",
-    "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "d1013a70f013d7bc1ec67f385f70e3481927c5faeabf6c5babe6ee020a8ba913",
-    "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "bd032b42a32130e75509b85e716985a870a6196bf85bab6de2d4d9c502a27618",
+    "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "7dadedc254247959bc8e20b998cfb6a2535f81af49a4b9fcea8400a35ece0a6b",
+    "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "ed18ad1b8d93d213a3406ba4eb8cbd89a1b57a79df574cd7042a0be1b1ca6cd9",
     "svc/fields-service/src/main/java/sam/tech/fields/JsonSupport.java": "576a7d100a81f2426e98cf8c89b87f0f591efc0175b10056106c2babb8b790ac",
     "svc/fields-service/src/main/java/sam/tech/fields/LuauGenerator.java": "1cb5e66698afafcb2037f8caa90c5fb4acedd40861a75a00d9800a4762b11b5f",
-    "svc/fields-service/src/main/java/sam/tech/fields/Models.java": "4a660c99e75b1e83816f86d3d4ef909b4d241c765fef20f00de448b80e3398ad",
+    "svc/fields-service/src/main/java/sam/tech/fields/Models.java": "08b2971731098ed44c4343deec5961fcb8b38de507a53c708693d7d3ceea821d",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleRepository.java": "118bfbd1aeec8fd47ea2a7a7d26ccb034911d1b5213f10b0be830965983e8e0b",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java": "e6e4913ab7ea2c9d405bc16600a6561d09ce2892214ca4c0f38a3ff72fcd47d3",
     "svc/fields-service/src/main/java/sam/tech/fields/PostgresCommerceStore.java": "59c256d80cf654ef3500c8bb875e12cd45291709737d4e26906e44674a0613e2",
-    "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java": "6da95b7442f9684e973e73d0fff5f7457bc63c2e13940a87ec7ad121ea62c960",
+    "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java": "372752b6fe70ca0ba0eac472f670e175bb118a8450bfbcab4a30bc3b92b6e303",
     "svc/fields-service/src/main/java/sam/tech/fields/ProductValidator.java": "0dcb57fca10398aee3d64096db700d475fa678f2c8e567ad768a51cae835c366",
     "svc/fields-service/src/main/java/sam/tech/fields/ReconcileWorker.java": "0e84c762bd9c5359e8906cd66c33cfe4667091015e4aa08c77c8c4439b38719a",
+    "svc/fields-service/src/main/java/sam/tech/fields/ReferenceGuard.java": "f99568ce94c3f5569bea8906027b85966b7fdf429191e78e7d46b9fecbbd8061",
+    "svc/fields-service/src/main/java/sam/tech/fields/ReferenceStringDeserializer.java": "922dd25792e47380c2399a5d168c3009693f3e509b73c1d35a414df69ab81d4e",
     "svc/fields-service/src/main/java/sam/tech/fields/ReversalEngine.java": "13e4aecae8bbcf878f3140392b7a8583b1bba5a9607a0bee0d1214b0cc282feb",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java": "1dd6d3a7d834de96c1a5e7146b99f5187ad2137c169fac54e77c46e057d826b1",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyRepository.java": "1290d1ef3d3babbf96cf3c4443037b5d088ccfae60ba10232011cda545f866fe",
@@ -15480,7 +15643,7 @@
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobRepository.java": "9ed6b2c841c5b7fa82eb13998c80e3557b4dac7866e9eec0159f3956ecf92711",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobService.java": "dce7c71a65e1e530ecb75e5e6c4a50be4b6740c663bc8f60696203457cd9e602",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobWorker.java": "e8bff23b31ccb4e1bbe52593f1e20ef327fb0e113055fc170fabc4eefd909d9e",
-    "svc/fields-service/src/main/java/sam/tech/fields/jobs/MigrationJobs.java": "cd8c93bea87ce15efbdee082abe91a2927bca111334ed1bd2b1e7751ac020348",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/MigrationJobs.java": "e1750b13b17730a30b5cc3a2a439b1da11c75a8d654a97a04024c0b174480325",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/OperationalSignals.java": "641cce3e781ab41cf5a7032bb03cb43cb98308b169aae088835cd1b492a69243",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/ScheduleJobs.java": "8f282fbc5eae9305733d2e9495104324f85b7d39494d611fa5d1fa995742ac6b",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java": "5b74f713a8a9f019ed420f33fded79dab8058d45dd62f108263391fcd8396597",
@@ -17159,6 +17322,103 @@
       }
     },
     "codes": {
+      "BulkCode": {
+        "fields": {
+          "code": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "id": {
+            "java": "Long",
+            "notBlank": false,
+            "required": true
+          }
+        }
+      },
+      "BulkCreateCodesRequest": {
+        "fields": {
+          "active": {
+            "java": "Boolean",
+            "notBlank": false,
+            "required": false
+          },
+          "award": {
+            "java": "List<Fields.PlayerOperation>",
+            "notBlank": false,
+            "required": true
+          },
+          "count": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "description": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "expiresAt": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "length": {
+            "java": "Integer",
+            "notBlank": false,
+            "required": false
+          },
+          "maxGlobalRedemptions": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "metadata": {
+            "java": "Map<String, Object>",
+            "notBlank": false,
+            "required": false
+          },
+          "name": {
+            "java": "String",
+            "notBlank": true,
+            "required": true
+          },
+          "prefix": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "startsAt": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": true
+          }
+        }
+      },
+      "BulkCreateCodesResponse": {
+        "fields": {
+          "batchId": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "codes": {
+            "java": "List<BulkCode>",
+            "notBlank": false,
+            "required": true
+          },
+          "count": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          }
+        }
+      },
       "CodeDto": {
         "fields": {
           "active": {
@@ -17170,6 +17430,12 @@
             "java": "List<Fields.PlayerOperation>",
             "notBlank": false,
             "required": true
+          },
+          "batchId": {
+            "java": "String",
+            "notBlank": false,
+            "nullable": true,
+            "required": false
           },
           "code": {
             "java": "String",
@@ -18739,6 +19005,13 @@
         ],
         "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
       },
+      "ConsumerType": {
+        "enum": [
+          "GAMEMODE",
+          "CODE"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
       "Counts": {
         "fields": {
           "definitions": {
@@ -20202,6 +20475,21 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java"
       },
+      "Player": {
+        "fields": {
+          "userId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "values": {
+            "java": "Map<String,JsonNode>",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java"
+      },
       "PlayerSample": {
         "fields": {
           "userId": {
@@ -20607,39 +20895,49 @@
       },
       "Reference": {
         "fields": {
-          "aggregate": {
+          "consumerId": {
             "java": "String",
             "notBlank": false,
             "required": false
           },
-          "definition": {
-            "java": "Definition",
+          "consumerType": {
+            "java": "ConsumerType",
             "notBlank": false,
             "required": false
           },
-          "member": {
+          "label": {
             "java": "String",
-            "notBlank": false,
-            "required": false
-          },
-          "members": {
-            "java": "List<String>",
-            "notBlank": false,
-            "required": false
-          },
-          "type": {
-            "java": "Type",
             "notBlank": false,
             "required": false
           }
         },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java"
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
       "ReferenceConsumerType": {
         "enum": [
           "GAMEMODE",
           "CODE"
         ]
+      },
+      "ReferenceInput": {
+        "fields": {
+          "fields": {
+            "java": "List< String>",
+            "notBlank": false,
+            "required": true
+          },
+          "label": {
+            "java": "String",
+            "notBlank": true,
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
       "RefundInput": {
         "fields": {
@@ -20887,6 +21185,26 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
+      "Sample": {
+        "fields": {
+          "players": {
+            "java": "List<Player>",
+            "notBlank": false,
+            "required": false
+          },
+          "sampled": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "universeId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java"
       },
       "Saved": {
         "fields": {

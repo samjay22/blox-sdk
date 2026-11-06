@@ -1554,6 +1554,112 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		} :: Core.Schema,
 	},
 	["codes"] = {
+		["BulkCode"] = {
+			["fields"] = {
+				["code"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BulkCreateCodesRequest"] = {
+			["fields"] = {
+				["active"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["award"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["count"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["description"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["expiresAt"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["length"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["maxGlobalRedemptions"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["metadata"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = true,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["prefix"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["startsAt"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BulkCreateCodesResponse"] = {
+			["fields"] = {
+				["batchId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["codes"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "BulkCode" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["count"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["CodeDto"] = {
 			["fields"] = {
 				["active"] = {
@@ -1567,6 +1673,14 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
 						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["batchId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
 					} :: Core.Schema,
 				},
 				["code"] = {
@@ -8228,12 +8342,18 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "TokenValidateResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
+	["codes.bulkCreateCodes"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "BulkCreateCodesRequest" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "BulkCreateCodesResponse" } :: Core.Schema,
+		["service"] = "codes",
+	},
 	["codes.createCode"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "CreateCodeRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "CodeDto" } :: Core.Schema,
 		["service"] = "codes",
 	},
 	["codes.deleteCode"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "codes" },
+	["codes.exportBatch"] = { ["response"] = { ["kind"] = "string" } :: Core.Schema, ["service"] = "codes" },
 	["codes.getCode"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "CodeDto" } :: Core.Schema,
 		["service"] = "codes",

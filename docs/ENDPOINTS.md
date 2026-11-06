@@ -1,6 +1,6 @@
 # Endpoint reference
 
-283 endpoints. `routes.json` coverage is checked independently.
+285 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -99,6 +99,8 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/health` | `auth.healthProxy` | public / authenticated | 200 | yes | no |
 | GET | `/api/codes` | `codes.searchCodes` | READ | 200 | yes | yes |
 | POST | `/api/codes` | `codes.createCode` | ADMIN | 201 | no | no |
+| GET | `/api/codes/batches/{batchId}/export` | `codes.exportBatch` | ADMIN | 200 | yes | no |
+| POST | `/api/codes/bulk` | `codes.bulkCreateCodes` | ADMIN | 201 | keyed apply / dry-run | no |
 | POST | `/api/codes/redeem` | `codes.redeem` | READ_WRITE | 200 | no | no |
 | DELETE | `/api/codes/{id}` | `codes.deleteCode` | ADMIN | 204 | no | no |
 | GET | `/api/codes/{id}` | `codes.getCode` | READ | 200 | yes | yes |

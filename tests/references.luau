@@ -208,7 +208,7 @@ return function(test: (string, () -> ()) -> ())
 						check(
 							request.Url
 								== BASE
-									.. "/definitions/Rating?purge=true&reason=Reviewed%20dependency&force=true"
+									.. "/definitions/Rating?force=true&purge=true&reason=Reviewed%20dependency"
 						)
 					else
 						check(

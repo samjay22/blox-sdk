@@ -549,7 +549,7 @@ export type PreviewBoardCall = { path: { universeId: (string | number)? }?, body
 export type PreviewBoardResultValue = Preview
 export type PurgeCall = {
 	path: { universeId: (string | number)?, id: string },
-	query: { purge: boolean?, reason: string, force: boolean? },
+	query: { force: boolean?, purge: boolean?, reason: string },
 }
 export type PurgeResultValue = Counts
 export type DefinitionCall = { path: { universeId: (string | number)?, id: string } }
@@ -560,14 +560,22 @@ export type UpdateCall = {
 	body: DefinitionInput,
 }
 export type UpdateResultValue = Definition
-export type ArchiveCall = { path: { universeId: (string | number)?, id: string }, body: Action }
+export type ArchiveCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { force: boolean? }?,
+	body: Action,
+}
 export type ArchiveResultValue = Definition
 export type HistoryCall = {
 	path: { universeId: (string | number)?, id: string },
 	query: { cursor: string?, limit: number? }?,
 }
 export type HistoryResultValue = CursorPage<DefinitionChange>
-export type MigrateCall = { path: { universeId: (string | number)?, id: string }, body: MigrationInput }
+export type MigrateCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { force: boolean? }?,
+	body: MigrationInput,
+}
 export type MigrateResultValue = JobReceipt
 export type MigrationPreviewCall = {
 	path: { universeId: (string | number)?, id: string },
@@ -626,6 +634,7 @@ export type CancelMigrationCall = { path: { universeId: (string | number)?, id: 
 export type CancelMigrationResultValue = JobReceipt
 export type RollbackMigrationCall = {
 	path: { universeId: (string | number)?, id: string },
+	query: { force: boolean? }?,
 	body: KeyedJobActionInput,
 }
 export type RollbackMigrationResultValue = JobReceipt

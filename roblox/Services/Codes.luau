@@ -40,6 +40,26 @@ function Service.createCode(
 	end
 	return self._invoke(Endpoints["codes.createCode"], { body = prepared.value }, opts, self._universe)
 end
+--- GET /code-service/api/codes/batches/{batchId}/export via gateway; access: ADMIN.
+function Service.exportBatch(
+	self: Service,
+	req: Types.ExportBatchCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ExportBatchResultValue>
+	return self._invoke(Endpoints["codes.exportBatch"], req, opts, self._universe)
+end
+--- POST /code-service/api/codes/bulk via gateway; access: ADMIN.
+function Service.bulkCreateCodes(
+	self: Service,
+	req: Types.BulkCreateCodesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.BulkCreateCodesResultValue>
+	local prepared = Award.bulk(assert(self._fields, "Fields helpers unavailable"), req, self._universe)
+	if not prepared.ok then
+		return prepared
+	end
+	return self._invoke(Endpoints["codes.bulkCreateCodes"], prepared.value, opts, self._universe)
+end
 --- POST /code-service/api/codes/redeem via gateway; access: READ_WRITE.
 function Service.redeem(
 	self: Service,

@@ -17,9 +17,26 @@ export type Page<T> = {
 	sort: Core.Json?,
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
+export type BulkCode = { code: string, id: number }
+export type BulkCreateCodesRequest = {
+	active: boolean?,
+	award: { FieldTypes.PlayerOperation },
+	count: number,
+	description: string?,
+	expiresAt: string?,
+	length: number?,
+	maxGlobalRedemptions: number?,
+	metadata: { [string]: Core.Json }?,
+	name: string,
+	prefix: string?,
+	startsAt: string?,
+	universeId: number,
+}
+export type BulkCreateCodesResponse = { batchId: string, codes: { BulkCode }, count: number }
 export type CodeDto = {
 	active: boolean,
 	award: { FieldTypes.PlayerOperation },
+	batchId: (string | Core.Null)?,
 	code: string,
 	createdAt: string,
 	description: string?,
@@ -120,11 +137,21 @@ export type UpdateCodeRequest = {
 	startsAt: string?,
 }
 export type SearchCodesCall = {
-	query: { active: boolean?, page: number?, size: number?, universeId: (string | number)? }?,
+	query: {
+		active: boolean?,
+		batchId: string?,
+		page: number?,
+		size: number?,
+		universeId: (string | number)?,
+	}?,
 }
 export type SearchCodesResultValue = Page<CodeDto>
 export type CreateCodeCall = CreateCodeRequest
 export type CreateCodeResultValue = CodeDto
+export type ExportBatchCall = { path: { batchId: string } }
+export type ExportBatchResultValue = string
+export type BulkCreateCodesCall = { idempotencyKey: string?, body: BulkCreateCodesRequest }
+export type BulkCreateCodesResultValue = BulkCreateCodesResponse
 export type RedeemCall = RedeemCodeRequest
 export type RedeemResultValue = RedeemCodeResponse
 export type DeleteCodeCall = { path: { id: string | number } }

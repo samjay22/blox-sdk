@@ -14,26 +14,23 @@ export type Builder = OpBuilder.Builder
 function Award.new(state: Fields.State, universeId: string | number): Builder
 	return Fields.operations(state, universeId)
 end
---- Validate against the same universe schema before any CodeService create request.
-function Award.create(
-	state: Fields.State,
-	req: Types.CreateCodeRequest,
-	universeId: (string | number)?
-): Core.Result<Types.CreateCodeRequest>
+--- Snapshot and canonicalize a single award, independent of the number of generated codes.
+local function prepare<T>(state: Fields.State, req: T, universeId: (string | number)?): Core.Result<T>
 	if state.closed then
 		return System.failure("client_closed")
 	end
 	if type(req) ~= "table" then
 		return System.failure("invalid_request")
 	end
-	if req.maxRedemptionsPerUser ~= nil and req.maxRedemptionsPerUser ~= 1 then
+	local body: any = req
+	if body.maxRedemptionsPerUser ~= nil and body.maxRedemptionsPerUser ~= 1 then
 		return System.failure("invalid_request")
 	end
-	local scope = req.universeId or universeId
+	local scope = body.universeId or universeId
 	if not Universe.valid(scope) then
 		return System.failure("invalid_request")
 	end
-	local prepared = Operations.prepare(Fields.schema(state, scope :: string | number), req.award)
+	local prepared = Operations.prepare(Fields.schema(state, scope :: string | number), body.award)
 	if not prepared.ok then
 		return prepared
 	end
@@ -42,6 +39,37 @@ function Award.create(
 		return System.failure("invalid_request")
 	end
 	result.award = prepared.value
+	return { ok = true, value = result }
+end
+--- Validate against the same universe schema before any CodeService create request.
+function Award.create(
+	state: Fields.State,
+	req: Types.CreateCodeRequest,
+	universeId: (string | number)?
+): Core.Result<Types.CreateCodeRequest>
+	return prepare(state, req, universeId)
+end
+--- Preflight one award for the whole batch and preserve the optional caller replay key.
+function Award.bulk(
+	state: Fields.State,
+	req: Types.BulkCreateCodesCall,
+	universeId: (string | number)?
+): Core.Result<Types.BulkCreateCodesCall>
+	if state.closed then
+		return System.failure("client_closed")
+	end
+	if type(req) ~= "table" or type(req.body) ~= "table" then
+		return System.failure("invalid_request")
+	end
+	local prepared = prepare(state, req.body, universeId)
+	if not prepared.ok then
+		return prepared
+	end
+	local copied, result = pcall(Copy.copy, req)
+	if not copied then
+		return System.failure("invalid_request")
+	end
+	result.body = prepared.value
 	return { ok = true, value = result }
 end
 --- Validate replacement awards for scoped updates; the backend revalidates unchanged awards too.
