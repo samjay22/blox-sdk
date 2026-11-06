@@ -262,6 +262,11 @@
   {
     "svc": "auth",
     "method": "POST",
+    "path": "/api/auth/orgs/{org}/service-accounts/{id}/rotate"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
     "path": "/api/auth/orgs/{org}/transfer-ownership"
   },
   {
@@ -348,11 +353,6 @@
     "svc": "auth",
     "method": "PUT",
     "path": "/api/auth/service-accounts/{id}/permissions"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/service-accounts/{id}/rotate"
   },
   {
     "svc": "auth",

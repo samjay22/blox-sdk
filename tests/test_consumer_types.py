@@ -1,6 +1,7 @@
 """Independent Fields consumer contract and negative static typing checks, entirely offline."""
 from __future__ import annotations
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -62,7 +63,8 @@ return function(client: SDK.Client, response: Fields.Preview)
 
     def test_postman_award_grammar(self) -> None:
         """Every backend Postman award uses the exact op discriminator and no subject envelope."""
-        collection = json.loads((ROOT.parent/'srv/src-roblox-code-service/postman/roblox-code-service.postman_collection.json').read_text())
+        source_root = Path(os.environ.get('BLOX_SOURCE_ROOT', str(ROOT.parent)))
+        collection = json.loads((source_root/'srv/src-roblox-code-service/postman/roblox-code-service.postman_collection.json').read_text())
         def requests(items: list[dict]) -> list[str]:
             """Collect nested request bodies without substituting credentials or running requests."""
             result = []

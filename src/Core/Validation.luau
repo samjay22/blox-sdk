@@ -210,6 +210,10 @@ function Validation.body(endpoint: string, value: unknown): boolean
 	if not matches(value, schema.body, Schemas.definitions[schema.service], 0, false) then
 		return false
 	end
+	if endpoint == "auth.rotateServiceAccount" then
+		local grace = (value :: any).gracePeriodSeconds
+		return grace == nil or (grace % 1 == 0 and grace >= 0 and grace <= 604800)
+	end
 	local body = value :: any
 	if endpoint == "fields.previewBoard" then
 		return TypeSystem.compile(body.type).ok

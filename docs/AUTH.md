@@ -101,9 +101,46 @@ There is no invented verification/email transport. See [endpoint reference](ENDP
 Management requires an **identity token + org ADMIN/OWNER (or SUPER_ADMIN)**, not a SUPER_ADMIN-only global API.
 Scoped JWTs and machine keys cannot manage keys, even with AuthService ADMIN. Listing requires `orgId`, with an
 optional universe filter. Create requires universeId and permissions; org ownership is derived server-side.
-Metadata includes orgId/createdBy. Name/scope are immutable; rotation returns a replacement key once and invalidates
-the old one. PATCH accepts description/enabled/expiresAt only; explicit null clears description/expiration,
+Metadata includes orgId/createdBy. Name/scope are immutable. PATCH accepts description/enabled/expiresAt only; explicit null clears description/expiration,
 not enabled. DELETE irreversibly revokes. Empty permission arrays remove all grants.
+
+### Expiry and rotation
+
+Create accepts optional `expiresAt`, an ISO UTC instant strictly in the future and at most 365 days out.
+An expired key receives the same HTTP 401 as a revoked key on every authentication path; expiry is not a warning-only setting.
+Create/get/list/rotate metadata includes optional `expiresAt`, `rotatedAt`, `previousKeyExpiresAt`, and required
+`status`: `ACTIVE | EXPIRING_SOON | EXPIRED | REVOKED`. `EXPIRING_SOON` means within seven days of
+`expiresAt` or `previousKeyExpiresAt`; it does not mean the current key is already rejected.
+
+`auth:rotateServiceAccount` uses **POST `/api/auth/orgs/{org}/service-accounts/{id}/rotate`**. The optional
+body accepts `gracePeriodSeconds`, an integer from 0 to 604800 (seven days), default 3600. Rotation reveals
+the new secret once and keeps the old secret valid until `previousKeyExpiresAt` (or the account's earlier
+expiry/revocation). Zero grace invalidates it immediately. Only one previous key is retained: rotating again
+revokes the earlier previous secret immediately, even if its original grace deadline has not passed.
+Rotation does not extend `expiresAt`. Rotation and expiry append organization access-log entries.
+
+```luau
+-- Trusted management tool with an identity session, never a gameplay/scoped client.
+local rotated = admin.auth:rotateServiceAccount({
+    path = { org = selectedOrgId, id = selectedKeyId },
+    body = { gracePeriodSeconds = 300 },
+})
+if not rotated.ok then
+    warn(rotated.error.code) -- Never print the result or secret-bearing response.
+end
+```
+
+**Client helper note:** the management call does not replace credentials in existing gameplay clients,
+Roblox Secrets or your secret store. Securely save the one-time `rotated.value.key`, update server secret
+configuration, and construct replacement clients using the new credential before grace ends. Drain/flush
+old clients and destroy them only after their work finishes. `withUniverse` shares the existing credential;
+it is not a rotation helper. Do not retry a rotation after an uncertain response: it is non-idempotent and
+the lost one-time secret cannot be retrieved with GET/list. An intentional recovery rotation also drops
+the earlier previous key. Caches must honor expiry/rotation within 60 seconds, not a full token-cache TTL.
+The SDK does not validate keys on its own or cache successful authentication grants.
+
+The shared `CONTRACT.md` F6 surface is curated in `tools/auth_contract.py` while independent GAS worktrees
+converge; it supersedes the older non-org rotate route in the local GAS source snapshot. No legacy route alias exists.
 
 Readable format is exactly `bsa_[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]{43}` (56 bytes). For opaque Roblox Secrets,
 `secret:AddPrefix("Bearer ")` is preserved directly in the header; never concatenate or stringify it.

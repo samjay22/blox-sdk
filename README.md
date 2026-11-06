@@ -204,6 +204,9 @@ python3 tools/build-roblox.py
 ./tools/verify
 ```
 
+In a worktree without sibling backend checkouts, set `BLOX_SOURCE_ROOT` to the local directory
+containing `srv/` and `svc/` for source refresh and controller coverage. Deterministic replay needs no backends.
+
 Pinned `aftman.toml` selects already-installed tools; verification never installs dependencies. The complete suite runs under both `luau` and `lune`, and again against the generated Roblox Instance-require package. It checks strict analysis, StyLua, Selene, deterministic generation, route coverage, builds a Rojo model, and checks every module is included in the local Wally archive. CI targets a preprovisioned macOS ARM64 runner.
 
 ### Layout

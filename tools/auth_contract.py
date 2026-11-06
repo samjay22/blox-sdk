@@ -5,6 +5,28 @@ from pathlib import Path
 import import_contract as java
 
 
+def curate_service_keys(endpoints: list[dict], definitions: dict) -> None:
+    """Apply shared F6 wire semantics while backend source worktrees converge."""
+    source = 'CONTRACT.md#f6-service-key-expiry--rotation'
+    definitions['ServiceAccountRotateRequest'] = {
+        'source': source,
+        'fields': {'gracePeriodSeconds': {'java': 'Integer', 'required': False, 'notBlank': False}},
+    }
+    definitions['ServiceAccountStatus'] = {
+        'source': source, 'enum': ['ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'REVOKED'],
+    }
+    fields = definitions['ServiceAccountResponse']['fields']
+    for name in ('rotatedAt', 'previousKeyExpiresAt'):
+        fields[name] = {'java': 'Instant', 'required': False, 'notBlank': False}
+    fields['status'] = {'java': 'ServiceAccountStatus', 'required': True, 'notBlank': False}
+    for endpoint in endpoints:
+        if endpoint['id'] == 'auth.rotateServiceAccount':
+            endpoint.update(path='/api/auth/orgs/{org}/service-accounts/{id}/rotate',
+                            pathParams=[{'java': 'UUID', 'name': name, 'required': True, 'type': 'string'}
+                                        for name in ('org', 'id')],
+                            bodyType='ServiceAccountRotateRequest', bodyRequired=False)
+
+
 def extract(root: Path) -> tuple[list[dict], dict]:
     """Replace the entire Auth surface; never merge retired account-management contracts."""
     from service_contracts import records
@@ -23,7 +45,7 @@ def extract(root: Path) -> tuple[list[dict], dict]:
     }
     optional = {
         'AccountResponse': {'email'}, 'LoginResponse': {'email'},
-        'ServiceAccountResponse': {'description','lastUsedAt','expiresAt','revokedAt','key'},
+        'ServiceAccountResponse': {'description','lastUsedAt','expiresAt','revokedAt','key','rotatedAt','previousKeyExpiresAt'},
     }
     responses = ('Organization Member Scope Universe Access Token Invitation Issued Template AccessEvent '
                  'AccountResponse LoginResponse RefreshResponse PlaceResponse ServiceAccountResponse '
@@ -84,6 +106,7 @@ def extract(root: Path) -> tuple[list[dict], dict]:
             # Omitting a membership selector means org-wide, never the facade's universe.
             if param['name'] == 'universeId': param['scopeDefault'] = False
         if name == 'setRoleTemplate': e['pathParams'][0]['luauType'] = 'TenantRole'
+    curate_service_keys(endpoints, definitions)
     # Keep only reachable DTOs so unused legacy Java artifacts cannot leak into the SDK.
     from gen import schema
     needed: set[str] = set()
