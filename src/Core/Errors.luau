@@ -109,6 +109,7 @@ local codes = table.freeze({
 	snapshot_unavailable = true,
 	incomplete_history = true,
 	field_not_archived = true,
+	field_in_use = true,
 	conflict = true,
 	missing_value = true,
 	default_required = true,

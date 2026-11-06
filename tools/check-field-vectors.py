@@ -33,6 +33,9 @@ def main() -> None:
     jars += [cached('org/springframework','spring-web','6.2.1')]
     jars += [cached('jakarta/validation','jakarta.validation-api','3.0.2')]
     sources=[args.backend/'src/main/java/sam/tech/fields'/f'{name}.java' for name in ('TypeSystem','FieldsException','JsonSupport','Models','integrations/IntegrationBindings')]
+    # F2 Models references this pure Jackson helper; older source trees do not have it.
+    reference_deserializer=args.backend/'src/main/java/sam/tech/fields/ReferenceStringDeserializer.java'
+    if reference_deserializer.is_file(): sources.append(reference_deserializer)
     for source in sources:
         if not source.is_file(): raise FileNotFoundError(source)
     vectors=[ROOT/'tests/vectors'/name for name in ('type-system.json','bindings.json')]

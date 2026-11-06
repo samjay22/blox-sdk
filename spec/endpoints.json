@@ -5826,6 +5826,13 @@
           "name": "reason",
           "required": true,
           "type": "string"
+        },
+        {
+          "default": "false",
+          "java": "boolean",
+          "name": "force",
+          "required": false,
+          "type": "boolean"
         }
       ],
       "requiredRole": null,
@@ -5943,7 +5950,15 @@
           "type": "string"
         }
       ],
-      "queryParams": [],
+      "queryParams": [
+        {
+          "default": "false",
+          "java": "boolean",
+          "name": "force",
+          "required": false,
+          "type": "boolean"
+        }
+      ],
       "requiredRole": null,
       "responseFormat": "json",
       "responseJava": "Definition",
@@ -6199,6 +6214,64 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Shared CONTRACT.md F2; Fields validates consumer IDs (<=200) and field IDs.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.definitionReferences",
+      "idempotent": true,
+      "javaResponse": "Mono<FieldReferences>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "definitionReferences",
+      "path": "/api/fields/universes/{universeId}/definitions/{id}/references",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "FieldReferences",
+      "responseType": "DefinitionReferencesResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
       "statuses": [
         200
       ]
@@ -8793,6 +8866,136 @@
       "source": "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java",
       "statuses": [
         200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Shared CONTRACT.md F2; Fields validates consumer IDs (<=200) and field IDs.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_WRITE')",
+      "id": "fields.deleteReferences",
+      "idempotent": true,
+      "javaResponse": "Mono<Void>",
+      "method": "DELETE",
+      "minimumLevel": "READ_WRITE",
+      "name": "deleteReferences",
+      "path": "/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "luauType": "ReferenceConsumerType",
+          "name": "consumerType",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "String",
+          "name": "consumerId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "DeleteReferencesResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "FieldReferenceInput",
+      "cacheable": false,
+      "errorStatusNote": "Shared CONTRACT.md F2; Fields validates consumer IDs (<=200) and field IDs.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_WRITE')",
+      "id": "fields.putReferences",
+      "idempotent": true,
+      "javaResponse": "Mono<Void>",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "putReferences",
+      "path": "/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "luauType": "ReferenceConsumerType",
+          "name": "consumerType",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "String",
+          "name": "consumerId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "PutReferencesResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        204
       ]
     },
     {
@@ -18556,6 +18759,10 @@
             "java": "String",
             "notBlank": false,
             "required": true
+          },
+          "references": {
+            "java": "List<FieldReference>",
+            "required": false
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
@@ -18901,6 +19108,46 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
+      "FieldReference": {
+        "fields": {
+          "consumerId": {
+            "java": "String",
+            "required": true
+          },
+          "consumerType": {
+            "java": "ReferenceConsumerType",
+            "required": true
+          },
+          "label": {
+            "java": "String",
+            "required": true
+          }
+        }
+      },
+      "FieldReferenceInput": {
+        "fields": {
+          "fields": {
+            "java": "List<String>",
+            "required": true
+          },
+          "label": {
+            "java": "String",
+            "required": true
+          }
+        }
+      },
+      "FieldReferences": {
+        "fields": {
+          "fieldId": {
+            "java": "String",
+            "required": true
+          },
+          "references": {
+            "java": "List<FieldReference>",
+            "required": true
+          }
+        }
       },
       "FieldView": {
         "fields": {
@@ -20241,6 +20488,12 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java"
+      },
+      "ReferenceConsumerType": {
+        "enum": [
+          "GAMEMODE",
+          "CODE"
+        ]
       },
       "RefundInput": {
         "fields": {

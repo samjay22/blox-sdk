@@ -1388,5 +1388,20 @@
     "svc": "matchmaking",
     "method": "GET",
     "path": "/api/matchmaking/criteria-types"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/definitions/{id}/references"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}"
   }
 ]

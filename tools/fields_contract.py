@@ -103,4 +103,5 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         endpoints.append(dict(health,id='fields.'+name,name=name,path='/'+name,
                               responseJava='MetricsResponse' if name=='metrics' else 'Map<String, Object>',
                               responseType=name.capitalize()+'ResultValue'))
-    return curate_jobs(endpoints), definitions
+    from references_contract import curate as curate_references
+    return curate_references(curate_jobs(endpoints), definitions)

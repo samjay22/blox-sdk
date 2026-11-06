@@ -1,6 +1,6 @@
 # Source audit and evidence boundary
 
-`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the GAS tenant controllers/DTOs, four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 278 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
+`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the GAS tenant controllers/DTOs, four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 281 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
 
 | Service | Inventory | Exposed |
 |---|---:|---:|
@@ -11,16 +11,17 @@
 | Audit | 13 | 13 |
 | Config | 20 | 20 |
 | Leaderboards | 26 | 26 |
-| Fields | 87 | 87 |
-| **Total** | **278 (100%)** | **278** |
+| Fields | 90 | 90 |
+| **Total** | **281 (100%)** | **281** |
 
-Fields includes all 82 domain routes, controller health/probe routes and documented metrics/info routes.
+Fields includes all 85 domain routes, controller health/probe routes and documented metrics/info routes.
 Auth coverage is exact against current controllers: removed routes fail coverage as well as missing routes.
 Coverage independently scans seven refreshed backend trees, so stale inventory cannot hide omissions.
 
 ## Reviewed exceptions
 
 - F1 criteria-type discovery is declared from the authoritative shared `rbac/f/CONTRACT.md`, ahead of its parallel backend implementation. Its typed array and READ auth match that contract; local backend hashes do not certify this new route's implementation. The SDK preserves `criteria_field_invalid` and `fields_unavailable` while retaining its existing raw-body redaction policy.
+- `tools/references_contract.py` layers the authoritative shared F2 contract onto Fields discovery, adding the reference registry, forced-change query flags and audited reference-list types. Archive retains the existing `Action.force` body property; update and purge use `force` in the query. PUT/DELETE reference mutations return 204. This layer is replayed on refresh; the older source hashes do not certify deployment of the new F2 behavior. SDK errors retain only `field_in_use`, not raw reference labels/IDs; fetch `definitionReferences` for a current typed list.
 - GameModeController's `requireUniverseWriteAccess` actually calls `isAdminForUniverse`: **create, update, and delete game modes require ADMIN**, despite the helper's name. The generic method-derived READ_WRITE heuristic is not used for this route.
 - Codes create/update/delete and redemption-history listing require CodeService ADMIN. Redeeming requires READ_WRITE.
 - Matchmaking validation and bulk status are read-only POSTs. Process/flush and ban mutation require ADMIN.
