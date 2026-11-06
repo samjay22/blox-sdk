@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, and Fields**.
 
-**238 typed endpoints:** all 222 routes in `routes.json`, plus 16 controller-defined auth routes (service accounts, service catalog, DELETE aliases, and universe enable/disable). No runtime dependencies or client-side credentials.
+**271 typed endpoints:** all 255 routes in `routes.json`, plus 16 controller-defined auth routes (service accounts, service catalog, DELETE aliases, and universe enable/disable). Includes 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes. No runtime dependencies or client-side credentials.
 
 > **Gateway permissions:** callers using `lb1` need **`Gateway` in addition to the target service
 > permission**. Code redemption also needs Fields write access; Matchmaking enrichment needs Fields
@@ -81,6 +81,7 @@ Responses shared by cache/single-flight are recursively frozen. Clone before edi
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
 - Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
+- Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; `Health:summary()` alone needs READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
 
 See [new-service guide](docs/NEW-SERVICES.md) and the Fields examples for lifecycle and safety details.
 

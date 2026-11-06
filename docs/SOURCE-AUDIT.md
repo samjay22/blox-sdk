@@ -1,6 +1,6 @@
 # Source audit and evidence boundary
 
-`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 222 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
+`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 255 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
 
 | Service | Inventory | Exposed |
 |---|---:|---:|
@@ -11,12 +11,12 @@
 | Audit | 13 | 13 |
 | Config | 20 | 20 |
 | Leaderboards | 26 | 26 |
-| Fields | 54 | 54 |
-| **Total** | **222 (100%)** | **238** |
+| Fields | 87 | 87 |
+| **Total** | **255 (100%)** | **271** |
 
-Fields includes all 49 domain routes, controller health/probe routes and documented metrics/info routes.
+Fields includes all 82 domain routes, controller health/probe routes and documented metrics/info routes.
 Additional auth endpoints retain four DELETE aliases, seven service-account operations, four service-catalog
-operations and universe lifecycle PATCH. Coverage independently scans all 155 in-scope controller mappings in the
+operations and universe lifecycle PATCH. Coverage independently scans all 188 in-scope controller mappings in the
 six refreshed backend trees; no missing route can hide behind a stale inventory.
 
 ## Reviewed exceptions
@@ -34,7 +34,7 @@ six refreshed backend trees; no missing route can hide behind a stale inventory.
 
 `tools/import_contract.py` reads only the designated local controller/DTO trees and writes a scratch import to `.test-build/`. `tools/curate_contract.py` applies documented corrections to produce a *candidate* contract. It is an audit aid, **not a substitute for source review**. Never run it over a curated spec without reviewing the diff. Plain generation does not access sibling repositories. Source-refresh, contract-parity tests and the independent route-coverage checker require the six local sibling backend trees. Missing sources fail coverage rather than silently skipping it. `sourceHashes` in the spec records their Java/contract evidence.
 
-New-service record extraction handles nested packages, generic/type-use annotations, nullable fields, cursor pages and Fields typed-operation boundaries; snapshot JSON/304 and overloaded controller method names are explicitly reviewed. Coverage independently scans all 155 in-scope controller mappings, so a missing route cannot hide behind a stale inventory.
+New-service record extraction handles nested packages, generic/type-use annotations, nullable fields, cursor pages and Fields typed-operation boundaries; snapshot JSON/304 and overloaded controller method names are explicitly reviewed. Coverage independently scans all 188 in-scope controller mappings, including literal route-array aliases, so a missing route cannot hide behind a stale inventory.
 
 For backend changes: inspect controller, DTO, security filter/config, and authorization helpers; edit the authoritative spec; regenerate; review generated signatures and endpoint metadata; add independent contract tests; run `tools/verify`. Route coverage alone does not establish correct schema/access/safety.
 
@@ -74,3 +74,12 @@ binding vectors compile actual IntegrationBindings/Models sources using cached J
 no remote provisioning behavior is executed or claimed. Static negative fixtures retain strict checks.
 Verification uses `luau-analyze -j1` because the installed 0.703 analyzer intermittently SIGTRAPs in its
 parallel workers; serial analysis changes no validation rules. No compiler installation or upgrade occurred.
+
+## Durable Fields control-plane refresh
+
+All 33 new routes are checked independently against explicit contract expectations, including the three
+additional array-mapping aliases. `tools/jobs_contract.py` records reviewed response envelopes, ADMIN
+guards (READ only for health summary), raw NDJSON import/download metadata and header-key retry safety.
+Typed helpers validate operations/filters against cached schema; raw generated wrappers do not replace
+server semantic validation. Offline tests verify polling, transport, typing and package projections, not
+live worker execution, database fencing, webhook delivery or remote scheduling behavior. See [Jobs](JOBS.md).

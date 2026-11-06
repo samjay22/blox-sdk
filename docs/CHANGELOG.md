@@ -1,5 +1,14 @@
 # Changelog
 
+## Durable Fields jobs and live-ops
+
+- Refreshed local contracts: 271 endpoints, covering all 255 inventory routes and 16 additive auth routes.
+- Added all 33 Fields job, migration, bulk/import/export, schedule, alert and READ health-summary routes;
+  administrative routes, including previews and downloads, are documented for server/admin-key usage.
+- Added typed Bulk/Schedules/Jobs helpers, shared operation/filter preflight and bounded job polling.
+- Preserve raw NDJSON import/export, explicit import header keys and safe retry/timeout behavior.
+- Added independent route-array/authorization/DTO coverage, all-runtime/projection tests and examples.
+
 ## Field-owned leaderboard provisioning
 
 - Refreshed local contracts: 238 endpoints, including ADMIN previewBoard and leaderboardBindings.

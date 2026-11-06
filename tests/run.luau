@@ -79,6 +79,12 @@ local function fixture(schema: Core.Schema, defs: { [string]: Core.Schema }): an
 		return "Member"
 	elseif kind == "fields" and schema.name == "LeaderboardBinding" then
 		return { board = "wins", submit = "VALUE" }
+	elseif kind == "fields" and schema.name == "BulkTarget" then
+		return { kind = "ALL" }
+	elseif kind == "fields" and schema.name == "ScheduleAction" then
+		return { kind = "ENABLE_FLAG", key = "event" }
+	elseif kind == "fields" and schema.name == "Converter" then
+		return { kind = "IDENTITY" }
 	elseif kind == "fields" and schema.name == "TypeExpr" then
 		return { kind = "int" }
 	end
@@ -503,7 +509,7 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
-test("all 238 generated endpoints use default, custom gateway and direct-host URLs offline", function()
+test("all 271 generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
 	for id, spec in SDK.endpoints do
 		local s = Scheduler.new()
@@ -608,7 +614,7 @@ test("all 238 generated endpoints use default, custom gateway and direct-host UR
 			count += 1
 		end
 	end
-	check(count == 238 * 3)
+	check(count == 271 * 3)
 end)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
@@ -874,5 +880,6 @@ require("./new_services")(test)
 require("./fields")(test)
 require("./field_bindings")(test)
 require("./operations")(test)
+require("./jobs")(test)
 GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

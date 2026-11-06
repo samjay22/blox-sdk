@@ -4626,6 +4626,544 @@
       ],
       "bodyRequired": false,
       "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.alerts",
+      "idempotent": true,
+      "javaResponse": "Mono<List<JsonNode>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "alerts",
+      "path": "/api/fields/universes/{universeId}/alerts",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "default": "100",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<Alert>",
+      "responseType": "AlertsResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.alertConfig",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "alertConfig",
+      "path": "/api/fields/universes/{universeId}/alerts/config",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "AlertConfigResponse",
+      "responseType": "AlertConfigResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "AlertConfigInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.putAlertConfig",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "putAlertConfig",
+      "path": "/api/fields/universes/{universeId}/alerts/config",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "AlertConfigResponse",
+      "responseType": "PutAlertConfigResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.testWebhook",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "testWebhook",
+      "path": "/api/fields/universes/{universeId}/alerts/webhook/test",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "TestWebhookResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.ackAlert",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "ackAlert",
+      "path": "/api/fields/universes/{universeId}/alerts/{id}/ack",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "AlertAcknowledgement",
+      "responseType": "AckAlertResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "BulkInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.bulk",
+      "idempotencyField": "idempotencyKey",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "bulk",
+      "path": "/api/fields/universes/{universeId}/bulk",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "BulkResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "BulkInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.createBulkDefinition",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "createBulkDefinition",
+      "path": "/api/fields/universes/{universeId}/bulk/definitions",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "BulkDefinitionCreated",
+      "responseType": "CreateBulkDefinitionResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.bulkDefinition",
+      "idempotent": true,
+      "javaResponse": "Mono<BulkInput>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "bulkDefinition",
+      "path": "/api/fields/universes/{universeId}/bulk/definitions/{id}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "BulkInput",
+      "responseType": "BulkDefinitionResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "BulkPreviewInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.bulkPreview",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "bulkPreview",
+      "path": "/api/fields/universes/{universeId}/bulk/preview",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "BulkPreview",
+      "responseType": "BulkPreviewResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "KeyedJobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.reverseBulk",
+      "idempotencyField": "idempotencyKey",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "reverseBulk",
+      "path": "/api/fields/universes/{universeId}/bulk/{id}/reverse",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "ReverseBulkResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
       "cacheable": true,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
       "errorStatuses": [
@@ -5123,6 +5661,121 @@
         "custom"
       ],
       "bodyRequired": true,
+      "bodyType": "MigrationInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.migrate",
+      "idempotencyField": "idempotencyKey",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "migrate",
+      "path": "/api/fields/universes/{universeId}/definitions/{id}/migrations",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "MigrateResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "MigrationPreviewInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.migrationPreview",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "migrationPreview",
+      "path": "/api/fields/universes/{universeId}/definitions/{id}/migrations/preview",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "MigrationPreview",
+      "responseType": "MigrationPreviewResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
       "bodyType": "Action",
       "cacheable": false,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
@@ -5180,6 +5833,58 @@
         "custom"
       ],
       "bodyRequired": true,
+      "bodyType": "ExportInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.export",
+      "idempotencyField": "idempotencyKey",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "export",
+      "path": "/api/fields/universes/{universeId}/export",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "ExportResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
       "bodyType": "Batch",
       "cacheable": false,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
@@ -5220,6 +5925,616 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.healthSummary",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "healthSummary",
+      "path": "/api/fields/universes/{universeId}/health/summary",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "HealthSummary",
+      "responseType": "HealthSummaryResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "String",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.import",
+      "idempotencyHeader": true,
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "import",
+      "optionalKey": true,
+      "path": "/api/fields/universes/{universeId}/import",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "default": "true",
+          "java": "boolean",
+          "name": "dryRun",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "java": "String",
+          "name": "reason",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestFormat": "ndjson",
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "ImportValidation|JobReceipt",
+      "responseType": "ImportResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.jobs",
+      "idempotent": true,
+      "javaResponse": "Mono<List<JsonNode>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "jobs",
+      "path": "/api/fields/universes/{universeId}/jobs",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "default": "50",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "default": "0",
+          "java": "long",
+          "name": "offset",
+          "required": false,
+          "type": "id"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JobSummary>",
+      "responseType": "JobsResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.job",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "job",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "JobResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "JobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.cancelJob",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "cancelJob",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}/cancel",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "CancelJobResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503,
+        410
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.jobDownload",
+      "idempotent": true,
+      "javaResponse": "Flux<String>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "jobDownload",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}/download",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseContentType": "application/x-ndjson",
+      "responseFormat": "text",
+      "responseJava": "String",
+      "responseType": "JobDownloadResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.jobEvents",
+      "idempotent": true,
+      "javaResponse": "Mono<List<JsonNode>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "jobEvents",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}/events",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "default": "0",
+          "java": "long",
+          "name": "after",
+          "required": false,
+          "type": "id"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JobEvent>",
+      "responseType": "JobEventsResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.jobFailures",
+      "idempotent": true,
+      "javaResponse": "Mono<List<JsonNode>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "jobFailures",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}/failures",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "default": "-1",
+          "java": "long",
+          "name": "after",
+          "required": false,
+          "type": "id"
+        },
+        {
+          "default": "100",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JobFailure>",
+      "responseType": "JobFailuresResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.jobFailuresDownload",
+      "idempotent": true,
+      "javaResponse": "Flux<String>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "jobFailuresDownload",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}/failures/download",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseContentType": "application/x-ndjson",
+      "responseFormat": "text",
+      "responseJava": "String",
+      "responseType": "JobFailuresDownloadResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "JobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.retryJob",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "retryJob",
+      "path": "/api/fields/universes/{universeId}/jobs/{id}/retry",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "RetryJobResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
       "statuses": [
         200
       ]
@@ -5386,6 +6701,121 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "JobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.cancelMigration",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "cancelMigration",
+      "path": "/api/fields/universes/{universeId}/migrations/{id}/cancel",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "CancelMigrationResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "KeyedJobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.rollbackMigration",
+      "idempotencyField": "idempotencyKey",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "rollbackMigration",
+      "path": "/api/fields/universes/{universeId}/migrations/{id}/rollback",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "RollbackMigrationResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
       "statuses": [
         200
       ]
@@ -6885,6 +8315,445 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.schedules",
+      "idempotent": true,
+      "javaResponse": "Mono<List<JsonNode>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "schedules",
+      "path": "/api/fields/universes/{universeId}/schedules",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<ScheduleSummary>",
+      "responseType": "SchedulesResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ScheduleInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.createSchedule",
+      "idempotencyField": "idempotencyKey",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "createSchedule",
+      "path": "/api/fields/universes/{universeId}/schedules",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "CreateScheduleResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ScheduleInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.schedulePreview",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "schedulePreview",
+      "path": "/api/fields/universes/{universeId}/schedules/preview",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "SchedulePreview",
+      "responseType": "SchedulePreviewResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.schedule",
+      "idempotent": true,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "schedule",
+      "path": "/api/fields/universes/{universeId}/schedules/{id}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "ScheduleResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ScheduleInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.editSchedule",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "editSchedule",
+      "path": "/api/fields/universes/{universeId}/schedules/{id}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "EditScheduleResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.scheduleActions",
+      "idempotent": true,
+      "javaResponse": "Mono<List<JsonNode>>",
+      "method": "GET",
+      "minimumLevel": "ADMIN",
+      "name": "scheduleActions",
+      "path": "/api/fields/universes/{universeId}/schedules/{id}/actions",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<ScheduleActionResult>",
+      "responseType": "ScheduleActionsResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "JobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.cancelSchedule",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "cancelSchedule",
+      "path": "/api/fields/universes/{universeId}/schedules/{id}/cancel",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "CancelScheduleResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "JobActionInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.endSchedule",
+      "idempotent": false,
+      "javaResponse": "Mono<JsonNode>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "endSchedule",
+      "path": "/api/fields/universes/{universeId}/schedules/{id}/end-now",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JobReceipt",
+      "responseType": "EndScheduleResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java",
       "statuses": [
         200
       ]
@@ -12499,8 +14368,8 @@
     "svc/config-service/src/main/java/sam/tech/service/SnapshotCache.java": "6c7559537cac973cf808b892c76afd41f6109a387beaa7a2b05cdd9d12ffd082",
     "svc/config-service/src/main/java/sam/tech/service/SnapshotService.java": "4d1fb621fdbbc77c384edb6e89e60fe3cdff9935cfcd650086e070b0b6867c50",
     "svc/config-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
-    "svc/fields-service/API_CONTRACT.md": "389c5263e36144b22758c7ea92b2afe8addac72cafd2d4139998dd625ae6600d",
-    "svc/fields-service/README.md": "a5cf42a4bfaab1d85682d1a1c43dcf6aaa82cc4ca03397ab1cbac1462581eb85",
+    "svc/fields-service/API_CONTRACT.md": "94783cf274ec0db385ca331ab024b5f115a54df06ffb148cf6d81b20e855ef13",
+    "svc/fields-service/README.md": "8a54092a626b516fbfffaed098991d7113b6858d08c01899d7ff601dabd3b256",
     "svc/fields-service/src/main/java/sam/tech/Main.java": "039a14098a9d6d1a64322d60835d63d6b868f7420be11dcda24cda55b33cb5cf",
     "svc/fields-service/src/main/java/sam/tech/client/CachedTokenClient.java": "27d64db0c3e5574827329f2b386b7c7ff7ed461848dbb88fd1588b0d50d37304",
     "svc/fields-service/src/main/java/sam/tech/config/ApiDatabaseInitializationConfiguration.java": "462279bc75cf711f7fef5e513dc059ce60d7892a31b26920b38cef27fc62db52",
@@ -12517,6 +14386,7 @@
     "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java": "5b334b92baa809ebace4ee57b980cf8da006893d91284d5eb64f27fc8cf6ad58",
     "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "bbda786d6f9c299cb253b5e7417aaab53e4812a64cfd1402ffd266973b3e8c30",
     "svc/fields-service/src/main/java/sam/tech/controller/HealthController.java": "fe9c6fa979c4a46bd1c0fa8807b2d90a00783d0ef95bdd7dbdf9e72338f2d81e",
+    "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java": "5bbabb195ea580f5ef7177c74c4de21dfe979fbebdcb765098cc1b499c513f56",
     "svc/fields-service/src/main/java/sam/tech/controller/OutboxController.java": "7a049b0486141bc6036b410f1709c1aed53cbdc0d37f1bc301054ec99a009f49",
     "svc/fields-service/src/main/java/sam/tech/controller/ProbeController.java": "7f41f2a4ccc1ca0b39393506bb0273c623d2125f1bc633a1412be48f2af3d172",
     "svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java": "1e8e79c8f438aacaacec912769ed6543b9aa2d1417f3a47c1c491ffc822c3976",
@@ -12525,41 +14395,57 @@
     "svc/fields-service/src/main/java/sam/tech/fields/CommerceStore.java": "10a72182158858d72a5b9f8377e35ee26830f7fdb1a55080576d18828bddb71c",
     "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java": "9a665f73f13c82d5ba6ebc723d80d3ca6eb17d6ebc3212c063f89a391fd7927e",
     "svc/fields-service/src/main/java/sam/tech/fields/Cursors.java": "18340d100dbca0589f0095a3a05363c3a7f145838bd489e06c61de91b2bca4d8",
+    "svc/fields-service/src/main/java/sam/tech/fields/DefinitionScanner.java": "f46b4706dd079a69bd02bef13c5d2bc132e8167f11e7b1cec781801e55a1fb53",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsException.java": "5ef6672bc29020fd603d611ce8a29cebaa2026719941fedb6fb5a381a56c7eb0",
-    "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "ee83884a16114e5cf7155c4c34c52868b4e3e44c803873446609fa66ca2155e3",
+    "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "d1013a70f013d7bc1ec67f385f70e3481927c5faeabf6c5babe6ee020a8ba913",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "bd032b42a32130e75509b85e716985a870a6196bf85bab6de2d4d9c502a27618",
     "svc/fields-service/src/main/java/sam/tech/fields/JsonSupport.java": "576a7d100a81f2426e98cf8c89b87f0f591efc0175b10056106c2babb8b790ac",
     "svc/fields-service/src/main/java/sam/tech/fields/LuauGenerator.java": "1cb5e66698afafcb2037f8caa90c5fb4acedd40861a75a00d9800a4762b11b5f",
     "svc/fields-service/src/main/java/sam/tech/fields/Models.java": "4a660c99e75b1e83816f86d3d4ef909b4d241c765fef20f00de448b80e3398ad",
     "svc/fields-service/src/main/java/sam/tech/fields/PostgresCommerceStore.java": "59c256d80cf654ef3500c8bb875e12cd45291709737d4e26906e44674a0613e2",
-    "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java": "8626eb19d0a8cc6480302f0d8c476336d76ac147b3f503663d0259994a706250",
+    "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java": "6da95b7442f9684e973e73d0fff5f7457bc63c2e13940a87ec7ad121ea62c960",
     "svc/fields-service/src/main/java/sam/tech/fields/ProductValidator.java": "0dcb57fca10398aee3d64096db700d475fa678f2c8e567ad768a51cae835c366",
     "svc/fields-service/src/main/java/sam/tech/fields/ReconcileWorker.java": "0e84c762bd9c5359e8906cd66c33cfe4667091015e4aa08c77c8c4439b38719a",
     "svc/fields-service/src/main/java/sam/tech/fields/ReversalEngine.java": "13e4aecae8bbcf878f3140392b7a8583b1bba5a9607a0bee0d1214b0cc282feb",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java": "1dd6d3a7d834de96c1a5e7146b99f5187ad2137c169fac54e77c46e057d826b1",
-    "svc/fields-service/src/main/java/sam/tech/fields/SafetyRepository.java": "6a717af5b194143288b4fe1fba5478cce4604671b8033a646444e7d2951acfef",
+    "svc/fields-service/src/main/java/sam/tech/fields/SafetyRepository.java": "1290d1ef3d3babbf96cf3c4443037b5d088ccfae60ba10232011cda545f866fe",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyService.java": "e0d49c8db1fa8dbcc60a77028dba66b5e373b0d3f99be33be6c10f64ab9a5553",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyWorker.java": "5fe7d7caac55bccac7adfaf4ee367c58d6a8734c6e27a2cb8568b64b7833b7b8",
     "svc/fields-service/src/main/java/sam/tech/fields/SchemaGeneration.java": "7c74fa1d5964aa2295cf252a61419cae9592f36970254645718ffb8e938c1539",
-    "svc/fields-service/src/main/java/sam/tech/fields/TransactionEngine.java": "d46369b756ab745ea77cee703fa939fdec53685f904bd75c94b916b86b1b1173",
+    "svc/fields-service/src/main/java/sam/tech/fields/TransactionEngine.java": "0a473b73ab273fb560685f7f91cbf7d5a5cd0796278e1831ee2e543b206cb9f2",
     "svc/fields-service/src/main/java/sam/tech/fields/TypeScriptGenerator.java": "d85019c11e59d4278c12f12b0e533b3aa5c0ec7d342d1dd7ffadf7ff4e4a66da",
     "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java": "32b495987a88b32b9e27c13c6c9fc2b0748946bc51548f4ce4572f5783ac184c",
     "svc/fields-service/src/main/java/sam/tech/fields/UniverseScope.java": "165c84711da89875b04d9363d711cf9b36352cd73d80b09e2348bd2b47af5eb2",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/AuditClient.java": "6fa8db58598af4c50890266a22838dc1ad513d10442111ecbc4f3ff98c17a5d3",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/BoardProvisioning.java": "beb395d84340f7453b9e3e2d5e34e71efd4b1c4fc0f2ad556dd9398113b01c22",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/BoardSettings.java": "3ce15255a9bfbda366ec03559b834ecc90767299f429c94f7c88d3996a652611",
-    "svc/fields-service/src/main/java/sam/tech/fields/integrations/ConfigClient.java": "6d75a3b7fbeb2591f0e5618767001d24cf13f80d5e177ce3d09c698d8c5e12dc",
+    "svc/fields-service/src/main/java/sam/tech/fields/integrations/ConfigClient.java": "c3ec2a0b53984fb6c87274c6f84a0c56a58cd6f76681fb68b255da0a5a26a69b",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/IntegrationBindings.java": "e723089703e065310c570640bdd4ba48c08c306d4c918598f8ac41b0060094f8",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/InternalAuthClient.java": "3faa09b2e0c2394cbac7ed570b092c64e7e09738258e816e93f887fd42a673fa",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/LeaderboardClient.java": "a6143b920d73e0fa6eb2993ef1db40bd7614924254d6ddd32de903723fc20aae",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxService.java": "b709e48398911bcd1f3162cd88887973b8492802eb6e5a6e512449c762774d8e",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxWorker.java": "ce9e3a5e07dbd862c3fef716ab1a0edd2024af9098bcc0ac069f9bf9ba5b79ca",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/TransactionIntegrations.java": "65ff4189309358f657180f4da6110c21057f1868e25467029342b82ce46070ee",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/AlertJobs.java": "d26487d57d46d7bb9a2152efdb3f980c8613cab05f6f6af62cfc4ca2889af39d",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/BulkJobs.java": "cca14f218677dbb811c0de2f5f7631afa404a32ca32bbdfe30e0c4307c6efbb1",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/Converters.java": "e0ff7bfdcbcb550a987bb9bd071e1f66c6bfc8ec36698a0edb62f03ba5d3a595",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobHandler.java": "d8b5ae4e6b0e100f3ee9c1560b5832f2d4b782ba92f765c53fb5172410d41980",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java": "9dec04ebf9f2c7f188a4cba69f1949df6ab8ddd05fa2570d50416723f2c4c150",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobRepository.java": "9ed6b2c841c5b7fa82eb13998c80e3557b4dac7866e9eec0159f3956ecf92711",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobService.java": "dce7c71a65e1e530ecb75e5e6c4a50be4b6740c663bc8f60696203457cd9e602",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobWorker.java": "e8bff23b31ccb4e1bbe52593f1e20ef327fb0e113055fc170fabc4eefd909d9e",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/MigrationJobs.java": "cd8c93bea87ce15efbdee082abe91a2927bca111334ed1bd2b1e7751ac020348",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/OperationalSignals.java": "641cce3e781ab41cf5a7032bb03cb43cb98308b169aae088835cd1b492a69243",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/ScheduleJobs.java": "8f282fbc5eae9305733d2e9495104324f85b7d39494d611fa5d1fa995742ac6b",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java": "5b74f713a8a9f019ed420f33fded79dab8058d45dd62f108263391fcd8396597",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookGuard.java": "d5d0dfa7510c1eeec1392a288697e20f91d2f3330170acad4962a9c36708096f",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookSender.java": "fa96745ede3f955120c0bf6396c2a247eb9275ed9eb58b538d770775c53da620",
     "svc/fields-service/src/main/java/sam/tech/filter/JwtAuthenticationFilter.java": "7f0694726fef98c17bce70293a4d4fc338c9e4b685c8b0e6ca59d1b975222ab5",
     "svc/fields-service/src/main/java/sam/tech/filter/PathExclusionMatcher.java": "2ecf41c86456763bd3e32a4eca4863d989a8aefab8bd841c1d0ac6a1418c8d58",
     "svc/fields-service/src/main/java/sam/tech/filter/RateLimitFilter.java": "927fc8e3fb827d1bf2d654020f3b050bf55935d90ed532b441ef7129bbafddc7",
     "svc/fields-service/src/main/java/sam/tech/filter/RequestCorrelationFilter.java": "27447813aa64b118ebad928863addd18a86494049dfcb1f2425635e3d5b3a399",
     "svc/fields-service/src/main/java/sam/tech/filter/RequestLoggingFilter.java": "ac345850ffff8e21339b47d6b0c585fbf98c78480b455c3d5d2e9a4568c3a926",
+    "svc/fields-service/src/main/java/sam/tech/filter/TransactionSignalFilter.java": "2d76de00550fa2273b093394e63a363523960e51eb884813d675ec77e74d3d0b",
     "svc/fields-service/src/main/java/sam/tech/logging/OpenObserveAppender.java": "587bbb344d44b9a10db19ac370523de6f332dd730b6ed0477d4dbf8927e32ebc",
     "svc/fields-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "18562d81bafc96bf2f9f1300547727c399093e61c78ccaa75d7e57f00330c426",
     "svc/fields-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
@@ -15371,6 +17257,218 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
+      "ActionInput": {
+        "fields": {
+          "idempotencyKey": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "reason": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "ActionKind": {
+        "enum": [
+          "SET_CONFIG",
+          "ENABLE_FLAG",
+          "DISABLE_FLAG",
+          "RUN_BULK"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "Alert": {
+        "fields": {
+          "count": {
+            "java": "long",
+            "required": true
+          },
+          "firstSeen": {
+            "java": "Instant",
+            "required": true
+          },
+          "id": {
+            "java": "UUID",
+            "required": true
+          },
+          "lastSeen": {
+            "java": "Instant",
+            "required": true
+          },
+          "rule": {
+            "java": "AlertRule",
+            "required": true
+          },
+          "severity": {
+            "java": "AlertSeverity",
+            "required": true
+          },
+          "state": {
+            "java": "AlertState",
+            "required": true
+          }
+        }
+      },
+      "AlertAcknowledgement": {
+        "fields": {
+          "id": {
+            "java": "UUID",
+            "required": true
+          },
+          "state": {
+            "java": "AlertState",
+            "required": true
+          }
+        }
+      },
+      "AlertConfig": {
+        "fields": {
+          "configFailOpenRate": {
+            "java": "Double",
+            "notBlank": false,
+            "required": false
+          },
+          "enabled": {
+            "java": "Boolean",
+            "notBlank": false,
+            "required": false
+          },
+          "pendingAgeSeconds": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "pendingSize": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "stalledSeconds": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "transaction5xxRate": {
+            "java": "Double",
+            "notBlank": false,
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "webhook": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "AlertConfigInput": {
+        "fields": {
+          "configFailOpenRate": {
+            "java": "Double",
+            "required": false
+          },
+          "enabled": {
+            "java": "boolean",
+            "required": false
+          },
+          "pendingAgeSeconds": {
+            "java": "Long",
+            "required": false
+          },
+          "pendingSize": {
+            "java": "Long",
+            "required": false
+          },
+          "stalledSeconds": {
+            "java": "Long",
+            "required": false
+          },
+          "transaction5xxRate": {
+            "java": "Double",
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          },
+          "webhook": {
+            "java": "String",
+            "nullable": true,
+            "required": false
+          }
+        }
+      },
+      "AlertConfigResponse": {
+        "fields": {
+          "configFailOpenRate": {
+            "java": "double",
+            "required": true
+          },
+          "enabled": {
+            "java": "boolean",
+            "required": true
+          },
+          "pendingAgeSeconds": {
+            "java": "long",
+            "required": true
+          },
+          "pendingSize": {
+            "java": "long",
+            "required": true
+          },
+          "stalledSeconds": {
+            "java": "long",
+            "required": true
+          },
+          "transaction5xxRate": {
+            "java": "double",
+            "required": true
+          },
+          "webhookConfigured": {
+            "java": "boolean",
+            "required": true
+          }
+        }
+      },
+      "AlertRule": {
+        "enum": [
+          "OUTBOX_BACKLOG",
+          "OUTBOX_FAILED",
+          "RECONCILE_MISMATCH",
+          "CONFIG_FAIL_OPEN",
+          "JOB_FAILED",
+          "JOB_STALLED",
+          "SCHEDULE_ACTION_FAILED",
+          "TRANSACTION_5XX"
+        ]
+      },
+      "AlertSeverity": {
+        "enum": [
+          "WARNING",
+          "CRITICAL"
+        ]
+      },
+      "AlertState": {
+        "enum": [
+          "OPEN",
+          "ACKED",
+          "RESOLVED"
+        ]
+      },
       "Applied": {
         "fields": {
           "after": {
@@ -15592,6 +17690,98 @@
           "ASC"
         ]
       },
+      "BulkDefinitionCreated": {
+        "fields": {
+          "id": {
+            "java": "UUID",
+            "required": true
+          }
+        }
+      },
+      "BulkInput": {
+        "fields": {
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "ops": {
+            "java": "List<Fields.PlayerOperation>",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "target": {
+            "java": "Fields.BulkTarget",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "BulkPreview": {
+        "fields": {
+          "matchedCount": {
+            "java": "long",
+            "required": true
+          },
+          "samples": {
+            "java": "List<BulkPreviewSample>",
+            "required": true
+          },
+          "validation": {
+            "java": "OpsValidationResult",
+            "required": true
+          }
+        }
+      },
+      "BulkPreviewInput": {
+        "fields": {
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "ops": {
+            "java": "List<Fields.PlayerOperation>",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": false
+          },
+          "target": {
+            "java": "Fields.BulkTarget",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "BulkPreviewSample": {
+        "fields": {
+          "after": {
+            "java": "Map<String, JsonNode>",
+            "required": true
+          },
+          "before": {
+            "java": "Map<String, JsonNode>",
+            "required": true
+          },
+          "error": {
+            "java": "String",
+            "required": false
+          },
+          "subject": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
       "Cached": {
         "fields": {
           "etag": {
@@ -15622,6 +17812,41 @@
             "required": true
           }
         }
+      },
+      "Cidr": {
+        "fields": {
+          "network": {
+            "java": "byte[]",
+            "notBlank": false,
+            "required": false
+          },
+          "prefix": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookGuard.java"
+      },
+      "Comparison": {
+        "fields": {
+          "field": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "op": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "operands": {
+            "java": "List<JsonNode>",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java"
       },
       "Condition": {
         "fields": {
@@ -15657,6 +17882,15 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
+      "ConfigType": {
+        "enum": [
+          "STRING",
+          "NUMBER",
+          "BOOLEAN",
+          "JSON"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
       },
       "Counts": {
         "fields": {
@@ -16083,6 +18317,38 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
+      "ExportInput": {
+        "fields": {
+          "fields": {
+            "java": "List<String>",
+            "required": false
+          },
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "target": {
+            "java": "Fields.BulkTarget",
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "FailurePolicy": {
+        "enum": [
+          "FAIL",
+          "USE_DEFAULT",
+          "CLAMP"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
       "FieldPage": {
         "fields": {
           "items": {
@@ -16167,6 +18433,22 @@
           }
         }
       },
+      "HealthSummary": {
+        "fields": {
+          "openAlerts": {
+            "java": "OpenAlertCounts",
+            "required": true
+          },
+          "runningJobs": {
+            "java": "long",
+            "required": true
+          },
+          "upcomingSchedules": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
       "History": {
         "enum": [
           "LEDGER",
@@ -16174,55 +18456,210 @@
         ],
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
+      "ImportError": {
+        "fields": {
+          "code": {
+            "java": "String",
+            "required": true
+          },
+          "line": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
+      "ImportRecord": {
+        "fields": {
+          "delta": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          },
+          "field": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "op": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "subject": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "value": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "ImportValidation": {
+        "fields": {
+          "dryRun": {
+            "java": "boolean",
+            "required": true
+          },
+          "errors": {
+            "java": "List<ImportError>",
+            "required": true
+          },
+          "records": {
+            "java": "long",
+            "required": true
+          },
+          "valid": {
+            "java": "boolean",
+            "required": true
+          }
+        }
+      },
       "Item": {
         "fields": {
+          "attempts": {
+            "java": "int",
+            "required": true
+          },
+          "createdAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "doneAt": {
+            "java": "Instant",
+            "required": false
+          },
+          "id": {
+            "java": "UUID",
+            "required": true
+          },
+          "kind": {
+            "java": "String",
+            "required": true
+          },
+          "lastError": {
+            "java": "String",
+            "required": false
+          },
+          "nextAttemptAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "payload": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "queueOrder": {
+            "java": "long",
+            "required": true
+          },
+          "status": {
+            "java": "String",
+            "required": true
+          },
+          "universeId": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
+      "Job": {
+        "fields": {
+          "actor": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
           "attempts": {
             "java": "int",
             "notBlank": false,
             "required": true
           },
-          "createdAt": {
-            "java": "Instant",
+          "cancelRequested": {
+            "java": "boolean",
             "notBlank": false,
             "required": true
           },
-          "doneAt": {
-            "java": "Instant",
+          "cursor": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "error": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "failed": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "hash": {
+            "java": "String",
             "notBlank": false,
             "required": false
           },
           "id": {
             "java": "UUID",
             "notBlank": false,
-            "required": true
+            "required": false
           },
-          "kind": {
-            "java": "String",
-            "notBlank": false,
-            "required": true
-          },
-          "lastError": {
+          "key": {
             "java": "String",
             "notBlank": false,
             "required": false
           },
-          "nextAttemptAt": {
+          "kind": {
+            "java": "Kind",
+            "notBlank": false,
+            "required": false
+          },
+          "lease": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": false
+          },
+          "leaseUntil": {
             "java": "Instant",
             "notBlank": false,
-            "required": true
+            "required": false
+          },
+          "nextAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": false
           },
           "payload": {
             "java": "JsonNode",
             "notBlank": false,
+            "required": false
+          },
+          "prepared": {
+            "java": "boolean",
+            "notBlank": false,
             "required": true
           },
-          "queueOrder": {
+          "state": {
+            "java": "State",
+            "notBlank": false,
+            "required": false
+          },
+          "succeeded": {
             "java": "long",
             "notBlank": false,
             "required": true
           },
-          "status": {
-            "java": "String",
+          "total": {
+            "java": "long",
             "notBlank": false,
             "required": true
           },
@@ -16230,9 +18667,196 @@
             "java": "long",
             "notBlank": false,
             "required": true
+          },
+          "updatedAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": false
           }
         },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxService.java"
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "JobActionInput": {
+        "fields": {
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "JobEvent": {
+        "fields": {
+          "actor": {
+            "java": "String",
+            "required": true
+          },
+          "createdAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "event": {
+            "java": "String",
+            "required": true
+          },
+          "id": {
+            "java": "long",
+            "required": true
+          },
+          "metadata": {
+            "java": "Map<String, JsonNode>",
+            "required": true
+          }
+        }
+      },
+      "JobFailure": {
+        "fields": {
+          "error": {
+            "java": "String",
+            "required": true
+          },
+          "ordinal": {
+            "java": "long",
+            "required": true
+          },
+          "subject": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
+      "JobKind": {
+        "enum": [
+          "BULK",
+          "REVERSE",
+          "EXPORT",
+          "IMPORT",
+          "MIGRATION",
+          "ROLLBACK",
+          "SCHEDULE",
+          "ALERT_SCAN",
+          "NOTIFY"
+        ]
+      },
+      "JobReceipt": {
+        "fields": {
+          "attempts": {
+            "java": "int",
+            "required": true
+          },
+          "cancelRequested": {
+            "java": "boolean",
+            "required": true
+          },
+          "error": {
+            "java": "String",
+            "required": false
+          },
+          "failed": {
+            "java": "long",
+            "required": true
+          },
+          "id": {
+            "java": "UUID",
+            "required": true
+          },
+          "kind": {
+            "java": "JobKind",
+            "required": true
+          },
+          "phase": {
+            "java": "String",
+            "required": false
+          },
+          "prepared": {
+            "java": "boolean",
+            "required": true
+          },
+          "snapshotId": {
+            "java": "UUID",
+            "required": false
+          },
+          "state": {
+            "java": "JobState",
+            "required": true
+          },
+          "succeeded": {
+            "java": "long",
+            "required": true
+          },
+          "total": {
+            "java": "long",
+            "required": true
+          },
+          "updatedAt": {
+            "java": "Instant",
+            "required": true
+          }
+        }
+      },
+      "JobState": {
+        "enum": [
+          "QUEUED",
+          "RUNNING",
+          "SUCCEEDED",
+          "CANCELLED",
+          "FAILED"
+        ]
+      },
+      "JobSummary": {
+        "fields": {
+          "error": {
+            "java": "String",
+            "nullable": true,
+            "required": false
+          },
+          "failed": {
+            "java": "long",
+            "required": true
+          },
+          "id": {
+            "java": "UUID",
+            "required": true
+          },
+          "kind": {
+            "java": "JobKind",
+            "required": true
+          },
+          "state": {
+            "java": "JobState",
+            "required": true
+          },
+          "succeeded": {
+            "java": "long",
+            "required": true
+          },
+          "total": {
+            "java": "long",
+            "required": true
+          },
+          "updatedAt": {
+            "java": "Instant",
+            "required": true
+          }
+        }
+      },
+      "Junction": {
+        "fields": {
+          "and": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          },
+          "children": {
+            "java": "List<Node>",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java"
       },
       "Key": {
         "fields": {
@@ -16249,20 +18873,35 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
+      "KeyedJobActionInput": {
+        "fields": {
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
       "Kind": {
         "enum": [
-          "INT",
-          "NUMBER",
-          "BOOL",
-          "STRING",
-          "ENUM",
-          "OBJECT",
-          "LIST",
-          "SET",
-          "MAP",
-          "NULLABLE"
+          "BULK",
+          "REVERSE",
+          "EXPORT",
+          "IMPORT",
+          "MIGRATION",
+          "ROLLBACK",
+          "SCHEDULE",
+          "ALERT_SCAN",
+          "NOTIFY"
         ],
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java"
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
       },
       "LedgerQuery": {
         "fields": {
@@ -16332,6 +18971,134 @@
           }
         }
       },
+      "MigrationFailureSample": {
+        "fields": {
+          "code": {
+            "java": "String",
+            "required": true
+          },
+          "subject": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
+      "MigrationInput": {
+        "fields": {
+          "converter": {
+            "java": "Fields.Converter",
+            "required": false
+          },
+          "default": {
+            "java": "JsonNode",
+            "required": false
+          },
+          "expectedDefinitionVersion": {
+            "java": "Long",
+            "required": true
+          },
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "onFailure": {
+            "java": "FailurePolicy",
+            "required": false
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "type": {
+            "java": "Fields.TypeExpr",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "MigrationPreview": {
+        "fields": {
+          "affectedSubjects": {
+            "java": "long",
+            "required": true
+          },
+          "canApplyDirectly": {
+            "java": "boolean",
+            "required": true
+          },
+          "failureCounts": {
+            "java": "Map<String, Long>",
+            "required": true
+          },
+          "failureSamples": {
+            "java": "List<MigrationFailureSample>",
+            "required": true
+          },
+          "samples": {
+            "java": "List<MigrationSample>",
+            "required": true
+          },
+          "unconverted": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
+      "MigrationPreviewInput": {
+        "fields": {
+          "converter": {
+            "java": "Fields.Converter",
+            "required": false
+          },
+          "default": {
+            "java": "JsonNode",
+            "required": false
+          },
+          "expectedDefinitionVersion": {
+            "java": "Long",
+            "required": true
+          },
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "onFailure": {
+            "java": "FailurePolicy",
+            "required": false
+          },
+          "reason": {
+            "java": "String",
+            "required": false
+          },
+          "type": {
+            "java": "Fields.TypeExpr",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "MigrationSample": {
+        "fields": {
+          "after": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "before": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "subject": {
+            "java": "long",
+            "required": true
+          }
+        }
+      },
       "Mismatch": {
         "fields": {
           "entryId": {
@@ -16376,6 +19143,16 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java"
+      },
+      "Negation": {
+        "fields": {
+          "child": {
+            "java": "Node",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java"
       },
       "NullValue": {
         "fields": {
@@ -16446,6 +19223,18 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
+      "OpenAlertCounts": {
+        "fields": {
+          "CRITICAL": {
+            "java": "long",
+            "required": true
+          },
+          "WARNING": {
+            "java": "long",
+            "required": true
+          }
+        }
       },
       "OpsValidationInput": {
         "fields": {
@@ -17207,6 +19996,175 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java"
       },
+      "ScheduleAction": {
+        "fields": {
+          "bulkDefinitionId": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": false
+          },
+          "key": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "kind": {
+            "java": "ActionKind",
+            "notBlank": false,
+            "required": false
+          },
+          "type": {
+            "java": "ConfigType",
+            "notBlank": false,
+            "required": false
+          },
+          "value": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "ScheduleActionResult": {
+        "fields": {
+          "done": {
+            "java": "boolean",
+            "required": true
+          },
+          "error": {
+            "java": "String",
+            "nullable": true,
+            "required": false
+          },
+          "jobId": {
+            "java": "UUID",
+            "nullable": true,
+            "required": false
+          },
+          "key": {
+            "java": "String",
+            "nullable": true,
+            "required": false
+          },
+          "kind": {
+            "java": "String",
+            "required": true
+          },
+          "ordinal": {
+            "java": "long",
+            "required": true
+          },
+          "version": {
+            "java": "Long",
+            "nullable": true,
+            "required": false
+          }
+        }
+      },
+      "ScheduleInput": {
+        "fields": {
+          "end": {
+            "java": "Instant",
+            "required": false
+          },
+          "endActions": {
+            "java": "List<Fields.ScheduleAction>",
+            "required": false
+          },
+          "idempotencyKey": {
+            "java": "String",
+            "required": false
+          },
+          "name": {
+            "java": "String",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "restorePrevious": {
+            "java": "boolean",
+            "required": false
+          },
+          "start": {
+            "java": "Instant",
+            "required": true
+          },
+          "startActions": {
+            "java": "List<Fields.ScheduleAction>",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "SchedulePreview": {
+        "fields": {
+          "endActions": {
+            "java": "List<Fields.ScheduleAction>",
+            "required": true
+          },
+          "requiresExistingConfigResources": {
+            "java": "boolean",
+            "required": true
+          },
+          "restorePrevious": {
+            "java": "boolean",
+            "required": true
+          },
+          "start": {
+            "java": "Instant",
+            "required": true
+          },
+          "startActions": {
+            "java": "List<Fields.ScheduleAction>",
+            "required": true
+          }
+        }
+      },
+      "ScheduleState": {
+        "enum": [
+          "SCHEDULED",
+          "ACTIVE",
+          "ENDED",
+          "CANCELLED",
+          "FAILED"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "ScheduleSummary": {
+        "fields": {
+          "end": {
+            "java": "Instant",
+            "nullable": true,
+            "required": false
+          },
+          "id": {
+            "java": "UUID",
+            "required": true
+          },
+          "name": {
+            "java": "String",
+            "required": true
+          },
+          "phase": {
+            "java": "String",
+            "required": true
+          },
+          "start": {
+            "java": "Instant",
+            "required": true
+          },
+          "state": {
+            "java": "JobState",
+            "required": true
+          }
+        }
+      },
       "SchemaResponse": {
         "fields": {
           "definitions": {
@@ -17382,6 +20340,16 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java"
       },
+      "State": {
+        "enum": [
+          "QUEUED",
+          "RUNNING",
+          "SUCCEEDED",
+          "CANCELLED",
+          "FAILED"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
       "Status": {
         "enum": [
           "ACTIVE",
@@ -17391,28 +20359,31 @@
       },
       "Target": {
         "fields": {
-          "defaultValue": {
-            "java": "JsonNode",
+          "kind": {
+            "java": "TargetKind",
             "notBlank": false,
             "required": false
           },
-          "exists": {
-            "java": "boolean",
-            "notBlank": false,
-            "required": true
-          },
-          "type": {
-            "java": "Type",
+          "subjects": {
+            "java": "List<Long>",
             "notBlank": false,
             "required": false
           },
-          "value": {
+          "where": {
             "java": "JsonNode",
             "notBlank": false,
             "required": false
           }
         },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java"
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "TargetKind": {
+        "enum": [
+          "ALL",
+          "SUBJECTS",
+          "WHERE"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
       },
       "Token": {
         "fields": {
@@ -17468,6 +20439,21 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
+      "Transition": {
+        "fields": {
+          "field": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "source": {
+            "java": "TypeSystem.Type",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/TransactionEngine.java"
       },
       "Type": {
         "fields": {

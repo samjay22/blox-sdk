@@ -5,6 +5,20 @@ profile helpers. Default origin: `https://lb1.blox-api.com`; stripPrefix `/field
 base `/api/fields/universes/{universeId}`. An explicit direct override may use `https://fields.blox-api.com`.
 Permission is **FieldsService** (`READ`, `READ_WRITE`, `ADMIN`). Use trusted server credentials only.
 
+## Durable jobs and live-ops
+
+`client.fields:Bulk(universeId)`, `:Schedules(universeId)` and `:Jobs(universeId)` compose typed
+administrative requests; `:Health(universeId):summary()` exposes compact READ-level health. Bulk ops
+reuse the existing operation builder and TypeSystem; target filters and import records validate locally
+against an explicitly loaded schema before submission. `Jobs:waitFor` observes durable server work with
+a total timeout and bounded backoff; it never cancels, retries or compensates the job automatically.
+
+**All job, migration, bulk, import/export, schedule and alert routes require server/admin-key usage**, even
+previews, reads and downloads. READ_WRITE gameplay keys cannot use them. Only `/health/summary` requires
+READ. Keep ADMIN keys in trusted server/operator environments, never replicated modules or player input.
+Migration conversion deliberately fences ordinary universe reads/writes; cancellation is not a general
+undo, and a SUCCEEDED job may have individual failures. Read the [durable jobs guide](JOBS.md) before use.
+
 ## Runtime schema and validation
 
 ```luau

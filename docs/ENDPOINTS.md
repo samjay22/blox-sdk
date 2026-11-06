@@ -1,6 +1,6 @@
 # Endpoint reference
 
-238 endpoints. `routes.json` coverage is checked independently.
+271 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -20,6 +20,10 @@ Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 Paths below are backend-relative: wire URL = gateway + service prefix + path. Config uses `/remote-config-service`, never `/config-service` (the gateway reserves `/config*`). An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
 
 Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.
+
+**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedules, and alerts require FieldsService ADMIN, including previews and downloads. Only Fields `GET /health/summary` requires READ.
+
+Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.
 
 | Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |
 |---|---|---|---|---|---|---|
@@ -117,6 +121,16 @@ Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO d
 | GET | `/metrics` | `config.metrics` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/liveness` | `fields.liveness` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/readiness` | `fields.readiness` | public / authenticated | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/alerts` | `fields.alerts` | ADMIN | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/alerts/config` | `fields.alertConfig` | ADMIN | 200 | yes | no |
+| PUT | `/api/fields/universes/{universeId}/alerts/config` | `fields.putAlertConfig` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/alerts/webhook/test` | `fields.testWebhook` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/alerts/{id}/ack` | `fields.ackAlert` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/bulk` | `fields.bulk` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/bulk/definitions` | `fields.createBulkDefinition` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/bulk/definitions/{id}` | `fields.bulkDefinition` | ADMIN | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/bulk/preview` | `fields.bulkPreview` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/bulk/{id}/reverse` | `fields.reverseBulk` | ADMIN | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/definitions` | `fields.definitions` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/definitions` | `fields.create` | ADMIN | 201 | no | no |
 | POST | `/api/fields/universes/{universeId}/definitions/preview-board` | `fields.previewBoard` | ADMIN | 200 | no | no |
@@ -125,11 +139,26 @@ Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO d
 | PUT | `/api/fields/universes/{universeId}/definitions/{id}` | `fields.update` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/archive` | `fields.archive` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/definitions/{id}/history` | `fields.history` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/definitions/{id}/migrations` | `fields.migrate` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/definitions/{id}/migrations/preview` | `fields.migrationPreview` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/unarchive` | `fields.unarchive` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/export` | `fields.export` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/fields/batch-get` | `fields.batch` | READ | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/health/summary` | `fields.healthSummary` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/import` | `fields.import` | ADMIN | 200 | keyed apply / dry-run | no |
+| GET | `/api/fields/universes/{universeId}/jobs` | `fields.jobs` | ADMIN | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/jobs/{id}` | `fields.job` | ADMIN | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/jobs/{id}/cancel` | `fields.cancelJob` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/jobs/{id}/download` | `fields.jobDownload` | ADMIN | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/jobs/{id}/events` | `fields.jobEvents` | ADMIN | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/jobs/{id}/failures` | `fields.jobFailures` | ADMIN | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/jobs/{id}/failures/download` | `fields.jobFailuresDownload` | ADMIN | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/jobs/{id}/retry` | `fields.retryJob` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/leaderboard-bindings` | `fields.leaderboardBindings` | ADMIN | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/ledger/{entryId}` | `fields.entry` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/ledger/{entryId}/reverse` | `fields.reverseEntry` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/migrations/{id}/cancel` | `fields.cancelMigration` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/migrations/{id}/rollback` | `fields.rollbackMigration` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/ops/validate` | `fields.validateOps` | READ | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/outbox` | `fields.outbox` | ADMIN | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/outbox/{id}/retry` | `fields.retryOutbox` | ADMIN | 200 | no | no |
@@ -154,6 +183,14 @@ Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO d
 | GET | `/api/fields/universes/{universeId}/receipts/{purchaseId}` | `fields.receipt` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/receipts/{purchaseId}/refund` | `fields.refund` | ADMIN | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/reconcile` | `fields.reconcile` | ADMIN | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/schedules` | `fields.schedules` | ADMIN | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/schedules` | `fields.createSchedule` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/schedules/preview` | `fields.schedulePreview` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/schedules/{id}` | `fields.schedule` | ADMIN | 200 | yes | no |
+| PUT | `/api/fields/universes/{universeId}/schedules/{id}` | `fields.editSchedule` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/schedules/{id}/actions` | `fields.scheduleActions` | ADMIN | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/schedules/{id}/cancel` | `fields.cancelSchedule` | ADMIN | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/schedules/{id}/end-now` | `fields.endSchedule` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/schema` | `fields.schema` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/schema/luau` | `fields.luau` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/schema/typescript` | `fields.typescript` | READ | 200 | yes | yes |

@@ -18,6 +18,46 @@ export type Page<T> = {
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 export type Action = { force: boolean?, idempotencyKey: string?, reason: string, universeId: number? }
+export type Alert = {
+	count: number,
+	firstSeen: string,
+	id: string,
+	lastSeen: string,
+	rule: AlertRule,
+	severity: AlertSeverity,
+	state: AlertState,
+}
+export type AlertAcknowledgement = { id: string, state: AlertState }
+export type AlertConfigInput = {
+	configFailOpenRate: number?,
+	enabled: boolean?,
+	pendingAgeSeconds: number?,
+	pendingSize: number?,
+	stalledSeconds: number?,
+	transaction5xxRate: number?,
+	universeId: number?,
+	webhook: (string | Core.Null)?,
+}
+export type AlertConfigResponse = {
+	configFailOpenRate: number,
+	enabled: boolean,
+	pendingAgeSeconds: number,
+	pendingSize: number,
+	stalledSeconds: number,
+	transaction5xxRate: number,
+	webhookConfigured: boolean,
+}
+export type AlertRule =
+	"OUTBOX_BACKLOG"
+	| "OUTBOX_FAILED"
+	| "RECONCILE_MISMATCH"
+	| "CONFIG_FAIL_OPEN"
+	| "JOB_FAILED"
+	| "JOB_STALLED"
+	| "SCHEDULE_ACTION_FAILED"
+	| "TRANSACTION_5XX"
+export type AlertSeverity = "WARNING" | "CRITICAL"
+export type AlertState = "OPEN" | "ACKED" | "RESOLVED"
 export type Batch = { fields: { string }, subjects: { number }?, universeId: number? }
 export type BatchItem = { field: FieldView, subject: number }
 export type BatchResponse = { items: { BatchItem } }
@@ -56,6 +96,32 @@ export type BoardSettings = {
 	sortOrder: BoardSortOrder,
 }
 export type BoardSortOrder = "DESC" | "ASC"
+export type BulkDefinitionCreated = { id: string }
+export type BulkInput = {
+	idempotencyKey: string?,
+	ops: { FieldTypes.PlayerOperation },
+	reason: string,
+	target: FieldTypes.BulkTarget,
+	universeId: number?,
+}
+export type BulkPreview = {
+	matchedCount: number,
+	samples: { BulkPreviewSample },
+	validation: OpsValidationResult,
+}
+export type BulkPreviewInput = {
+	idempotencyKey: string?,
+	ops: { FieldTypes.PlayerOperation },
+	reason: string?,
+	target: FieldTypes.BulkTarget,
+	universeId: number?,
+}
+export type BulkPreviewSample = {
+	after: { [string]: Core.Json },
+	before: { [string]: Core.Json },
+	error: string?,
+	subject: number,
+}
 export type ChangesResponse = { items: { Entry }, latestSeq: number, nextSinceSeq: number }
 export type Counts = { definitions: number, ledger: number, values: number }
 export type Definition = {
@@ -142,6 +208,14 @@ export type Entry = {
 	universeId: number,
 	versionAfter: number,
 }
+export type ExportInput = {
+	fields: { string }?,
+	idempotencyKey: string?,
+	reason: string,
+	target: FieldTypes.BulkTarget?,
+	universeId: number?,
+}
+export type FailurePolicy = "FAIL" | "USE_DEFAULT" | "CLAMP"
 export type FieldPage = { items: { FieldView }, nextCursor: (string | Core.Null)?, seq: number }
 export type FieldView = {
 	computed: boolean,
@@ -154,7 +228,10 @@ export type FieldView = {
 }
 export type HealthComponent = { status: string }
 export type HealthResponse = { service: string, status: string, timestamp: string }
+export type HealthSummary = { openAlerts: OpenAlertCounts, runningJobs: number, upcomingSchedules: number }
 export type History = "LEDGER" | "NONE"
+export type ImportError = { code: string, line: number }
+export type ImportValidation = { dryRun: boolean, errors: { ImportError }, records: number, valid: boolean }
 export type Item = {
 	attempts: number,
 	createdAt: string,
@@ -168,7 +245,83 @@ export type Item = {
 	status: string,
 	universeId: number,
 }
+export type JobActionInput = { reason: string, universeId: number? }
+export type JobEvent = {
+	actor: string,
+	createdAt: string,
+	event: string,
+	id: number,
+	metadata: { [string]: Core.Json },
+}
+export type JobFailure = { error: string, ordinal: number, subject: number }
+export type JobKind =
+	"BULK"
+	| "REVERSE"
+	| "EXPORT"
+	| "IMPORT"
+	| "MIGRATION"
+	| "ROLLBACK"
+	| "SCHEDULE"
+	| "ALERT_SCAN"
+	| "NOTIFY"
+export type JobReceipt = {
+	attempts: number,
+	cancelRequested: boolean,
+	error: string?,
+	failed: number,
+	id: string,
+	kind: JobKind,
+	phase: string?,
+	prepared: boolean,
+	snapshotId: string?,
+	state: JobState,
+	succeeded: number,
+	total: number,
+	updatedAt: string,
+}
+export type JobState = "QUEUED" | "RUNNING" | "SUCCEEDED" | "CANCELLED" | "FAILED"
+export type JobSummary = {
+	error: (string | Core.Null)?,
+	failed: number,
+	id: string,
+	kind: JobKind,
+	state: JobState,
+	succeeded: number,
+	total: number,
+	updatedAt: string,
+}
+export type KeyedJobActionInput = { idempotencyKey: string?, reason: string, universeId: number? }
 export type MetricsResponse = { names: { string } }
+export type MigrationFailureSample = { code: string, subject: number }
+export type MigrationInput = {
+	converter: FieldTypes.Converter?,
+	default: Core.Json?,
+	expectedDefinitionVersion: number,
+	idempotencyKey: string?,
+	onFailure: FailurePolicy?,
+	reason: string,
+	type: FieldTypes.TypeExpr,
+	universeId: number?,
+}
+export type MigrationPreview = {
+	affectedSubjects: number,
+	canApplyDirectly: boolean,
+	failureCounts: { [string]: number },
+	failureSamples: { MigrationFailureSample },
+	samples: { MigrationSample },
+	unconverted: number,
+}
+export type MigrationPreviewInput = {
+	converter: FieldTypes.Converter?,
+	default: Core.Json?,
+	expectedDefinitionVersion: number,
+	idempotencyKey: string?,
+	onFailure: FailurePolicy?,
+	reason: string?,
+	type: FieldTypes.TypeExpr,
+	universeId: number?,
+}
+export type MigrationSample = { after: Core.Json, before: Core.Json, subject: number }
 export type Mismatch = {
 	entryId: (string | Core.Null)?,
 	expected: Core.Json?,
@@ -185,6 +338,7 @@ export type OpValidationError = {
 	opIndex: number,
 	path: { FieldTypes.PathSegment },
 }
+export type OpenAlertCounts = { CRITICAL: number, WARNING: number }
 export type OpsValidationInput = { ops: { FieldTypes.PlayerOperation }, universeId: number? }
 export type OpsValidationResult = { errors: { OpValidationError }, valid: boolean }
 export type Policy = { autoEnabled: boolean, retentionDays: number }
@@ -287,6 +441,41 @@ export type ResultItem = {
 	subject: number,
 	version: number,
 }
+export type ScheduleActionResult = {
+	done: boolean,
+	error: (string | Core.Null)?,
+	jobId: (string | Core.Null)?,
+	key: (string | Core.Null)?,
+	kind: string,
+	ordinal: number,
+	version: (number | Core.Null)?,
+}
+export type ScheduleInput = {
+	["end"]: string?,
+	endActions: { FieldTypes.ScheduleAction }?,
+	idempotencyKey: string?,
+	name: string,
+	reason: string,
+	restorePrevious: boolean?,
+	start: string,
+	startActions: { FieldTypes.ScheduleAction },
+	universeId: number?,
+}
+export type SchedulePreview = {
+	endActions: { FieldTypes.ScheduleAction },
+	requiresExistingConfigResources: boolean,
+	restorePrevious: boolean,
+	start: string,
+	startActions: { FieldTypes.ScheduleAction },
+}
+export type ScheduleSummary = {
+	["end"]: (string | Core.Null)?,
+	id: string,
+	name: string,
+	phase: string,
+	start: string,
+	state: JobState,
+}
 export type SchemaResponse = { definitions: { Definition }, schemaVersion: number, universeId: number }
 export type Scope = "PLAYER" | "UNIVERSE"
 export type ScoreRange = { maxScore: number, minScore: number }
@@ -320,6 +509,29 @@ export type LivenessCall = {}
 export type LivenessResultValue = HealthComponent
 export type ReadinessCall = {}
 export type ReadinessResultValue = HealthComponent
+export type AlertsCall = { path: { universeId: (string | number)? }?, query: { limit: number? }? }
+export type AlertsResultValue = { Alert }
+export type AlertConfigCall = { path: { universeId: (string | number)? }? }
+export type AlertConfigResultValue = AlertConfigResponse
+export type PutAlertConfigCall = { path: { universeId: (string | number)? }?, body: AlertConfigInput }
+export type PutAlertConfigResultValue = AlertConfigResponse
+export type TestWebhookCall = { path: { universeId: (string | number)? }? }
+export type TestWebhookResultValue = JobReceipt
+export type AckAlertCall = { path: { universeId: (string | number)?, id: string } }
+export type AckAlertResultValue = AlertAcknowledgement
+export type BulkCall = { path: { universeId: (string | number)? }?, body: BulkInput }
+export type BulkResultValue = JobReceipt
+export type CreateBulkDefinitionCall = { path: { universeId: (string | number)? }?, body: BulkInput }
+export type CreateBulkDefinitionResultValue = BulkDefinitionCreated
+export type BulkDefinitionCall = { path: { universeId: (string | number)?, id: string } }
+export type BulkDefinitionResultValue = BulkInput
+export type BulkPreviewCall = { path: { universeId: (string | number)? }?, body: BulkPreviewInput }
+export type BulkPreviewResultValue = BulkPreview
+export type ReverseBulkCall = {
+	path: { universeId: (string | number)?, id: string },
+	body: KeyedJobActionInput,
+}
+export type ReverseBulkResultValue = JobReceipt
 export type DefinitionsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { cursor: string?, limit: number?, prefix: string?, scope: string?, status: string? }?,
@@ -345,16 +557,66 @@ export type HistoryCall = {
 	query: { cursor: string?, limit: number? }?,
 }
 export type HistoryResultValue = CursorPage<DefinitionChange>
+export type MigrateCall = { path: { universeId: (string | number)?, id: string }, body: MigrationInput }
+export type MigrateResultValue = JobReceipt
+export type MigrationPreviewCall = {
+	path: { universeId: (string | number)?, id: string },
+	body: MigrationPreviewInput,
+}
+export type MigrationPreviewResultValue = MigrationPreview
 export type UnarchiveCall = { path: { universeId: (string | number)?, id: string }, body: Action }
 export type UnarchiveResultValue = Definition
+export type ExportCall = { path: { universeId: (string | number)? }?, body: ExportInput }
+export type ExportResultValue = JobReceipt
 export type BatchCall = { path: { universeId: (string | number)? }?, body: Batch }
 export type BatchResultValue = BatchResponse
+export type HealthSummaryCall = { path: { universeId: (string | number)? }? }
+export type HealthSummaryResultValue = HealthSummary
+export type ImportCall = {
+	idempotencyKey: string?,
+	path: { universeId: (string | number)? }?,
+	query: { dryRun: boolean?, reason: string },
+	body: string,
+}
+export type ImportResultValue = ImportValidation | JobReceipt
+export type JobsCall = {
+	path: { universeId: (string | number)? }?,
+	query: { limit: number?, offset: (string | number)? }?,
+}
+export type JobsResultValue = { JobSummary }
+export type JobCall = { path: { universeId: (string | number)?, id: string } }
+export type JobResultValue = JobReceipt
+export type CancelJobCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
+export type CancelJobResultValue = JobReceipt
+export type JobDownloadCall = { path: { universeId: (string | number)?, id: string } }
+export type JobDownloadResultValue = string
+export type JobEventsCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { after: (string | number)? }?,
+}
+export type JobEventsResultValue = { JobEvent }
+export type JobFailuresCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { after: (string | number)?, limit: number? }?,
+}
+export type JobFailuresResultValue = { JobFailure }
+export type JobFailuresDownloadCall = { path: { universeId: (string | number)?, id: string } }
+export type JobFailuresDownloadResultValue = string
+export type RetryJobCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
+export type RetryJobResultValue = JobReceipt
 export type LeaderboardBindingsCall = { path: { universeId: (string | number)? }? }
 export type LeaderboardBindingsResultValue = { BindingView }
 export type EntryCall = { path: { universeId: (string | number)?, entryId: string } }
 export type EntryResultValue = Entry
 export type ReverseEntryCall = { path: { universeId: (string | number)?, entryId: string }, body: Action }
 export type ReverseEntryResultValue = Result
+export type CancelMigrationCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
+export type CancelMigrationResultValue = JobReceipt
+export type RollbackMigrationCall = {
+	path: { universeId: (string | number)?, id: string },
+	body: KeyedJobActionInput,
+}
+export type RollbackMigrationResultValue = JobReceipt
 export type ValidateOpsCall = { path: { universeId: (string | number)? }?, body: OpsValidationInput }
 export type ValidateOpsResultValue = OpsValidationResult
 export type OutboxCall = {
@@ -445,6 +707,22 @@ export type ReconcileCall = {
 	query: { cursor: string?, field: string?, limit: number? }?,
 }
 export type ReconcileResultValue = CursorPage<Mismatch>
+export type SchedulesCall = { path: { universeId: (string | number)? }? }
+export type SchedulesResultValue = { ScheduleSummary }
+export type CreateScheduleCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
+export type CreateScheduleResultValue = JobReceipt
+export type SchedulePreviewCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
+export type SchedulePreviewResultValue = SchedulePreview
+export type ScheduleCall = { path: { universeId: (string | number)?, id: string } }
+export type ScheduleResultValue = JobReceipt
+export type EditScheduleCall = { path: { universeId: (string | number)?, id: string }, body: ScheduleInput }
+export type EditScheduleResultValue = JobReceipt
+export type ScheduleActionsCall = { path: { universeId: (string | number)?, id: string } }
+export type ScheduleActionsResultValue = { ScheduleActionResult }
+export type CancelScheduleCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
+export type CancelScheduleResultValue = JobReceipt
+export type EndScheduleCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
+export type EndScheduleResultValue = JobReceipt
 export type SchemaCall = { path: { universeId: (string | number)? }? }
 export type SchemaResultValue = SchemaResponse
 export type LuauCall = { path: { universeId: (string | number)? }? }

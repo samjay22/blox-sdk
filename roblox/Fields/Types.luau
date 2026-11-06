@@ -98,4 +98,42 @@ export type Expectation = { version: number } | { equals: Core.Json } | { exists
 export type Condition =
 	{ field: string, subject: number?, path: Path? }
 	& ({ expectedVersion: number } | { equals: Core.Json } | { exists: boolean })
+export type FilterLiteral = number | string | boolean
+export type Filter =
+	{ op: "AND" | "OR", clauses: { Filter } }
+	| { op: "NOT", clause: Filter }
+	| { op: "EQ" | "NE" | "LT" | "LE" | "GT" | "GE", field: string, value: FilterLiteral }
+	| { op: "IN", field: string, value: { FilterLiteral } }
+	| { op: "EXISTS", field: string, value: boolean }
+export type BulkTarget =
+	{ kind: "ALL" }
+	| { kind: "SUBJECTS", subjects: { number } }
+	| { kind: "WHERE", where: Filter }
+export type ScheduleAction =
+	{ kind: "SET_CONFIG", key: string, type: "STRING", value: string }
+	| { kind: "SET_CONFIG", key: string, type: "NUMBER", value: number }
+	| { kind: "SET_CONFIG", key: string, type: "BOOLEAN", value: boolean }
+	| { kind: "SET_CONFIG", key: string, type: "JSON", value: Core.Json }
+	| { kind: "ENABLE_FLAG" | "DISABLE_FLAG", key: string }
+	| { kind: "RUN_BULK", bulkDefinitionId: string }
+export type Converter =
+	{
+		kind: "IDENTITY"
+			| "CLAMP"
+			| "INT_TO_NUMBER"
+			| "STRING_TO_INT"
+			| "STRING_TO_NUMBER"
+			| "TO_STRING"
+			| "BOOL_TO_INT"
+			| "WRAP_NULLABLE"
+			| "LIST_TO_SET"
+			| "SET_TO_LIST",
+	}
+	| { kind: "NUMBER_TO_INT", rounding: "ROUND" | "FLOOR" | "CEIL" }
+	| { kind: "ENUM_RENAME", map: { [string]: string } }
+	| { kind: "UNWRAP_NULLABLE", fallback: Core.Json }
+	| { kind: "MAP_VALUE", converter: Converter? }
+export type ImportRecord =
+	{ subject: number, field: string, op: "SET", value: Core.Json, universeId: number? }
+	| { subject: number, field: string, op: "ADD", delta: number, universeId: number? }
 return {}

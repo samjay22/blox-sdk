@@ -99,6 +99,9 @@ export type Endpoint = {
 	cacheable: boolean,
 	responseType: string,
 	responseFormat: string,
+	responseContentType: string?,
+	requestFormat: string?,
+	idempotencyHeader: boolean?,
 	pathParams: { Param },
 	queryParams: { Param },
 	bodyType: string?,
@@ -110,6 +113,7 @@ export type Endpoint = {
 	optionalKey: boolean?,
 }
 export type Request = {
+	idempotencyKey: string?,
 	version: number?,
 	path: { [string]: unknown }?,
 	query: { [string]: unknown }?,

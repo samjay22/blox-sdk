@@ -4,6 +4,12 @@
 
 Only explicitly retryable, idempotent endpoints retry by default. Safe GET/HEAD reads qualify. Matchmaking validation and bulk status POSTs are explicitly read-only and qualify. PUT/DELETE methods are not assumed repeat-safe solely because HTTP defines them as idempotent: backend side effects and return semantics matter. Keyed Fields, leaderboard score/rating and Audit mutations generate stable keys per logical call and qualify. All other mutations have **no automatic retry**.
 
+NDJSON import is an explicit exception to automatic key generation: apply (`dryRun=false`) requires a
+caller-supplied `Idempotency-Key`, binding the exact UTF-8 bytes and reason across retries. Missing keys
+fail locally; the SDK never generates a replacement. Import dry runs (including omitted `dryRun`, which
+defaults true) are read-only and retry-eligible without a key. Both remain subject to retry budgets and
+deadlines. Generated wrappers send raw NDJSON rather than encoding it as a JSON string.
+
 Eligible transient failures are Network, Server (5xx), and RateLimited. Eligible safe/idempotent calls receiving Unauthorized get one strategy-mediated replay, separately from transient retry accounting. Forbidden/validation/conflict/not-found/cancellation/deadline errors do not retry. A successful mutation with a lost response may already have executed; never interpret a Network/Timeout result as proof that it did not.
 
 Full jitter: `random[0,1] * min(8, 0.25 * 2^(retryIndex-1))`. Delta seconds and IMF-fixdate `Retry-After` are supported on 429/503. The larger of jitter and server delay is used, bounded by the original deadline. Sleeps are interruptible. No hedged reads.
@@ -27,6 +33,12 @@ their own origin state; the client-wide rate/retry budgets remain shared.
 `deadline` is an **absolute `runtime.now()`/`os.clock()` timestamp**, covering queue wait, rate wait, refresh wait, transport, retry sleep, and replay. `timeout` sets the default relative budget. Set `signal.cancelled=true` to stop a caller.
 
 Roblox `RequestAsync` does not expose a cancellable native HTTP request or timeout parameter. The SDK uses an owned worker and a cancellable timer; deadline/cancellation returns promptly, drops late results, and never prematurely recycles request headers. The worker keeps its concurrency slot until physical completion. Thus there are no abandoned timer tasks or unbounded spawned requests, but a native HTTP operation cannot be killed by `destroy()`. At most the configured number per host can remain physically outstanding. This is intentional backpressure, not a claim of native network cancellation.
+
+`Jobs:waitFor` requires a positive timeout (default 60 seconds, maximum 3600), covering HTTP and bounded
+poll sleeps with one deadline. It disables caching, never retries a mutation, and returns FAILED/CANCELLED
+receipts as successful transport Results. Progress callbacks must return promptly: arbitrary callback
+code cannot be preempted. Callback exceptions return a redacted `Local` error. Local timeout/cancellation
+stops observation, not the durable job. See [job polling](JOBS.md#job-observation-and-bounded-polling).
 
 ## Cache and single-flight
 

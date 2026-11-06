@@ -52,14 +52,18 @@ def mapping_arguments(text: str, start: int) -> str:
     raise AssertionError('Unbalanced controller mapping')
 
 
-def mapping_path(args: str) -> str:
-    """Support literal routes and fail closed on arrays/constants instead of dropping routes."""
-    if not args: return ''
+def mapping_paths(args: str) -> list[str]:
+    """Expand literal route arrays independently and reject constants or mixed expressions."""
+    if not args: return ['']
     named = re.search(r'(?:^|,)\s*(?:value|path)\s*=\s*(.*)', args)
     candidate = named[1] if named else args
+    if candidate.startswith('{'):
+        match = re.match(r'\{\s*("[^"\n]*"(?:\s*,\s*"[^"\n]*")*)\s*\}(?:\s*,|\s*$)', candidate)
+        assert match, f'Unsupported mapping path syntax: {args}'
+        return re.findall(r'"([^"\n]*)"', match[1])
     match = re.match(r'"([^"\n]*)"(?:\s*,|\s*$)', candidate)
     assert match, f'Unsupported mapping path syntax: {args}'
-    return match[1]
+    return [match[1]]
 
 
 def controller_routes() -> set[tuple[str,str,str]]:
@@ -77,16 +81,18 @@ def controller_routes() -> set[tuple[str,str,str]]:
             controllers += 1
             head, body = text.split('class ', 1)
             base = re.search(r'@RequestMapping\b', head)
-            prefix = mapping_path(mapping_arguments(head,base.end())) if base else ''
+            prefixes = mapping_paths(mapping_arguments(head,base.end())) if base else ['']
             for match in re.finditer(r'@(Get|Post|Put|Patch|Delete|Request)Mapping\b', body):
                 method, args = match[1].upper(), mapping_arguments(body, match.end())
                 if method == 'REQUEST':
                     verbs = re.findall(r'RequestMethod\.(\w+)', args)
                     assert len(verbs)==1, f'Unsupported mapping methods in {file}'
                     method = verbs[0]
-                path = prefix+mapping_path(args)
-                if not path.startswith('/actuator/'):
-                    found.add((service, method, path))
+                for prefix in prefixes:
+                    for suffix in mapping_paths(args):
+                        path = prefix+suffix
+                        if not path.startswith('/actuator/'):
+                            found.add((service, method, path))
         assert controllers, f'Missing backend controller sources: {root}'
     return found
 

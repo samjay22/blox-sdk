@@ -472,6 +472,56 @@
   {
     "svc": "fields",
     "method": "GET",
+    "path": "/api/fields/universes/{universeId}/alerts"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/alerts/config"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/alerts/config"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/alerts/webhook/test"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/alerts/{id}/ack"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/bulk"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/bulk/definitions"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/bulk/definitions/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/bulk/preview"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/bulk/{id}/reverse"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
     "path": "/api/fields/universes/{universeId}/definitions"
   },
   {
@@ -512,12 +562,77 @@
   {
     "svc": "fields",
     "method": "POST",
+    "path": "/api/fields/universes/{universeId}/definitions/{id}/migrations"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/definitions/{id}/migrations/preview"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
     "path": "/api/fields/universes/{universeId}/definitions/{id}/unarchive"
   },
   {
     "svc": "fields",
     "method": "POST",
+    "path": "/api/fields/universes/{universeId}/export"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
     "path": "/api/fields/universes/{universeId}/fields/batch-get"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/health/summary"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/import"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/jobs"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}/cancel"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}/download"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}/events"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}/failures"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}/failures/download"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/jobs/{id}/retry"
   },
   {
     "svc": "fields",
@@ -533,6 +648,16 @@
     "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/ledger/{entryId}/reverse"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/migrations/{id}/cancel"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/migrations/{id}/rollback"
   },
   {
     "svc": "fields",
@@ -653,6 +778,46 @@
     "svc": "fields",
     "method": "GET",
     "path": "/api/fields/universes/{universeId}/reconcile"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schedules"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/schedules"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/schedules/preview"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}/actions"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}/cancel"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}/end-now"
   },
   {
     "svc": "fields",

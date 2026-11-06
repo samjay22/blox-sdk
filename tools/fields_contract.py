@@ -11,6 +11,8 @@ def record(**fields: str) -> dict:
 def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[dict], dict]:
     """Resolve overloads, JsonProperty, dynamic map responses, nulls and operation wire types."""
     del root
+    from jobs_contract import definitions_into, curate as curate_jobs
+    definitions_into(definitions)
     definitions.update({
         'SchemaResponse': record(universeId='long', schemaVersion='long', definitions='List<Definition>'),
         'BatchItem': record(subject='long', field='FieldView'),
@@ -101,4 +103,4 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         endpoints.append(dict(health,id='fields.'+name,name=name,path='/'+name,
                               responseJava='MetricsResponse' if name=='metrics' else 'Map<String, Object>',
                               responseType=name.capitalize()+'ResultValue'))
-    return endpoints, definitions
+    return curate_jobs(endpoints), definitions

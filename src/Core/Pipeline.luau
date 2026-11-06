@@ -216,10 +216,17 @@ local function execute(
 		if previous ~= host.breaker.state and hooks and hooks.onBreakerChange then
 			emit(hooks.onBreakerChange, { host = hostName, state = host.breaker.state })
 		end
-		local headers: Types.Headers =
-			{ Accept = if spec.responseFormat == "text" then "text/plain" else "application/json" }
+		local headers: Types.Headers = {
+			Accept = spec.responseContentType
+				or (if spec.responseFormat == "text" then "text/plain" else "application/json"),
+		}
 		if request.body ~= nil then
-			headers["Content-Type"] = "application/json"
+			headers["Content-Type"] = if spec.requestFormat == "ndjson"
+				then "application/x-ndjson"
+				else "application/json"
+		end
+		if spec.idempotencyHeader and request.idempotencyKey then
+			headers["Idempotency-Key"] = request.idempotencyKey
 		end
 		if spec.conditional and request.version ~= nil then
 			headers["If-None-Match"] = '"' .. tostring(request.version) .. '"'
@@ -353,7 +360,9 @@ function Pipeline.call(
 	end
 	request = prepared
 	if
-		spec.optionalKey and (type(request.body) ~= "table" or (request.body :: any).idempotencyKey == nil)
+		spec.optionalKey
+		and not spec.idempotencyHeader
+		and (type(request.body) ~= "table" or (request.body :: any).idempotencyKey == nil)
 	then
 		spec = table.clone(spec)
 		spec.idempotent = false
@@ -370,6 +379,32 @@ function Pipeline.call(
 		)
 	then
 		return Errors.make("Validation", spec.id, 0, "Invalid snapshot version")
+	end
+	-- Import binds exact bytes and its header key, not a JSON string/body key or an arbitrary header map.
+	if request.idempotencyKey ~= nil then
+		local key = request.idempotencyKey
+		if
+			not spec.idempotencyHeader
+			or type(key) ~= "string"
+			or #key < 1
+			or #key > 200
+			or not string.match(key, "^[A-Za-z0-9._-]+$")
+		then
+			return Errors.make("Validation", spec.id, 0, "Invalid idempotency header")
+		end
+	end
+	if spec.requestFormat == "ndjson" then
+		if
+			type(request.body) ~= "string"
+			or #request.body == 0
+			or #request.body > 16 * 1024 * 1024
+			or utf8.len(request.body) == nil
+		then
+			return Errors.make("Validation", spec.id, 0, "Invalid NDJSON body")
+		end
+		if request.query and request.query.dryRun == false and request.idempotencyKey == nil then
+			return Errors.make("Validation", spec.id, 0, "Import apply requires an idempotency key")
+		end
 	end
 	-- Audit writes have no path selector; fill their declared body universe for user-token clients too.
 	if spec.service == "audit" and type(request.body) == "table" and universe ~= nil then

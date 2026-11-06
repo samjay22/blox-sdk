@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 
 def main() -> None:
-    """Compile all generated modules and emulate only ModuleScript resolution, not Roblox HTTP."""
+    """Check both runtimes with emulated ModuleScript resolution, never live Roblox HTTP."""
     sources={}
     for p in (ROOT/'roblox').rglob('*.luau'):
         key='src/BloxSDK' if p.name=='init.luau' else 'src/'+str(p.relative_to(ROOT/'roblox').with_suffix(''))
@@ -36,10 +36,16 @@ for name, node in nodes.src do
  if type(node) == "table" and name ~= "BloxSDK" then node.Parent = nodes["src/BloxSDK"] end
 end
 local base = getfenv()
+-- Lune deliberately omits loadstring; its bundled compiler needs no install or network.
+local luneCompiler = if base.loadstring then nil else require("@lune/luau")
+local function compileSource(source, name)
+ if base.loadstring then return assert(base.loadstring(source, name)) end
+ return luneCompiler.load(source, {debugName=name})
+end
 local function loadModule(id)
  if values[id] ~= nil then return values[id] end
  local source = assert(sources[id], "Missing projected module")
- local fn = assert(loadstring(source, "@projected/" .. id))
+ local fn = compileSource(source, "@projected/" .. id)
  local env = setmetatable({script=nodes[id]}, {__index=base})
  env.require = function(target)
   if type(target) == "table" then return loadModule(target._id) end
@@ -55,7 +61,7 @@ local function loadModule(id)
  values[id]=value or true
  return values[id]
 end
-for id,source in sources do assert(loadstring(source,"@syntax/"..id), "Projected syntax failure") end
+for id,source in sources do assert(compileSource(source,"@syntax/"..id), "Projected syntax failure") end
 loadModule("tests/run")
 -- Exercise the default Roblox adapter without making any network calls.
 local scheduler=loadModule("tests/Scheduler").new()
@@ -134,4 +140,5 @@ print("PASS projected HttpService/Secret/GUID adapter, BindToClose audit drain a
     directory=ROOT/'.test-build';directory.mkdir(exist_ok=True)
     script=directory/'projected.luau';script.write_text('\n'.join(parts)+'\n')
     subprocess.run(['luau',str(script)],cwd=ROOT,check=True)
+    subprocess.run(['lune','run',str(script)],cwd=ROOT,check=True)
 if __name__=='__main__':main()

@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 222 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 255 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 238 endpoints]
+  Audit --> Spec[spec/endpoints.json: 271 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
@@ -63,8 +63,8 @@ Single-flight is client-local, keyed by endpoint, canonical URL, auth generation
 ## Fields ownership
 
 Generated `Services/Fields` delegates helpers to `Fields/Client`; no generated HTTP wrapper is hand-edited.
-TypeExpr is a closed exported recursive union. Schema compilation is atomic per generation. Builders
-validate all ops before calling Invoke, seal private payloads and keep one identity across retries.
+TypeExpr is a closed exported recursive union. Schema compilation is atomic per generation. Transaction
+builders validate all ops before calling Invoke, seal private payloads and keep one identity across retries.
 Profiles apply acknowledged after-subvalues and refresh snapshot state across sequence gaps/NONE history.
 Shared helper state owns caches, presence timers and bounded close work. See [Fields](FIELDS.md).
 
@@ -75,3 +75,10 @@ Shared helper state owns caches, presence timers and bounded close work. See [Fi
 cache. Transactions use the shared constructor and TypeSystem, retaining full commit validation and
 per-transaction identity. Codes never choose a downstream key or emulate a player-state mutation locally.
 Generated facades delegate only the handwritten preflight; transport/retry/auth remain in one pipeline.
+
+`Fields/Bulk` composes the same operation builder; `Fields/Control` validates closed target/filter and
+schedule-action grammar. `Fields/Jobs` validates import/export requests and offers synchronous bounded
+polling; it never owns durable execution or implicitly mutates a job. `Fields/Schedules` validates UTC
+windows while backend workers own their timing and effects. Typed helpers provide preflight only;
+raw generated wrappers retain server-authoritative semantics. NDJSON import uses raw string transport
+and an explicit header key, while export/failure downloads return buffered text. See [Jobs](JOBS.md).

@@ -36,7 +36,9 @@ function Transport.send(
 			end
 			if body ~= nil then
 				local schema = Schemas.endpoints[spec.id]
-				request.Body = runtime.encode(body, schema.body, Schemas.definitions[schema.service])
+				request.Body = if spec.requestFormat == "ndjson"
+					then body :: string
+					else runtime.encode(body, schema.body, Schemas.definitions[schema.service])
 			end
 			assert(
 				not abandoned
@@ -64,7 +66,7 @@ function Transport.send(
 			if
 				wire.StatusCode >= 200
 				and wire.StatusCode < 300
-				and wire.Body ~= ""
+				and (wire.Body ~= "" or spec.responseFormat == "text")
 				and request.Method ~= "HEAD"
 			then
 				value = if spec.responseFormat == "text"

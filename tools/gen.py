@@ -128,6 +128,8 @@ def generate(doc: dict) -> dict[Path,str]:
             pieces=[]
             for n,f in sorted(fields.items()):
                 s=schema(f['java']); typ=typename(s)
+                if f.get('nullable'):
+                    typ='('+typ+' | Core.Null)'; s={'kind':'nullable','item':s}
                 if svc=='auth' and name=='ServiceAccountPatchRequest' and n in ('description','expiresAt'):
                     typ='('+typ+' | Core.Null)'; s={'kind':'nullable','item':s}
                 if n == 'entryId' and svc in ('fields','codes'):
@@ -136,7 +138,9 @@ def generate(doc: dict) -> dict[Path,str]:
                     typ='(number | Core.Null)'; s={'kind':'nullable','item':{'kind':'number'}}
                 if not f['required']:typ='('+typ+')?'
                 if n == 'nextCursor': typ='(string | Core.Null)?'; s={'kind':'nullable','item':s}
-                pieces.append(n+': '+typ)
+                # JSON keys can be language keywords (schedule UTC window "end").
+                field_name = '['+lua(n)+']' if n in ('end','function','local','if','then','else','repeat','until','while','for','do','return','break','in','not','and','or','nil','true','false') else n
+                pieces.append(field_name+': '+typ)
                 schemas[name]['fields'][n]={'schema':s,'required':f['required'],'notBlank':f.get('notBlank',False)}
             if svc == 'matchmaking' and name == 'MatchmakingCriteriaDTO':
                 lines.append('--- Criteria reference top-level Fields computed IDs; dotted fieldName values are rejected by the backend.')
@@ -151,6 +155,7 @@ def generate(doc: dict) -> dict[Path,str]:
             if direct: req=typename(schema(e['bodyType']))
             else:
                 groups=[]
+                if e.get('idempotencyHeader'): groups.append('idempotencyKey: string?')
                 if e.get('conditional'): groups.append('version: number?')
                 for which in ('path','query'):
                     params=e[which+'Params']
@@ -167,7 +172,7 @@ def generate(doc: dict) -> dict[Path,str]:
             lines.append('export type '+response_type+' = '+typename(schema(e['responseJava'])))
             runtime_schemas[e['id']]={'body':schema(e['bodyType']) if e['bodyType'] else None,'response':schema(e['responseJava']),'service':svc}
             lit={k:e[k] for k in ('id','method','path','service','serviceName','minimumLevel','requiredRole','authKinds','idempotent','retryable','cacheable','responseType','responseFormat','pathParams','queryParams','bodyType','bodyRequired')}
-            for k in ('idempotencyField','idempotencyItems','conditional','optionalKey'): lit[k]=e.get(k)
+            for k in ('idempotencyField','idempotencyItems','conditional','optionalKey','idempotencyHeader','requestFormat','responseContentType'): lit[k]=e.get(k)
             lit['segments']=re.split(r'\{([^}]+)\}',e['path'])
             endpoint_literal[e['id']]=lit
         lines.append('return {}')
@@ -184,6 +189,13 @@ def generate(doc: dict) -> dict[Path,str]:
                       'function Service.Award(self: Service, universeId: string | number): Award.Builder return Award.new(assert(self._fields, "Fields helpers unavailable"), universeId) end']
         if svc == 'fields':
             lines[3:3] = ['local Helpers = require("../Fields/Client")', 'local Schema = require("../Fields/Schema")', 'local Transaction = require("../Fields/Transaction")', 'local Profile = require("../Fields/Profile")', 'local OpBuilder = require("../Fields/OpBuilder")']
+            for module in ('Bulk','Schedules','Jobs','Health'):
+                lines.insert(3, 'local '+module+' = require("../Fields/'+module+'")')
+                helper_type = 'Builder' if module == 'Bulk' else 'Client'
+                lines.extend([
+                    '--- Bind '+module+' helpers to an explicit universe; control-plane mutations require a server ADMIN key.',
+                    f'function Service.{module}(self: Service, universeId: string | number): {module}.{helper_type} return {module}.new(assert(self._fields, "Fields helpers unavailable"), universeId) end',
+                ])
             lines += [
                 '--- Build a subject-free list for read-only static validation.',
                 'function Service.Operations(self: Service, universeId: string | number): OpBuilder.Builder return Helpers.operations(assert(self._fields, "Fields helpers unavailable"), universeId) end',
@@ -224,7 +236,7 @@ def generate(doc: dict) -> dict[Path,str]:
     endpoints_schema={k:v for k,v in runtime_schemas.items() if k not in SERVICES}
     output[ROOT/'src/Core/Schemas.luau']='--!strict\n-- Generated validation schemas.\nlocal Core = require("../Types/Core")\nlocal Cache = require("./Cache")\nlocal definitions: {[string]: {[string]: Core.Schema}} = '+lua(definitions_literal)+'\nlocal endpoints: {[string]: Core.EndpointSchema} = '+lua(endpoints_schema)+'\nreturn Cache.freeze({definitions=definitions,endpoints=endpoints}) :: {definitions: {[string]: {[string]: Core.Schema}}, endpoints: {[string]: Core.EndpointSchema}}\n'
 
-    rows=['# Endpoint reference','',f'{len(doc["endpoints"])} endpoints. `routes.json` coverage is checked independently.','', 'Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.','', '| Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |','|---|---|---|---|---|---|---|']
+    rows=['# Endpoint reference','',f'{len(doc["endpoints"])} endpoints. `routes.json` coverage is checked independently.','', 'Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.']
     rows[4:4] = [
         f'Default gateway: `{GATEWAY_URL}`. Override once with `gatewayUrl`.', '',
         '**lb1 requires `Gateway` permission in addition to the target service permission. `bsa_` service-account keys are universe-bound.**', '',
@@ -235,8 +247,11 @@ def generate(doc: dict) -> dict[Path,str]:
         'An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway '
         'and prefix for that service only. See [routing configuration](../README.md#gateway-routing).', '',
     ]
+    rows.extend(['', '**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedules, and alerts require FieldsService ADMIN, including previews and downloads. Only Fields `GET /health/summary` requires READ.', '', 'Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.'])
+    rows.extend(['', '| Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |','|---|---|---|---|---|---|---|'])
     for e in doc['endpoints']:
-        rows.append('| '+ ' | '.join([e['method'],'`'+e['path']+'`','`'+e['id']+'`',e['requiredRole'] or e['minimumLevel'] or 'public / authenticated',', '.join(map(str,e['statuses'])),'keyed' if e.get('idempotencyField') else 'yes' if e['retryable'] else 'no','yes' if e['cacheable'] else 'no'])+' |')
+        retry = 'keyed apply / dry-run' if e.get('idempotencyHeader') else 'keyed' if e.get('idempotencyField') else 'yes' if e['retryable'] else 'no'
+        rows.append('| '+ ' | '.join([e['method'],'`'+e['path']+'`','`'+e['id']+'`',e['requiredRole'] or e['minimumLevel'] or 'public / authenticated',', '.join(map(str,e['statuses'])),retry,'yes' if e['cacheable'] else 'no'])+' |')
     output[ROOT/'docs/ENDPOINTS.md']='\n'.join(rows)+'\n'
     provenance=json.loads((ROOT/'spec/provenance.json').read_text())
     prefixes=('srv/src-mm/', 'srv/src-roblox-code-service/', 'svc/')

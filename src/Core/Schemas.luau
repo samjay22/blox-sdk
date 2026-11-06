@@ -2051,6 +2051,164 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["Alert"] = {
+			["fields"] = {
+				["count"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["firstSeen"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["lastSeen"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["rule"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "AlertRule" } :: Core.Schema,
+				},
+				["severity"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "AlertSeverity" } :: Core.Schema,
+				},
+				["state"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "AlertState" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["AlertAcknowledgement"] = {
+			["fields"] = {
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["state"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "AlertState" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["AlertConfigInput"] = {
+			["fields"] = {
+				["configFailOpenRate"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["enabled"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["pendingAgeSeconds"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["pendingSize"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["stalledSeconds"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["transaction5xxRate"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["webhook"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["AlertConfigResponse"] = {
+			["fields"] = {
+				["configFailOpenRate"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["enabled"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["pendingAgeSeconds"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["pendingSize"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["stalledSeconds"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["transaction5xxRate"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["webhookConfigured"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["AlertRule"] = {
+			["kind"] = "enum",
+			["values"] = {
+				"OUTBOX_BACKLOG",
+				"OUTBOX_FAILED",
+				"RECONCILE_MISMATCH",
+				"CONFIG_FAIL_OPEN",
+				"JOB_FAILED",
+				"JOB_STALLED",
+				"SCHEDULE_ACTION_FAILED",
+				"TRANSACTION_5XX",
+			},
+		} :: Core.Schema,
+		["AlertSeverity"] = { ["kind"] = "enum", ["values"] = { "WARNING", "CRITICAL" } } :: Core.Schema,
+		["AlertState"] = { ["kind"] = "enum", ["values"] = { "OPEN", "ACKED", "RESOLVED" } } :: Core.Schema,
 		["Batch"] = {
 			["fields"] = {
 				["fields"] = {
@@ -2253,6 +2411,130 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			["kind"] = "object",
 		} :: Core.Schema,
 		["BoardSortOrder"] = { ["kind"] = "enum", ["values"] = { "DESC", "ASC" } } :: Core.Schema,
+		["BulkDefinitionCreated"] = {
+			["fields"] = {
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BulkInput"] = {
+			["fields"] = {
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["ops"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["target"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "fields", ["name"] = "BulkTarget" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BulkPreview"] = {
+			["fields"] = {
+				["matchedCount"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["samples"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "BulkPreviewSample" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["validation"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "OpsValidationResult" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BulkPreviewInput"] = {
+			["fields"] = {
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["ops"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["target"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "fields", ["name"] = "BulkTarget" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BulkPreviewSample"] = {
+			["fields"] = {
+				["after"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+				},
+				["before"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+				},
+				["error"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["subject"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["ChangesResponse"] = {
 			["fields"] = {
 				["items"] = {
@@ -2701,6 +2983,40 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["ExportInput"] = {
+			["fields"] = {
+				["fields"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["target"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "fields", ["name"] = "BulkTarget" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FailurePolicy"] = { ["kind"] = "enum", ["values"] = { "FAIL", "USE_DEFAULT", "CLAMP" } } :: Core.Schema,
 		["FieldPage"] = {
 			["fields"] = {
 				["items"] = {
@@ -2797,7 +3113,70 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["HealthSummary"] = {
+			["fields"] = {
+				["openAlerts"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "OpenAlertCounts" } :: Core.Schema,
+				},
+				["runningJobs"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["upcomingSchedules"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["History"] = { ["kind"] = "enum", ["values"] = { "LEDGER", "NONE" } } :: Core.Schema,
+		["ImportError"] = {
+			["fields"] = {
+				["code"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["line"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ImportValidation"] = {
+			["fields"] = {
+				["dryRun"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["errors"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ImportError" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["records"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["valid"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["Item"] = {
 			["fields"] = {
 				["attempts"] = {
@@ -2858,6 +3237,227 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["JobActionInput"] = {
+			["fields"] = {
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["JobEvent"] = {
+			["fields"] = {
+				["actor"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["createdAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["event"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["metadata"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["JobFailure"] = {
+			["fields"] = {
+				["error"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["ordinal"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["subject"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["JobKind"] = {
+			["kind"] = "enum",
+			["values"] = {
+				"BULK",
+				"REVERSE",
+				"EXPORT",
+				"IMPORT",
+				"MIGRATION",
+				"ROLLBACK",
+				"SCHEDULE",
+				"ALERT_SCAN",
+				"NOTIFY",
+			},
+		} :: Core.Schema,
+		["JobReceipt"] = {
+			["fields"] = {
+				["attempts"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["cancelRequested"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["error"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["failed"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["kind"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "JobKind" } :: Core.Schema,
+				},
+				["phase"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["prepared"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["snapshotId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["state"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "JobState" } :: Core.Schema,
+				},
+				["succeeded"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["total"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["updatedAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["JobState"] = {
+			["kind"] = "enum",
+			["values"] = { "QUEUED", "RUNNING", "SUCCEEDED", "CANCELLED", "FAILED" },
+		} :: Core.Schema,
+		["JobSummary"] = {
+			["fields"] = {
+				["error"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["failed"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["kind"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "JobKind" } :: Core.Schema,
+				},
+				["state"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "JobState" } :: Core.Schema,
+				},
+				["succeeded"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["total"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["updatedAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["KeyedJobActionInput"] = {
+			["fields"] = {
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["MetricsResponse"] = {
 			["fields"] = {
 				["names"] = {
@@ -2867,6 +3467,175 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "array",
 					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["MigrationFailureSample"] = {
+			["fields"] = {
+				["code"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["subject"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["MigrationInput"] = {
+			["fields"] = {
+				["converter"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "fields", ["name"] = "Converter" } :: Core.Schema,
+				},
+				["default"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["expectedDefinitionVersion"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["onFailure"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "ref", ["name"] = "FailurePolicy" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["type"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "fields", ["name"] = "TypeExpr" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["MigrationPreview"] = {
+			["fields"] = {
+				["affectedSubjects"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["canApplyDirectly"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["failureCounts"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+				["failureSamples"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "MigrationFailureSample" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["samples"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "MigrationSample" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["unconverted"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["MigrationPreviewInput"] = {
+			["fields"] = {
+				["converter"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "fields", ["name"] = "Converter" } :: Core.Schema,
+				},
+				["default"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["expectedDefinitionVersion"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["onFailure"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "ref", ["name"] = "FailurePolicy" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["type"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "fields", ["name"] = "TypeExpr" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["MigrationSample"] = {
+			["fields"] = {
+				["after"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["before"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["subject"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -2943,6 +3712,21 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PathSegment" } :: Core.Schema,
 						["kind"] = "array",
 					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["OpenAlertCounts"] = {
+			["fields"] = {
+				["CRITICAL"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["WARNING"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -3592,6 +4376,188 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ScheduleActionResult"] = {
+			["fields"] = {
+				["done"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["error"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["jobId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["key"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["kind"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["ordinal"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["version"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ScheduleInput"] = {
+			["fields"] = {
+				["end"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["endActions"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "ScheduleAction" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["idempotencyKey"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["restorePrevious"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["start"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["startActions"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "ScheduleAction" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["SchedulePreview"] = {
+			["fields"] = {
+				["endActions"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "ScheduleAction" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["requiresExistingConfigResources"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["restorePrevious"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["start"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["startActions"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "fields", ["name"] = "ScheduleAction" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ScheduleSummary"] = {
+			["fields"] = {
+				["end"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["phase"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["start"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["state"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "JobState" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -6695,6 +7661,21 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		} :: Core.Schema,
 		["service"] = "config",
 	},
+	["fields.ackAlert"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "AlertAcknowledgement" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.alertConfig"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "AlertConfigResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.alerts"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "Alert" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.archive"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "Action" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
@@ -6705,6 +7686,35 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "BatchResponse" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.bulk"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "BulkInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.bulkDefinition"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "BulkInput" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.bulkPreview"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "BulkPreviewInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "BulkPreview" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.cancelJob"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "JobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.cancelMigration"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "JobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.cancelSchedule"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "JobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.changes"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ChangesResponse" } :: Core.Schema,
 		["service"] = "fields",
@@ -6712,6 +7722,16 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.create"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "DefinitionInput" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.createBulkDefinition"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "BulkInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "BulkDefinitionCreated" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.createSchedule"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ScheduleInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.createSnapshot"] = {
@@ -6743,8 +7763,23 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Document" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.editSchedule"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ScheduleInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.endSchedule"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "JobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.entry"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Entry" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.export"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ExportInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.field"] = {
@@ -6759,6 +7794,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "HealthResponse" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.healthSummary"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "HealthSummary" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.history"] = {
 		["response"] = {
 			["item"] = { ["kind"] = "ref", ["name"] = "DefinitionChange" } :: Core.Schema,
@@ -6766,8 +7805,49 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		} :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.import"] = {
+		["body"] = { ["kind"] = "string" } :: Core.Schema,
+		["response"] = {
+			["items"] = {
+				{ ["kind"] = "ref", ["name"] = "ImportValidation" } :: Core.Schema,
+				{ ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+			},
+			["kind"] = "union",
+		} :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.info"] = {
 		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.job"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.jobDownload"] = { ["response"] = { ["kind"] = "string" } :: Core.Schema, ["service"] = "fields" },
+	["fields.jobEvents"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "JobEvent" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.jobFailures"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "JobFailure" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.jobFailuresDownload"] = {
+		["response"] = { ["kind"] = "string" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.jobs"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "JobSummary" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.leaderboardBindings"] = {
@@ -6791,6 +7871,16 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.luau"] = { ["response"] = { ["kind"] = "string" } :: Core.Schema, ["service"] = "fields" },
 	["fields.metrics"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "MetricsResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.migrate"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "MigrationInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.migrationPreview"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "MigrationPreviewInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "MigrationPreview" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.multiTransaction"] = {
@@ -6842,6 +7932,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	},
 	["fields.purge"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Counts" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.putAlertConfig"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "AlertConfigInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "AlertConfigResponse" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.putDocument"] = {
@@ -6896,8 +7991,18 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "RestoreResponse" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.retryJob"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "JobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.retryOutbox"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Item" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.reverseBulk"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "KeyedJobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.reverseEntry"] = {
@@ -6908,6 +8013,34 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.reverseTransaction"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "Action" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.rollbackMigration"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "KeyedJobActionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.schedule"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.scheduleActions"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "ScheduleActionResult" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.schedulePreview"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ScheduleInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "SchedulePreview" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.schedules"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "ScheduleSummary" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.schema"] = {
@@ -6927,6 +8060,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 			["item"] = { ["kind"] = "ref", ["name"] = "Snapshot" } :: Core.Schema,
 			["kind"] = "cursorPage",
 		} :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.testWebhook"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.transaction"] = {
