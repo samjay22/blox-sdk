@@ -1,6 +1,6 @@
 # Endpoint reference
 
-277 endpoints. `routes.json` coverage is checked independently.
+279 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -306,3 +306,5 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/poll/health` | `party.health` | public / authenticated | 200 | yes | no |
 | GET | `/api/poll/updates` | `party.getUpdates` | public / authenticated | 200 | yes | no |
 | GET | `/health` | `party.healthProxy` | public / authenticated | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/players/sample` | `fields.samplePlayers` | READ | 200 | yes | yes |
+| POST | `/api/matchmaking/criteria/simulate` | `matchmaking.simulateCriteria` | READ_WRITE | 200 | no | no |

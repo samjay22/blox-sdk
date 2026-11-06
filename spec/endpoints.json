@@ -14729,6 +14729,117 @@
       "statuses": [
         200
       ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": true,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "guardNote": "Criteria dry-run contract; side-effect free, server validation authoritative.",
+      "id": "fields.samplePlayers",
+      "idempotent": true,
+      "javaResponse": "Mono<PlayerSampleResponse>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "samplePlayers",
+      "path": "/api/fields/universes/{universeId}/players/sample",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "default": "200",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        },
+        {
+          "java": "String",
+          "name": "fields",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "PlayerSampleResponse",
+      "responseType": "SamplePlayersResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "CONTRACT.md#f4-criteria-dry-run",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "CriteriaSimulationRequest",
+      "cacheable": false,
+      "errorStatusNote": "Common framework/service errors; not an exhaustive set of domain exceptions.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "guardNote": "Criteria dry-run contract; side-effect free, server validation authoritative.",
+      "id": "matchmaking.simulateCriteria",
+      "idempotent": true,
+      "javaResponse": "Mono<CriteriaSimulationResponse>",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "simulateCriteria",
+      "path": "/api/matchmaking/criteria/simulate",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "CriteriaSimulationResponse",
+      "responseType": "SimulateCriteriaResultValue",
+      "retryable": false,
+      "service": "matchmaking",
+      "serviceName": "MatchmakingService",
+      "source": "CONTRACT.md#f4-criteria-dry-run",
+      "statuses": [
+        200
+      ]
     }
   ],
   "sourceHashes": {
@@ -19760,6 +19871,41 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java"
       },
+      "PlayerSample": {
+        "fields": {
+          "userId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "values": {
+            "java": "Map<String, Double>",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "CONTRACT.md#f4-criteria-dry-run"
+      },
+      "PlayerSampleResponse": {
+        "fields": {
+          "players": {
+            "java": "List<PlayerSample>",
+            "notBlank": false,
+            "required": true
+          },
+          "sampled": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "universeId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "CONTRACT.md#f4-criteria-dry-run"
+      },
       "Policy": {
         "fields": {
           "autoEnabled": {
@@ -21960,6 +22106,51 @@
         "parent": null,
         "source": "srv/src-mm/src/main/java/sam/tech/dto/CriteriaExplanationResponse.java"
       },
+      "CriteriaFieldCoverage": {
+        "fields": {
+          "max": {
+            "java": "Double",
+            "notBlank": false,
+            "nullable": true,
+            "required": true
+          },
+          "mean": {
+            "java": "Double",
+            "notBlank": false,
+            "nullable": true,
+            "required": true
+          },
+          "min": {
+            "java": "Double",
+            "notBlank": false,
+            "nullable": true,
+            "required": true
+          },
+          "missing": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "p50": {
+            "java": "Double",
+            "notBlank": false,
+            "nullable": true,
+            "required": true
+          },
+          "p90": {
+            "java": "Double",
+            "notBlank": false,
+            "nullable": true,
+            "required": true
+          },
+          "present": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "CONTRACT.md#f4-criteria-dry-run"
+      },
       "CriteriaFieldInfo": {
         "fields": {
           "constraint": {
@@ -21990,6 +22181,81 @@
         },
         "parent": null,
         "source": "srv/src-mm/src/main/java/sam/tech/dto/CriteriaExplanationResponse.java"
+      },
+      "CriteriaSimulationEstimate": {
+        "fields": {
+          "avgGroupSize": {
+            "java": "double",
+            "notBlank": false,
+            "required": true
+          },
+          "groups": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "unmatchable": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "unmatchablePct": {
+            "java": "double",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "CONTRACT.md#f4-criteria-dry-run"
+      },
+      "CriteriaSimulationRequest": {
+        "fields": {
+          "criteria": {
+            "java": "List<MatchmakingCriteriaDTO>",
+            "notBlank": false,
+            "required": true
+          },
+          "placeId": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "sampleSize": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "universeId": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "CONTRACT.md#f4-criteria-dry-run"
+      },
+      "CriteriaSimulationResponse": {
+        "fields": {
+          "estimate": {
+            "java": "CriteriaSimulationEstimate",
+            "notBlank": false,
+            "required": true
+          },
+          "fieldCoverage": {
+            "java": "Map<String, CriteriaFieldCoverage>",
+            "notBlank": false,
+            "required": true
+          },
+          "sampled": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "warnings": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "CONTRACT.md#f4-criteria-dry-run"
       },
       "CriteriaType": {
         "enum": [

@@ -341,6 +341,8 @@ export type OpValidationError = {
 export type OpenAlertCounts = { CRITICAL: number, WARNING: number }
 export type OpsValidationInput = { ops: { FieldTypes.PlayerOperation }, universeId: number? }
 export type OpsValidationResult = { errors: { OpValidationError }, valid: boolean }
+export type PlayerSample = { userId: number, values: { [string]: number } }
+export type PlayerSampleResponse = { players: { PlayerSample }, sampled: number, universeId: number }
 export type Policy = { autoEnabled: boolean, retentionDays: number }
 export type PolicyInput = { autoEnabled: boolean, retentionDays: number, universeId: number? }
 export type Presence = {
@@ -759,4 +761,9 @@ export type InfoCall = {}
 export type InfoResultValue = { [string]: Core.Json }
 export type MetricsCall = {}
 export type MetricsResultValue = MetricsResponse
+export type SamplePlayersCall = {
+	path: { universeId: (string | number)? }?,
+	query: { limit: number?, fields: string? }?,
+}
+export type SamplePlayersResultValue = PlayerSampleResponse
 return {}

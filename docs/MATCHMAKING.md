@@ -50,3 +50,41 @@ ones. Transport/HTTP/timeout/malformed-response failures discard the entire fetc
 metadata with a sanitized warning and `matchmaking.fields.fetch.failed` metric. Individual computation
 errors are skipped. Enrichment does not propagate fetch failures; subsequent criteria validation can
 still reject the queue request. SDK success is not evidence of backend Fields reachability.
+
+## Test criteria without entering a queue
+
+`samplePlayers` requires FieldsService READ. `limit` defaults to 200 (1–500);
+`fields` is a comma-separated list of at most 20 computed field IDs. Players are
+sampled most recently updated first, not randomly. Missing or errored computed
+values are omitted from each player's `values` map, never replaced with zero.
+
+```luau
+local sample = client.fields:samplePlayers({
+    path = {universeId = 123}, query = {limit = 200, fields = "Rating"},
+})
+local simulation = client.matchmaking:simulateCriteria({
+    universeId = "123",
+    sampleSize = 200, -- 10–500; placeId is optional.
+    criteria = {
+        {type = "TEAM_SIZE", maxPlayers = 6},
+        {type = "SKILL_BASED", fieldName = "Rating", skillRange = 200},
+    },
+})
+if simulation.ok then
+    print(simulation.value.sampled, simulation.value.estimate.unmatchablePct)
+end
+```
+
+`simulateCriteria` requires MatchmakingService READ_WRITE and Fields READ for
+sampling. It validates criteria like a game-mode save (including computed return
+types and dotted field IDs), uses the real grouping/evaluators, and never touches
+live queues or saves a game mode. Body `universeId` must be supplied explicitly;
+`withUniverse` does not fill body fields. The SDK does not automatically retry
+this POST or cache its result.
+
+The response contains `sampled`, `fieldCoverage`, `estimate`, and `warnings`.
+Coverage is keyed by field ID with present/missing counts, min/max/mean/p50/p90;
+statistics can be null when no values are present. Estimate includes groups,
+avgGroupSize, unmatchable, and unmatchablePct (0–100). Treat these as a recent-data
+diagnostic, not a queue throughput or wait-time forecast. Inspect warnings and
+missing coverage before saving; sparse or biased samples can be misleading.

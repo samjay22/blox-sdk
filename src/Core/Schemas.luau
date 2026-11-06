@@ -4220,6 +4220,47 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["PlayerSample"] = {
+			["fields"] = {
+				["userId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["values"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerSampleResponse"] = {
+			["fields"] = {
+				["players"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "PlayerSample" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["sampled"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["Policy"] = {
 			["fields"] = {
 				["autoEnabled"] = {
@@ -6162,6 +6203,61 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["CriteriaFieldCoverage"] = {
+			["fields"] = {
+				["max"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["mean"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["min"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["missing"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["p50"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["p90"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
+				},
+				["present"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["CriteriaFieldInfo"] = {
 			["fields"] = {
 				["constraint"] = {
@@ -6188,6 +6284,90 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = false,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["CriteriaSimulationEstimate"] = {
+			["fields"] = {
+				["avgGroupSize"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["groups"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["unmatchable"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["unmatchablePct"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["CriteriaSimulationRequest"] = {
+			["fields"] = {
+				["criteria"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "MatchmakingCriteriaDTO" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["placeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["sampleSize"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["CriteriaSimulationResponse"] = {
+			["fields"] = {
+				["estimate"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "CriteriaSimulationEstimate" } :: Core.Schema,
+				},
+				["fieldCoverage"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "CriteriaFieldCoverage" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+				["sampled"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["warnings"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -8426,6 +8606,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.samplePlayers"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "PlayerSampleResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.schedule"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
@@ -8826,6 +9010,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["matchmaking.removePlayerPost"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "RemovePlayerQueueRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "SuccessMessage" } :: Core.Schema,
+		["service"] = "matchmaking",
+	},
+	["matchmaking.simulateCriteria"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "CriteriaSimulationRequest" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "CriteriaSimulationResponse" } :: Core.Schema,
 		["service"] = "matchmaking",
 	},
 	["matchmaking.unbanPlayer"] = {

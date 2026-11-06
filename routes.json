@@ -1383,5 +1383,15 @@
     "svc": "matchmaking",
     "method": "GET",
     "path": "/{universeId}/gamemodes/{gameModeName}/wait-estimate"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/sample"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "POST",
+    "path": "/api/matchmaking/criteria/simulate"
   }
 ]

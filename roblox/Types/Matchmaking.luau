@@ -70,12 +70,39 @@ export type CriteriaExplanationResponse = {
 	optionalMetadataFields: { CriteriaFieldInfo }?,
 	requiredMetadataFields: { CriteriaFieldInfo }?,
 }
+export type CriteriaFieldCoverage = {
+	max: number | Core.Null,
+	mean: number | Core.Null,
+	min: number | Core.Null,
+	missing: number,
+	p50: number | Core.Null,
+	p90: number | Core.Null,
+	present: number,
+}
 export type CriteriaFieldInfo = {
 	constraint: string?,
 	criteriaType: string?,
 	description: string?,
 	fieldName: string?,
 	required: boolean?,
+}
+export type CriteriaSimulationEstimate = {
+	avgGroupSize: number,
+	groups: number,
+	unmatchable: number,
+	unmatchablePct: number,
+}
+export type CriteriaSimulationRequest = {
+	criteria: { MatchmakingCriteriaDTO },
+	placeId: string?,
+	sampleSize: number,
+	universeId: string,
+}
+export type CriteriaSimulationResponse = {
+	estimate: CriteriaSimulationEstimate,
+	fieldCoverage: { [string]: CriteriaFieldCoverage },
+	sampled: number,
+	warnings: { string },
 }
 export type CriteriaType =
 	"RANGE"
@@ -385,4 +412,6 @@ export type MetricsCall = {}
 export type MetricsResultValue = string
 export type GetWaitEstimateAliasCall = { path: { universeId: string?, gameModeName: string } }
 export type GetWaitEstimateAliasResultValue = WaitEstimateResponse
+export type SimulateCriteriaCall = CriteriaSimulationRequest
+export type SimulateCriteriaResultValue = CriteriaSimulationResponse
 return {}

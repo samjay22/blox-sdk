@@ -449,4 +449,12 @@ function Service.getWaitEstimateAlias(
 ): Core.Result<Types.GetWaitEstimateAliasResultValue>
 	return self._invoke(Endpoints["matchmaking.getWaitEstimateAlias"], req, opts, self._universe)
 end
+--- POST /matchmaking-service/api/matchmaking/criteria/simulate via gateway; access: READ_WRITE.
+function Service.simulateCriteria(
+	self: Service,
+	req: Types.SimulateCriteriaCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.SimulateCriteriaResultValue>
+	return self._invoke(Endpoints["matchmaking.simulateCriteria"], { body = req }, opts, self._universe)
+end
 return table.freeze(Service)

@@ -950,4 +950,12 @@ function Service.metrics(
 ): Core.Result<Types.MetricsResultValue>
 	return self._invoke(Endpoints["fields.metrics"], (req or {}), opts, self._universe)
 end
+--- GET /fields-service/api/fields/universes/{universeId}/players/sample via gateway; access: READ.
+function Service.samplePlayers(
+	self: Service,
+	req: Types.SamplePlayersCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.SamplePlayersResultValue>
+	return self._invoke(Endpoints["fields.samplePlayers"], (req or {}), opts, self._universe)
+end
 return table.freeze(Service)
