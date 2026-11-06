@@ -431,6 +431,16 @@
   },
   {
     "svc": "codes",
+    "method": "GET",
+    "path": "/api/codes/batches/{batchId}/export"
+  },
+  {
+    "svc": "codes",
+    "method": "POST",
+    "path": "/api/codes/bulk"
+  },
+  {
+    "svc": "codes",
     "method": "POST",
     "path": "/api/codes/redeem"
   },

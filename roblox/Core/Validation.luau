@@ -212,6 +212,14 @@ function Validation.body(endpoint: string, value: unknown): boolean
 		return false
 	end
 	local body = value :: any
+	if endpoint == "codes.bulkCreateCodes" then
+		return body.count % 1 == 0
+			and body.count >= 1
+			and body.count <= 1000
+			and (body.length == nil or body.length % 1 == 0 and body.length >= 8 and body.length <= 16)
+			and #body.award >= 1
+			and #body.award <= 100
+	end
 	if endpoint == "fields.previewBoard" then
 		return TypeSystem.compile(body.type).ok
 			and Bindings.validate({ leaderboards = { body.binding } }, body.scope, body.type, false).ok

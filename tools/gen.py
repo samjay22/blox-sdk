@@ -149,7 +149,7 @@ def generate(doc: dict) -> dict[Path,str]:
             cap=e['name'][0].upper()+e['name'][1:]
             request_type=cap+'Call'
             response_type=e['responseType']
-            direct=bool(e['bodyType'] and not e['pathParams'] and not e['queryParams'])
+            direct=bool(e['bodyType'] and not e['pathParams'] and not e['queryParams'] and not e.get('idempotencyHeader'))
             e['requestType']=request_type
             e['bodyDirect']=direct
             if direct: req=typename(schema(e['bodyType']))
@@ -221,8 +221,8 @@ def generate(doc: dict) -> dict[Path,str]:
             if e['id'] == 'fields.validateOps':
                 body = ['local scope = (req.path and req.path.universeId) or self._universe',
                         'return Helpers.validateOps(assert(self._fields, "Fields helpers unavailable"), scope :: string | number, req.body, opts)']
-            if e['id'] in ('codes.createCode','codes.updateCode'):
-                helper = 'create' if e['name']=='createCode' else 'update'
+            if e['id'] in ('codes.createCode','codes.updateCode','codes.bulkCreateCodes'):
+                helper = {'createCode':'create', 'updateCode':'update', 'bulkCreateCodes':'bulk'}[e['name']]
                 body = [f'local prepared = Award.{helper}(assert(self._fields, "Fields helpers unavailable"), req, self._universe)',
                         'if not prepared.ok then return prepared end',
                         f'return self._invoke(Endpoints[{lua(e["id"])}], '+ ('{body=prepared.value}' if e['bodyDirect'] else 'prepared.value') + ', opts, self._universe)']

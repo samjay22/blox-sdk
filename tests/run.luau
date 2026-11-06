@@ -521,9 +521,11 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
-test("all 277 generated endpoints use default, custom gateway and direct-host URLs offline", function()
+test("all generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
+	local endpointCount = 0
 	for id, spec in SDK.endpoints do
+		endpointCount += 1
 		local s = Scheduler.new()
 		local schema = Schemas.endpoints[id]
 		local value = fixture(schema.response, Schemas.definitions[schema.service])
@@ -557,9 +559,12 @@ test("all 277 generated endpoints use default, custom gateway and direct-host UR
 		end
 		if id == "fields.validateOps" then
 			request.body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 1 } } }
-		elseif id == "codes.createCode" then
+		elseif id == "codes.createCode" or id == "codes.bulkCreateCodes" then
 			(request.body :: any).award = { { field = "Currency.Gems", op = "ADD", delta = 1 } }
 			(request.body :: any).universeId = 1
+			if id == "codes.bulkCreateCodes" then
+				(request.body :: any).length = 10
+			end
 		end
 		for _, mode in { "default", "gateway", "direct" } do
 			local base = if mode == "default"
@@ -595,7 +600,7 @@ test("all 277 generated endpoints use default, custom gateway and direct-host UR
 				},
 			})
 			-- Route fixtures seed a local schema; dedicated tests exercise the real Load path.
-			if id == "fields.validateOps" or id == "codes.createCode" then
+			if id == "fields.validateOps" or id == "codes.createCode" or id == "codes.bulkCreateCodes" then
 				local cached = c.fields:Schema(1)
 				cached._version = 1
 				cached._definitions["Currency.Gems"] = {
@@ -616,6 +621,7 @@ test("all 277 generated endpoints use default, custom gateway and direct-host UR
 				local argument = if spec.bodyType
 						and #spec.pathParams == 0
 						and #spec.queryParams == 0
+						and not spec.idempotencyHeader
 					then request.body
 					else request
 				local r = facade[name](facade, argument)
@@ -626,7 +632,7 @@ test("all 277 generated endpoints use default, custom gateway and direct-host UR
 			count += 1
 		end
 	end
-	check(count == 277 * 3)
+	check(endpointCount >= 279 and count == endpointCount * 3)
 end)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
@@ -934,6 +940,7 @@ require("./auth")(test)
 require("./fields")(test)
 require("./field_bindings")(test)
 require("./operations")(test)
+require("./codes_bulk")(test)
 require("./jobs")(test)
 GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

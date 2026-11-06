@@ -47,6 +47,8 @@ def refresh_consumers(doc: dict) -> None:
                               responseType=name.capitalize()+'ResultValue'))
     doc['endpoints'] = [e for e in doc['endpoints'] if e['service']!='codes'] + endpoints
     doc['types']['codes'] = definitions
+    from codes_bulk_contract import curate as curate_bulk_codes
+    curate_bulk_codes(doc)
     mm = java.types_for('matchmaking', java.SOURCES['matchmaking'])
     doc['types']['matchmaking']['MatchmakingCriteriaDTO'] = mm['MatchmakingCriteriaDTO']
     # Queue metadata is supplied by Fields enrichment, not caller authority.

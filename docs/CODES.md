@@ -39,6 +39,62 @@ Every backend create/update (including metadata-only edits) also validates the e
 through Fields `/ops/validate` with the caller's bearer. Invalid awards return 422 and all diagnostics;
 validation outages fail closed with 503. Local cached-schema validation does not replace that check.
 
+## Bulk generation and batches
+
+`client.codes:bulkCreateCodes({body=..., idempotencyKey=...})` wraps ADMIN
+`POST /api/codes/bulk`. Keep this in trusted administrator tooling, never a player-controlled
+request. Use the same loaded schema and typed `award` builder as single create. The SDK preflights
+the award once; the backend validates it once through Fields and creates the entire batch in one
+transaction (all or nothing). Generation itself grants nothing to players.
+
+```luau
+-- Load Schema(123) and build the award as above before this request.
+local batch = client.codes:bulkCreateCodes({
+    idempotencyKey = "summer-2026-batch-001", -- Persist a unique key for this logical batch.
+    body = {
+        universeId = 123,
+        count = 100,
+        prefix = "SUMMER",
+        length = 10,
+        name = "Summer campaign",
+        award = built.value,
+        maxGlobalRedemptions = 1,
+        active = true,
+        metadata = { campaign = "summer-2026" },
+    },
+})
+if batch.ok then
+    local batchId = batch.value.batchId
+    local page = client.codes:searchCodes({ query = { batchId = batchId, page = 0, size = 100 } })
+    local csv = client.codes:exportBatch({ path = { batchId = batchId } })
+    -- csv.value is raw CSV text on success, not JSON or a download URL. Store it securely.
+end
+```
+
+Required body fields: `universeId`, `count` (integer 1–1000), nonblank `name`, and `award` (1–100
+subject-free typed operations). `prefix`, `length` (integer 8–16, default 10), `description`,
+`maxGlobalRedemptions`, `startsAt`, `expiresAt`, `active`, and object `metadata` are optional.
+`length` is the random suffix length, excluding the prefix and separator. The server uses SecureRandom,
+uppercase unambiguous characters (no `0/O/1/I/L`), and retries uniqueness collisions; e.g.
+`SUMMER-K7M2XQ9PDA`. `maxGlobalRedemptions` applies to **each code**, not the whole batch;
+per-player redemption remains once per code. Do not send single-create `code` or
+`maxRedemptionsPerUser` fields in this DTO.
+
+201 returns `{batchId="uuid", count=N, codes={{id=...,code="..."},...}}`, not full CodeDto items.
+The top-level optional `idempotencyKey` becomes the `Idempotency-Key` header, never a JSON body field.
+Persist the key and original request before sending. After a lost reply, explicitly repeat the same
+request with the same key to retrieve the original response; changing keys can create another batch.
+No key is generated for you, and bulk mutations are not automatically retried, even with a key.
+Without a key, do not blindly repeat an uncertain creation.
+
+`searchCodes` supports `query.batchId` alongside its existing universe/active/pagination filters
+(`GET /api/codes?batchId=...`). `CodeDto.batchId` is optional/nullable for older or single-created codes.
+`exportBatch` uses ADMIN `GET /api/codes/batches/{batchId}/export` with `Accept: text/csv` and returns
+the original text. Columns are `code,name,universeId,expiresAt,maxGlobalRedemptions`. The server escapes
+CSV and protects cells against spreadsheet formula injection; preserve the downloaded text rather
+than rebuilding unsafe CSV from names/metadata. Treat codes and exports as redeemable campaign assets:
+do not log them or expose the ADMIN credential. There is no separate batch-list endpoint.
+
 ## Redemption and recovery
 
 ```luau
