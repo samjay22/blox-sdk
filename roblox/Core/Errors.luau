@@ -84,6 +84,7 @@ local codes = table.freeze({
 	leaderboard_board_archived = true,
 	leaderboard_unavailable = true,
 	invalid_award = true,
+	criteria_field_invalid = true,
 	fields_unavailable = true,
 	session_conflict = true,
 	unauthorized = true,
@@ -224,8 +225,12 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 		if type(body.grantPending) == "boolean" then
 			result.error.grantPending = body.grantPending
 		end
-		if type(body.code) == "string" and codes[body.code] then
-			result.error.code = body.code
+		-- Matchmaking uses errorCode; Fields and Codes use code. Never copy arbitrary server text.
+		local code = if string.sub(endpoint, 1, 12) == "matchmaking."
+			then body.errorCode or body.code
+			else body.code
+		if type(code) == "string" and codes[code] then
+			result.error.code = code
 			if
 				body.code == "session_conflict"
 				and type(body.placeId) == "number"

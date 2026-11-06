@@ -30,6 +30,35 @@ local joined = client.matchmaking:joinQueue({
 
 Game-mode mutations require ADMIN. All criteria except TEAM_SIZE require a nonblank fieldName.
 
+## Type-aware field requirements
+
+`client.matchmaking:getCriteriaTypes()` calls `GET /api/matchmaking/criteria-types` with
+MatchmakingService READ access, using the same authentication as other read endpoints. It returns an
+array of `{type, fieldRequired, allowedReturns, description}` for every CriteriaType. `allowedReturns`
+contains only `"int"` and/or `"number"`, the Fields computed `returns` kinds supported by that evaluator.
+Use this catalog rather than assuming every numeric computed field works for every criterion:
+grouping/equality/bucketing require integers; arithmetic/ranges may accept both kinds. TEAM_SIZE has
+`fieldRequired=false` and needs no field.
+
+On create/update, every field-requiring criterion must name an active computed field in the selected
+universe's Fields schema, with `returns` included in that type's `allowedReturns`. Stored numeric fields
+are not eligible merely because their values are numbers. Save validation is authoritative even if a
+client previously loaded the catalog and schema.
+
+Invalid field references fail with HTTP 400 `criteria_field_invalid`, identifying `criteriaIndex`,
+`fieldName`, and one of these `reason` values:
+
+| Reason | Remedy |
+|---|---|
+| unknown_field | Correct the ID or create the field in this universe, then reload its schema. |
+| not_computed | Select a computed field, not a stored value. |
+| wrong_return_type | Select a computed field whose `returns` is allowed for this criteria type. |
+| archived | Restore the field deliberately or select an active computed field. |
+
+If Fields cannot be reached during save, HTTP 503 `fields_unavailable` fails closed: no unvalidated
+criteria are saved. Resolve dependency availability before retrying. The SDK preserves these machine
+codes as `result.error.code`; backend text, field diagnostics and raw bodies remain redacted.
+
 | Type | Additional fields / constraints |
 |---|---|
 | RANGE | minValue, maxValue; min ≤ max |

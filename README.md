@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, and Fields**.
 
-**277 typed endpoints:** every route in `routes.json`, including the organization-tenant Auth API. Includes 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes. No runtime dependencies or client-side credentials.
+**278 typed endpoints:** every route in `routes.json`, including the organization-tenant Auth API and Matchmaking criteria-type discovery. Includes 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes. No runtime dependencies or client-side credentials.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.

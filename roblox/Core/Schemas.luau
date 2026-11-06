@@ -6132,6 +6132,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["CriteriaComputedReturn"] = { ["kind"] = "enum", ["values"] = { "int", "number" } } :: Core.Schema,
 		["CriteriaExplanationResponse"] = {
 			["fields"] = {
 				["gameModeId"] = {
@@ -6213,6 +6214,34 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				"PRIORITY",
 				"FILL",
 			},
+		} :: Core.Schema,
+		["CriteriaTypeInfo"] = {
+			["fields"] = {
+				["allowedReturns"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "CriteriaComputedReturn" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["description"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["fieldRequired"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["type"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "CriteriaType" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
 		} :: Core.Schema,
 		["CriteriaValidationError"] = {
 			["fields"] = {
@@ -8729,6 +8758,13 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["matchmaking.getBulkQueueStatus"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "BulkQueueStatusRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "BulkQueueStatusResponse" } :: Core.Schema,
+		["service"] = "matchmaking",
+	},
+	["matchmaking.getCriteriaTypes"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "CriteriaTypeInfo" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
 		["service"] = "matchmaking",
 	},
 	["matchmaking.getGameModeByName"] = {

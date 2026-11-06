@@ -12606,6 +12606,50 @@
       ],
       "bodyRequired": false,
       "bodyType": null,
+      "cacheable": true,
+      "errorStatusNote": "Common framework/service errors; not an exhaustive set of domain exceptions.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "guardNote": "F1 shared contract: same authentication and READ level as other Matchmaking read endpoints.",
+      "id": "matchmaking.getCriteriaTypes",
+      "idempotent": true,
+      "javaResponse": "List<CriteriaTypeInfo>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "getCriteriaTypes",
+      "path": "/api/matchmaking/criteria-types",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<CriteriaTypeInfo>",
+      "responseType": "GetCriteriaTypesResultValue",
+      "retryable": true,
+      "service": "matchmaking",
+      "serviceName": "MatchmakingService",
+      "source": "rbac/f/CONTRACT.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
       "cacheable": false,
       "errorStatusNote": "Common framework/service errors; not an exhaustive set of domain exceptions.",
       "errorStatuses": [
@@ -21934,6 +21978,12 @@
         "parent": null,
         "source": "srv/src-mm/src/main/java/sam/tech/dto/CreateGameModeRequest.java"
       },
+      "CriteriaComputedReturn": {
+        "enum": [
+          "int",
+          "number"
+        ]
+      },
       "CriteriaExplanationResponse": {
         "fields": {
           "gameModeId": {
@@ -22010,6 +22060,26 @@
           "PRIORITY",
           "FILL"
         ]
+      },
+      "CriteriaTypeInfo": {
+        "fields": {
+          "allowedReturns": {
+            "java": "List<CriteriaComputedReturn>",
+            "required": true
+          },
+          "description": {
+            "java": "String",
+            "required": true
+          },
+          "fieldRequired": {
+            "java": "boolean",
+            "required": true
+          },
+          "type": {
+            "java": "CriteriaType",
+            "required": true
+          }
+        }
       },
       "CriteriaValidationError": {
         "fields": {

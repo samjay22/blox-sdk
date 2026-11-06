@@ -64,6 +64,7 @@ export type CreateGameModeRequest = {
 	placeId: string?,
 	universeId: string?,
 }
+export type CriteriaComputedReturn = "int" | "number"
 export type CriteriaExplanationResponse = {
 	gameModeId: string?,
 	gameModeName: string?,
@@ -94,6 +95,12 @@ export type CriteriaType =
 	| "EXCLUDE"
 	| "PRIORITY"
 	| "FILL"
+export type CriteriaTypeInfo = {
+	allowedReturns: { CriteriaComputedReturn },
+	description: string,
+	fieldRequired: boolean,
+	type: CriteriaType,
+}
 export type CriteriaValidationError = {
 	actualValue: Core.Json?,
 	criteriaType: CriteriaType?,
@@ -324,6 +331,8 @@ export type ExplainCriteriaCall = { path: { id: string } }
 export type ExplainCriteriaResultValue = CriteriaExplanationResponse
 export type GetGameModeByNameCall = { path: { name: string }, query: { universeId: string? }? }
 export type GetGameModeByNameResultValue = GameModeResponse
+export type GetCriteriaTypesCall = {}
+export type GetCriteriaTypesResultValue = { CriteriaTypeInfo }
 export type ProcessMatchmakingCall = { path: { universeId: string? }? }
 export type ProcessMatchmakingResultValue = SuccessMessage
 export type RemovePlayerCall = {

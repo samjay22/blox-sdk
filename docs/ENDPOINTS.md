@@ -1,6 +1,6 @@
 # Endpoint reference
 
-277 endpoints. `routes.json` coverage is checked independently.
+278 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -261,6 +261,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | PUT | `/api/gamemodes/{id}` | `matchmaking.updateGameMode` | ADMIN | 200 | no | no |
 | GET | `/api/gamemodes/{id}/criteria/explain` | `matchmaking.explainCriteria` | READ | 200 | yes | yes |
 | GET | `/api/gamemodes/{name}` | `matchmaking.getGameModeByName` | READ | 200 | yes | yes |
+| GET | `/api/matchmaking/criteria-types` | `matchmaking.getCriteriaTypes` | READ | 200 | yes | yes |
 | POST | `/api/matchmaking/process/{universeId}` | `matchmaking.processMatchmaking` | ADMIN | 200 | no | no |
 | DELETE | `/api/matchmaking/queue` | `matchmaking.removePlayer` | READ_WRITE | 200 | no | no |
 | POST | `/api/matchmaking/queue` | `matchmaking.joinQueue` | READ_WRITE | 200 | no | no |

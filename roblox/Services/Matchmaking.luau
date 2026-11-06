@@ -188,6 +188,14 @@ function Service.getGameModeByName(
 ): Core.Result<Types.GetGameModeByNameResultValue>
 	return self._invoke(Endpoints["matchmaking.getGameModeByName"], req, opts, self._universe)
 end
+--- GET /matchmaking-service/api/matchmaking/criteria-types via gateway; access: READ.
+function Service.getCriteriaTypes(
+	self: Service,
+	req: Types.GetCriteriaTypesCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.GetCriteriaTypesResultValue>
+	return self._invoke(Endpoints["matchmaking.getCriteriaTypes"], (req or {}), opts, self._universe)
+end
 --- POST /matchmaking-service/api/matchmaking/process/{universeId} via gateway; access: ADMIN.
 function Service.processMatchmaking(
 	self: Service,

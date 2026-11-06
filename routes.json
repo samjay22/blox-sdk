@@ -1383,5 +1383,10 @@
     "svc": "matchmaking",
     "method": "GET",
     "path": "/{universeId}/gamemodes/{gameModeName}/wait-estimate"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/matchmaking/criteria-types"
   }
 ]
