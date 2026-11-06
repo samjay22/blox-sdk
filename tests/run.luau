@@ -746,6 +746,7 @@ test("generated schema encodes empty service permissions as an array", function(
 				createdAt = "now",
 				createdBy = "user",
 				permissions = Json.array({}),
+				status = "ACTIVE",
 			}),
 			check = function(req: Core.HttpRequest)
 				serialized = req.Body == "[]"

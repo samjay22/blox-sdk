@@ -22,7 +22,7 @@ def cached(group: str, artifact: str, version: str) -> Path:
 def main() -> None:
     """Compile pure backend validators in a temporary directory and compare every shared vector."""
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--backend',type=Path,default=ROOT.parent/'svc/fields-service')
+    parser.add_argument('--backend',type=Path,default=Path(os.environ.get('BLOX_SOURCE_ROOT', str(ROOT.parent)))/'svc/fields-service')
     args=parser.parse_args()
     java=shutil.which('java') or '/opt/homebrew/opt/openjdk/bin/java'
     javac=shutil.which('javac') or '/opt/homebrew/opt/openjdk/bin/javac'

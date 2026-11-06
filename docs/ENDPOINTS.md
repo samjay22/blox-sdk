@@ -65,6 +65,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/auth/orgs/{org}/members/{user}` | `auth.removeMember` | IDENTITY | 204 | no | no |
 | PATCH | `/api/auth/orgs/{org}/members/{user}` | `auth.patchMember` | IDENTITY | 200 | no | no |
 | PUT | `/api/auth/orgs/{org}/plan` | `auth.setOrgPlan` | SUPER_ADMIN | 200 | no | no |
+| POST | `/api/auth/orgs/{org}/service-accounts/{id}/rotate` | `auth.rotateServiceAccount` | IDENTITY | 200 | no | no |
 | POST | `/api/auth/orgs/{org}/transfer-ownership` | `auth.transferOwnership` | IDENTITY | 200 | no | no |
 | GET | `/api/auth/orgs/{org}/universes` | `auth.listOrgUniverses` | IDENTITY | 200 | yes | no |
 | POST | `/api/auth/orgs/{org}/universes` | `auth.createOrgUniverse` | IDENTITY | 200 | no | no |
@@ -83,7 +84,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/auth/service-accounts/{id}` | `auth.getServiceAccount` | IDENTITY | 200 | yes | no |
 | PATCH | `/api/auth/service-accounts/{id}` | `auth.patchServiceAccount` | IDENTITY | 200 | no | no |
 | PUT | `/api/auth/service-accounts/{id}/permissions` | `auth.setServiceAccountPermissions` | IDENTITY | 200 | no | no |
-| POST | `/api/auth/service-accounts/{id}/rotate` | `auth.rotateServiceAccount` | IDENTITY | 200 | no | no |
 | GET | `/api/auth/services` | `auth.listServices` | public / authenticated | 200 | yes | no |
 | POST | `/api/auth/services` | `auth.createService` | SUPER_ADMIN | 201 | no | no |
 | DELETE | `/api/auth/services/{name}` | `auth.deleteService` | SUPER_ADMIN | 204 | no | no |

@@ -1241,10 +1241,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 						["kind"] = "array",
 					} :: Core.Schema,
 				},
+				["previousKeyExpiresAt"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
 				["revokedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["rotatedAt"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["status"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "ServiceAccountStatus" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
@@ -1253,6 +1268,20 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				},
 			},
 			["kind"] = "object",
+		} :: Core.Schema,
+		["ServiceAccountRotateRequest"] = {
+			["fields"] = {
+				["gracePeriodSeconds"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ServiceAccountStatus"] = {
+			["kind"] = "enum",
+			["values"] = { "ACTIVE", "EXPIRING_SOON", "EXPIRED", "REVOKED" },
 		} :: Core.Schema,
 		["ServiceDefinitionCreateRequest"] = {
 			["fields"] = {
@@ -7874,6 +7903,7 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["service"] = "auth",
 	},
 	["auth.rotateServiceAccount"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ServiceAccountRotateRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},

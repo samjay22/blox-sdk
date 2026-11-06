@@ -170,9 +170,14 @@ export type ServiceAccountResponse = {
 	name: string,
 	orgId: string,
 	permissions: { ServicePermissionResponse },
+	previousKeyExpiresAt: string?,
 	revokedAt: string?,
+	rotatedAt: string?,
+	status: ServiceAccountStatus,
 	universeId: number,
 }
+export type ServiceAccountRotateRequest = { gracePeriodSeconds: number? }
+export type ServiceAccountStatus = "ACTIVE" | "EXPIRING_SOON" | "EXPIRED" | "REVOKED"
 export type ServiceDefinitionCreateRequest = { description: string, displayName: string, name: string }
 export type ServiceDefinitionResponse = {
 	builtIn: boolean,
@@ -260,6 +265,8 @@ export type PatchMemberCall = {
 export type PatchMemberResultValue = Member
 export type SetOrgPlanCall = { path: { org: string }, body: Plan }
 export type SetOrgPlanResultValue = Organization
+export type RotateServiceAccountCall = { path: { org: string, id: string }, body: ServiceAccountRotateRequest? }
+export type RotateServiceAccountResultValue = ServiceAccountResponse
 export type TransferOwnershipCall = { path: { org: string }, body: Transfer }
 export type TransferOwnershipResultValue = Member
 export type ListOrgUniversesCall = { path: { org: string } }
@@ -296,8 +303,6 @@ export type PatchServiceAccountCall = { path: { id: string }, body: ServiceAccou
 export type PatchServiceAccountResultValue = ServiceAccountResponse
 export type SetServiceAccountPermissionsCall = { path: { id: string }, body: { ServicePermissionRequest } }
 export type SetServiceAccountPermissionsResultValue = ServiceAccountResponse
-export type RotateServiceAccountCall = { path: { id: string } }
-export type RotateServiceAccountResultValue = ServiceAccountResponse
 export type ListServicesCall = {}
 export type ListServicesResultValue = { ServiceDefinitionResponse }
 export type CreateServiceCall = ServiceDefinitionCreateRequest

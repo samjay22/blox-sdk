@@ -1817,6 +1817,60 @@
         "user",
         "custom"
       ],
+      "bodyRequired": false,
+      "bodyType": "ServiceAccountRotateRequest",
+      "cacheable": false,
+      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('IDENTITY')",
+      "id": "auth.rotateServiceAccount",
+      "idempotent": false,
+      "javaResponse": "Mono<ResponseEntity<ServiceAccountResponse>>",
+      "method": "POST",
+      "minimumLevel": null,
+      "name": "rotateServiceAccount",
+      "path": "/api/auth/orgs/{org}/service-accounts/{id}/rotate",
+      "pathParams": [
+        {
+          "java": "UUID",
+          "name": "org",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": "IDENTITY",
+      "responseFormat": "json",
+      "responseJava": "ServiceAccountResponse",
+      "responseType": "RotateServiceAccountResultValue",
+      "retryable": false,
+      "service": "auth",
+      "serviceName": "AuthService",
+      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceAccountController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "user",
+        "custom"
+      ],
       "bodyRequired": true,
       "bodyType": "Transfer",
       "cacheable": false,
@@ -2661,54 +2715,6 @@
       "responseFormat": "json",
       "responseJava": "ServiceAccountResponse",
       "responseType": "SetServiceAccountPermissionsResultValue",
-      "retryable": false,
-      "service": "auth",
-      "serviceName": "AuthService",
-      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceAccountController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "user",
-        "custom"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('IDENTITY')",
-      "id": "auth.rotateServiceAccount",
-      "idempotent": false,
-      "javaResponse": "Mono<ResponseEntity<ServiceAccountResponse>>",
-      "method": "POST",
-      "minimumLevel": null,
-      "name": "rotateServiceAccount",
-      "path": "/api/auth/service-accounts/{id}/rotate",
-      "pathParams": [
-        {
-          "java": "UUID",
-          "name": "id",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": "IDENTITY",
-      "responseFormat": "json",
-      "responseJava": "ServiceAccountResponse",
-      "responseType": "RotateServiceAccountResultValue",
       "retryable": false,
       "service": "auth",
       "serviceName": "AuthService",
@@ -14732,8 +14738,8 @@
     }
   ],
   "sourceHashes": {
-    "srv/src-gas/API_CONTRACT.md": "b748b3631549561064b9207fcadec2acc08f627f211103f52a7c29cdd10ddcd2",
-    "srv/src-gas/README.md": "542a9b59e266ef8c1d9eeb096e53151ce90849f5b02bd7bfa1c089871382b518",
+    "srv/src-gas/API_CONTRACT.md": "8c3fe7cd26c23e83fc77b5150f77d89ae8257da22e79265e6c5a26c948bb7d9c",
+    "srv/src-gas/README.md": "573ad1cfd8b263fbd59fcf27e6ce2d274ea119d39ff488d16fb2ec3a2959b194",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountCreateRequest.java": "a46f64591f5affdc235703c0532744c3f5817dddd8762b549eb72a65eef51011",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountResponse.java": "1f26a49990456dd473b5314e5f6b7039c21ab7aed46776c14579df1ab26d7c1d",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountUpdateRequest.java": "c50b5a9a9cf6de8cbd0a455cf778ad5de0be29a8b118282a7153cf118d049205",
@@ -14757,7 +14763,7 @@
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/entity/ServiceAccessLevel.java": "23ccb3f149ff227e4f9b910de302e5295a809ed14868dc56b03eba73c36c4a3c",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/Main.java": "a06b7c45351cb59e8b362fb43bb914ff2529c633d50eb33dbd2f2403fb2d98cd",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/AccountCacheProperties.java": "01aafda4adb384127b26ead791eec9213bc413ef466f142774d1fa0cbf331877",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/CorsConfig.java": "0e989cf8eda88d9d33420c22eba2919e7b8aab7da8800ad274473a155e897cbc",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/CorsConfig.java": "55fafb2ec6f6501e160eeb67c2f65b86455e7272681221fea98facc2d326cad0",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/DataSeeder.java": "c758f4409c10a140da4f53ac7dc88100c19baa2e694f45f84676aa394271b0f2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/JwtConfig.java": "4d884c4c5d4cf94a3c9d7cfda7b60f5d74b08661c0c229db0b8088ed329f221d",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/PasswordPolicyConfig.java": "dbbee355b667fd01c35213e089f1a5ed20aa310493888170e060ece52477b1b3",
@@ -14822,15 +14828,15 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/InvitationService.java": "7bf0c0b2086f053c9d89cdcad7a55e51ba883a3e2fae01c2add5ca8b65ef960c",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantAuthorization.java": "ca2d5d295ea49e0501ca4014f79a3a6f49e8e2cbf6af00d50ff4eeaae0cc7818",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantKeyService.java": "8069efdf6f155e275ae343caf1a01b5ed25274304a3164c474996b7fa864de66",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "4803dd5139ac36a87d3a989179ee1f9871cdda4a477f22b6bb88026e22e34404",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "65fbdaa2a6f90be3cc3b1bd897433f6f55b45f1129de48556d371505fe9f6611",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantModels.java": "503398f3058d04514b54e1668ea500253b0cba2285dff82089b651cd0a938e63",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantPolicy.java": "a4198152e927f34b60c42fc5ae87bf4cc747662fccdcb758fcf4e105cb4b349f",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantReadService.java": "12471473677354fa4c4b413e0cd5652730eeaa2b3fbb9003c2d7dd6502300960",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRepository.java": "bf40eb1657be7626d34ea38e117f7ea092fac5d194329b3d03c58c26c568f5f6",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRepository.java": "15684df450e47c87192b65cc6d9754d72114b2dac41ad87f97ced171bf48d4d1",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java": "bac577236e9f8b1e898f7f9e9ba8d0da2df7c5c469d0cab3a8170067f34aebdb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRole.java": "765c6ea6ef3d3b30e5f71b8c52c76902fbb1adc6aae47f06d56328fedce3fbfd",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "f46a9d367b37361df1aee6e8021d8b5eda4869d86bca703191624a789e8f677c",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantService.java": "af7a6b3146889524619cdfbc1ea9ef92c49c526685bce6b0894dc2a8266f334d",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "b9e601675ff68ac3a03f14d5098cfeddcd74588d12377898c54a56c139e7020b",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantService.java": "c683891feae3f1e2ddedb8f1f36070744ac755d9506817529cbcafed091ad4c4",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantUniverseService.java": "a0884d995afb554e16c055e1b1536d1ca7dae95026b2324ffd8f57d3482eeee9",
     "srv/src-mm/FRONTEND_INTEGRATION_GUIDE.md": "cafb19fd9a29ca872cbbc100feeb0823314a0e191033889bbc418c42d4a41829",
     "srv/src-mm/README.md": "2dcdee8d8321d5e5549dec05b306aa12d79ef0498dc100ffa333ca6d72e254c7",
@@ -16471,10 +16477,25 @@
             "notBlank": false,
             "required": true
           },
+          "previousKeyExpiresAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": false
+          },
           "revokedAt": {
             "java": "Instant",
             "notBlank": false,
             "required": false
+          },
+          "rotatedAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": false
+          },
+          "status": {
+            "java": "ServiceAccountStatus",
+            "notBlank": false,
+            "required": true
           },
           "universeId": {
             "java": "Long",
@@ -16483,6 +16504,25 @@
           }
         },
         "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/dto/ServiceAccountResponse.java"
+      },
+      "ServiceAccountRotateRequest": {
+        "fields": {
+          "gracePeriodSeconds": {
+            "java": "Integer",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "CONTRACT.md#f6-service-key-expiry--rotation"
+      },
+      "ServiceAccountStatus": {
+        "enum": [
+          "ACTIVE",
+          "EXPIRING_SOON",
+          "EXPIRED",
+          "REVOKED"
+        ],
+        "source": "CONTRACT.md#f6-service-key-expiry--rotation"
       },
       "ServiceDefinitionCreateRequest": {
         "fields": {

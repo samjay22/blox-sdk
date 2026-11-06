@@ -3,17 +3,19 @@ from __future__ import annotations
 import hashlib
 import copy
 import re
+import os
 from pathlib import Path
 import import_contract as java
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = {name: ROOT.parent / 'svc' / directory for name, directory in {
+SOURCE_ROOT = Path(os.environ.get('BLOX_SOURCE_ROOT', str(ROOT.parent)))
+SOURCES = {name: SOURCE_ROOT / 'svc' / directory for name, directory in {
     'audit': 'audit-service', 'config': 'config-service',
     'leaderboards': 'leaderboard-service', 'fields': 'fields-service',
 }.items()}
 CATALOG = {'audit': 'AuditService', 'config': 'ConfigService', 'leaderboards': 'LeaderboardService', 'fields': 'FieldsService'}
-SOURCES.update(codes=ROOT.parent/'srv/src-roblox-code-service', matchmaking=ROOT.parent/'srv/src-mm')
-SOURCES['auth'] = ROOT.parent/'srv/src-gas/global-auth-service'
+SOURCES.update(codes=SOURCE_ROOT/'srv/src-roblox-code-service', matchmaking=SOURCE_ROOT/'srv/src-mm')
+SOURCES['auth'] = SOURCE_ROOT/'srv/src-gas/global-auth-service'
 
 
 def strip_annotations(text: str) -> str:
@@ -36,7 +38,7 @@ def records(root: Path) -> dict:
             if name == 'Page':
                 continue  # New services use CursorPage, not Spring's Page.
             body, _ = java.balanced(text, match.end()-1, opening, ')' if opening == '(' else '}')
-            source = str(file.relative_to(ROOT.parent))
+            source = str(file.relative_to(SOURCE_ROOT))
             if kind == 'enum':
                 result[name] = {'enum': [x.strip() for x in body.split(';')[0].split(',')], 'source': source}
                 continue
@@ -129,7 +131,7 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
         endpoint = dict(next(e for e in endpoints if e['path']=='/health'))
         endpoint.update(id=service+'.'+name, name=name, path='/'+name,
                         responseJava='MetricsResponse' if name=='metrics' else 'Map<String, Object>',
-                        responseType=name.capitalize()+'ResultValue', source=str((root/'API_CONTRACT.md').relative_to(ROOT.parent)))
+                        responseType=name.capitalize()+'ResultValue', source=str((root/'API_CONTRACT.md').relative_to(SOURCE_ROOT)))
         endpoints.append(endpoint)
     return endpoints, definitions
 
@@ -154,7 +156,7 @@ def refresh(doc: dict) -> dict:
             evidence += sorted((root.parent/'global-auth-client').glob('src/main/java/**/*.java'))
             evidence += [root.parent/'API_CONTRACT.md', root.parent/'README.md']
         for path in evidence:
-            provenance[str(path.relative_to(ROOT.parent))] = hashlib.sha256(path.read_bytes()).hexdigest()
+            provenance[str(path.relative_to(SOURCE_ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
     doc['sourceHashes'] = provenance
     for endpoint in doc['endpoints']:
         if endpoint['service'] != 'auth':

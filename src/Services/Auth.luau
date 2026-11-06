@@ -216,6 +216,14 @@ function Service.setOrgPlan(
 ): Core.Result<Types.SetOrgPlanResultValue>
 	return self._invoke(Endpoints["auth.setOrgPlan"], req, opts, self._universe)
 end
+--- POST /auth-service/api/auth/orgs/{org}/service-accounts/{id}/rotate via gateway; access: IDENTITY.
+function Service.rotateServiceAccount(
+	self: Service,
+	req: Types.RotateServiceAccountCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RotateServiceAccountResultValue>
+	return self._invoke(Endpoints["auth.rotateServiceAccount"], req, opts, self._universe)
+end
 --- POST /auth-service/api/auth/orgs/{org}/transfer-ownership via gateway; access: IDENTITY.
 function Service.transferOwnership(
 	self: Service,
@@ -359,14 +367,6 @@ function Service.setServiceAccountPermissions(
 	opts: Core.CallOptions?
 ): Core.Result<Types.SetServiceAccountPermissionsResultValue>
 	return self._invoke(Endpoints["auth.setServiceAccountPermissions"], req, opts, self._universe)
-end
---- POST /auth-service/api/auth/service-accounts/{id}/rotate via gateway; access: IDENTITY.
-function Service.rotateServiceAccount(
-	self: Service,
-	req: Types.RotateServiceAccountCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RotateServiceAccountResultValue>
-	return self._invoke(Endpoints["auth.rotateServiceAccount"], req, opts, self._universe)
 end
 --- GET /auth-service/api/auth/services via gateway; access: public/authenticated.
 function Service.listServices(

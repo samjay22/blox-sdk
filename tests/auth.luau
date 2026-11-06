@@ -24,6 +24,86 @@ end
 
 --- Exercise tenant contracts and credential races independently of generated endpoint fixtures.
 return function(test: (string, () -> ()) -> ())
+	test(
+		"service key rotation validates grace bounds and requires org-qualified identity requests",
+		function()
+			for _, grace in { 0, 1, 3600, 604800 } do
+				check(Validation.body("auth.rotateServiceAccount", { gracePeriodSeconds = grace }))
+			end
+			local invalid: { unknown } = { -1, 604801, 0.5, math.huge, 0 / 0, "1", SDK.null }
+			for _, grace in invalid do
+				check(not Validation.body("auth.rotateServiceAccount", { gracePeriodSeconds = grace }))
+			end
+			check(Validation.body("auth.rotateServiceAccount", {}))
+			check(Validation.body("auth.rotateServiceAccount", nil))
+			check(not Validation.body("auth.rotateServiceAccount", { graceSeconds = 1 }))
+			local endpoint = SDK.endpoints["auth.rotateServiceAccount"]
+			check(not endpoint.retryable and not endpoint.cacheable and not endpoint.idempotent)
+			check(not Path.build(endpoint, { path = { id = "key" } :: { [string]: unknown } }, nil))
+			local path =
+				Path.build(endpoint, { path = { org = "org/a", id = "key b" } :: { [string]: unknown } }, nil)
+			check(path == "/api/auth/orgs/org%2Fa/service-accounts/key%20b/rotate")
+		end
+	)
+	test("service key rotation preserves metadata and never replays a lost one-time response", function()
+		local s = Scheduler.new()
+		local metadata = {
+			id = "key",
+			name = "server",
+			universeId = 42,
+			orgId = "org",
+			enabled = true,
+			createdAt = "2026-11-06T00:00:00Z",
+			createdBy = "actor",
+			permissions = SDK.array({}),
+			expiresAt = "2026-12-01T00:00:00Z",
+			rotatedAt = "2026-11-06T01:00:00Z",
+			previousKeyExpiresAt = "2026-11-06T01:05:00Z",
+			status = "EXPIRING_SOON",
+			key = "one-time",
+		}
+		for _, status in { "ACTIVE", "EXPIRING_SOON", "EXPIRED", "REVOKED" } do
+			metadata.status = status
+			check(Validation.response("auth.getServiceAccount", metadata, 200))
+			check(Validation.response("auth.listServiceAccounts", { metadata }, 200))
+		end
+		metadata.status = "DISABLED"
+		check(not Validation.response("auth.getServiceAccount", metadata, 200))
+		metadata.status = "EXPIRING_SOON"
+		local store = Session.memoryStore()
+		store.set({ accessToken = "identity", refreshToken = "refresh" })
+		local f = Fake.new(s.runtime, {
+			{
+				body = s.json(metadata),
+				check = function(req)
+					check(
+						req.Method == "POST"
+							and req.Url
+								== "https://lb1.blox-api.com/auth-service/api/auth/orgs/org/service-accounts/key/rotate"
+					)
+					check(req.Headers.Authorization == "Bearer identity")
+					check(req.Body == s.runtime.encode({ gracePeriodSeconds = 300 }))
+				end,
+			},
+			{ status = 503 },
+		})
+		local client = SDK.new({ runtime = s.runtime, backend = f.backend, userSession = { store = store } })
+		s.run(function()
+			local result = client.auth:rotateServiceAccount({
+				path = { org = "org", id = "key" },
+				body = { gracePeriodSeconds = 300 },
+			})
+			check(result.ok and result.value.status == "EXPIRING_SOON" and result.value.key == "one-time")
+			check(result.ok and result.value.previousKeyExpiresAt == metadata.previousKeyExpiresAt)
+			local lost = client.auth:rotateServiceAccount(
+				{ path = { org = "org", id = "key" } },
+				{ retry = 3 }
+			)
+			check(not lost.ok and f.count() == 2)
+			local denied = client:scoped(42).auth:rotateServiceAccount({ path = { org = "org", id = "key" } })
+			check(not denied.ok and f.count() == 2)
+		end)
+	end)
 	test("scoped tokens cache by universe and refresh early with one exchange per concurrent wave", function()
 		local s = Scheduler.new()
 		local session = identity(s)

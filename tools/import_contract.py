@@ -3,10 +3,11 @@
 from __future__ import annotations
 import json
 import re
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK = ROOT.parent
+WORK = Path(os.environ.get('BLOX_SOURCE_ROOT', str(ROOT.parent)))
 SOURCES = {'auth': WORK / 'srv/src-gas/global-auth-service', 'matchmaking': WORK / 'srv/src-mm', 'codes': WORK / 'srv/src-roblox-code-service', 'party': WORK / 'party'}
 CATALOG = dict(zip(SOURCES, ['AuthService', 'MatchmakingService', 'CodeService', 'PartyService']))
 

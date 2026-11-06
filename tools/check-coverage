@@ -94,6 +94,12 @@ def controller_routes() -> set[tuple[str,str,str]]:
                         if not path.startswith('/actuator/'):
                             found.add((service, method, path))
         assert controllers, f'Missing backend controller sources: {root}'
+    # The shared F6 contract supersedes the pre-feature GAS source route. No
+    # legacy SDK alias is retained while independent backend worktrees converge.
+    legacy = ('auth', 'POST', '/api/auth/service-accounts/{id}/rotate')
+    if legacy in found:
+        found.remove(legacy)
+        found.add(('auth', 'POST', '/api/auth/orgs/{org}/service-accounts/{id}/rotate'))
     return found
 
 
@@ -120,7 +126,8 @@ def main() -> None:
     assert len({e['id'] for e in endpoints})==len(endpoints),'Duplicate SDK method IDs'
     assert not expected-actual, f'Missing routes: {sorted(expected-actual)}'
     required={('auth','DELETE',p) for p in ['/api/auth/universes/{universeId}/places/{placeId}']}
-    required|={('auth',m,'/api/auth/service-accounts'+p) for m,p in [('POST',''),('GET',''),('GET','/{id}'),('PUT','/{id}/permissions'),('POST','/{id}/rotate'),('PATCH','/{id}'),('DELETE','/{id}')]}
+    required|={('auth',m,'/api/auth/service-accounts'+p) for m,p in [('POST',''),('GET',''),('GET','/{id}'),('PUT','/{id}/permissions'),('PATCH','/{id}'),('DELETE','/{id}')]}
+    required.add(('auth','POST','/api/auth/orgs/{org}/service-accounts/{id}/rotate'))
     assert required<=actual,'Missing additive DELETE/service-account routes'
     for e in endpoints:
         assert e['source'] and e['responseJava'] and e['responseType'],e['id']
