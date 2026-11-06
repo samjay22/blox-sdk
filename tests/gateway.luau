@@ -21,6 +21,7 @@ Tests.prefixes = table.freeze({
 	config = "/remote-config-service",
 	leaderboards = "/leaderboard-service",
 	fields = "/fields-service",
+	platform = "/platform-service",
 }) :: { [string]: string }
 --- Register offline URL, override, validation and shared-origin regressions.
 function Tests.register(test: (string, () -> ()) -> ())
@@ -83,7 +84,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 		end
 	end)
 
-	test("health covers all eight prefixes with custom gateways and direct-host exceptions", function()
+	test("health covers all nine prefixes with custom gateways and direct-host exceptions", function()
 		local policies: { SDK.Config } = {
 			{},
 			{ gatewayUrl = "https://gateway.example/" },
@@ -117,7 +118,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 					check(seen[url])
 				end
 			end)
-			check(c:metrics().attempts == 8)
+			check(c:metrics().attempts == 9)
 			c:destroy()
 		end
 	end)

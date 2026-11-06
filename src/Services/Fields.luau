@@ -133,6 +133,14 @@ function Service.ackAlert(
 ): Core.Result<Types.AckAlertResultValue>
 	return self._invoke(Endpoints["fields.ackAlert"], req, opts, self._universe)
 end
+--- GET /fields-service/api/fields/universes/{universeId}/analytics/daily via gateway; access: READ.
+function Service.dailyAnalytics(
+	self: Service,
+	req: Types.DailyAnalyticsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.DailyAnalyticsResultValue>
+	return self._invoke(Endpoints["fields.dailyAnalytics"], req, opts, self._universe)
+end
 --- POST /fields-service/api/fields/universes/{universeId}/bulk via gateway; access: ADMIN.
 function Service.bulk(
 	self: Service,
@@ -302,6 +310,22 @@ function Service.unarchive(
 	opts: Core.CallOptions?
 ): Core.Result<Types.UnarchiveResultValue>
 	return self._invoke(Endpoints["fields.unarchive"], req, opts, self._universe)
+end
+--- GET /fields-service/api/fields/universes/{universeId}/environments/{env}/resources via gateway; access: READ.
+function Service.environmentResources(
+	self: Service,
+	req: Types.EnvironmentResourcesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.EnvironmentResourcesResultValue>
+	return self._invoke(Endpoints["fields.environmentResources"], req, opts, self._universe)
+end
+--- PUT /fields-service/api/fields/universes/{universeId}/environments/{env}/resources via gateway; access: ADMIN.
+function Service.replaceEnvironmentResources(
+	self: Service,
+	req: Types.ReplaceEnvironmentResourcesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReplaceEnvironmentResourcesResultValue>
+	return self._invoke(Endpoints["fields.replaceEnvironmentResources"], req, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/export via gateway; access: ADMIN.
 function Service.export(
@@ -494,6 +518,31 @@ function Service.samplePlayers(
 ): Core.Result<Types.SamplePlayersResultValue>
 	return self._invoke(Endpoints["fields.samplePlayers"], (req or {}), opts, self._universe)
 end
+--- GET /fields-service/api/fields/universes/{universeId}/players/search via gateway; access: READ.
+function Service.searchPlayers(
+	self: Service,
+	req: Types.SearchPlayersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.SearchPlayersResultValue>
+	return self._invoke(Endpoints["fields.searchPlayers"], req, opts, self._universe)
+end
+--- Lazily iterate cursor pages, preserving filters and surfacing errors.
+function Service.searchPlayersPages(
+	self: Service,
+	req: Types.SearchPlayersCall,
+	opts: Core.CallOptions?,
+	maximum: number?
+): () -> Core.Result<Types.SearchPlayersResultValue>?
+	local request: Types.SearchPlayersCall = Idempotency.copy(req or {})
+	local query = table.clone(request.query or {})
+	request.query = query
+	return Pagination.cursor(function(cursor: string?): Core.Result<Types.SearchPlayersResultValue>
+		query.cursor = cursor
+		return self.searchPlayers(self, request, opts)
+	end, function(page: Types.SearchPlayersResultValue): (string | Core.Null)?
+		return page.nextCursor
+	end, maximum, query.cursor)
+end
 --- DELETE /fields-service/api/fields/universes/{universeId}/players/{userId} via gateway; access: ADMIN.
 function Service.deletePlayer(
 	self: Service,
@@ -525,6 +574,14 @@ function Service.putDocument(
 	opts: Core.CallOptions?
 ): Core.Result<Types.PutDocumentResultValue>
 	return self._invoke(Endpoints["fields.putDocument"], req, opts, self._universe)
+end
+--- GET /fields-service/api/fields/universes/{universeId}/players/{userId}/export via gateway; access: READ.
+function Service.exportPlayer(
+	self: Service,
+	req: Types.ExportPlayerCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ExportPlayerResultValue>
+	return self._invoke(Endpoints["fields.exportPlayer"], req, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/players/{userId}/fields via gateway; access: READ.
 function Service.fields(
@@ -592,6 +649,14 @@ function Service.ledgerPages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
+--- GET /fields-service/api/fields/universes/{universeId}/players/{userId}/overview via gateway; access: READ.
+function Service.playerOverview(
+	self: Service,
+	req: Types.PlayerOverviewCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PlayerOverviewResultValue>
+	return self._invoke(Endpoints["fields.playerOverview"], req, opts, self._universe)
+end
 --- GET /fields-service/api/fields/universes/{universeId}/players/{userId}/presence via gateway; access: READ.
 function Service.presence(
 	self: Service,
@@ -632,6 +697,14 @@ function Service.receiptsPages(
 	end, function(page: Types.ReceiptsResultValue): (string | Core.Null)?
 		return page.nextCursor
 	end, maximum, query.cursor)
+end
+--- POST /fields-service/api/fields/universes/{universeId}/players/{userId}/revert via gateway; access: ADMIN.
+function Service.revertPlayer(
+	self: Service,
+	req: Types.RevertPlayerCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RevertPlayerResultValue>
+	return self._invoke(Endpoints["fields.revertPlayer"], req, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/players/{userId}/transactions via gateway; access: READ_WRITE.
 function Service.transaction(
@@ -980,5 +1053,13 @@ function Service.metrics(
 	opts: Core.CallOptions?
 ): Core.Result<Types.MetricsResultValue>
 	return self._invoke(Endpoints["fields.metrics"], (req or {}), opts, self._universe)
+end
+--- GET /fields-service/v3/api-docs via gateway; access: READ.
+function Service.openApiSpec(
+	self: Service,
+	req: Types.OpenApiSpecCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.OpenApiSpecResultValue>
+	return self._invoke(Endpoints["fields.openApiSpec"], (req or {}), opts, self._universe)
 end
 return table.freeze(Service)

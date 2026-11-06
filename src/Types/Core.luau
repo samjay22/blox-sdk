@@ -71,6 +71,7 @@ export type ServiceLevels = {
 	ConfigService: Level?,
 	LeaderboardService: Level?,
 	FieldsService: Level?,
+	PlatformService: Level?,
 }
 export type AuthProvider = {
 	kind: string,

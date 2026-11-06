@@ -21,6 +21,7 @@ local Audit = require("./Services/Audit")
 local ConfigService = require("./Services/Config")
 local Leaderboards = require("./Services/Leaderboards")
 local Fields = require("./Services/Fields")
+local Platform = require("./Services/Platform")
 local FieldsHelpers = require("./Fields/Client")
 local FieldTypeSystem = require("./Fields/TypeSystem")
 local AuditWriter = require("./Core/AuditWriter")
@@ -55,6 +56,7 @@ export type Client = typeof(setmetatable(
 		config: ConfigService.Service,
 		leaderboards: Leaderboards.Service,
 		fields: Fields.Service,
+		platform: Platform.Service,
 		_helpers: Helpers,
 		_state: Pipeline.State,
 		_invoke: Types.Invoke,
@@ -101,6 +103,7 @@ local function facade(
 		config = ConfigService.new(invoke, universe),
 		leaderboards = Leaderboards.new(invoke, universe),
 		fields = Fields.new(invoke, universe, helpers.fields),
+		platform = Platform.new(invoke, universe),
 	}, Client)
 end
 --- Create one server-side SDK client; invalid configuration fails before any network activity.
@@ -267,7 +270,9 @@ end
 function Client.health(self: Client): { [string]: { result: Types.Result<any>, latency: number } }
 	local results: { [string]: { result: Types.Result<any>, latency: number } } = {}
 	local runtime = self._state.config.runtime
-	for _, service in { "auth", "matchmaking", "party", "codes", "audit", "config", "leaderboards", "fields" } do
+	for _, service in
+		{ "auth", "matchmaking", "party", "codes", "audit", "config", "leaderboards", "fields", "platform" }
+	do
 		local start = runtime.now()
 		local result = self._invoke(Endpoints[service .. ".healthProxy"], {}, { priority = "critical" }, nil)
 		results[service] = { result = result, latency = runtime.now() - start }

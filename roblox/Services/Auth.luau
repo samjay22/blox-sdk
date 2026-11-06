@@ -48,6 +48,30 @@ function Service.health(
 ): Core.Result<Types.HealthResultValue>
 	return self._invoke(Endpoints["auth.health"], (req or {}), opts, self._universe)
 end
+--- POST /auth-service/api/auth/internal/orgs/{org}/sandboxes via gateway; access: ADMIN.
+function Service.provisionSandbox(
+	self: Service,
+	req: Types.ProvisionSandboxCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ProvisionSandboxResultValue>
+	return self._invoke(Endpoints["auth.provisionSandbox"], req, opts, self._universe)
+end
+--- DELETE /auth-service/api/auth/internal/orgs/{org}/sandboxes/{id} via gateway; access: ADMIN.
+function Service.cancelSandbox(
+	self: Service,
+	req: Types.CancelSandboxCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CancelSandboxResultValue>
+	return self._invoke(Endpoints["auth.cancelSandbox"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/internal/orgs/{org}/sandboxes/{id}/ready via gateway; access: ADMIN.
+function Service.finalizeSandbox(
+	self: Service,
+	req: Types.FinalizeSandboxCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.FinalizeSandboxResultValue>
+	return self._invoke(Endpoints["auth.finalizeSandbox"], req, opts, self._universe)
+end
 --- POST /auth-service/api/auth/invitations/accept via gateway; access: IDENTITY.
 function Service.acceptInvitation(
 	self: Service,
@@ -472,5 +496,13 @@ function Service.healthProxy(
 	opts: Core.CallOptions?
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["auth.healthProxy"], (req or {}), opts, self._universe)
+end
+--- GET /auth-service/v3/api-docs via gateway; access: READ.
+function Service.openApiSpec(
+	self: Service,
+	req: Types.OpenApiSpecCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.OpenApiSpecResultValue>
+	return self._invoke(Endpoints["auth.openApiSpec"], (req or {}), opts, self._universe)
 end
 return table.freeze(Service)

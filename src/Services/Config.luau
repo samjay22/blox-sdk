@@ -80,6 +80,22 @@ function Service.putEntry(
 ): Core.Result<Types.PutEntryResultValue>
 	return self._invoke(Endpoints["config.putEntry"], req, opts, self._universe)
 end
+--- GET /remote-config-service/api/config/universes/{universeId}/environments/{env}/resources via gateway; access: READ.
+function Service.environmentResources(
+	self: Service,
+	req: Types.EnvironmentResourcesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.EnvironmentResourcesResultValue>
+	return self._invoke(Endpoints["config.environmentResources"], req, opts, self._universe)
+end
+--- PUT /remote-config-service/api/config/universes/{universeId}/environments/{env}/resources via gateway; access: ADMIN.
+function Service.replaceEnvironmentResources(
+	self: Service,
+	req: Types.ReplaceEnvironmentResourcesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReplaceEnvironmentResourcesResultValue>
+	return self._invoke(Endpoints["config.replaceEnvironmentResources"], req, opts, self._universe)
+end
 --- POST /remote-config-service/api/config/universes/{universeId}/evaluate via gateway; access: READ.
 function Service.evaluate(
 	self: Service,

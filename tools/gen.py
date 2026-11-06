@@ -7,7 +7,7 @@ import re
 import subprocess
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
-SERVICES = {'auth':'Auth','matchmaking':'Matchmaking','party':'Party','codes':'Codes','audit':'Audit','config':'Config','leaderboards':'Leaderboards','fields':'Fields'}
+SERVICES = {'auth':'Auth','matchmaking':'Matchmaking','party':'Party','codes':'Codes','audit':'Audit','config':'Config','leaderboards':'Leaderboards','fields':'Fields','platform':'Platform'}
 GATEWAY_URL = 'https://lb1.blox-api.com'
 # The gateway strips these prefixes before forwarding the unchanged controller path.
 SERVICE_PREFIXES = {
@@ -15,7 +15,7 @@ SERVICE_PREFIXES = {
     'matchmaking': '/matchmaking-service', 'party': '/party-service',
     'codes': '/code-service', 'audit': '/audit-service',
     'config': '/remote-config-service', 'leaderboards': '/leaderboard-service',
-    'fields': '/fields-service',
+    'fields': '/fields-service', 'platform': '/platform-service',
 }
 
 

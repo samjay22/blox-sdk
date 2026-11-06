@@ -7,6 +7,7 @@ from service_contracts import SOURCES
 from collections import Counter
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+SOURCES = {**SOURCES, 'platform': ROOT.parent/'svc/platform-service'}
 ALIASES={'mm':'matchmaking','code':'codes'}
 # Independent deployment contract: do not import the generator's routing declarations.
 GATEWAY='https://lb1.blox-api.com'
@@ -14,7 +15,7 @@ PREFIXES={
     'auth':'/auth-service', 'matchmaking':'/matchmaking-service',
     'party':'/party-service', 'codes':'/code-service', 'audit':'/audit-service',
     'config':'/remote-config-service', 'leaderboards':'/leaderboard-service',
-    'fields':'/fields-service',
+    'fields':'/fields-service', 'platform':'/platform-service',
 }
 
 
@@ -90,7 +91,8 @@ def controller_routes() -> set[tuple[str,str,str]]:
                     method = verbs[0]
                 for prefix in prefixes:
                     for suffix in mapping_paths(args):
-                        path = prefix+suffix
+                        path = (prefix+suffix).replace("{u}", "{universeId}")
+                        if service == "platform" and path.startswith("/platform-service/"): path = path[len("/platform-service"): ]
                         if not path.startswith('/actuator/'):
                             found.add((service, method, path))
         assert controllers, f'Missing backend controller sources: {root}'

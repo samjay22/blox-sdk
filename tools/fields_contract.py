@@ -74,6 +74,14 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
                     'restore':'restoreSnapshot','presence': 'presenceBatch' if e['method']=='POST' else 'presence','policy': 'putSnapshotPolicy' if e['method']=='PUT' else 'snapshotPolicy'}.get(name,name)
         elif controller == 'CommerceController':
             name = {'put':'putProduct','delete':'deleteProduct'}.get(name,name)
+        elif controller == 'OpenApiController':
+            name = 'openApiSpec'
+        elif controller == 'PlayerAdminController':
+            name = {'search':'searchPlayers','overview':'playerOverview','revert':'revertPlayer','export':'exportPlayer','erase':'deletePlayer'}.get(name,name)
+        elif controller == 'EnvironmentDefinitionsController':
+            name = {'get':'environmentResources','put':'replaceEnvironmentResources'}.get(name,name)
+        elif controller == 'PlayerAnalyticsController':
+            name = 'dailyAnalytics'
         elif controller == 'OutboxController':
             name = {'list':'outbox','retry':'retryOutbox'}[name]
         response = e['javaResponse']
@@ -81,6 +89,9 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         response=response.replace('Models.','').replace('OutboxService.','').replace('Page<','CursorPage<')
         response = {'schema':'SchemaResponse','playerBatch':'BatchResponse','batch':'BatchResponse','changes':'ChangesResponse',
                     'presenceBatch':'PresenceResponse','deleteSnapshot':'SnapshotDeleted','restoreSnapshot':'RestoreResponse'}.get(name,response)
+        e['path'] = e['path'].replace('{u}', '{universeId}')
+        for parameter in e['pathParams']:
+            if parameter['name'] == 'u': parameter.update(name='universeId', type='id')
         e.update(name=name,id='fields.'+name,responseJava=response,responseType=name[0].upper()+name[1:]+'ResultValue',
                  responseFormat='text' if name in ('luau','typescript') else 'json',
                  errorStatuses=[400,401,403,404,409,422,423,429,500,503],
@@ -91,6 +102,8 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         e['requiredRole']=None
         if not e['path'].startswith('/api/'):
             e.update(minimumLevel=None,authKinds=['none','serviceAccount','user','custom'])
+        if controller == 'OpenApiController':
+            e.update(minimumLevel='READ', authKinds=['serviceAccount','user','custom','scoped'], cacheable=False)
         if e['path']=='/health': e['responseJava']='HealthResponse'
         e['idempotent']=e['retryable']=e['method']=='GET'
         if name in ('create',): e['statuses']=[201]

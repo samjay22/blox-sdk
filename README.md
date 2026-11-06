@@ -1,8 +1,8 @@
 # BloxSDK
 
-One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, and Fields**.
+One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, Fields, and Platform**.
 
-**285 typed endpoints:** every route in `routes.json`, including the organization-tenant Auth API, Matchmaking criteria-type discovery, and bulk Codes generation/batch export. Includes criteria sampling/simulation and 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes, plus the Fields reference registry. No runtime dependencies or client-side credentials.
+**355 typed endpoints:** every route in `routes.json`, including the organization-tenant Auth API, Matchmaking criteria-type discovery, and bulk Codes generation/batch export. Includes criteria sampling/simulation and 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes, plus the Fields reference registry. No runtime dependencies or client-side credentials.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -55,13 +55,13 @@ end)
 
 ## Calls and results
 
-The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, and `.fields`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written.
+The nine facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written.
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
 - Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
 - Optional requests can be omitted: `client.codes:searchCodes()`.
 - `client:withUniverse(id)` shares the original client's auth, queue, rate budget, breakers, cache, and lifetime. It fills **declared path/query universe parameters** and implied Audit event universes, not arbitrary body fields. Supply other required body universe fields explicitly. Universe IDs must be positive exact integers. A service key cannot switch universes.
-- `client:health()` checks `<service-prefix>/health` on the gateway for all eight services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
+- `client:health()` checks `<service-prefix>/health` on the gateway for all nine services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
 
 ```luau
@@ -77,6 +77,10 @@ local joined = client.matchmaking:joinQueue({
 `CallOptions`: absolute monotonic `deadline`, `priority` (`critical`/`bulk`), maximum `retry` count, explicit `idempotencyHint`, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. `idempotencyHint` is retained for compatibility but cannot bypass retry safety. Unkeyed non-idempotent mutations are never automatically retried.
 
 Responses shared by cache/single-flight are recursively frozen. Clone before editing. `BloxSDK.null` represents an explicit JSON null (e.g. clearing service-account expiration). `BloxSDK.array({})` marks an empty array in arbitrary JSON; declared DTO array fields are encoded correctly automatically.
+
+## Platform tools
+
+Wave-2 platform methods and player administration are documented in [PLATFORM.md](docs/PLATFORM.md). The [changelog](CHANGELOG.md) marks these local additions Unreleased, not published.
 
 ## New service helpers
 
@@ -221,7 +225,7 @@ Pinned `aftman.toml` selects already-installed tools; verification never install
 - `spec/`: authoritative contracts and local Java source hashes.
 - `tools/`: generator, checks, importer (audit-only), packaging projection.
 - `tests/`: deterministic scheduler, fault/race tests, independent contract tests.
-- `examples/`: all eight services, cursor pagination, buffered audit and snapshot caching.
+- `examples/`: all nine services, cursor pagination, buffered audit and snapshot caching.
 
 See [endpoint reference](docs/ENDPOINTS.md), [architecture](docs/ARCHITECTURE.md), [fault tolerance](docs/FAULT-TOLERANCE.md), [performance](docs/PERFORMANCE.md), and [migration](docs/MIGRATION.md).
 

@@ -155,6 +155,22 @@ function Service.createGameMode(
 ): Core.Result<Types.CreateGameModeResultValue>
 	return self._invoke(Endpoints["matchmaking.createGameMode"], { body = req }, opts, self._universe)
 end
+--- GET /matchmaking-service/api/gamemodes/universes/{universeId}/environments/{env}/resources via gateway; access: READ.
+function Service.environmentResources(
+	self: Service,
+	req: Types.EnvironmentResourcesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.EnvironmentResourcesResultValue>
+	return self._invoke(Endpoints["matchmaking.environmentResources"], req, opts, self._universe)
+end
+--- PUT /matchmaking-service/api/gamemodes/universes/{universeId}/environments/{env}/resources via gateway; access: ADMIN.
+function Service.replaceEnvironmentResources(
+	self: Service,
+	req: Types.ReplaceEnvironmentResourcesCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReplaceEnvironmentResourcesResultValue>
+	return self._invoke(Endpoints["matchmaking.replaceEnvironmentResources"], req, opts, self._universe)
+end
 --- DELETE /matchmaking-service/api/gamemodes/{id} via gateway; access: ADMIN.
 function Service.deleteGameMode(
 	self: Service,

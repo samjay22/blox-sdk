@@ -62,6 +62,8 @@ def extract(root: Path) -> tuple[list[dict], dict]:
     definitions['TokenValidateResponse']['fields']['role']['java'] = 'TenantRole'
     # Stable descriptive names avoid duplicate create/get/patch methods across controllers.
     names = {
+        'SandboxController': {'create':'provisionSandbox', 'ready':'finalizeSandbox', 'cancel':'cancelSandbox'},
+        'OpenApiController': {'spec':'openApiSpec'},
         'AccountController': {'create':'createAccount','me':'getCurrentAccount','update':'updateCurrentAccount'},
         'ServiceAccountController': {'create':'createServiceAccount','list':'listServiceAccounts','get':'getServiceAccount',
             'permissions':'setServiceAccountPermissions','rotate':'rotateServiceAccount','patch':'patchServiceAccount','revoke':'revokeServiceAccount'},
@@ -97,9 +99,13 @@ def extract(root: Path) -> tuple[list[dict], dict]:
                 e['requiredRole'] = 'SUPER_ADMIN'
         else:
             e['authKinds'].append('scoped')
+        if controller == 'SandboxController':
+            e.update(requiredRole=None, authKinds=['serviceAccount'], minimumLevel='ADMIN', retryable=False, idempotent=False, statuses=[200])
+        elif controller == 'OpenApiController':
+            e.update(requiredRole=None, authKinds=['serviceAccount','user','custom','scoped'], minimumLevel='READ')
         if e['method']=='POST' and name in ('createAccount','createOrg','createInvitation','createServiceAccount'):
             e['statuses'] = [201]
-        if e['method']=='DELETE' or name in ('leaveOrg','deletePlace'):
+        if (e['method']=='DELETE' and controller != 'SandboxController') or name in ('leaveOrg','deletePlace'):
             e['statuses'] = [204]
         if name == 'validateToken': e['statuses'] = [200,401]
         for param in e['queryParams']:

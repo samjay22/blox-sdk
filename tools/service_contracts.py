@@ -193,5 +193,7 @@ def refresh(doc: dict) -> dict:
             visit(schema(endpoint['responseJava']))
             if endpoint['bodyType']: visit(schema(endpoint['bodyType']))
         doc['types'][service] = {name:definitions[name] for name in sorted(needed)}
+    from platform_contract import apply as apply_platform
+    doc = apply_platform(doc)
     doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))
     return doc

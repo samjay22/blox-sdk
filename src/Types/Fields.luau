@@ -208,6 +208,7 @@ export type Entry = {
 	universeId: number,
 	versionAfter: number,
 }
+export type EnvironmentReplaceInput = { operationId: string, reason: string, resources: { Core.Json } }
 export type ExportInput = {
 	fields: { string }?,
 	idempotencyKey: string?,
@@ -344,8 +345,12 @@ export type OpValidationError = {
 export type OpenAlertCounts = { CRITICAL: number, WARNING: number }
 export type OpsValidationInput = { ops: { FieldTypes.PlayerOperation }, universeId: number? }
 export type OpsValidationResult = { errors: { OpValidationError }, valid: boolean }
+export type PlayerEraseInput = { confirmUserId: number, reason: string }
+export type PlayerEraseResult = { erased: boolean, tombstoneId: string }
+export type PlayerRevertInput = { ledgerEntryIds: { string }, reason: string }
 export type PlayerSample = { userId: number, values: { [string]: number } }
 export type PlayerSampleResponse = { players: { PlayerSample }, sampled: number, universeId: number }
+export type PlayerSearchPage = { items: { Core.Json }, nextCursor: (string | Core.Null)? }
 export type Policy = { autoEnabled: boolean, retentionDays: number }
 export type PolicyInput = { autoEnabled: boolean, retentionDays: number, universeId: number? }
 export type Presence = {
@@ -525,6 +530,8 @@ export type TestWebhookCall = { path: { universeId: (string | number)? }? }
 export type TestWebhookResultValue = JobReceipt
 export type AckAlertCall = { path: { universeId: (string | number)?, id: string } }
 export type AckAlertResultValue = AlertAcknowledgement
+export type DailyAnalyticsCall = { path: { universeId: (string | number)? }?, query: { day: string } }
+export type DailyAnalyticsResultValue = Core.Json
 export type BulkCall = { path: { universeId: (string | number)? }?, body: BulkInput }
 export type BulkResultValue = JobReceipt
 export type CreateBulkDefinitionCall = { path: { universeId: (string | number)? }?, body: BulkInput }
@@ -586,6 +593,13 @@ export type DefinitionReferencesCall = { path: { universeId: (string | number)?,
 export type DefinitionReferencesResultValue = FieldReferences
 export type UnarchiveCall = { path: { universeId: (string | number)?, id: string }, body: Action }
 export type UnarchiveResultValue = Definition
+export type EnvironmentResourcesCall = { path: { universeId: (string | number)?, env: string } }
+export type EnvironmentResourcesResultValue = Core.Json
+export type ReplaceEnvironmentResourcesCall = {
+	path: { universeId: (string | number)?, env: string },
+	body: EnvironmentReplaceInput,
+}
+export type ReplaceEnvironmentResourcesResultValue = Core.Json
 export type ExportCall = { path: { universeId: (string | number)? }?, body: ExportInput }
 export type ExportResultValue = JobReceipt
 export type BatchCall = { path: { universeId: (string | number)? }?, body: Batch }
@@ -652,11 +666,16 @@ export type SamplePlayersCall = {
 	query: { limit: number?, fields: string? }?,
 }
 export type SamplePlayersResultValue = PlayerSampleResponse
+export type SearchPlayersCall = {
+	path: { universeId: (string | number)? }?,
+	query: { q: string, cursor: string?, limit: number? },
+}
+export type SearchPlayersResultValue = PlayerSearchPage
 export type DeletePlayerCall = {
 	path: { universeId: (string | number)?, userId: string | number },
-	query: { reason: string },
+	body: PlayerEraseInput,
 }
-export type DeletePlayerResultValue = Counts
+export type DeletePlayerResultValue = PlayerEraseResult
 export type ChangesCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	query: { limit: number?, sinceSeq: (string | number)? }?,
@@ -672,6 +691,8 @@ export type PutDocumentCall = {
 	body: DocumentInput,
 }
 export type PutDocumentResultValue = Result
+export type ExportPlayerCall = { path: { universeId: (string | number)?, userId: string | number } }
+export type ExportPlayerResultValue = Core.Json
 export type FieldsCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	query: { cursor: string?, limit: number?, prefix: string? }?,
@@ -689,6 +710,8 @@ export type LedgerCall = {
 	query: { cursor: string?, field: string?, from: string?, limit: number?, to: string? }?,
 }
 export type LedgerResultValue = CursorPage<Entry>
+export type PlayerOverviewCall = { path: { universeId: (string | number)?, userId: string | number } }
+export type PlayerOverviewResultValue = Core.Json
 export type PresenceCall = { path: { universeId: (string | number)?, userId: string | number } }
 export type PresenceResultValue = Presence
 export type PutPresenceCall = {
@@ -701,6 +724,11 @@ export type ReceiptsCall = {
 	query: { cursor: string?, limit: number? }?,
 }
 export type ReceiptsResultValue = CursorPage<Receipt>
+export type RevertPlayerCall = {
+	path: { universeId: (string | number)?, userId: string | number },
+	body: PlayerRevertInput,
+}
+export type RevertPlayerResultValue = Core.Json
 export type TransactionCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	body: TransactionInput,
@@ -794,4 +822,6 @@ export type InfoCall = {}
 export type InfoResultValue = { [string]: Core.Json }
 export type MetricsCall = {}
 export type MetricsResultValue = MetricsResponse
+export type OpenApiSpecCall = {}
+export type OpenApiSpecResultValue = Core.Json
 return {}

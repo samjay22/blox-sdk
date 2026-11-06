@@ -167,6 +167,21 @@
   {
     "svc": "auth",
     "method": "POST",
+    "path": "/api/auth/internal/orgs/{org}/sandboxes"
+  },
+  {
+    "svc": "auth",
+    "method": "DELETE",
+    "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}/ready"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
     "path": "/api/auth/invitations/accept"
   },
   {
@@ -418,6 +433,11 @@
     "svc": "auth",
     "method": "GET",
     "path": "/health"
+  },
+  {
+    "svc": "auth",
+    "method": "GET",
+    "path": "/v3/api-docs"
   },
   {
     "svc": "codes",
@@ -1035,6 +1055,11 @@
     "path": "/metrics"
   },
   {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/v3/api-docs"
+  },
+  {
     "svc": "leaderboards",
     "method": "GET",
     "path": "/actuator/health/liveness"
@@ -1423,5 +1448,330 @@
     "svc": "matchmaking",
     "method": "GET",
     "path": "/{universeId}/gamemodes/{gameModeName}/wait-estimate"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "config",
+    "method": "PUT",
+    "path": "/api/config/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/analytics/daily"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/search"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/export"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/overview"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/revert"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "GET",
+    "path": "/api/gamemodes/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "matchmaking",
+    "method": "PUT",
+    "path": "/api/gamemodes/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/metering/events"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/openapi.json"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/orgs/{org}/invoices"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/orgs/{org}/limits"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/orgs/{org}/plan"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/orgs/{org}/plan"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/orgs/{org}/ratelimits"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/orgs/{org}/ratelimits"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/orgs/{org}/sandbox"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/orgs/{org}/service-accounts/{id}/ratelimit"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/orgs/{org}/usage"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/ping"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/plans"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/plans"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/status"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/status/incidents"
+  },
+  {
+    "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/status/incidents/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/status/incidents/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/analytics/backfill"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/analytics/economy"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/analytics/summary"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/analytics/timeseries"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/environments/diff"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/environments/promote"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/environments/promotions"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/environments/rollback/{promotionId}"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/environments/{env}/snapshot"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/experiments/exposure"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/flags"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/flags"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/flags/evaluate"
+  },
+  {
+    "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/universes/{universeId}/flags/{key}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/flags/{key}"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/universes/{universeId}/flags/{key}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/liveops/events"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/liveops/events"
+  },
+  {
+    "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/universes/{universeId}/liveops/events/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/liveops/events/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/universes/{universeId}/liveops/events/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/liveops/events/{id}/preview"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/liveops/events/{id}/runs"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/liveops/events/{id}/start"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/liveops/events/{id}/stop"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/webhooks"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/webhooks"
+  },
+  {
+    "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/universes/{universeId}/webhooks/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/webhooks/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/universes/{universeId}/webhooks/{id}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/universes/{universeId}/webhooks/{id}/deliveries"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/webhooks/{id}/deliveries/{deliveryId}/redeliver"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/api/universes/{universeId}/webhooks/{id}/test"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/health"
+  },
+  {
+    "svc": "platform",
+    "method": "POST",
+    "path": "/internal/events"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/internal/ratelimits/{orgId}"
   }
 ]

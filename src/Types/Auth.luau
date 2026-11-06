@@ -46,14 +46,23 @@ export type AccountResponse = {
 }
 export type AccountType = "SUPER_ADMIN" | "USER"
 export type AccountUpdateRequest = { email: string?, metadata: { [string]: Core.Json }? }
+export type ActorRequest = { actorId: string }
 export type AddMember = {
 	overrides: { ServicePermissionResponse }?,
 	role: TenantRole,
 	universeId: number?,
 	username: string,
 }
+export type Create = { actorId: string, expiresAt: string, operationId: string }
 export type CreateOrg = { name: string, slug: string }
 export type CreateUniverse = { name: string, universeId: number }
+export type Created = {
+	expiresAt: string?,
+	id: string?,
+	key: string?,
+	serviceAccountId: string?,
+	universeId: number,
+}
 export type Invitation = {
 	acceptedAt: string | Core.Null,
 	createdAt: string,
@@ -201,6 +210,7 @@ export type TokenValidateResponse = {
 	error: string?,
 	expiresAt: string?,
 	orgId: string?,
+	orgRole: string?,
 	placeIds: { number }?,
 	role: TenantRole?,
 	serviceAccount: boolean?,
@@ -220,6 +230,12 @@ export type UpdateCurrentAccountCall = AccountUpdateRequest
 export type UpdateCurrentAccountResultValue = AccountResponse
 export type HealthCall = {}
 export type HealthResultValue = { [string]: Core.Json }
+export type ProvisionSandboxCall = { path: { org: string }, body: Create }
+export type ProvisionSandboxResultValue = Created
+export type CancelSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
+export type CancelSandboxResultValue = { [string]: Core.Json }
+export type FinalizeSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
+export type FinalizeSandboxResultValue = { [string]: Core.Json }
 export type AcceptInvitationCall = Accept
 export type AcceptInvitationResultValue = Member
 export type LoginCall = LoginRequest
@@ -332,4 +348,6 @@ export type ExchangeScopedTokenCall = { path: { universe: string | number } }
 export type ExchangeScopedTokenResultValue = Token
 export type HealthProxyCall = {}
 export type HealthProxyResultValue = { [string]: Core.Json }
+export type OpenApiSpecCall = {}
+export type OpenApiSpecResultValue = Core.Json
 return {}

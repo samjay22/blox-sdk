@@ -9,5 +9,6 @@ local prefixes: { [string]: string } = table.freeze({
 	["leaderboards"] = "/leaderboard-service",
 	["matchmaking"] = "/matchmaking-service",
 	["party"] = "/party-service",
+	["platform"] = "/platform-service",
 })
 return table.freeze({ gatewayUrl = "https://lb1.blox-api.com", prefixes = prefixes })

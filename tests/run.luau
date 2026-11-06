@@ -592,7 +592,7 @@ test("all generated endpoints use default, custom gateway and direct-host URLs o
 					then { [spec.service] = { baseUrl = "https://DIRECT.example:443/" } }
 					else nil,
 				authProvider = {
-					kind = "custom",
+					kind = if table.find(spec.authKinds, "custom") then "custom" else spec.authKinds[1],
 					apply = function(_h: Core.Headers) end,
 					onUnauthorized = function(_v: number?): boolean
 						return false
@@ -1003,5 +1003,6 @@ require("./codes_bulk")(test)
 require("./jobs")(test)
 require("./references")(test)
 require("./simulate")(test)
+require("./platform")(test)
 GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

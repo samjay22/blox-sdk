@@ -63,7 +63,7 @@ class ContractTests(unittest.TestCase):
         expected={'codes.createCode':'ADMIN','codes.redeem':'READ_WRITE','codes.listRedemptions':'ADMIN','matchmaking.createGameMode':'ADMIN','matchmaking.updateGameMode':'ADMIN','matchmaking.getBulkQueueStatus':'READ','matchmaking.validateQueue':'READ','matchmaking.processMatchmaking':'ADMIN','party.getAllParties':'ADMIN'}
         for endpoint,level in expected.items():self.assertEqual(self.routes[endpoint]['minimumLevel'],level)
         for e in self.doc['endpoints']:
-            if '/service-accounts' in e['path']:
+            if e['service']=='auth' and '/service-accounts' in e['path']:
                 self.assertEqual(e['requiredRole'],'IDENTITY');self.assertNotIn('serviceAccount',e['authKinds'])
         self.assertIn('none',self.routes['party.getUpdates']['authKinds'])
 
@@ -168,6 +168,6 @@ class ContractTests(unittest.TestCase):
         self.assertFalse(self.doc['types']['config']['Rules']['fields']['allowUserIds']['required'])
         for e in self.doc['endpoints']:
             if e['service'] in ('audit','config','fields','leaderboards') and any(p['name']=='cursor' for p in e['queryParams']):
-                self.assertTrue(e['responseJava'].startswith('CursorPage<') or e['responseJava'] in ('Summary','FieldPage','SnapshotDetail'))
+                self.assertTrue(e['responseJava'].startswith('CursorPage<') or e['responseJava'] in ('Summary','FieldPage','SnapshotDetail','PlayerSearchPage'))
 
 if __name__=='__main__':unittest.main()

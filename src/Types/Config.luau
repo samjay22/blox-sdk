@@ -33,6 +33,7 @@ export type EntryPut = {
 	universeId: number?,
 	value: Core.Json,
 }
+export type EnvironmentReplaceInput = { operationId: string, reason: string, resources: { Core.Json } }
 export type Evaluation = { enabled: boolean, reason: string }
 export type EvaluationRequest = {
 	attributes: { [string]: Core.Json }?,
@@ -106,6 +107,13 @@ export type EntryCall = { path: { universeId: (string | number)?, key: string } 
 export type EntryResultValue = Entry
 export type PutEntryCall = { path: { universeId: (string | number)?, key: string }, body: EntryPut }
 export type PutEntryResultValue = Entry
+export type EnvironmentResourcesCall = { path: { universeId: (string | number)?, env: string } }
+export type EnvironmentResourcesResultValue = Core.Json
+export type ReplaceEnvironmentResourcesCall = {
+	path: { universeId: (string | number)?, env: string },
+	body: EnvironmentReplaceInput,
+}
+export type ReplaceEnvironmentResourcesResultValue = Core.Json
 export type EvaluateCall = { path: { universeId: (string | number)? }?, body: EvaluationRequest }
 export type EvaluateResultValue = { [string]: Evaluation }
 export type FlagsCall = {

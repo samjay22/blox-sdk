@@ -522,6 +522,16 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["ActorRequest"] = {
+			["fields"] = {
+				["actorId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["AddMember"] = {
 			["fields"] = {
 				["overrides"] = {
@@ -550,6 +560,26 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["Create"] = {
+			["fields"] = {
+				["actorId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["expiresAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["operationId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["CreateOrg"] = {
 			["fields"] = {
 				["name"] = {
@@ -570,6 +600,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = true,
 					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Created"] = {
+			["fields"] = {
+				["expiresAt"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["id"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["key"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["serviceAccountId"] = {
+					["notBlank"] = false,
+					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -1469,6 +1529,11 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
+				["orgRole"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
 				["placeIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
@@ -2242,6 +2307,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["EnvironmentReplaceInput"] = {
+			["fields"] = {
+				["operationId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["resources"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "json" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -3588,6 +3676,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["EnvironmentReplaceInput"] = {
+			["fields"] = {
+				["operationId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["resources"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "json" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["ExportInput"] = {
 			["fields"] = {
 				["fields"] = {
@@ -4428,6 +4539,54 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["PlayerEraseInput"] = {
+			["fields"] = {
+				["confirmUserId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerEraseResult"] = {
+			["fields"] = {
+				["erased"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["tombstoneId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerRevertInput"] = {
+			["fields"] = {
+				["ledgerEntryIds"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["PlayerSample"] = {
 			["fields"] = {
 				["userId"] = {
@@ -4465,6 +4624,27 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerSearchPage"] = {
+			["fields"] = {
+				["items"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "json" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["nextCursor"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "nullable",
+					} :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -6681,6 +6861,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["EnvironmentReplaceInput"] = {
+			["fields"] = {
+				["operationId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["resources"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "json" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["GameModeQueueInfo"] = {
 			["fields"] = {
 				["gameModeName"] = {
@@ -8018,6 +8221,508 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			["kind"] = "object",
 		} :: Core.Schema,
 	},
+	["platform"] = {
+		["DateRange"] = {
+			["fields"] = {
+				["from"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["to"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["EvaluateInput"] = {
+			["fields"] = {
+				["keys"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["userId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Evaluation"] = {
+			["fields"] = {
+				["values"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "EvaluationValue" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["EvaluationValue"] = {
+			["fields"] = {
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["value"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["variant"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ExposureInput"] = {
+			["fields"] = {
+				["eventId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["key"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["occurredAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["userId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["variant"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FlagInput"] = {
+			["fields"] = {
+				["defaultValue"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["enabled"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["key"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["rules"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "FlagRule" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["sticky"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["type"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["variants"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "Variant" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FlagMatch"] = {
+			["fields"] = {
+				["field"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["op"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["value"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["FlagRule"] = {
+			["fields"] = {
+				["match"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "FlagMatch" } :: Core.Schema,
+				},
+				["rolloutPct"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["value"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["IncidentInput"] = {
+			["fields"] = {
+				["message"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["resolved"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["severity"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["LiveAction"] = {
+			["fields"] = {
+				["codeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["flag"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["key"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["type"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["value"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["LiveEventInput"] = {
+			["fields"] = {
+				["actions"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "LiveAction" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["endsAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["recurrence"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["startsAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["timezone"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlanChange"] = {
+			["fields"] = {
+				["plan"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlanInput"] = {
+			["fields"] = {
+				["monthlyLimits"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["overagePrices"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "decimal" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+				["rateLimit"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "ref", ["name"] = "RateLimit" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlatformEvent"] = {
+			["fields"] = {
+				["data"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["eventId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["occurredAt"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["type"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PromotionInput"] = {
+			["fields"] = {
+				["dryRun"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["from"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["reason"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["resources"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["to"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["RateLimit"] = {
+			["fields"] = {
+				["burst"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["dailyRequests"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["requestsPerSecond"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["UsageBatch"] = {
+			["fields"] = {
+				["batchId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["events"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "UsageEvent" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["UsageEvent"] = {
+			["fields"] = {
+				["at"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["count"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["metric"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["orgId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["service"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universeId"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["Variant"] = {
+			["fields"] = {
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["value"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "json" } :: Core.Schema,
+				},
+				["weightPct"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["WebhookInput"] = {
+			["fields"] = {
+				["enabled"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["events"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["secret"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["url"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+	},
 }
 local endpoints: { [string]: Core.EndpointSchema } = {
 	["audit.actions"] = {
@@ -8093,6 +8798,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "PlaceResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
+	["auth.cancelSandbox"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ActorRequest" } :: Core.Schema,
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+		["service"] = "auth",
+	},
 	["auth.changePassword"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "PasswordChangeRequest" } :: Core.Schema,
 		["response"] = { ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
@@ -8139,6 +8849,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["auth.deleteService"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.exchangeScopedToken"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Token" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.finalizeSandbox"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ActorRequest" } :: Core.Schema,
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.getAccessLog"] = {
@@ -8255,6 +8970,7 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Universe" } :: Core.Schema,
 		["service"] = "auth",
 	},
+	["auth.openApiSpec"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "auth" },
 	["auth.patchMember"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "PatchMember" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
@@ -8273,6 +8989,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["auth.patchServiceAccount"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "ServiceAccountPatchRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
+		["service"] = "auth",
+	},
+	["auth.provisionSandbox"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "Create" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Created" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.refresh"] = {
@@ -8407,6 +9128,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Entry" } :: Core.Schema,
 		["service"] = "config",
 	},
+	["config.environmentResources"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "config",
+	},
 	["config.evaluate"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "EvaluationRequest" } :: Core.Schema,
 		["response"] = {
@@ -8475,6 +9200,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	},
 	["config.readiness"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "HealthComponent" } :: Core.Schema,
+		["service"] = "config",
+	},
+	["config.replaceEnvironmentResources"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "EnvironmentReplaceInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
 		["service"] = "config",
 	},
 	["config.rollback"] = {
@@ -8570,6 +9300,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Snapshot" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.dailyAnalytics"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.definition"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
 		["service"] = "fields",
@@ -8586,7 +9320,8 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["service"] = "fields",
 	},
 	["fields.deletePlayer"] = {
-		["response"] = { ["kind"] = "ref", ["name"] = "Counts" } :: Core.Schema,
+		["body"] = { ["kind"] = "ref", ["name"] = "PlayerEraseInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "PlayerEraseResult" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.deleteProduct"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "fields" },
@@ -8616,11 +9351,16 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Entry" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.environmentResources"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.export"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "ExportInput" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.exportPlayer"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "fields" },
 	["fields.field"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "FieldView" } :: Core.Schema,
 		["service"] = "fields",
@@ -8727,6 +9467,7 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.openApiSpec"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "fields" },
 	["fields.outbox"] = {
 		["response"] = {
 			["item"] = { ["kind"] = "ref", ["name"] = "Item" } :: Core.Schema,
@@ -8737,6 +9478,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.playerBatch"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "Batch" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "BatchResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.playerOverview"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.presence"] = {
@@ -8830,6 +9575,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ReceiptResult" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.replaceEnvironmentResources"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "EnvironmentReplaceInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.restoreSnapshot"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "RestoreInput" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "RestoreResponse" } :: Core.Schema,
@@ -8857,6 +9607,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.reverseTransaction"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "Action" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.revertPlayer"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PlayerRevertInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.rollbackMigration"] = {
@@ -8893,6 +9648,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	},
 	["fields.schema"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "SchemaResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.searchPlayers"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "PlayerSearchPage" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.snapshot"] = {
@@ -9131,6 +9890,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "matchmaking",
 	},
+	["matchmaking.environmentResources"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "matchmaking",
+	},
 	["matchmaking.explainCriteria"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "CriteriaExplanationResponse" } :: Core.Schema,
 		["service"] = "matchmaking",
@@ -9277,6 +10040,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "SuccessMessage" } :: Core.Schema,
 		["service"] = "matchmaking",
 	},
+	["matchmaking.replaceEnvironmentResources"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "EnvironmentReplaceInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "matchmaking",
+	},
 	["matchmaking.simulateCriteria"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "CriteriaSimulationRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "CriteriaSimulationResponse" } :: Core.Schema,
@@ -9390,6 +10158,219 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["body"] = { ["kind"] = "ref", ["name"] = "TransferLeadershipRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "PartyResponse" } :: Core.Schema,
 		["service"] = "party",
+	},
+	["platform.analyticsEconomy"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.analyticsSummary"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.analyticsTimeseries"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.backfillAnalytics"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "DateRange" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.createFlag"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "FlagInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.createIncident"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "IncidentInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.createLiveEvent"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "LiveEventInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.createWebhook"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "WebhookInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.deleteFlag"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "platform" },
+	["platform.deleteIncident"] = {
+		["response"] = { ["kind"] = "nil" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.deleteLiveEvent"] = {
+		["response"] = { ["kind"] = "nil" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.deleteWebhook"] = {
+		["response"] = { ["kind"] = "nil" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.environmentDiff"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.evaluateFlags"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "EvaluateInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Evaluation" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.flag"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "FlagInput" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.flags"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "FlagInput" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.gatewayRateLimits"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.healthProxy"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.ingestUsage"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "UsageBatch" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.invoices"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.limits"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.liveEvent"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.liveEventOccurrences"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.liveEventRuns"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.liveEvents"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.openapi"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.orgPlan"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.ping"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.plans"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "PlanInput" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.promoteEnvironment"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PromotionInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.promotions"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.publishEvent"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PlatformEvent" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.putPlan"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PlanInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.rateLimits"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.recordExposure"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ExposureInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.redeliverWebhook"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.rollbackEnvironment"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.sandbox"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.setKeyRateLimit"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "RateLimit" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.setOrgPlan"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PlanChange" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.setRateLimits"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "RateLimit" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.snapshotEnvironment"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.startLiveEvent"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.status"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.stopLiveEvent"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.testWebhook"] = {
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.updateFlag"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "FlagInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.updateIncident"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "IncidentInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.updateLiveEvent"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "LiveEventInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.updateWebhook"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "WebhookInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "json" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.usage"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.webhook"] = { ["response"] = { ["kind"] = "json" } :: Core.Schema, ["service"] = "platform" },
+	["platform.webhookDeliveries"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
+	},
+	["platform.webhooks"] = {
+		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
+		["service"] = "platform",
 	},
 }
 return Cache.freeze({

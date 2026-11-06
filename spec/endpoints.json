@@ -882,6 +882,159 @@
     },
     {
       "authKinds": [
+        "serviceAccount"
+      ],
+      "bodyRequired": true,
+      "bodyType": "SandboxService.Create",
+      "cacheable": false,
+      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "auth.provisionSandbox",
+      "idempotent": false,
+      "javaResponse": "Mono<SandboxService.Created>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "provisionSandbox",
+      "path": "/api/auth/internal/orgs/{org}/sandboxes",
+      "pathParams": [
+        {
+          "java": "UUID",
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "SandboxService.Created",
+      "responseType": "ProvisionSandboxResultValue",
+      "retryable": false,
+      "service": "auth",
+      "serviceName": "AuthService",
+      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount"
+      ],
+      "bodyRequired": true,
+      "bodyType": "SandboxService.ActorRequest",
+      "cacheable": false,
+      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "auth.cancelSandbox",
+      "idempotent": false,
+      "javaResponse": "Mono<Map<String,Object>>",
+      "method": "DELETE",
+      "minimumLevel": "ADMIN",
+      "name": "cancelSandbox",
+      "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}",
+      "pathParams": [
+        {
+          "java": "UUID",
+          "name": "org",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Map<String,Object>",
+      "responseType": "CancelSandboxResultValue",
+      "retryable": false,
+      "service": "auth",
+      "serviceName": "AuthService",
+      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount"
+      ],
+      "bodyRequired": true,
+      "bodyType": "SandboxService.ActorRequest",
+      "cacheable": false,
+      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "auth.finalizeSandbox",
+      "idempotent": false,
+      "javaResponse": "Mono<Map<String,Object>>",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "finalizeSandbox",
+      "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}/ready",
+      "pathParams": [
+        {
+          "java": "UUID",
+          "name": "org",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "UUID",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Map<String,Object>",
+      "responseType": "FinalizeSandboxResultValue",
+      "retryable": false,
+      "service": "auth",
+      "serviceName": "AuthService",
+      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
         "user",
         "custom"
       ],
@@ -3372,6 +3525,49 @@
       ],
       "bodyRequired": false,
       "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "auth.openApiSpec",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "openApiSpec",
+      "path": "/v3/api-docs",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "OpenApiSpecResultValue",
+      "retryable": true,
+      "service": "auth",
+      "serviceName": "AuthService",
+      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/openapi/OpenApiController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
       "cacheable": true,
       "errorStatusNote": "CodeService API_CONTRACT.md; Fields remains authoritative.",
       "errorStatuses": [
@@ -4306,6 +4502,112 @@
       "service": "config",
       "serviceName": "ConfigService",
       "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "config.environmentResources",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "environmentResources",
+      "path": "/api/config/universes/{universeId}/environments/{env}/resources",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "EnvironmentResourcesResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "EnvironmentReplaceInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "config.replaceEnvironmentResources",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "replaceEnvironmentResources",
+      "path": "/api/config/universes/{universeId}/environments/{env}/resources",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "ReplaceEnvironmentResourcesResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "rbac/f/CONTRACT2.md",
       "statuses": [
         200
       ]
@@ -5419,6 +5721,60 @@
         "custom",
         "scoped"
       ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.dailyAnalytics",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "dailyAnalytics",
+      "path": "/api/fields/universes/{universeId}/analytics/daily",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "day",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "DailyAnalyticsResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
       "bodyRequired": true,
       "bodyType": "BulkInput",
       "cacheable": false,
@@ -6452,6 +6808,112 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.environmentResources",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "environmentResources",
+      "path": "/api/fields/universes/{universeId}/environments/{env}/resources",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "EnvironmentResourcesResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "EnvironmentReplaceInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.replaceEnvironmentResources",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "replaceEnvironmentResources",
+      "path": "/api/fields/universes/{universeId}/environments/{env}/resources",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "ReplaceEnvironmentResourcesResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
       "statuses": [
         200
       ]
@@ -7734,6 +8196,70 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.searchPlayers",
+      "idempotent": true,
+      "javaResponse": "PlayerSearchPage",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "searchPlayers",
+      "path": "/api/fields/universes/{universeId}/players/search",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "q",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "PlayerSearchPage",
+      "responseType": "SearchPlayersResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "PlayerEraseInput",
+      "cacheable": false,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
       "errorStatuses": [
         400,
@@ -7750,7 +8276,7 @@
       "guard": "hasRole('SERVICE_ADMIN')",
       "id": "fields.deletePlayer",
       "idempotent": false,
-      "javaResponse": "Mono<Counts>",
+      "javaResponse": "Mono<Map<String,Object>>",
       "method": "DELETE",
       "minimumLevel": "ADMIN",
       "name": "deletePlayer",
@@ -7769,22 +8295,15 @@
           "type": "id"
         }
       ],
-      "queryParams": [
-        {
-          "java": "String",
-          "name": "reason",
-          "required": true,
-          "type": "string"
-        }
-      ],
+      "queryParams": [],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "Counts",
+      "responseJava": "PlayerEraseResult",
       "responseType": "DeletePlayerResultValue",
       "retryable": false,
       "service": "fields",
       "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/PlayerAdminController.java",
       "statuses": [
         200
       ]
@@ -7983,6 +8502,59 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.exportPlayer",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "exportPlayer",
+      "path": "/api/fields/universes/{universeId}/players/{userId}/export",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "userId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "ExportPlayerResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
       "statuses": [
         200
       ]
@@ -8293,6 +8865,59 @@
       ],
       "bodyRequired": false,
       "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.playerOverview",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "playerOverview",
+      "path": "/api/fields/universes/{universeId}/players/{userId}/overview",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "userId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "PlayerOverviewResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
       "cacheable": true,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
       "errorStatuses": [
@@ -8468,6 +9093,59 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "PlayerRevertInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "fields.revertPlayer",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "revertPlayer",
+      "path": "/api/fields/universes/{universeId}/players/{userId}/revert",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "userId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "RevertPlayerResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "rbac/f/CONTRACT2.md",
       "statuses": [
         200
       ]
@@ -10467,6 +11145,51 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/HealthController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.openApiSpec",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "openApiSpec",
+      "path": "/v3/api-docs",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "OpenApiSpecResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/fields/openapi/OpenApiController.java",
       "statuses": [
         200
       ]
@@ -12794,6 +13517,112 @@
       "source": "srv/src-mm/src/main/java/sam/tech/controllers/GameModeController.java",
       "statuses": [
         201
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "matchmaking.environmentResources",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "environmentResources",
+      "path": "/api/gamemodes/universes/{universeId}/environments/{env}/resources",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "EnvironmentResourcesResultValue",
+      "retryable": true,
+      "service": "matchmaking",
+      "serviceName": "MatchmakingService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "EnvironmentReplaceInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "matchmaking.replaceEnvironmentResources",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "replaceEnvironmentResources",
+      "path": "/api/gamemodes/universes/{universeId}/environments/{env}/resources",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "ReplaceEnvironmentResourcesResultValue",
+      "retryable": true,
+      "service": "matchmaking",
+      "serviceName": "MatchmakingService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
       ]
     },
     {
@@ -15223,9 +16052,2773 @@
       "statuses": [
         200
       ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount"
+      ],
+      "bodyRequired": true,
+      "bodyType": "UsageBatch",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.ingestUsage",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "ingestUsage",
+      "path": "/api/metering/events",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "IngestUsageResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.openapi",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "openapi",
+      "path": "/api/openapi.json",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "OpenapiResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.invoices",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "invoices",
+      "path": "/api/orgs/{org}/invoices",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "InvoicesResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.limits",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "limits",
+      "path": "/api/orgs/{org}/limits",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "LimitsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.orgPlan",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "orgPlan",
+      "path": "/api/orgs/{org}/plan",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "OrgPlanResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "PlanChange",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.setOrgPlan",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "setOrgPlan",
+      "path": "/api/orgs/{org}/plan",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "SetOrgPlanResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.rateLimits",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "rateLimits",
+      "path": "/api/orgs/{org}/ratelimits",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "RateLimitsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "RateLimit",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.setRateLimits",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "setRateLimits",
+      "path": "/api/orgs/{org}/ratelimits",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "SetRateLimitsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.sandbox",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "sandbox",
+      "path": "/api/orgs/{org}/sandbox",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "SandboxResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "RateLimit",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.setKeyRateLimit",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "setKeyRateLimit",
+      "path": "/api/orgs/{org}/service-accounts/{id}/ratelimit",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "SetKeyRateLimitResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.usage",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "usage",
+      "path": "/api/orgs/{org}/usage",
+      "pathParams": [
+        {
+          "name": "org",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "from",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "to",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "groupBy",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "UsageResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.ping",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "ping",
+      "path": "/api/ping",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "PingResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.plans",
+      "idempotent": true,
+      "javaResponse": "List<PlanInput>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "plans",
+      "path": "/api/plans",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<PlanInput>",
+      "responseType": "PlansResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "PlanInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.putPlan",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "putPlan",
+      "path": "/api/plans",
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "requiredRole": "SUPER_ADMIN",
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "PutPlanResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "none",
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.status",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": null,
+      "name": "status",
+      "path": "/api/status",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "StatusResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "IncidentInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.createIncident",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "createIncident",
+      "path": "/api/status/incidents",
+      "pathParams": [],
+      "queryParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "requiredRole": "SUPER_ADMIN",
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "CreateIncidentResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "user",
+        "custom"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.deleteIncident",
+      "idempotent": true,
+      "javaResponse": "Void",
+      "method": "DELETE",
+      "minimumLevel": "ADMIN",
+      "name": "deleteIncident",
+      "path": "/api/status/incidents/{id}",
+      "pathParams": [
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "requiredRole": "SUPER_ADMIN",
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "DeleteIncidentResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "user",
+        "custom"
+      ],
+      "bodyRequired": true,
+      "bodyType": "IncidentInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.updateIncident",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "updateIncident",
+      "path": "/api/status/incidents/{id}",
+      "pathParams": [
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "requiredRole": "SUPER_ADMIN",
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "UpdateIncidentResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "DateRange",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.backfillAnalytics",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "backfillAnalytics",
+      "path": "/api/universes/{universeId}/analytics/backfill",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "BackfillAnalyticsResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.analyticsEconomy",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "analyticsEconomy",
+      "path": "/api/universes/{universeId}/analytics/economy",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "field",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "AnalyticsEconomyResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.analyticsSummary",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "analyticsSummary",
+      "path": "/api/universes/{universeId}/analytics/summary",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "from",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "to",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "AnalyticsSummaryResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.analyticsTimeseries",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "analyticsTimeseries",
+      "path": "/api/universes/{universeId}/analytics/timeseries",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "metric",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "from",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "to",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "AnalyticsTimeseriesResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.environmentDiff",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "environmentDiff",
+      "path": "/api/universes/{universeId}/environments/diff",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "from",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "to",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "EnvironmentDiffResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "PromotionInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.promoteEnvironment",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "promoteEnvironment",
+      "path": "/api/universes/{universeId}/environments/promote",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "PromoteEnvironmentResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.promotions",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "promotions",
+      "path": "/api/universes/{universeId}/environments/promotions",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "after",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "PromotionsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.rollbackEnvironment",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "rollbackEnvironment",
+      "path": "/api/universes/{universeId}/environments/rollback/{promotionId}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "promotionId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "RollbackEnvironmentResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.snapshotEnvironment",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "snapshotEnvironment",
+      "path": "/api/universes/{universeId}/environments/{env}/snapshot",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "env",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "SnapshotEnvironmentResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ExposureInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.recordExposure",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "recordExposure",
+      "path": "/api/universes/{universeId}/experiments/exposure",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "RecordExposureResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.flags",
+      "idempotent": true,
+      "javaResponse": "List<FlagInput>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "flags",
+      "path": "/api/universes/{universeId}/flags",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "after",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<FlagInput>",
+      "responseType": "FlagsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "FlagInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.createFlag",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "createFlag",
+      "path": "/api/universes/{universeId}/flags",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "CreateFlagResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "EvaluateInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.evaluateFlags",
+      "idempotent": false,
+      "javaResponse": "Evaluation",
+      "method": "POST",
+      "minimumLevel": "READ",
+      "name": "evaluateFlags",
+      "path": "/api/universes/{universeId}/flags/evaluate",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Evaluation",
+      "responseType": "EvaluateFlagsResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.deleteFlag",
+      "idempotent": true,
+      "javaResponse": "Void",
+      "method": "DELETE",
+      "minimumLevel": "READ_WRITE",
+      "name": "deleteFlag",
+      "path": "/api/universes/{universeId}/flags/{key}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "key",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "DeleteFlagResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.flag",
+      "idempotent": true,
+      "javaResponse": "FlagInput",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "flag",
+      "path": "/api/universes/{universeId}/flags/{key}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "key",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "FlagInput",
+      "responseType": "FlagResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "FlagInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.updateFlag",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "updateFlag",
+      "path": "/api/universes/{universeId}/flags/{key}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "key",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "UpdateFlagResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.liveEvents",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "liveEvents",
+      "path": "/api/universes/{universeId}/liveops/events",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "after",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "LiveEventsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "LiveEventInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.createLiveEvent",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "createLiveEvent",
+      "path": "/api/universes/{universeId}/liveops/events",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "CreateLiveEventResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.deleteLiveEvent",
+      "idempotent": true,
+      "javaResponse": "Void",
+      "method": "DELETE",
+      "minimumLevel": "ADMIN",
+      "name": "deleteLiveEvent",
+      "path": "/api/universes/{universeId}/liveops/events/{id}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "DeleteLiveEventResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.liveEvent",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "liveEvent",
+      "path": "/api/universes/{universeId}/liveops/events/{id}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "LiveEventResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "LiveEventInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.updateLiveEvent",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "updateLiveEvent",
+      "path": "/api/universes/{universeId}/liveops/events/{id}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "UpdateLiveEventResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.liveEventOccurrences",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "liveEventOccurrences",
+      "path": "/api/universes/{universeId}/liveops/events/{id}/preview",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "LiveEventOccurrencesResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.liveEventRuns",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "liveEventRuns",
+      "path": "/api/universes/{universeId}/liveops/events/{id}/runs",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "LiveEventRunsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.startLiveEvent",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "startLiveEvent",
+      "path": "/api/universes/{universeId}/liveops/events/{id}/start",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "StartLiveEventResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.stopLiveEvent",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "stopLiveEvent",
+      "path": "/api/universes/{universeId}/liveops/events/{id}/stop",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "StopLiveEventResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.webhooks",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "webhooks",
+      "path": "/api/universes/{universeId}/webhooks",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "after",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "WebhooksResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "WebhookInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.createWebhook",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "createWebhook",
+      "path": "/api/universes/{universeId}/webhooks",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "CreateWebhookResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.deleteWebhook",
+      "idempotent": true,
+      "javaResponse": "Void",
+      "method": "DELETE",
+      "minimumLevel": "READ_WRITE",
+      "name": "deleteWebhook",
+      "path": "/api/universes/{universeId}/webhooks/{id}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "DeleteWebhookResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.webhook",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "webhook",
+      "path": "/api/universes/{universeId}/webhooks/{id}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "WebhookResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "WebhookInput",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.updateWebhook",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "updateWebhook",
+      "path": "/api/universes/{universeId}/webhooks/{id}",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "UpdateWebhookResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.webhookDeliveries",
+      "idempotent": true,
+      "javaResponse": "List<JsonNode>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "webhookDeliveries",
+      "path": "/api/universes/{universeId}/webhooks/{id}/deliveries",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<JsonNode>",
+      "responseType": "WebhookDeliveriesResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.redeliverWebhook",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "redeliverWebhook",
+      "path": "/api/universes/{universeId}/webhooks/{id}/deliveries/{deliveryId}/redeliver",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "deliveryId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "RedeliverWebhookResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.testWebhook",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "testWebhook",
+      "path": "/api/universes/{universeId}/webhooks/{id}/test",
+      "pathParams": [
+        {
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "name": "id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "TestWebhookResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "none",
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.healthProxy",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": null,
+      "name": "healthProxy",
+      "path": "/health",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "HealthProxyResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount"
+      ],
+      "bodyRequired": true,
+      "bodyType": "PlatformEvent",
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.publishEvent",
+      "idempotent": false,
+      "javaResponse": "JsonNode",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "publishEvent",
+      "path": "/internal/events",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "PublishEventResultValue",
+      "retryable": false,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Authoritative wave-2 contract; backend enforces scope and DTO rules.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        503
+      ],
+      "guard": "",
+      "id": "platform.gatewayRateLimits",
+      "idempotent": true,
+      "javaResponse": "JsonNode",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "gatewayRateLimits",
+      "path": "/internal/ratelimits/{orgId}",
+      "pathParams": [
+        {
+          "name": "orgId",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "JsonNode",
+      "responseType": "GatewayRateLimitsResultValue",
+      "retryable": true,
+      "service": "platform",
+      "serviceName": "PlatformService",
+      "source": "rbac/f/CONTRACT2.md",
+      "statuses": [
+        200
+      ]
     }
   ],
   "sourceHashes": {
+    "rbac/f/CONTRACT2.md": "d6dac00253569d43be36daff6abcf8e2bd28483382577c5addccfc8a71cb0716",
     "srv/src-gas/API_CONTRACT.md": "6f740cd66061bb1517fa6aef160fd725dfec0b8076429323a277eeef3da4cb26",
     "srv/src-gas/README.md": "4c33ffa97d1afec1c2262e4118fc00a6485c9b1ae6fc33fe84dcc7d56c08fa07",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountCreateRequest.java": "a46f64591f5affdc235703c0532744c3f5817dddd8762b549eb72a65eef51011",
@@ -15244,7 +18837,7 @@
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/ServicePermissionRequest.java": "5168fd8681c2148c75f67fb6f3783ccb41fc272281c3d52ce0b6439a020e2156",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/ServicePermissionResponse.java": "3b4bec54f96ad6072c9d41791a9d03c730d969c852e84031b325d80a6bf7ea15",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/TokenValidateRequest.java": "983ff58aa320740f349e10ef880f38b73ddd5485533ab2005ed3bb96929f0de0",
-    "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/TokenValidateResponse.java": "373f5b3b9da7aeec7ad88f506d7910e7a1947327adaffcba7f2c51594c3dd28f",
+    "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/TokenValidateResponse.java": "d5c005eed04ce564c1b15c19b307bc1246c9159510514ecfb6f8c7c74b4235d5",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/UniverseCreateRequest.java": "a79dd3a738cb29ba700ab6c691e0e3468d007e9787f71fc3a966cc00055d52b6",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/UniverseResponse.java": "f9fb6efffb5d5c769ded35f641448a4086e4b153b76caa08bdaae6c137074465",
     "srv/src-gas/global-auth-client/src/main/java/sam/tech/entity/AccountType.java": "de40cd1c3234df5a9a716c5bcdb452b58f44f4470ee7696e22afb7c2b3e2b030",
@@ -15259,13 +18852,14 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/RateLimitConfig.java": "6d321112c68bf330e91a7295cfaac9298bb1dc1cdde7b80ce8b3a83347b04e18",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/SecurityConfig.java": "3168b4d260100696246fb6441fe11d03feec447cfab8281ee59f38c2336e66cb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/ServiceAccountSeeder.java": "7c762c81d650f2ed92c4b45ca942916dbca8b6ddd8710e001f3113d548830619",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/ServiceCatalogSeeder.java": "3105e4bd7acc47a33c9501dbcb342b9302e5d83dc15e1fcdd414bfdf7b99b04d",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/ServiceCatalogSeeder.java": "12fc9ef8726bf7a542fb1cf752357837664dbc5b32f4153d5480eff13252a0fb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/config/WorkerConfiguration.java": "e68fce44e07966cc2d98d8a83ab91a51da99ad57ce452a648881e730ce116b82",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/AccountController.java": "81be66f1490ee6bfefdd9f3389e0b9465ae42431c6a12b7c4a4bccaf9f24c977",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/AuthController.java": "03c5cd345ddf49d97b93b770ca5d51ff16b7cea9d9317ef1848e179b3af9e353",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/HealthController.java": "5b4ef812b2c0960d2b9dbe0d0566918c026559409c4e98fb14ed0ab121b43bd2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/OrganizationController.java": "79fcb6e6a86495325058f09704354959132cb7949a71ad861e6c3e51bbc312d2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/PasswordController.java": "e838c2910fe413e993be4768ebf14bdb1e279734a7abab7f2fbffbd8a4bf3bcf",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java": "2076effdb193335faa5a24410eb83822e6d4bdee427ee41e4cabb67a5e30175d",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceAccountController.java": "c699d686159e7ce76ef17a657e850a19ba3263678aa9b2093aab8f060b4a35a8",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceCatalogController.java": "705cdc8c0dd11d4ec49257a076501aa1a20ad1438272bf9240cdb3e6a735b3b0",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/TokenController.java": "df65eb91f37976045fb108cf9002084134ae70518204d8fc2b1d2c92df22e657",
@@ -15292,6 +18886,8 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/filter/RequestLoggingFilter.java": "af576deb03d8126b3ad10fbecc2ff5abfff602caa9ccab8764d9d0e4d375606f",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/logging/OpenObserveLogbackAppender.java": "e62dae1b0a53a5318db345f7ec7a34e9350e6f39db2ceb20708acfaa945e48c6",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/logging/WorkerAsyncAppender.java": "105dc9f776ee0cab10bca64e3042204f1bec956c0bd0a397bfd80ad75f104ee3",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/openapi/OpenApiController.java": "5695844b7c49debc5f3167292208d06cb944f199482476d9203f2bfbc2ab202b",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/openapi/OpenApiGenerator.java": "6b52a1d614c973cbc58b37d2e432485b1522d2cdf7bea4e4ba32a352f0ed7d3e",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/AccountRepository.java": "50d817cefcd7e164f355c4d9a5b9a69de56d41278af0119194d6d8413a124424",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/PasswordResetTokenRepository.java": "e948a1ed6b72ac5292fc68b3b9b8c6046647135659c031608287049add2f2ccd",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/repository/PlaceRepository.java": "c17e2bc89703af10f21ddaeb217151aac1df60dc563ba60ad11b320152513e4a",
@@ -15302,7 +18898,7 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/AccountAuthorizationService.java": "7f894e40c5fb33bed6353d41305809b6b0aa94d5c2d1e0f99574fcf671952da8",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/AccountLookupService.java": "08b0db89f6eaa787fdc2612c53723907a54a615856f27f43fee7c9a7e5642187",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/AccountService.java": "367dcdace41da2a449d91cfbce534a604e343a26606276292d6d7fa0f6a9e044",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/AuthService.java": "cbecca00a9671843ac7055261bb568455fc675479ca55e5f3e8baaf0d9113fe1",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/AuthService.java": "c20f54d8b5eb4fab6deae9c9ed404a7c65d56c2e09d366917a40824f71790aa8",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/DatabaseRefreshTokenStore.java": "f00418b9992615ce8949ed1fd88d1930604b43cc80f8fd7e52ee70b4c7e8c5b2",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/JwtService.java": "83757a07ed135639964d6c09a57acb57f2f4241325f61f9cfde777b050ac3dd0",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/PasswordPolicyService.java": "90f109f81987675b58397d4d0eeeb3b984831ab25af6d08ecb13a935c2a515c2",
@@ -15317,16 +18913,18 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/UniverseAuthorizationService.java": "310a90c6365866acd47905d4caf124f35ad4915e645e9dd56c33d212f3f1d9bd",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/UniverseService.java": "852a8fb740e4fd9317b826246b2ac0793be3900f09680021242d80d85987cffb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/InvitationService.java": "7bf0c0b2086f053c9d89cdcad7a55e51ba883a3e2fae01c2add5ca8b65ef960c",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantAuthorization.java": "ca2d5d295ea49e0501ca4014f79a3a6f49e8e2cbf6af00d50ff4eeaae0cc7818",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java": "cb1412418346ffbd0df143dedb034b7b7e2205d8926f9f14d772c0254638014c",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxWorker.java": "dfabcf17a4addcccb088cb964a02dbf62555d85c72ab8941164d25d90625675c",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantAuthorization.java": "e89ef7a5ca249301741eba981c2de74d4adaa7f82a5fe3e10a4418d56b382dda",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantKeyService.java": "1fb246aeb76b71c48929cda1e8b63248b9037785272348e0daa7f0a4d4004ed7",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "41e1877bb26924bdef2d3a95a54ca9bacdee7e799dd071859d2819d597e27538",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "dbebc68e8eb15571863a1ca2b130d8f4c195107d2043075ace15f84d0c574a2e",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantModels.java": "503398f3058d04514b54e1668ea500253b0cba2285dff82089b651cd0a938e63",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantPolicy.java": "a4198152e927f34b60c42fc5ae87bf4cc747662fccdcb758fcf4e105cb4b349f",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantReadService.java": "12471473677354fa4c4b413e0cd5652730eeaa2b3fbb9003c2d7dd6502300960",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRepository.java": "15684df450e47c87192b65cc6d9754d72114b2dac41ad87f97ced171bf48d4d1",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java": "bac577236e9f8b1e898f7f9e9ba8d0da2df7c5c469d0cab3a8170067f34aebdb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRole.java": "765c6ea6ef3d3b30e5f71b8c52c76902fbb1adc6aae47f06d56328fedce3fbfd",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "9943ea9fc8de0a733906397999c998c60987f09029bb16362b1da8c3c957fe29",
+    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "b78716c717df19ec0cdc661a2296e108a7bb7220681f7a508933cda50147e7e9",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantService.java": "c683891feae3f1e2ddedb8f1f36070744ac755d9506817529cbcafed091ad4c4",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantUniverseService.java": "a0884d995afb554e16c055e1b1536d1ca7dae95026b2324ffd8f57d3482eeee9",
     "srv/src-mm/FRONTEND_INTEGRATION_GUIDE.md": "2540c202c6beb114558f559e2f0af15d58071fb512650a845ec4e57de543e0ed",
@@ -15588,10 +19186,13 @@
     "svc/fields-service/src/main/java/sam/tech/config/WebClientConfig.java": "4f10d6198bdd6952a519145a3b91032b501868d821bda4af9689a77a68bfbeb6",
     "svc/fields-service/src/main/java/sam/tech/config/WorkerConfiguration.java": "e9fcece4095b2c09a18473529b751a669231a7eac90caf989b3280dc28dd78a8",
     "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java": "5b334b92baa809ebace4ee57b980cf8da006893d91284d5eb64f27fc8cf6ad58",
-    "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "f3d16a559b5a57732f4623c5d43766e7a617fdd11e03b5bd6af3fb784c30927c",
+    "svc/fields-service/src/main/java/sam/tech/controller/EnvironmentDefinitionsController.java": "f54c8f807d0731b79dea8af27e5ed91ae58343303ca708b5ad58ba9d8fbdc18c",
+    "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "35741b4247702d9edb3e9cdeff672efddc935dbc6ac0f1a194742aae0d208a61",
     "svc/fields-service/src/main/java/sam/tech/controller/HealthController.java": "fe9c6fa979c4a46bd1c0fa8807b2d90a00783d0ef95bdd7dbdf9e72338f2d81e",
     "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java": "30ca7aaaaa6e4a26e56a31c84dd5d41d5343e22d5daa0e1ea576efb047ffc97f",
     "svc/fields-service/src/main/java/sam/tech/controller/OutboxController.java": "7a049b0486141bc6036b410f1709c1aed53cbdc0d37f1bc301054ec99a009f49",
+    "svc/fields-service/src/main/java/sam/tech/controller/PlayerAdminController.java": "907ac12793616fe9f56e26ae6f967a129848d15afb1771b4a4329cd942c2a273",
+    "svc/fields-service/src/main/java/sam/tech/controller/PlayerAnalyticsController.java": "0c4fc41519a885eb983e362122573bb0b1342b0ebe8296aa664242e222a58c7d",
     "svc/fields-service/src/main/java/sam/tech/controller/PlayerSampleController.java": "38f3338ba54bbb2c4202e47742e7eb5b69fa8219b1f81279985aaf4b0033c87c",
     "svc/fields-service/src/main/java/sam/tech/controller/ProbeController.java": "7f41f2a4ccc1ca0b39393506bb0273c623d2125f1bc633a1412be48f2af3d172",
     "svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java": "1e8e79c8f438aacaacec912769ed6543b9aa2d1417f3a47c1c491ffc822c3976",
@@ -15601,12 +19202,17 @@
     "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java": "9a665f73f13c82d5ba6ebc723d80d3ca6eb17d6ebc3212c063f89a391fd7927e",
     "svc/fields-service/src/main/java/sam/tech/fields/Cursors.java": "18340d100dbca0589f0095a3a05363c3a7f145838bd489e06c61de91b2bca4d8",
     "svc/fields-service/src/main/java/sam/tech/fields/DefinitionScanner.java": "f46b4706dd079a69bd02bef13c5d2bc132e8167f11e7b1cec781801e55a1fb53",
+    "svc/fields-service/src/main/java/sam/tech/fields/EnvironmentDefinitionsService.java": "6ddf7e02945977fbd2dc9bf67f51036187f1ffc41881b23be56dea32f1e90378",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsException.java": "5ef6672bc29020fd603d611ce8a29cebaa2026719941fedb6fb5a381a56c7eb0",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "7dadedc254247959bc8e20b998cfb6a2535f81af49a4b9fcea8400a35ece0a6b",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "ed18ad1b8d93d213a3406ba4eb8cbd89a1b57a79df574cd7042a0be1b1ca6cd9",
     "svc/fields-service/src/main/java/sam/tech/fields/JsonSupport.java": "576a7d100a81f2426e98cf8c89b87f0f591efc0175b10056106c2babb8b790ac",
     "svc/fields-service/src/main/java/sam/tech/fields/LuauGenerator.java": "1cb5e66698afafcb2037f8caa90c5fb4acedd40861a75a00d9800a4762b11b5f",
     "svc/fields-service/src/main/java/sam/tech/fields/Models.java": "08b2971731098ed44c4343deec5961fcb8b38de507a53c708693d7d3ceea821d",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminModels.java": "db51bfd031cbebffe17908d569aefd8d204d7ddc64f86c3ff7923a14d7779538",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminRepository.java": "c9cf754ffc6e1be7d151ae5ecf3b06394affda3583c3a932bcba04844e174dc3",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminService.java": "9d8d2932618dad8eb610f1744817eaeac7e7e52d42f2ec95ac5c687ba986a605",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAnalyticsRepository.java": "3684f0da8ddb360110f9141c39581504ea5313d4f29cc95e33456561a331af87",
     "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleRepository.java": "118bfbd1aeec8fd47ea2a7a7d26ccb034911d1b5213f10b0be830965983e8e0b",
     "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java": "e6e4913ab7ea2c9d405bc16600a6561d09ce2892214ca4c0f38a3ff72fcd47d3",
     "svc/fields-service/src/main/java/sam/tech/fields/PostgresCommerceStore.java": "59c256d80cf654ef3500c8bb875e12cd45291709737d4e26906e44674a0613e2",
@@ -15649,6 +19255,8 @@
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java": "5b74f713a8a9f019ed420f33fded79dab8058d45dd62f108263391fcd8396597",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookGuard.java": "d5d0dfa7510c1eeec1392a288697e20f91d2f3330170acad4962a9c36708096f",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookSender.java": "fa96745ede3f955120c0bf6396c2a247eb9275ed9eb58b538d770775c53da620",
+    "svc/fields-service/src/main/java/sam/tech/fields/openapi/OpenApiController.java": "d03f6f9ab0ac05494e5a1deb0cdea8607d1bced0f338350729dfd3a72d613d52",
+    "svc/fields-service/src/main/java/sam/tech/fields/openapi/OpenApiGenerator.java": "a6657270d96683932b5587b86a13f7a40a3cd312b594b60129f2229c60c4055f",
     "svc/fields-service/src/main/java/sam/tech/filter/JwtAuthenticationFilter.java": "7f0694726fef98c17bce70293a4d4fc338c9e4b685c8b0e6ca59d1b975222ab5",
     "svc/fields-service/src/main/java/sam/tech/filter/PathExclusionMatcher.java": "2ecf41c86456763bd3e32a4eca4863d989a8aefab8bd841c1d0ac6a1418c8d58",
     "svc/fields-service/src/main/java/sam/tech/filter/RateLimitFilter.java": "927fc8e3fb827d1bf2d654020f3b050bf55935d90ed532b441ef7129bbafddc7",
@@ -16305,6 +19913,16 @@
         "parent": null,
         "source": "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountUpdateRequest.java"
       },
+      "ActorRequest": {
+        "fields": {
+          "actorId": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java"
+      },
       "AddMember": {
         "fields": {
           "overrides": {
@@ -16329,6 +19947,26 @@
           }
         },
         "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java"
+      },
+      "Create": {
+        "fields": {
+          "actorId": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": true
+          },
+          "expiresAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": true
+          },
+          "operationId": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java"
       },
       "CreateOrg": {
         "fields": {
@@ -16359,6 +19997,36 @@
           }
         },
         "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java"
+      },
+      "Created": {
+        "fields": {
+          "expiresAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": false
+          },
+          "id": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": false
+          },
+          "key": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "serviceAccountId": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": false
+          },
+          "universeId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java"
       },
       "Invitation": {
         "fields": {
@@ -17239,6 +20907,11 @@
             "notBlank": false,
             "required": false
           },
+          "orgRole": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
           "placeIds": {
             "java": "List<Long>",
             "notBlank": false,
@@ -17976,6 +21649,23 @@
           }
         },
         "source": "svc/config-service/src/main/java/sam/tech/dto/ConfigModels.java"
+      },
+      "EnvironmentReplaceInput": {
+        "fields": {
+          "operationId": {
+            "java": "String",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "resources": {
+            "java": "List<JsonNode>",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
       },
       "Evaluation": {
         "fields": {
@@ -19441,6 +23131,38 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
+      "EnvironmentReplaceInput": {
+        "fields": {
+          "operationId": {
+            "java": "String",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "resources": {
+            "java": "List<JsonNode>",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "Erase": {
+        "fields": {
+          "confirmUserId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "notBlank": true,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminModels.java"
+      },
       "ExportInput": {
         "fields": {
           "fields": {
@@ -20490,6 +24212,45 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java"
       },
+      "PlayerEraseInput": {
+        "fields": {
+          "confirmUserId": {
+            "java": "long",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "PlayerEraseResult": {
+        "fields": {
+          "erased": {
+            "java": "boolean",
+            "required": true
+          },
+          "tombstoneId": {
+            "java": "UUID",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "PlayerRevertInput": {
+        "fields": {
+          "ledgerEntryIds": {
+            "java": "List<UUID>",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
       "PlayerSample": {
         "fields": {
           "userId": {
@@ -20524,6 +24285,19 @@
           }
         },
         "source": "CONTRACT.md#f4-criteria-dry-run"
+      },
+      "PlayerSearchPage": {
+        "fields": {
+          "items": {
+            "java": "List<JsonNode>",
+            "required": true
+          },
+          "nextCursor": {
+            "java": "String",
+            "required": false
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
       },
       "Policy": {
         "fields": {
@@ -20959,6 +24733,26 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java"
       },
+      "Replace": {
+        "fields": {
+          "operationId": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "reason": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "resources": {
+            "java": "List<DefinitionInput>",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/EnvironmentDefinitionsService.java"
+      },
       "Restore": {
         "fields": {
           "actor": {
@@ -21185,6 +24979,21 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
+      "Revert": {
+        "fields": {
+          "ledgerEntryIds": {
+            "java": "List< UUID>",
+            "notBlank": false,
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "notBlank": true,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminModels.java"
       },
       "Sample": {
         "fields": {
@@ -23008,6 +26817,23 @@
           }
         }
       },
+      "EnvironmentReplaceInput": {
+        "fields": {
+          "operationId": {
+            "java": "String",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "resources": {
+            "java": "List<JsonNode>",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
       "GameModeQueueInfo": {
         "fields": {
           "gameModeName": {
@@ -24288,6 +28114,421 @@
         },
         "parent": null,
         "source": "party/src/main/java/sam/tech/dto/TransferLeadershipRequest.java"
+      }
+    },
+    "platform": {
+      "DateRange": {
+        "fields": {
+          "from": {
+            "java": "String",
+            "required": true
+          },
+          "to": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "EnvironmentReplaceInput": {
+        "fields": {
+          "operationId": {
+            "java": "String",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "resources": {
+            "java": "List<JsonNode>",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "EvaluateInput": {
+        "fields": {
+          "keys": {
+            "java": "List<String>",
+            "required": false
+          },
+          "userId": {
+            "java": "long",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "Evaluation": {
+        "fields": {
+          "values": {
+            "java": "Map<String,EvaluationValue>",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "EvaluationValue": {
+        "fields": {
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "variant": {
+            "java": "String",
+            "required": false
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "ExposureInput": {
+        "fields": {
+          "eventId": {
+            "java": "String",
+            "required": true
+          },
+          "key": {
+            "java": "String",
+            "required": true
+          },
+          "occurredAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "userId": {
+            "java": "long",
+            "required": true
+          },
+          "variant": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "FlagInput": {
+        "fields": {
+          "defaultValue": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "enabled": {
+            "java": "boolean",
+            "required": true
+          },
+          "key": {
+            "java": "String",
+            "required": true
+          },
+          "rules": {
+            "java": "List<FlagRule>",
+            "required": true
+          },
+          "sticky": {
+            "java": "boolean",
+            "required": false
+          },
+          "type": {
+            "java": "String",
+            "required": true
+          },
+          "variants": {
+            "java": "List<Variant>",
+            "required": false
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "FlagMatch": {
+        "fields": {
+          "field": {
+            "java": "String",
+            "required": true
+          },
+          "op": {
+            "java": "String",
+            "required": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "FlagRule": {
+        "fields": {
+          "match": {
+            "java": "FlagMatch",
+            "required": true
+          },
+          "rolloutPct": {
+            "java": "double",
+            "required": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "IncidentInput": {
+        "fields": {
+          "message": {
+            "java": "String",
+            "required": true
+          },
+          "resolved": {
+            "java": "boolean",
+            "required": true
+          },
+          "severity": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "LiveAction": {
+        "fields": {
+          "codeId": {
+            "java": "Long",
+            "required": false
+          },
+          "flag": {
+            "java": "String",
+            "required": false
+          },
+          "key": {
+            "java": "String",
+            "required": false
+          },
+          "type": {
+            "java": "String",
+            "required": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "required": false
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "LiveEventInput": {
+        "fields": {
+          "actions": {
+            "java": "List<LiveAction>",
+            "required": true
+          },
+          "endsAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "name": {
+            "java": "String",
+            "required": true
+          },
+          "recurrence": {
+            "java": "String",
+            "required": false
+          },
+          "startsAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "timezone": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "PlanChange": {
+        "fields": {
+          "plan": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "PlanInput": {
+        "fields": {
+          "monthlyLimits": {
+            "java": "Map<String,Long>",
+            "required": true
+          },
+          "name": {
+            "java": "String",
+            "required": true
+          },
+          "overagePrices": {
+            "java": "Map<String,BigDecimal>",
+            "required": true
+          },
+          "rateLimit": {
+            "java": "RateLimit",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "PlatformEvent": {
+        "fields": {
+          "data": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "eventId": {
+            "java": "String",
+            "required": true
+          },
+          "occurredAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "orgId": {
+            "java": "String",
+            "required": true
+          },
+          "type": {
+            "java": "String",
+            "required": true
+          },
+          "universeId": {
+            "java": "long",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "PromotionInput": {
+        "fields": {
+          "dryRun": {
+            "java": "boolean",
+            "required": false
+          },
+          "from": {
+            "java": "String",
+            "required": true
+          },
+          "reason": {
+            "java": "String",
+            "required": true
+          },
+          "resources": {
+            "java": "List<String>",
+            "required": true
+          },
+          "to": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "RateLimit": {
+        "fields": {
+          "burst": {
+            "java": "int",
+            "required": true
+          },
+          "dailyRequests": {
+            "java": "long",
+            "required": true
+          },
+          "requestsPerSecond": {
+            "java": "int",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "UsageBatch": {
+        "fields": {
+          "batchId": {
+            "java": "UUID",
+            "required": true
+          },
+          "events": {
+            "java": "List<UsageEvent>",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "UsageEvent": {
+        "fields": {
+          "at": {
+            "java": "Instant",
+            "required": true
+          },
+          "count": {
+            "java": "long",
+            "required": true
+          },
+          "metric": {
+            "java": "String",
+            "required": true
+          },
+          "orgId": {
+            "java": "String",
+            "required": true
+          },
+          "service": {
+            "java": "String",
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "Variant": {
+        "fields": {
+          "name": {
+            "java": "String",
+            "required": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "required": true
+          },
+          "weightPct": {
+            "java": "double",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
+      },
+      "WebhookInput": {
+        "fields": {
+          "enabled": {
+            "java": "boolean",
+            "required": true
+          },
+          "events": {
+            "java": "List<String>",
+            "required": true
+          },
+          "secret": {
+            "java": "String",
+            "required": false
+          },
+          "url": {
+            "java": "String",
+            "required": true
+          }
+        },
+        "source": "rbac/f/CONTRACT2.md"
       }
     }
   },
