@@ -196,6 +196,14 @@ function Service.getCriteriaTypes(
 ): Core.Result<Types.GetCriteriaTypesResultValue>
 	return self._invoke(Endpoints["matchmaking.getCriteriaTypes"], (req or {}), opts, self._universe)
 end
+--- POST /matchmaking-service/api/matchmaking/criteria/simulate via gateway; access: READ_WRITE.
+function Service.simulateCriteria(
+	self: Service,
+	req: Types.SimulateCriteriaCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.SimulateCriteriaResultValue>
+	return self._invoke(Endpoints["matchmaking.simulateCriteria"], { body = req }, opts, self._universe)
+end
 --- POST /matchmaking-service/api/matchmaking/process/{universeId} via gateway; access: ADMIN.
 function Service.processMatchmaking(
 	self: Service,

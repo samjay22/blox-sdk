@@ -1,6 +1,6 @@
 # Endpoint reference
 
-281 endpoints. `routes.json` coverage is checked independently.
+283 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -171,6 +171,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/fields/universes/{universeId}/ops/validate` | `fields.validateOps` | READ | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/outbox` | `fields.outbox` | ADMIN | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/outbox/{id}/retry` | `fields.retryOutbox` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/players/sample` | `fields.samplePlayers` | READ | 200 | yes | yes |
 | DELETE | `/api/fields/universes/{universeId}/players/{userId}` | `fields.deletePlayer` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/changes` | `fields.changes` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/document` | `fields.document` | READ | 200 | yes | yes |
@@ -265,6 +266,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/gamemodes/{id}/criteria/explain` | `matchmaking.explainCriteria` | READ | 200 | yes | yes |
 | GET | `/api/gamemodes/{name}` | `matchmaking.getGameModeByName` | READ | 200 | yes | yes |
 | GET | `/api/matchmaking/criteria-types` | `matchmaking.getCriteriaTypes` | READ | 200 | yes | yes |
+| POST | `/api/matchmaking/criteria/simulate` | `matchmaking.simulateCriteria` | READ_WRITE | 200 | no | no |
 | POST | `/api/matchmaking/process/{universeId}` | `matchmaking.processMatchmaking` | ADMIN | 200 | no | no |
 | DELETE | `/api/matchmaking/queue` | `matchmaking.removePlayer` | READ_WRITE | 200 | no | no |
 | POST | `/api/matchmaking/queue` | `matchmaking.joinQueue` | READ_WRITE | 200 | no | no |

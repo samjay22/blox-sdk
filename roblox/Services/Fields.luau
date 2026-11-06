@@ -487,6 +487,14 @@ function Service.retryOutbox(
 ): Core.Result<Types.RetryOutboxResultValue>
 	return self._invoke(Endpoints["fields.retryOutbox"], req, opts, self._universe)
 end
+--- GET /fields-service/api/fields/universes/{universeId}/players/sample via gateway; access: READ.
+function Service.samplePlayers(
+	self: Service,
+	req: Types.SamplePlayersCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.SamplePlayersResultValue>
+	return self._invoke(Endpoints["fields.samplePlayers"], (req or {}), opts, self._universe)
+end
 --- DELETE /fields-service/api/fields/universes/{universeId}/players/{userId} via gateway; access: ADMIN.
 function Service.deletePlayer(
 	self: Service,

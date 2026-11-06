@@ -158,6 +158,8 @@ def refresh(doc: dict) -> dict:
         for path in evidence:
             provenance[str(path.relative_to(SOURCE_ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
     doc['sourceHashes'] = provenance
+    from simulate_contract import curate_simulation
+    curate_simulation(doc)
     for endpoint in doc['endpoints']:
         if endpoint['service'] != 'auth':
             # Legacy downstream global-ADMIN guards still exist, but GAS now gives

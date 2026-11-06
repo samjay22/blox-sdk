@@ -521,7 +521,7 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
-test("all 281 generated endpoints use default, custom gateway and direct-host URLs offline", function()
+test("all 283 generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
 	for id, spec in SDK.endpoints do
 		local s = Scheduler.new()
@@ -626,7 +626,7 @@ test("all 281 generated endpoints use default, custom gateway and direct-host UR
 			count += 1
 		end
 	end
-	check(count == 281 * 3)
+	check(count == 283 * 3)
 end)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
@@ -995,5 +995,6 @@ require("./operations")(test)
 require("./matchmaking")(test)
 require("./jobs")(test)
 require("./references")(test)
+require("./simulate")(test)
 GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

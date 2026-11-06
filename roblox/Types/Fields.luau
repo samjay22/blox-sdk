@@ -345,6 +345,8 @@ export type OpValidationError = {
 export type OpenAlertCounts = { CRITICAL: number, WARNING: number }
 export type OpsValidationInput = { ops: { FieldTypes.PlayerOperation }, universeId: number? }
 export type OpsValidationResult = { errors: { OpValidationError }, valid: boolean }
+export type PlayerSample = { userId: number, values: { [string]: number } }
+export type PlayerSampleResponse = { players: { PlayerSample }, sampled: number, universeId: number }
 export type Policy = { autoEnabled: boolean, retentionDays: number }
 export type PolicyInput = { autoEnabled: boolean, retentionDays: number, universeId: number? }
 export type Presence = {
@@ -637,6 +639,11 @@ export type OutboxCall = {
 export type OutboxResultValue = CursorPage<Item>
 export type RetryOutboxCall = { path: { universeId: (string | number)?, id: string } }
 export type RetryOutboxResultValue = Item
+export type SamplePlayersCall = {
+	path: { universeId: (string | number)? }?,
+	query: { limit: number?, fields: string? }?,
+}
+export type SamplePlayersResultValue = PlayerSampleResponse
 export type DeletePlayerCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	query: { reason: string },
