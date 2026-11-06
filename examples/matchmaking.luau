@@ -1,5 +1,5 @@
 --!strict
--- Server enrichment needs FieldsService READ; lb1 also requires Gateway. Criteria use top-level computed IDs.
+-- Server enrichment needs FieldsService READ; lb1 also requires Gateway. Criteria accept computed IDs including Stats.Elo.
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Types = require("../src/Types/Matchmaking")

@@ -26,7 +26,7 @@ Coverage independently scans seven refreshed backend trees, so stale inventory c
 - Matchmaking validation and bulk status are read-only POSTs. Process/flush and ban mutation require ADMIN.
 - Auth key management requires identity plus org ADMIN/OWNER (or SUPER_ADMIN). Catalog reads accept identity/scoped tokens; mutations are platform-only. Org capabilities remain server-enforced. Place operations retain AuthService guards.
 - Party `/api/poll/**` is public in the checked-in security configuration. The SDK records this rather than inventing an auth requirement. Do not treat possession of a serverId as a security boundary; review deployment policy before relying on this feed.
-- Queue DTOs inherit player IDs and retain the documented singular/comma-separated ID inputs. Caller metadata is not exposed: the service replaces it with Fields computed values. The criteria DTO wire fields are unchanged; fieldName must reference a top-level computed ID.
+- Queue DTOs inherit player IDs and retain the documented singular/comma-separated ID inputs. Caller metadata is not exposed: the service replaces it with Fields computed values. The criteria DTO wire fields are unchanged; fieldName accepts any computed Fields ID, including namespaced IDs such as `Stats.Elo`, with the Fields field-id grammar and 200-character maximum. Dots are literal ID separators, not metadata traversal.
 - ServiceAccountPatchRequest distinguishes absent from explicit null. Only enabled/description/expiresAt are accepted. Creation/rotation can return a one-time key and are never cached.
 - Leave-party may return 204. HEAD key-existence checks may return 200/404. The metrics and polling-health responses are text.
 

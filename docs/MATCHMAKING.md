@@ -9,18 +9,28 @@ an error become per-player metadata, keyed by field ID. Stored values and failed
 excluded. Numeric values remain JSON numbers. Queue inputs therefore contain player IDs, universe,
 game mode(s) and optional party ID, not caller-controlled metadata.
 
-Criteria use **top-level computed IDs**, such as `Level` or `Elo`. Dotted names are rejected by
-`MatchmakingCriteriaDTO.validate()`, even though Fields can return dotted IDs. The current DTO retains
-the same criteria field names and 16 discriminator values; the change is their Fields-backed source,
-not a new path or schema-version selector. Types are refreshed from that DTO rather than inferred
-from example metadata.
+Criteria `fieldName` accepts **any computed Fields ID**, including namespaced IDs such as
+`Stats.Elo` or `Progress.Level`, as well as unnamespaced IDs such as `Elo`. Dots are part of the literal
+field ID, not nested metadata traversal. The ID must match the Fields field-id grammar exactly:
+
+```text
+^[A-Za-z][A-Za-z0-9_]{0,63}(\.[A-Za-z][A-Za-z0-9_]{0,63}){0,7}$
+```
+
+The total length is at most 200 characters: 1–8 dot-separated segments, each 1–64 ASCII characters,
+starting with a letter and followed only by letters, digits or underscores. Empty segments, leading
+or trailing dots, and segments starting with a digit are invalid. The field must be computed and
+its return type must be compatible with the criterion; accepting namespaced IDs does not permit
+stored fields or caller-supplied metadata. The DTO retains the same criteria field names and 16
+discriminator values, not a new path or schema-version selector. Types are refreshed from that DTO
+rather than inferred from example metadata.
 
 ```luau
 local mode = client.matchmaking:createGameMode({
     universeId = "123", name = "ranked", placeId = "456",
     matchmakingCriteria = {
         {type="TEAM_SIZE", maxPlayers=6},
-        {type="SKILL_BASED", fieldName="Elo", skillRange=200},
+        {type="SKILL_BASED", fieldName="Stats.Elo", skillRange=200},
     },
 })
 local joined = client.matchmaking:joinQueue({

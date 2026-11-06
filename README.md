@@ -103,8 +103,9 @@ Codes now take `award` directly as a list of Fields operations. Use
 CodeService applies one atomic transaction using `code-<codeId>-<userId>`. The per-user maximum must be 1.
 See [Codes guide](docs/CODES.md), [award example](examples/code-award.luau), and [Fields guide](docs/FIELDS.md).
 
-Matchmaking criteria read server-fetched Fields computed values. Use top-level computed IDs (`Elo`,
-`Level`), not dotted paths or caller-supplied metadata. See [criteria and failure semantics](docs/MATCHMAKING.md).
+Matchmaking criteria read server-fetched Fields computed values. `fieldName` accepts any computed
+Fields ID, including namespaced IDs (`Stats.Elo`, `Progress.Level`), as a literal ID, not a nested
+metadata path or caller-supplied metadata. See [field ID grammar, criteria and failure semantics](docs/MATCHMAKING.md).
 
 ## Static field types
 
