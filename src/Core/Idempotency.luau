@@ -3,6 +3,36 @@ local Core = require("../Types/Core")
 local Json = require("./Json")
 local Idempotency = {}
 local sequence = 0
+--- Validate the owning service's header grammar; Codes uses Java UTF-16 length and ISO controls.
+function Idempotency.header(value: unknown, freeform: boolean): boolean
+	if type(value) ~= "string" or #value == 0 then
+		return false
+	end
+	if not freeform then
+		return #value <= 200 and string.match(value, "^[A-Za-z0-9._-]+$") ~= nil
+	end
+	if #value > 800 or utf8.len(value) == nil then
+		return false
+	end
+	local length = 0
+	local nonblank = false
+	for _, cp in utf8.codes(value) do
+		if cp <= 31 or (cp >= 127 and cp <= 159) then
+			return false
+		end
+		length += if cp > 65535 then 2 else 1
+		local whitespace = cp == 32
+			or cp == 5760
+			or (cp >= 8192 and cp <= 8198)
+			or (cp >= 8200 and cp <= 8202)
+			or cp == 8232
+			or cp == 8233
+			or cp == 8287
+			or cp == 12288
+		nonblank = nonblank or not whitespace
+	end
+	return length <= 200 and nonblank
+end
 --- Generate a collision-resistant operation identifier, never a credential.
 function Idempotency.key(runtime: Core.Runtime): string
 	sequence += 1

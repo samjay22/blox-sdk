@@ -34,7 +34,7 @@ class ContractTests(unittest.TestCase):
         verify(self.doc['endpoints'], routing)
         for before, after in (
             ('https://lb1.blox-api.com', 'https://old.example'),
-            ('/remote-config-service', '/config-service'),
+            ('/fields-service', '/wrong-fields-service'),
             ('/code-service', '/codes-service'),
             ('/leaderboard-service', '/leaderboards-service'),
             ('["fields"]', '["unknown"]'),
@@ -63,7 +63,7 @@ class ContractTests(unittest.TestCase):
         expected={'codes.createCode':'ADMIN','codes.redeem':'READ_WRITE','codes.listRedemptions':'ADMIN','matchmaking.createGameMode':'ADMIN','matchmaking.updateGameMode':'ADMIN','matchmaking.getBulkQueueStatus':'READ','matchmaking.validateQueue':'READ','matchmaking.processMatchmaking':'ADMIN','party.getAllParties':'ADMIN'}
         for endpoint,level in expected.items():self.assertEqual(self.routes[endpoint]['minimumLevel'],level)
         for e in self.doc['endpoints']:
-            if e['service']=='auth' and '/service-accounts' in e['path']:
+            if e['service']=='auth' and '/service-accounts' in e['path'] and '/internal/' not in e['path']:
                 self.assertEqual(e['requiredRole'],'IDENTITY');self.assertNotIn('serviceAccount',e['authKinds'])
         self.assertIn('none',self.routes['party.getUpdates']['authKinds'])
 
@@ -100,21 +100,21 @@ class ContractTests(unittest.TestCase):
         for e in self.doc['endpoints']:
             if e['service']=='auth' and e['name'].endswith('Rest'):self.assertEqual(e['statuses'],[204])
             if e['method']=='POST' and e['retryable']:
-                self.assertTrue(e.get('idempotencyField') or (e['id']=='fields.import' and e.get('idempotencyHeader') and e.get('requestFormat')=='ndjson') or e['id'] in {'matchmaking.validateQueue','matchmaking.getBulkQueueStatus'})
+                self.assertTrue(e.get('idempotencyField') or (e['id']=='fields.import' and e.get('idempotencyHeader') and e.get('requestFormat')=='ndjson') or e['id'] in {'matchmaking.validateQueue','matchmaking.getBulkQueueStatus','fields.previewGenerator','fields.simulateGenerator'})
 
     def test_live_source_contract_is_reproducible(self) -> None:
         """Compare record/route extraction and source hashes without changing workspace files."""
         from service_contracts import refresh, SOURCES
         fresh = refresh(copy.deepcopy(self.doc))
         self.assertEqual(fresh, self.doc)
-        self.assertEqual(set(SOURCES), {'audit','config','leaderboards','fields','codes','matchmaking','auth'})
+        self.assertEqual(set(SOURCES), {'audit','leaderboards','fields','codes','matchmaking','auth','platform'})
 
     def test_coverage_detects_omission_without_inventory_help(self) -> None:
         """Deleting either a rating or board route fails independently of routes.json."""
         checker = runpy.run_path(str(ROOT/'tools/check-coverage'))
         actual = {(e['service'], e['method'], e['path']) for e in self.doc['endpoints']}
         checker['assert_controller_coverage'](actual)
-        for endpoint in ('leaderboards.ratingMatch','leaderboards.rollover','audit.batch','config.snapshot','fields.refund','fields.validateOps','fields.previewBoard','fields.leaderboardBindings'):
+        for endpoint in ('leaderboards.ratingMatch','leaderboards.rollover','audit.batch','fields.runtimeSnapshot','fields.refund','fields.validateOps','fields.previewBoard','fields.leaderboardBindings'):
             e = self.routes[endpoint]
             with self.assertRaises(AssertionError):
                 checker['assert_controller_coverage'](actual-{(e['service'],e['method'],e['path'])})
@@ -151,23 +151,22 @@ class ContractTests(unittest.TestCase):
     def test_new_service_contract_exceptions(self) -> None:
         """Test guards, cursor schemas, conditional JSON, decimal amounts and key carriers independently."""
         self.assertEqual(self.routes['leaderboards.ratingConfig']['minimumLevel'], 'ADMIN')
-        self.assertEqual(self.routes['config.evaluate']['minimumLevel'], 'READ')
+        self.assertEqual(self.routes['fields.evaluateFlags']['minimumLevel'], 'READ')
         self.assertEqual(self.routes['fields.validateOps']['minimumLevel'], 'READ')
         self.assertFalse(self.routes['fields.validateOps']['retryable'])
         self.assertEqual(self.doc['types']['fields']['OpsValidationInput']['fields']['ops']['java'], 'List<Fields.PlayerOperation>')
         self.assertTrue(self.doc['types']['fields']['OpsValidationResult']['fields']['errors']['required'])
         self.assertEqual(self.routes['audit.batch']['statuses'], [202])
-        self.assertEqual(self.routes['config.snapshot']['statuses'], [200,304])
-        self.assertEqual(self.routes['config.snapshot']['responseFormat'], 'json')
+        self.assertEqual(self.routes['fields.runtimeSnapshot']['statuses'], [200,304])
+        self.assertEqual(self.routes['fields.runtimeSnapshot']['responseFormat'], 'json')
         self.assertFalse(self.routes['leaderboards.rollover']['retryable'])
         for name in ('transaction','multiTransaction','reverseEntry','reverseTransaction','purchase','refund','restoreSnapshot'):
             self.assertEqual(self.routes['fields.'+name]['idempotencyField'], 'idempotencyKey')
         for name in ('user','users','top','config','configure','match'):
             self.assertIn('leaderboards.rating'+name.capitalize(), self.routes)
         self.assertEqual(self.doc['types']['audit']['GroupBy']['enum'], ['action','actor','outcome'])
-        self.assertFalse(self.doc['types']['config']['Rules']['fields']['allowUserIds']['required'])
         for e in self.doc['endpoints']:
-            if e['service'] in ('audit','config','fields','leaderboards') and any(p['name']=='cursor' for p in e['queryParams']):
+            if e['service'] in ('audit','fields','leaderboards') and any(p['name']=='cursor' for p in e['queryParams']):
                 self.assertTrue(e['responseJava'].startswith('CursorPage<') or e['responseJava'] in ('Summary','FieldPage','SnapshotDetail','PlayerSearchPage'))
 
 if __name__=='__main__':unittest.main()

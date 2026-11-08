@@ -124,6 +124,7 @@ export type BulkPreviewSample = {
 }
 export type ChangesResponse = { items: { Entry }, latestSeq: number, nextSinceSeq: number }
 export type Counts = { definitions: number, ledger: number, values: number }
+export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
 export type Definition = {
 	bindings: FieldTypes.Bindings?,
 	computed: FieldTypes.Computed?,
@@ -209,7 +210,12 @@ export type Entry = {
 	universeId: number,
 	versionAfter: number,
 }
-export type EnvironmentReplaceInput = { operationId: string, reason: string, resources: { Core.Json } }
+export type EnvironmentReplaceInput = {
+	expectedResources: { DefinitionInput },
+	operationId: string,
+	reason: string,
+	resources: { DefinitionInput },
+}
 export type ExportInput = {
 	fields: { string }?,
 	idempotencyKey: string?,
@@ -230,6 +236,108 @@ export type FieldView = {
 	updatedAt: string?,
 	value: Core.Json,
 	version: number,
+}
+export type FlagBatchEvaluation = { items: { FlagBatchItem } }
+export type FlagBatchItem = { userId: number, values: { [string]: FlagEvaluationValue } }
+export type FlagDefinition = {
+	createdAt: string,
+	defaultValue: Core.Json,
+	displayName: string,
+	enabled: boolean,
+	key: string,
+	rolloutPct: (number | Core.Null)?,
+	rules: { FlagRule },
+	sticky: boolean,
+	type: string,
+	updatedAt: string,
+	variants: { FlagVariant },
+	version: number,
+}
+export type FlagEvaluateBatchInput = { universeId: number?, userIds: { number } }
+export type FlagEvaluateInput = {
+	context: Core.Json?,
+	keys: { string }?,
+	universeId: number?,
+	userId: number?,
+}
+export type FlagEvaluation = { values: { [string]: FlagEvaluationValue } }
+export type FlagEvaluationValue = { reason: string, value: Core.Json, variant: (string | Core.Null)? }
+export type FlagInput = {
+	defaultValue: Core.Json,
+	displayName: string,
+	enabled: boolean,
+	key: string?,
+	rolloutPct: number?,
+	rules: { FlagRule },
+	sticky: boolean?,
+	type: string,
+	universeId: number?,
+	variants: { FlagVariant }?,
+	version: number?,
+}
+export type FlagMatch = { field: string, op: string, value: Core.Json }
+export type FlagRule = { match: (FlagMatch | Core.Null)?, rolloutPct: number, value: Core.Json }
+export type FlagVariant = { name: string, value: Core.Json, weightPct: number }
+export type GameValueChange = {
+	actor: string,
+	newValue: Core.Json,
+	previousValue: Core.Json | Core.Null,
+	time: string,
+	version: number,
+}
+export type GameValueRollbackInput = { version: number }
+export type Generated = {
+	cost: { FieldTypes.PlayerOperation },
+	picks: { GeneratorPick },
+	pityAfter: number | Core.Null,
+	resolvedConfig: { [string]: Core.Json },
+}
+export type GeneratorPick = {
+	durationSeconds: number | Core.Null,
+	entryId: string,
+	grants: { FieldTypes.PlayerOperation },
+	index: number,
+	path: { string },
+	payload: Core.Json | Core.Null,
+	rolls: { [string]: number },
+	slot: string,
+	table: string,
+	tags: { string },
+}
+export type GeneratorPreviewInput = {
+	count: number?,
+	generator: string,
+	playerId: number?,
+	universeId: number?,
+}
+export type GeneratorRollInput = {
+	count: number?,
+	generator: string,
+	idempotencyKey: string?,
+	playerId: number,
+	universeId: number?,
+}
+export type GeneratorRollResult = {
+	createdAt: string,
+	definitionVersions: { [string]: number },
+	generator: string,
+	id: string,
+	playerId: number,
+	results: { Generated },
+	transaction: Result,
+}
+export type GeneratorSimulationInput = {
+	generator: string,
+	iterations: number?,
+	playerId: number?,
+	universeId: number?,
+}
+export type GeneratorSimulationResult = {
+	appearanceProbabilities: { [string]: number },
+	entryCounts: { [string]: number },
+	iterations: number,
+	picks: number,
+	pityMode: string,
 }
 export type HealthComponent = { status: string }
 export type HealthResponse = { service: string, status: string, timestamp: string }
@@ -278,6 +386,7 @@ export type JobReceipt = {
 	kind: JobKind,
 	phase: string?,
 	prepared: boolean,
+	recurrence: (ScheduleRecurrence | Core.Null)?,
 	snapshotId: string?,
 	state: JobState,
 	succeeded: number,
@@ -296,6 +405,13 @@ export type JobSummary = {
 	updatedAt: string,
 }
 export type KeyedJobActionInput = { idempotencyKey: string?, reason: string, universeId: number? }
+export type MaintenanceInput = {
+	allowlistUserIds: { number },
+	enabled: boolean,
+	message: string,
+	universeId: number?,
+}
+export type MaintenanceState = { allowlistUserIds: { number }, enabled: boolean, message: string }
 export type MetricsResponse = { names: { string } }
 export type MigrationFailureSample = { code: string, subject: number }
 export type MigrationInput = {
@@ -393,6 +509,31 @@ export type ProductInput = {
 	sku: string,
 	universeId: number?,
 }
+export type RandomAction = { reason: string, universeId: number? }
+export type RandomDefinition = { definition: Core.Json, key: string, kind: RotationKind, version: number }
+export type RandomDefinitionInput = {
+	applyNow: boolean?,
+	definition: Core.Json,
+	expectedVersion: number?,
+	key: string?,
+	reason: string,
+	universeId: number?,
+}
+export type RandomEditorField = {
+	field: string,
+	numericGameValue: boolean,
+	path: string,
+	scope: string,
+	type: FieldTypes.TypeExpr,
+	validOps: { string },
+}
+export type RandomErase = { confirmUniverseId: number, reason: string, universeId: number? }
+export type RandomHistory = { counter: number, data: Core.Json }
+export type RandomOdds = {
+	entryProbabilities: { [string]: number },
+	probabilities: { [string]: number },
+	resolvedConfig: { [string]: Core.Json },
+}
 export type Receipt = {
 	createdAt: string,
 	productId: number,
@@ -414,6 +555,7 @@ export type ReceiptInput = {
 	userId: number,
 }
 export type ReceiptResult = { purchaseId: string, replayed: boolean, status: string, transaction: Result }
+export type RecurrenceType = "NONE" | "DAILY" | "WEEKLY"
 export type Ref = { id: string, type: string }
 export type ReferenceConsumerType = "GAMEMODE" | "CODE"
 export type RefundInput = { idempotencyKey: string?, reason: string, universeId: number? }
@@ -453,6 +595,48 @@ export type ResultItem = {
 	subject: number,
 	version: number,
 }
+export type RotationActive = {
+	current: RotationInstance | Core.Null,
+	enabled: boolean,
+	next: RotationInstance | Core.Null,
+}
+export type RotationClaimInput = {
+	entryId: string,
+	idempotencyKey: string?,
+	instanceId: string,
+	playerId: number,
+	quantity: number,
+	slot: string,
+	universeId: number?,
+}
+export type RotationClaimResult = {
+	createdAt: string,
+	entryId: string,
+	id: string,
+	instanceId: string,
+	quantity: number,
+	remaining: number,
+	slot: string,
+	transaction: Result,
+}
+export type RotationInstance = {
+	definitionVersions: { [string]: number },
+	endsAt: string,
+	id: string,
+	key: string,
+	result: Generated,
+	sequence: number,
+	startsAt: string,
+}
+export type RotationKind = "TABLE" | "GENERATOR" | "ROTATION"
+export type RotationStock = { entryId: string, remaining: number, slot: string }
+export type RuntimeSnapshot = {
+	flags: { FlagDefinition },
+	gameValues: { [string]: Core.Json },
+	maintenance: MaintenanceState,
+	rotations: { RotationActive }?,
+	version: number,
+}
 export type ScheduleActionResult = {
 	done: boolean,
 	error: (string | Core.Null)?,
@@ -460,14 +644,30 @@ export type ScheduleActionResult = {
 	key: (string | Core.Null)?,
 	kind: string,
 	ordinal: number,
+	skipReason: (string | Core.Null)?,
+	skipped: (boolean | Core.Null)?,
 	version: (number | Core.Null)?,
 }
+export type ScheduleDefinition = {
+	["end"]: (string | Core.Null)?,
+	endActions: ({ FieldTypes.ScheduleAction } | Core.Null)?,
+	idempotencyKey: (string | Core.Null)?,
+	name: string,
+	reason: string,
+	recurrence: (ScheduleRecurrence | Core.Null)?,
+	restorePrevious: boolean,
+	start: string,
+	startActions: { FieldTypes.ScheduleAction },
+	universeId: (number | Core.Null)?,
+}
+export type ScheduleEdge = "START" | "END"
 export type ScheduleInput = {
 	["end"]: string?,
 	endActions: { FieldTypes.ScheduleAction }?,
 	idempotencyKey: string?,
 	name: string,
 	reason: string,
+	recurrence: ScheduleRecurrence?,
 	restorePrevious: boolean?,
 	start: string,
 	startActions: { FieldTypes.ScheduleAction },
@@ -480,11 +680,24 @@ export type SchedulePreview = {
 	start: string,
 	startActions: { FieldTypes.ScheduleAction },
 }
+export type ScheduleRecurrence = { daysOfWeek: { DayOfWeek }, timezone: string, type: RecurrenceType }
+export type ScheduleRun = {
+	actions: { ScheduleActionResult },
+	edge: ScheduleEdge,
+	error: (string | Core.Null)?,
+	finishedAt: (string | Core.Null)?,
+	id: number,
+	occurrence: number,
+	startedAt: string,
+	status: ScheduleRunStatus,
+}
+export type ScheduleRunStatus = "RUNNING" | "SUCCEEDED" | "FAILED" | "CANCELLED"
 export type ScheduleSummary = {
 	["end"]: (string | Core.Null)?,
 	id: string,
 	name: string,
 	phase: string,
+	recurrence: (ScheduleRecurrence | Core.Null)?,
 	start: string,
 	state: JobState,
 }
@@ -595,16 +808,62 @@ export type DefinitionReferencesResultValue = FieldReferences
 export type UnarchiveCall = { path: { universeId: (string | number)?, id: string }, body: Action }
 export type UnarchiveResultValue = Definition
 export type EnvironmentResourcesCall = { path: { universeId: (string | number)?, env: string } }
-export type EnvironmentResourcesResultValue = Core.Json
+export type EnvironmentResourcesResultValue = { [string]: Core.Json }
 export type ReplaceEnvironmentResourcesCall = {
 	path: { universeId: (string | number)?, env: string },
 	body: EnvironmentReplaceInput,
 }
-export type ReplaceEnvironmentResourcesResultValue = Core.Json
+export type ReplaceEnvironmentResourcesResultValue = { [string]: Core.Json }
 export type ExportCall = { path: { universeId: (string | number)? }?, body: ExportInput }
 export type ExportResultValue = JobReceipt
 export type BatchCall = { path: { universeId: (string | number)? }?, body: Batch }
 export type BatchResultValue = BatchResponse
+export type FlagsCall = { path: { universeId: (string | number)? }? }
+export type FlagsResultValue = { FlagDefinition }
+export type CreateFlagCall = { path: { universeId: (string | number)? }?, body: FlagInput }
+export type CreateFlagResultValue = FlagDefinition
+export type EvaluateFlagsCall = { path: { universeId: (string | number)? }?, body: FlagEvaluateInput }
+export type EvaluateFlagsResultValue = FlagEvaluation
+export type EvaluateFlagsBatchCall = { path: { universeId: (string | number)? }?, body: FlagEvaluateBatchInput }
+export type EvaluateFlagsBatchResultValue = FlagBatchEvaluation
+export type DeleteFlagCall = { path: { universeId: (string | number)?, key: string } }
+export type DeleteFlagResultValue = nil
+export type FlagCall = { path: { universeId: (string | number)?, key: string } }
+export type FlagResultValue = FlagDefinition
+export type UpdateFlagCall = { path: { universeId: (string | number)?, key: string }, body: FlagInput }
+export type UpdateFlagResultValue = FlagDefinition
+export type GameValueHistoryCall = {
+	path: { universeId: (string | number)?, fieldPath: string },
+	query: { cursor: string?, limit: number? }?,
+}
+export type GameValueHistoryResultValue = CursorPage<GameValueChange>
+export type RollbackGameValueCall = {
+	path: { universeId: (string | number)?, fieldPath: string },
+	body: GameValueRollbackInput,
+}
+export type RollbackGameValueResultValue = Result
+export type ListGeneratorsCall = { path: { universeId: (string | number)? }? }
+export type ListGeneratorsResultValue = { RandomDefinition }
+export type CreateGeneratorCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateGeneratorResultValue = RandomDefinition
+export type PreviewGeneratorCall = { path: { universeId: (string | number)? }?, body: GeneratorPreviewInput }
+export type PreviewGeneratorResultValue = { Generated }
+export type RollGeneratorCall = { path: { universeId: (string | number)? }?, body: GeneratorRollInput }
+export type RollGeneratorResultValue = GeneratorRollResult
+export type SimulateGeneratorCall = {
+	path: { universeId: (string | number)? }?,
+	body: GeneratorSimulationInput,
+}
+export type SimulateGeneratorResultValue = GeneratorSimulationResult
+export type DeleteGeneratorCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
+export type DeleteGeneratorResultValue = boolean
+export type GetGeneratorCall = { path: { universeId: (string | number)?, key: string } }
+export type GetGeneratorResultValue = RandomDefinition
+export type PutGeneratorCall = {
+	path: { universeId: (string | number)?, key: string },
+	body: RandomDefinitionInput,
+}
+export type PutGeneratorResultValue = RandomDefinition
 export type HealthSummaryCall = { path: { universeId: (string | number)? }? }
 export type HealthSummaryResultValue = HealthSummary
 export type ImportCall = {
@@ -645,6 +904,10 @@ export type EntryCall = { path: { universeId: (string | number)?, entryId: strin
 export type EntryResultValue = Entry
 export type ReverseEntryCall = { path: { universeId: (string | number)?, entryId: string }, body: Action }
 export type ReverseEntryResultValue = Result
+export type MaintenanceCall = { path: { universeId: (string | number)? }? }
+export type MaintenanceResultValue = MaintenanceState
+export type PutMaintenanceCall = { path: { universeId: (string | number)? }?, body: MaintenanceInput }
+export type PutMaintenanceResultValue = MaintenanceState
 export type CancelMigrationCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
 export type CancelMigrationResultValue = JobReceipt
 export type RollbackMigrationCall = {
@@ -669,9 +932,19 @@ export type SamplePlayersCall = {
 export type SamplePlayersResultValue = PlayerSampleResponse
 export type SearchPlayersCall = {
 	path: { universeId: (string | number)? }?,
-	query: { q: string, cursor: string?, limit: number? },
+	query: { cursor: string?, limit: number?, q: string },
 }
 export type SearchPlayersResultValue = PlayerSearchPage
+export type PlayerClaimHistoryCall = {
+	path: { universeId: (string | number)?, playerId: string | number },
+	query: { cursor: string?, limit: number? }?,
+}
+export type PlayerClaimHistoryResultValue = CursorPage<RandomHistory>
+export type PlayerRollHistoryCall = {
+	path: { universeId: (string | number)?, playerId: string | number },
+	query: { cursor: string?, limit: number? }?,
+}
+export type PlayerRollHistoryResultValue = CursorPage<RandomHistory>
 export type DeletePlayerCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	body: PlayerEraseInput,
@@ -712,7 +985,7 @@ export type LedgerCall = {
 }
 export type LedgerResultValue = CursorPage<Entry>
 export type PlayerOverviewCall = { path: { universeId: (string | number)?, userId: string | number } }
-export type PlayerOverviewResultValue = Core.Json
+export type PlayerOverviewResultValue = { [string]: Core.Json }
 export type PresenceCall = { path: { universeId: (string | number)?, userId: string | number } }
 export type PresenceResultValue = Presence
 export type PutPresenceCall = {
@@ -729,7 +1002,7 @@ export type RevertPlayerCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	body: PlayerRevertInput,
 }
-export type RevertPlayerResultValue = Core.Json
+export type RevertPlayerResultValue = { [string]: Core.Json }
 export type TransactionCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	body: TransactionInput,
@@ -751,6 +1024,38 @@ export type PutProductCall = {
 	body: ProductInput,
 }
 export type PutProductResultValue = Product
+export type ListRandomTablesCall = { path: { universeId: (string | number)? }? }
+export type ListRandomTablesResultValue = { RandomDefinition }
+export type CreateRandomTableCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateRandomTableResultValue = RandomDefinition
+export type DeleteRandomTableCall = {
+	path: { universeId: (string | number)?, key: string },
+	body: RandomAction,
+}
+export type DeleteRandomTableResultValue = boolean
+export type GetRandomTableCall = { path: { universeId: (string | number)?, key: string } }
+export type GetRandomTableResultValue = RandomDefinition
+export type PutRandomTableCall = {
+	path: { universeId: (string | number)?, key: string },
+	body: RandomDefinitionInput,
+}
+export type PutRandomTableResultValue = RandomDefinition
+export type TableOddsCall = {
+	path: { universeId: (string | number)?, key: string },
+	query: { playerId: (string | number)? }?,
+}
+export type TableOddsResultValue = RandomOdds
+export type EraseRandomnessCall = { path: { universeId: (string | number)? }?, body: RandomErase }
+export type EraseRandomnessResultValue = boolean
+export type RandomDefinitionHistoryCall = {
+	path: { universeId: (string | number)?, key: string },
+	query: { cursor: string?, limit: number? }?,
+}
+export type RandomDefinitionHistoryResultValue = CursorPage<RandomHistory>
+export type RandomnessFieldsCall = { path: { universeId: (string | number)? }? }
+export type RandomnessFieldsResultValue = { RandomEditorField }
+export type RandomnessSchemaCall = { path: { universeId: (string | number)? }? }
+export type RandomnessSchemaResultValue = Core.Json
 export type PurchaseCall = { path: { universeId: (string | number)? }?, body: ReceiptInput }
 export type PurchaseResultValue = ReceiptResult
 export type ReceiptCall = { path: { universeId: (string | number)?, purchaseId: string } }
@@ -771,6 +1076,36 @@ export type PutReferencesCall = {
 	body: FieldReferenceInput,
 }
 export type PutReferencesResultValue = nil
+export type ListRotationsCall = { path: { universeId: (string | number)? }? }
+export type ListRotationsResultValue = { RandomDefinition }
+export type CreateRotationCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateRotationResultValue = RandomDefinition
+export type ClaimRotationCall = { path: { universeId: (string | number)? }?, body: RotationClaimInput }
+export type ClaimRotationResultValue = RotationClaimResult
+export type RotationStockCall = { path: { universeId: (string | number)?, id: string } }
+export type RotationStockResultValue = { RotationStock }
+export type DeleteRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
+export type DeleteRotationResultValue = boolean
+export type GetRotationCall = { path: { universeId: (string | number)?, key: string } }
+export type GetRotationResultValue = RandomDefinition
+export type PutRotationCall = {
+	path: { universeId: (string | number)?, key: string },
+	body: RandomDefinitionInput,
+}
+export type PutRotationResultValue = RandomDefinition
+export type ActiveRotationCall = { path: { universeId: (string | number)?, key: string } }
+export type ActiveRotationResultValue = RotationActive
+export type AdvanceRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
+export type AdvanceRotationResultValue = RotationActive
+export type RotationHistoryCall = {
+	path: { universeId: (string | number)?, key: string },
+	query: { cursor: string?, limit: number? }?,
+}
+export type RotationHistoryResultValue = CursorPage<RandomHistory>
+export type RerollRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
+export type RerollRotationResultValue = RotationActive
+export type RuntimeSnapshotCall = { etag: string?, path: { universeId: (string | number)? }? }
+export type RuntimeSnapshotResultValue = RuntimeSnapshot | nil
 export type SchedulesCall = { path: { universeId: (string | number)? }? }
 export type SchedulesResultValue = { ScheduleSummary }
 export type CreateScheduleCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
@@ -781,12 +1116,22 @@ export type ScheduleCall = { path: { universeId: (string | number)?, id: string 
 export type ScheduleResultValue = JobReceipt
 export type EditScheduleCall = { path: { universeId: (string | number)?, id: string }, body: ScheduleInput }
 export type EditScheduleResultValue = JobReceipt
-export type ScheduleActionsCall = { path: { universeId: (string | number)?, id: string } }
+export type ScheduleActionsCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { after: (string | number)?, limit: number? }?,
+}
 export type ScheduleActionsResultValue = { ScheduleActionResult }
 export type CancelScheduleCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
 export type CancelScheduleResultValue = JobReceipt
+export type ScheduleDefinitionCall = { path: { universeId: (string | number)?, id: string } }
+export type ScheduleDefinitionResultValue = ScheduleDefinition
 export type EndScheduleCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
 export type EndScheduleResultValue = JobReceipt
+export type ScheduleRunsCall = {
+	path: { universeId: (string | number)?, id: string },
+	query: { before: (string | number)?, limit: number? }?,
+}
+export type ScheduleRunsResultValue = { ScheduleRun }
 export type SchemaCall = { path: { universeId: (string | number)? }? }
 export type SchemaResultValue = SchemaResponse
 export type LuauCall = { path: { universeId: (string | number)? }? }

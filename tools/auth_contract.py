@@ -24,7 +24,7 @@ def curate_service_keys(endpoints: list[dict], definitions: dict) -> None:
             endpoint.update(path='/api/auth/orgs/{org}/service-accounts/{id}/rotate',
                             pathParams=[{'java': 'UUID', 'name': name, 'required': True, 'type': 'string'}
                                         for name in ('org', 'id')],
-                            bodyType='ServiceAccountRotateRequest', bodyRequired=False)
+                            bodyType='ServiceAccountRotateRequest', bodyRequired=True)
 
 
 def extract(root: Path) -> tuple[list[dict], dict]:
@@ -40,6 +40,7 @@ def extract(root: Path) -> tuple[list[dict], dict]:
     nullable = {
         'Organization': {'maxUniverses','maxMembers','maxServiceAccounts'},
         'Member': {'universeId'},
+        'MemberDetail': {'universeId','displayName'},
         'Invitation': {'universeId','targetUserId','acceptedAt','revokedAt'},
         'AccessEvent': {'actor','target','before','after','requestId'},
     }
@@ -47,7 +48,7 @@ def extract(root: Path) -> tuple[list[dict], dict]:
         'AccountResponse': {'email'}, 'LoginResponse': {'email'},
         'ServiceAccountResponse': {'description','lastUsedAt','expiresAt','revokedAt','key','rotatedAt','previousKeyExpiresAt'},
     }
-    responses = ('Organization Member Scope Universe Access Token Invitation Issued Template AccessEvent '
+    responses = ('Organization Member MemberDetail CreatedMember Scope Universe Access Token Invitation Issued Template AccessEvent '
                  'AccountResponse LoginResponse RefreshResponse PlaceResponse ServiceAccountResponse '
                  'ServiceDefinitionResponse ServicePermissionResponse').split()
     for name in responses:
@@ -68,7 +69,7 @@ def extract(root: Path) -> tuple[list[dict], dict]:
         'ServiceAccountController': {'create':'createServiceAccount','list':'listServiceAccounts','get':'getServiceAccount',
             'permissions':'setServiceAccountPermissions','rotate':'rotateServiceAccount','patch':'patchServiceAccount','revoke':'revokeServiceAccount'},
         'OrganizationController': {'mine':'listOrgs','create':'createOrg','get':'getOrg','patch':'patchOrg','plan':'setOrgPlan',
-            'delete':'deleteOrg','transfer':'transferOwnership','members':'listMembers','add':'addMember',
+            'delete':'deleteOrg','transfer':'transferOwnership','members':'listMembers','add':'addMember','owner':'assignOwner','newMember':'createMember',
             'remove':'removeMember','leave':'leaveOrg','universes':'listOrgUniverses','createUniverse':'createOrgUniverse',
             'universe':'getOrgUniverse','patchUniverse':'patchOrgUniverse','move':'moveUniverse','token':'exchangeScopedToken',
             'access':'getMyAccess','invite':'createInvitation','invitations':'listInvitations','accept':'acceptInvitation',
@@ -82,7 +83,8 @@ def extract(root: Path) -> tuple[list[dict], dict]:
         while re.match(r'^(Mono|ResponseEntity)<.*>$', response):
             response = response[response.index('<')+1:-1]
         if response.startswith('Flux<'): response = 'List<' + response[5:]
-        response = response.replace('Page<', 'CursorPage<')
+        from runtime_contract import wire_type
+        response = wire_type(response.replace('Page<', 'CursorPage<'))
         e.update(name=name, id='auth.'+name, responseJava=response,
                  responseType=name[0].upper()+name[1:]+'ResultValue', responseFormat='json',
                  cacheable=False, retryable=e['method']=='GET', idempotent=e['method']=='GET',
@@ -101,6 +103,8 @@ def extract(root: Path) -> tuple[list[dict], dict]:
             e['authKinds'].append('scoped')
         if controller == 'SandboxController':
             e.update(requiredRole=None, authKinds=['serviceAccount'], minimumLevel='ADMIN', retryable=False, idempotent=False, statuses=[200])
+        elif controller == 'PlatformKeyLookupController':
+            e.update(name='lookupServiceAccount', id='auth.lookupServiceAccount', responseType='LookupServiceAccountResultValue', requiredRole=None, authKinds=['serviceAccount'], minimumLevel='READ')
         elif controller == 'OpenApiController':
             e.update(requiredRole=None, authKinds=['serviceAccount','user','custom','scoped'], minimumLevel='READ')
         if e['method']=='POST' and name in ('createAccount','createOrg','createInvitation','createServiceAccount'):

@@ -195,7 +195,7 @@ function Control.instant(value: any): (number?, string?)
 	return (((((year * 13 + month) * 32 + day) * 24 + hour) * 60 + minute) * 60 + second),
 		fraction .. string.rep("0", 9 - #fraction)
 end
---- Validate one closed ConfigService action, never a Fields TypeExpr or arbitrary executable input.
+--- Validate one closed Fields-owned runtime action, never arbitrary executable input.
 function Control.action(action: Types.ScheduleAction): boolean
 	local a: any = action
 	if not Control.object(a, { "kind", "key", "type", "value", "bulkDefinitionId" }) then

@@ -99,7 +99,7 @@ class AuthContractTests(unittest.TestCase):
             self.assertFalse(fields[name]['required'])
         rotation = next(e for e in doc['endpoints'] if e['id']=='auth.rotateServiceAccount')
         self.assertEqual(rotation['bodyType'], 'ServiceAccountRotateRequest')
-        self.assertFalse(rotation['bodyRequired'])
+        self.assertTrue(rotation['bodyRequired'])
         self.assertFalse(rotation['cacheable'])
         self.assertFalse(rotation['retryable'])
         self.assertFalse(rotation['idempotent'])
@@ -126,7 +126,7 @@ return function(client: SDK.Client)
  client.auth:listServiceAccounts({query={orgId="org"}})
  client.auth:createServiceAccount({name="key",universeId=42,permissions={},expiresAt="2030-01-01T00:00:00Z"})
  client.auth:rotateServiceAccount({path={org="org",id="key"},body={gracePeriodSeconds=0}})
- client.auth:rotateServiceAccount({path={org="org",id="key"}})
+ client.auth:rotateServiceAccount({path={org="org",id="key"},body={}})
  local _status: Auth.ServiceAccountStatus = "EXPIRING_SOON"
 '''
         with tempfile.NamedTemporaryFile(prefix='auth-types-', suffix='.luau', dir=ROOT, mode='w') as file:

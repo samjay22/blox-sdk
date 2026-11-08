@@ -136,7 +136,6 @@ export type CriteriaValidationError = {
 	reason: string?,
 }
 export type DeleteApiKeyResponse = { message: string?, success: boolean, universeId: string }
-export type EnvironmentReplaceInput = { operationId: string, reason: string, resources: { Core.Json } }
 export type GameModeQueueInfo = {
 	gameModeName: string?,
 	playerCount: number?,
@@ -351,13 +350,6 @@ export type GetGameModesCall = {}
 export type GetGameModesResultValue = { GameModeResponse }
 export type CreateGameModeCall = CreateGameModeRequest
 export type CreateGameModeResultValue = GameModeResponse
-export type EnvironmentResourcesCall = { path: { universeId: (string | number)?, env: string } }
-export type EnvironmentResourcesResultValue = Core.Json
-export type ReplaceEnvironmentResourcesCall = {
-	path: { universeId: (string | number)?, env: string },
-	body: EnvironmentReplaceInput,
-}
-export type ReplaceEnvironmentResourcesResultValue = Core.Json
 export type DeleteGameModeCall = { path: { id: string } }
 export type DeleteGameModeResultValue = { [string]: string }
 export type UpdateGameModeCall = { path: { id: string }, body: UpdateGameModeRequest }

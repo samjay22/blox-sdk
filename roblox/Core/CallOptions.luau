@@ -2,10 +2,16 @@
 -- Generated Roblox projection; edit src/ and run tools/build-roblox.py.
 local Types = require(script.Parent.Parent.Types.Core)
 local Options = {}
+local known = table.freeze({ deadline = true, priority = true, retry = true, cacheTtl = true, signal = true })
 --- Validate user options before arithmetic or yielding; malformed values become Local results.
 function Options.valid(opts: Types.CallOptions): boolean
 	if type(opts) ~= "table" then
 		return false
+	end
+	for name in opts :: any do
+		if not known[name] then
+			return false
+		end
 	end
 	if opts.priority ~= nil and opts.priority ~= "critical" and opts.priority ~= "bulk" then
 		return false
@@ -35,9 +41,6 @@ function Options.valid(opts: Types.CallOptions): boolean
 			or opts.cacheTtl > 3600
 		)
 	then
-		return false
-	end
-	if opts.idempotencyHint ~= nil and type(opts.idempotencyHint) ~= "boolean" then
 		return false
 	end
 	if opts.signal ~= nil and (type(opts.signal) ~= "table" or type(opts.signal.cancelled) ~= "boolean") then

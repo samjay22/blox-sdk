@@ -12,9 +12,9 @@ deadlines. Generated wrappers send raw NDJSON rather than encoding it as a JSON 
 
 Eligible transient failures are Network, Server (5xx), and RateLimited. Eligible safe/idempotent calls receiving Unauthorized get one strategy-mediated replay, separately from transient retry accounting. Forbidden/validation/conflict/not-found/cancellation/deadline errors do not retry. A successful mutation with a lost response may already have executed; never interpret a Network/Timeout result as proof that it did not.
 
-Full jitter: `random[0,1] * min(8, 0.25 * 2^(retryIndex-1))`. Delta seconds and IMF-fixdate `Retry-After` are supported on 429/503. The larger of jitter and server delay is used, bounded by the original deadline. Sleeps are interruptible. No hedged reads.
+Full jitter: `random[0,1] * min(8, 0.25 * 2^(retryIndex-1))`. Delta seconds and IMF-fixdate `Retry-After` are supported on 429 and all 5xx. The larger of jitter and server delay is used, bounded by the original deadline. Sleeps are interruptible. No hedged reads.
 
-Each actually dispatched original logical request earns `retryRatio` credits (default 0.2), up to 10. Retries spend one credit and never replenish it. There are no initial credits, so a fresh client can fail fast on its first transient error. Cache hits, coalesced followers and rejected queue submissions cannot mint retries. Authorization refresh/replay is accounted separately. `retry` reduces/increases the configured per-call maximum up to 10, but does not bypass safety or budget. `idempotencyHint` is retained for compatibility but cannot bypass the contract safety policy.
+Each actually dispatched original logical request earns `retryRatio` credits (default 0.2), up to 10. Retries spend one credit and never replenish it. There are no initial credits, so a fresh client can fail fast on its first transient error. Cache hits, coalesced followers and rejected queue submissions cannot mint retries. Authorization refresh/replay is accounted separately. `retry` reduces/increases the configured per-call maximum up to 10, but does not bypass safety or budget. Removed `idempotencyHint` and unknown options fail locally.
 
 ## Admission and circuits
 

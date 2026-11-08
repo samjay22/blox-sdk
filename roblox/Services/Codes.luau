@@ -20,6 +20,22 @@ end
 function Service.Award(self: Service, universeId: string | number): Award.Builder
 	return Award.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
+--- GET /code-service/actuator/health/liveness via gateway; access: public/authenticated.
+function Service.liveness(
+	self: Service,
+	req: Types.LivenessCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.LivenessResultValue>
+	return self._invoke(Endpoints["codes.liveness"], (req or {}), opts, self._universe)
+end
+--- GET /code-service/actuator/health/readiness via gateway; access: public/authenticated.
+function Service.readiness(
+	self: Service,
+	req: Types.ReadinessCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReadinessResultValue>
+	return self._invoke(Endpoints["codes.readiness"], (req or {}), opts, self._universe)
+end
 --- GET /code-service/api/codes via gateway; access: READ.
 function Service.searchCodes(
 	self: Service,

@@ -82,14 +82,13 @@ return function(test: (string, () -> ()) -> ())
 		}, {
 			levels = {
 				AuditService = "READ",
-				ConfigService = "READ",
 				LeaderboardService = "READ",
 				FieldsService = "READ",
 			},
 		})
 		s.run(function()
 			check(c.audit:list().ok)
-			check(c.config:entries().ok)
+			check(c.fields:products().ok)
 			check(c.leaderboards:list().ok)
 			check(c.fields:products().ok)
 			failed(c.leaderboards:rollover({ path = { name = "wins" } }), "Local")
@@ -97,7 +96,7 @@ return function(test: (string, () -> ()) -> ())
 		end)
 		check(f.count() == 4)
 		check(urls[1] == "https://lb1.blox-api.com/audit-service/api/audit/events?universeId=123")
-		check(urls[2] == "https://lb1.blox-api.com/remote-config-service/api/config/universes/123/entries")
+		check(urls[2] == "https://lb1.blox-api.com/fields-service/api/fields/universes/123/products")
 		check(urls[3] == "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/universes/123/boards")
 		check(urls[4] == "https://lb1.blox-api.com/fields-service/api/fields/universes/123/products")
 	end)
@@ -134,7 +133,7 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, {})
 		s.run(function()
-			failed(c.config:entries({ path = { universeId = 0 } }), "Local")
+			failed(c.fields:products({ path = { universeId = 0 } }), "Local")
 			failed(c.audit:list({ query = { universeId = -1 } }), "Local")
 			local input = event()
 			input.universeId = 0
@@ -155,7 +154,7 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			failed(global.config:entries({ path = { universeId = -1 } }), "Validation")
+			failed(global.fields:products({ path = { universeId = -1 } }), "Validation")
 		end)
 		check(f.count() == 0)
 	end)
@@ -225,7 +224,7 @@ return function(test: (string, () -> ()) -> ())
 		end
 		check(#keys == 2 and keys[1] ~= keys[2])
 	end)
-	test("manual rollover never retries even with override hint or a 401 refresh provider", function()
+	test("manual rollover never retries even with retry override or a 401 refresh provider", function()
 		for _, status in { 503, 401, 429 } do
 			local s = Scheduler.new()
 			local refreshed = false
@@ -241,10 +240,7 @@ return function(test: (string, () -> ()) -> ())
 				},
 			})
 			s.run(function()
-				local result = c.leaderboards:rollover(
-					{ path = { name = "wins" } },
-					{ retry = 10, idempotencyHint = true }
-				)
+				local result = c.leaderboards:rollover({ path = { name = "wins" } }, { retry = 10 })
 				check(not result.ok)
 			end)
 			check(f.count() == 1 and not refreshed)
@@ -372,7 +368,7 @@ return function(test: (string, () -> ()) -> ())
 		check(f.count() == 1 and s.pending() == 0)
 	end)
 	test(
-		"Config snapshot polls version header, keeps last good state on 304 and errors, signals changes",
+		"Fields runtime snapshot polls opaque ETag, keeps last good state on 304 and errors, signals changes",
 		function()
 			local s = Scheduler.new()
 			local versions: { string } = {}
@@ -384,21 +380,28 @@ return function(test: (string, () -> ()) -> ())
 				universeId = 123,
 				key = "double_xp",
 				enabled = true,
-				rolloutPercent = 100,
+				rolloutPct = 100,
 				version = 1,
 				updatedAt = "2026-11-05T00:00:00Z",
-				updatedBy = "admin",
+				createdAt = "2026-11-05T00:00:00Z",
+				displayName = "Double XP",
+				type = "bool",
+				defaultValue = false,
+				rules = Json.array({}),
+				variants = Json.array({}),
+				sticky = false,
 			}
 			local c, f = client(s, {
 				{
 					body = s.json({
 						version = 1,
-						maintenance = false,
-						entries = { welcome = "Hello" },
+						maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
+						gameValues = { welcome = "Hello" },
 						flags = {
 							flag,
 						},
 					}),
+					headers = { ETag = '"hash-one"' },
 					check = capture,
 				},
 				{ status = 304, check = capture },
@@ -406,14 +409,14 @@ return function(test: (string, () -> ()) -> ())
 				{
 					body = s.json({
 						version = 2,
-						maintenance = false,
-						entries = { welcome = "Welcome" },
+						maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
+						gameValues = { welcome = "Welcome" },
 						flags = Json.array({}),
 					}),
 					check = capture,
 				},
 			})
-			local cache = c:configSnapshot(0.1)
+			local cache = c:runtimeSnapshot(0.1)
 			local changes = 0
 			local connection = cache.Changed:Connect(function(_value)
 				changes += 1
@@ -439,8 +442,8 @@ return function(test: (string, () -> ()) -> ())
 			check(
 				f.count() == 4
 					and versions[1] == "nil"
-					and versions[2] == '"1"'
-					and versions[4] == '"1"'
+					and versions[2] == '"hash-one"'
+					and versions[4] == '"hash-one"'
 					and s.pending() == 0
 			)
 		end
@@ -449,13 +452,25 @@ return function(test: (string, () -> ()) -> ())
 		"snapshot rejects malformed/regressing state and no background tasks survive shared destroy",
 		function()
 			local s = Scheduler.new()
-			local good = { version = 4, maintenance = false, entries = { n = 2 }, flags = Json.array({}) }
+			local good = {
+				version = 4,
+				maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
+				gameValues = { n = 2 },
+				flags = Json.array({}),
+			}
 			local c, f = client(s, {
 				{ body = s.json(good) },
-				{ body = s.json({ version = 3, maintenance = false, entries = {}, flags = Json.array({}) }) },
+				{
+					body = s.json({
+						version = 3,
+						maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
+						gameValues = {},
+						flags = Json.array({}),
+					}),
+				},
 				{ body = s.json({ version = 5 }) },
 			})
-			local cache = c:configSnapshot(0.1)
+			local cache = c:runtimeSnapshot(0.1)
 			s.run(function()
 				s.runtime.wait(0.05)
 				check(cache:Version() == 4)

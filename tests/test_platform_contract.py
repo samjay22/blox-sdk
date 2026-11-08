@@ -24,7 +24,7 @@ class PlatformContractTests(unittest.TestCase):
     def test_permissions_and_unkeyed_writes(self) -> None:
         """Machine-only and SUPER_ADMIN endpoints never borrow a scoped human identity."""
         endpoints = {e['id']: e for e in json.loads((ROOT/'spec/endpoints.json').read_text())['endpoints']}
-        self.assertEqual(endpoints['platform.evaluateFlags']['minimumLevel'], 'READ')
+        self.assertEqual(endpoints['fields.evaluateFlags']['minimumLevel'], 'READ')
         for name in ('publishEvent','ingestUsage','gatewayRateLimits'):
             self.assertEqual(endpoints['platform.'+name]['authKinds'], ['serviceAccount'])
         for name in ('putPlan','createIncident','updateIncident','deleteIncident'):

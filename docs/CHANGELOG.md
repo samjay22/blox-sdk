@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0 — 2026-11-08 (unpublished)
+
+- Add all 31 Fields Rotations/Generators/Tables routes (372 total) and strict game-server result types.
+- Add `Rotations:Get/GetAll/Watch/TimeRemaining/GetStock/Claim` and `Generators:Roll/Preview/GetOdds`.
+- Share ETag snapshot polling with rotation watches, including head-only ETag updates at the same config version; otherwise schedule one end-edge refresh with jitter, never a busy poll.
+- Generate mutation idempotency keys once per logical call and preserve permanent replay bodies and redacted sold-out/expired conflicts.
+- Add weather, pack-store and card-pack server examples, wire goldens and fake-clock/lifecycle/retry tests. Preserve the unpublished 0.2.0 coverage work.
+
+## 0.2.0 — current source audit (unpublished)
+
+See the [release changelog](../CHANGELOG.md) and [coverage inventory](../SDK_COVERAGE.md).
+Retired Config and speculative Platform APIs below are historical only; use Fields runtime APIs.
+
 ## Organization tenant Auth
 
 - GAS source refresh now replaces the complete Auth surface: 277 routes with no retired account APIs.
@@ -33,7 +46,7 @@
 
 ## Gateway routing
 
-- Default all eight services to `https://lb1.blox-api.com` with generated stripPrefix routes, including `/remote-config-service`.
+- Default services to `https://lb1.blox-api.com` with generated gateway routes (the historical Config target is now retired).
 - Add one `gatewayUrl` override and optional `services[service].baseUrl` direct-host overrides; remove old per-host defaults and `hosts`.
 - Preserve per-origin admission/breakers, update generated facades and Roblox projection, and verify gateway/direct URLs offline.
 

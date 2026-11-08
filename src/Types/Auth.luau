@@ -53,8 +53,9 @@ export type AddMember = {
 	universeId: number?,
 	username: string,
 }
+export type AssignOwner = { accountId: string?, email: string?, username: string? }
 export type Create = { actorId: string, expiresAt: string, operationId: string }
-export type CreateOrg = { name: string, slug: string }
+export type CreateOrg = { name: string }
 export type CreateUniverse = { name: string, universeId: number }
 export type Created = {
 	expiresAt: string?,
@@ -63,6 +64,7 @@ export type Created = {
 	serviceAccountId: string?,
 	universeId: number,
 }
+export type CreatedMember = { account: AccountResponse, member: Member, temporaryPassword: string }
 export type Invitation = {
 	acceptedAt: string | Core.Null,
 	createdAt: string,
@@ -105,8 +107,21 @@ export type Member = {
 	universeId: number | Core.Null,
 	userId: string,
 }
+export type MemberDetail = {
+	createdAt: string,
+	createdBy: string,
+	displayName: string | Core.Null,
+	orgId: string,
+	overrides: { ServicePermissionResponse },
+	role: TenantRole,
+	status: MemberStatus,
+	universeId: number | Core.Null,
+	userId: string,
+	username: string,
+}
 export type MemberStatus = "ACTIVE" | "DISABLED"
 export type MoveUniverse = { orgId: string }
+export type NewMember = { displayName: string?, email: string?, role: TenantRole, username: string }
 export type Organization = {
 	createdAt: string,
 	createdBy: string,
@@ -187,7 +202,7 @@ export type ServiceAccountResponse = {
 }
 export type ServiceAccountRotateRequest = { gracePeriodSeconds: number? }
 export type ServiceAccountStatus = "ACTIVE" | "EXPIRING_SOON" | "EXPIRED" | "REVOKED"
-export type ServiceDefinitionCreateRequest = { description: string, displayName: string, name: string }
+export type ServiceDefinitionCreateRequest = { description: string, displayName: string, name: string? }
 export type ServiceDefinitionResponse = {
 	builtIn: boolean,
 	createdTime: string,
@@ -212,6 +227,7 @@ export type TokenValidateResponse = {
 	orgId: string?,
 	orgRole: string?,
 	placeIds: { number }?,
+	platformOwner: boolean?,
 	role: TenantRole?,
 	serviceAccount: boolean?,
 	servicePermissions: { ServicePermissionResponse }?,
@@ -236,6 +252,8 @@ export type CancelSandboxCall = { path: { org: string, id: string }, body: Actor
 export type CancelSandboxResultValue = { [string]: Core.Json }
 export type FinalizeSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
 export type FinalizeSandboxResultValue = { [string]: Core.Json }
+export type LookupServiceAccountCall = { path: { org: string, id: string } }
+export type LookupServiceAccountResultValue = { [string]: Core.Json }
 export type AcceptInvitationCall = Accept
 export type AcceptInvitationResultValue = Member
 export type LoginCall = LoginRequest
@@ -265,9 +283,11 @@ export type RevokeInvitationResultValue = nil
 export type LeaveOrgCall = { path: { org: string }, query: { universeId: (string | number)? }? }
 export type LeaveOrgResultValue = nil
 export type ListMembersCall = { path: { org: string } }
-export type ListMembersResultValue = { Member }
+export type ListMembersResultValue = { MemberDetail }
 export type AddMemberCall = { path: { org: string }, body: AddMember }
 export type AddMemberResultValue = Member
+export type CreateMemberCall = { path: { org: string }, body: NewMember }
+export type CreateMemberResultValue = CreatedMember
 export type RemoveMemberCall = {
 	path: { org: string, user: string },
 	query: { universeId: (string | number)? }?,
@@ -279,9 +299,11 @@ export type PatchMemberCall = {
 	body: PatchMember,
 }
 export type PatchMemberResultValue = Member
+export type AssignOwnerCall = { path: { org: string }, body: AssignOwner }
+export type AssignOwnerResultValue = Member
 export type SetOrgPlanCall = { path: { org: string }, body: Plan }
 export type SetOrgPlanResultValue = Organization
-export type RotateServiceAccountCall = { path: { org: string, id: string }, body: ServiceAccountRotateRequest? }
+export type RotateServiceAccountCall = { path: { org: string, id: string }, body: ServiceAccountRotateRequest }
 export type RotateServiceAccountResultValue = ServiceAccountResponse
 export type TransferOwnershipCall = { path: { org: string }, body: Transfer }
 export type TransferOwnershipResultValue = Member

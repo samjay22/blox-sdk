@@ -1,8 +1,8 @@
 # BloxSDK
 
-One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Config, Leaderboards, Fields, and Platform**.
+One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**355 typed endpoints:** every route in `routes.json`, including the organization-tenant Auth API, Matchmaking criteria-type discovery, and bulk Codes generation/batch export. Includes criteria sampling/simulation and 33 durable Fields job, migration, bulk/import/export, schedule, alert and health routes, plus the Fields reference registry. No runtime dependencies or client-side credentials.
+**372 typed endpoints, version 0.3.0 (unpublished):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -55,13 +55,13 @@ end)
 
 ## Calls and results
 
-The nine facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.config`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written.
+The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written. Config is retired: game configuration lives in Fields, with no compatibility facade or fallback.
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
 - Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
 - Optional requests can be omitted: `client.codes:searchCodes()`.
 - `client:withUniverse(id)` shares the original client's auth, queue, rate budget, breakers, cache, and lifetime. It fills **declared path/query universe parameters** and implied Audit event universes, not arbitrary body fields. Supply other required body universe fields explicitly. Universe IDs must be positive exact integers. A service key cannot switch universes.
-- `client:health()` checks `<service-prefix>/health` on the gateway for all nine services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
+- `client:health()` checks `<service-prefix>/health` on the gateway for all eight services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
 
 ```luau
@@ -74,22 +74,24 @@ local joined = client.matchmaking:joinQueue({
 
 `Result<T>` is `{ok=true,value:T,status?,stale?}` or `{ok=false,error:BloxError}`. HTTP/network failures return results rather than throwing. Invalid construction config throws a value-free assertion. Errors include kind, HTTP status when available, endpoint ID, attempt count, and a **fully redacted** error body. There is deliberately no raw-response debug logging.
 
-`CallOptions`: absolute monotonic `deadline`, `priority` (`critical`/`bulk`), maximum `retry` count, explicit `idempotencyHint`, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. `idempotencyHint` is retained for compatibility but cannot bypass retry safety. Unkeyed non-idempotent mutations are never automatically retried.
+`CallOptions`: absolute monotonic `deadline`, `priority` (`critical`/`bulk`), maximum `retry` count, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. Removed options such as `idempotencyHint` are rejected, not shimmed. Unkeyed non-idempotent mutations are never automatically retried. Retry-After seconds/HTTP dates are honored for 429 and all 5xx within the original deadline and earned retry budget.
 
 Responses shared by cache/single-flight are recursively frozen. Clone before editing. `BloxSDK.null` represents an explicit JSON null (e.g. clearing service-account expiration). `BloxSDK.array({})` marks an empty array in arbitrary JSON; declared DTO array fields are encoded correctly automatically.
 
 ## Platform tools
 
-Wave-2 platform methods and player administration are documented in [PLATFORM.md](docs/PLATFORM.md). The [changelog](CHANGELOG.md) marks these local additions Unreleased, not published.
+Current Platform methods and Fields-owned player administration are documented in [PLATFORM.md](docs/PLATFORM.md). Planned Platform LiveOps, environments and flags have no current controllers and are not fabricated SDK methods. The [changelog](CHANGELOG.md) describes local changes, not a published release.
 
 ## New service helpers
 
 - `client:auditWriter(...)`: bounded, nonblocking enqueue/flush; max 500 events per batch, interval flush and native Roblox BindToClose integration.
-- `client:configSnapshot(30)`: conditional snapshot polling, synchronous `Get`/`IsEnabled`, `Changed` signal, last-good-state retention. `IsEnabled` reads the master switch, not per-user rollout rules.
+- `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `Get`/`IsEnabled`, `Changed` signal, last-good-state retention. `Get` reads literal `gameValues` field IDs; `IsEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
 - Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
-- Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; `Health:summary()` alone needs READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
+- Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; health summary and schedule run history need READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
+
+- Fields `Rotations(universeId)` supplies current/next heads, snapshot-backed `Watch`, countdowns, stock reads and atomic `Claim`; `Generators(universeId)` supplies `Roll`, read-only `Preview` and exact table `GetOdds`. See [Rotations & Generators](docs/ROTATIONS.md) and the [weather](examples/weather.luau), [pack store](examples/pack-store.luau), and [card pack](examples/card-pack.luau) server examples.
 
 See [new-service guide](docs/NEW-SERVICES.md) and the Fields examples for lifecycle and safety details.
 
@@ -169,11 +171,11 @@ All services default to **`https://lb1.blox-api.com`**. The gateway strips the f
 | `party` | `/party-service` |
 | `codes` | `/code-service` |
 | `audit` | `/audit-service` |
-| `config` | `/remote-config-service` |
 | `leaderboards` | `/leaderboard-service` |
 | `fields` | `/fields-service` |
+| `platform` | `/platform-service` |
 
-Config must use `/remote-config-service`, **not `/config-service`**: the gateway reserves `/config*`.
+There is no Config gateway target. Platform domain controllers retain `/platform-service` on direct hosts too; its operational `/health`, `/metrics`, `/info` and probes remain root-relative.
 
 ```luau
 local client = BloxSDK.new({
@@ -191,7 +193,7 @@ Both `gatewayUrl` and each `baseUrl` must be HTTPS origins without paths, userin
 Default wire examples:
 
 - Audit events: `GET https://lb1.blox-api.com/audit-service/api/audit/events` (a scoped client adds `?universeId=...`).
-- Config snapshot: `GET https://lb1.blox-api.com/remote-config-service/api/config/universes/{id}/snapshot`.
+- Runtime snapshot: `GET https://lb1.blox-api.com/fields-service/api/fields/universes/{id}/runtime/snapshot`.
 - Fields transaction: `POST https://lb1.blox-api.com/fields-service/api/fields/universes/{id}/players/{uid}/transactions`.
 
 Admission queues and circuit breakers remain **per origin**, so all gateway services share them; direct hosts have separate state unless they resolve to the same canonical origin. URL prefixes remain in cache/single-flight keys. `withUniverse`, authentication refresh/logout, health checks, pagination and helper requests all retain the same routing configuration.
@@ -225,7 +227,7 @@ Pinned `aftman.toml` selects already-installed tools; verification never install
 - `spec/`: authoritative contracts and local Java source hashes.
 - `tools/`: generator, checks, importer (audit-only), packaging projection.
 - `tests/`: deterministic scheduler, fault/race tests, independent contract tests.
-- `examples/`: all nine services, cursor pagination, buffered audit and snapshot caching.
+- `examples/`: gameplay services, cursor pagination, buffered audit and Fields runtime snapshot caching.
 
 See [endpoint reference](docs/ENDPOINTS.md), [architecture](docs/ARCHITECTURE.md), [fault tolerance](docs/FAULT-TOLERANCE.md), [performance](docs/PERFORMANCE.md), and [migration](docs/MIGRATION.md).
 

@@ -61,7 +61,7 @@ end
 return function(test: (string, () -> ()) -> ())
 	test("Bulk generation sends one typed award and preserves a caller replay key", function()
 		local s = Scheduler.new()
-		local req = { body = body(), idempotencyKey = "launch-2026-1" }
+		local req = { body = body(), idempotencyKey = "launch:2026 / 1" }
 		local c, f = client(s, {
 			{
 				status = 201,
@@ -71,7 +71,7 @@ return function(test: (string, () -> ()) -> ())
 						wire.Method == "POST"
 							and wire.Url == "https://lb1.blox-api.com/code-service/api/codes/bulk"
 					)
-					check(wire.Headers["Idempotency-Key"] == "launch-2026-1")
+					check(wire.Headers["Idempotency-Key"] == "launch:2026 / 1")
 					check(wire.Headers["Content-Type"] == "application/json")
 					local value: any = JsonDecode.decode(wire.Body :: string)
 					check(value.count == 1 and value.length == nil and value.idempotencyKey == nil)
@@ -94,7 +94,9 @@ return function(test: (string, () -> ()) -> ())
 						and result.value.codes[1].id == 5
 				)
 			end
-			check(req.body.award[1].op == "ADD" and req.idempotencyKey == "launch-2026-1" and f.count() == 1)
+			check(
+				req.body.award[1].op == "ADD" and req.idempotencyKey == "launch:2026 / 1" and f.count() == 1
+			)
 			c:destroy()
 		end)
 	end)
@@ -208,10 +210,10 @@ return function(test: (string, () -> ()) -> ())
 				check(c.codes:exportBatch({ path = { batchId = BATCH } }).ok)
 			end
 			local req = { body = body(), idempotencyKey = "persisted-campaign" }
-			check(not c.codes:bulkCreateCodes(req, { retry = 3, idempotencyHint = true }).ok)
+			check(not c.codes:bulkCreateCodes(req, { retry = 3 }).ok)
 			check(f.count() == 7)
 			check(c.codes:bulkCreateCodes(req).ok and f.count() == 8)
-			check(not c.codes:bulkCreateCodes({ body = body() }, { retry = 3, idempotencyHint = true }).ok)
+			check(not c.codes:bulkCreateCodes({ body = body() }, { retry = 3 }).ok)
 			check(f.count() == 9 and c:metrics().retries == 0)
 			c:destroy()
 		end)

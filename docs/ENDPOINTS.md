@@ -1,6 +1,6 @@
 # Endpoint reference
 
-355 endpoints. `routes.json` coverage is checked independently.
+372 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -13,16 +13,15 @@ Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 | `party` | `/party-service` |
 | `codes` | `/code-service` |
 | `audit` | `/audit-service` |
-| `config` | `/remote-config-service` |
 | `leaderboards` | `/leaderboard-service` |
 | `fields` | `/fields-service` |
 | `platform` | `/platform-service` |
 
-Paths below are backend-relative: wire URL = gateway + service prefix + path. Config uses `/remote-config-service`, never `/config-service` (the gateway reserves `/config*`). An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
+Paths below are backend-relative: wire URL = gateway + service prefix + path. Game configuration lives in Fields. Platform preserves its domain prefix on direct hosts. An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
 
 Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.
 
-**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedules, and alerts require FieldsService ADMIN, including previews and downloads. Only Fields `GET /health/summary` requires READ.
+**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedule controls, and alerts require FieldsService ADMIN, including previews and downloads. Fields health summary and schedule run history require READ.
 
 Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.
 
@@ -50,6 +49,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/auth/internal/orgs/{org}/sandboxes` | `auth.provisionSandbox` | ADMIN | 200 | no | no |
 | DELETE | `/api/auth/internal/orgs/{org}/sandboxes/{id}` | `auth.cancelSandbox` | ADMIN | 200 | no | no |
 | POST | `/api/auth/internal/orgs/{org}/sandboxes/{id}/ready` | `auth.finalizeSandbox` | ADMIN | 200 | no | no |
+| GET | `/api/auth/internal/orgs/{org}/service-accounts/{id}` | `auth.lookupServiceAccount` | READ | 200, 404 | yes | no |
 | POST | `/api/auth/invitations/accept` | `auth.acceptInvitation` | IDENTITY | 200 | no | no |
 | POST | `/api/auth/login` | `auth.login` | public / authenticated | 200 | no | no |
 | POST | `/api/auth/logout` | `auth.logout` | public / authenticated | 200 | no | no |
@@ -66,8 +66,10 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/auth/orgs/{org}/leave` | `auth.leaveOrg` | IDENTITY | 204 | no | no |
 | GET | `/api/auth/orgs/{org}/members` | `auth.listMembers` | IDENTITY | 200 | yes | no |
 | POST | `/api/auth/orgs/{org}/members` | `auth.addMember` | IDENTITY | 200 | no | no |
+| POST | `/api/auth/orgs/{org}/members/new` | `auth.createMember` | IDENTITY | 201 | no | no |
 | DELETE | `/api/auth/orgs/{org}/members/{user}` | `auth.removeMember` | IDENTITY | 204 | no | no |
 | PATCH | `/api/auth/orgs/{org}/members/{user}` | `auth.patchMember` | IDENTITY | 200 | no | no |
+| POST | `/api/auth/orgs/{org}/owner` | `auth.assignOwner` | IDENTITY | 200 | no | no |
 | PUT | `/api/auth/orgs/{org}/plan` | `auth.setOrgPlan` | SUPER_ADMIN | 200 | no | no |
 | POST | `/api/auth/orgs/{org}/service-accounts/{id}/rotate` | `auth.rotateServiceAccount` | IDENTITY | 200 | no | no |
 | POST | `/api/auth/orgs/{org}/transfer-ownership` | `auth.transferOwnership` | IDENTITY | 200 | no | no |
@@ -102,6 +104,8 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/auth/universes/{universe}/token` | `auth.exchangeScopedToken` | IDENTITY | 200 | no | no |
 | GET | `/health` | `auth.healthProxy` | public / authenticated | 200 | yes | no |
 | GET | `/v3/api-docs` | `auth.openApiSpec` | READ | 200 | yes | no |
+| GET | `/actuator/health/liveness` | `codes.liveness` | public / authenticated | 200 | yes | yes |
+| GET | `/actuator/health/readiness` | `codes.readiness` | public / authenticated | 200 | yes | yes |
 | GET | `/api/codes` | `codes.searchCodes` | READ | 200 | yes | yes |
 | POST | `/api/codes` | `codes.createCode` | ADMIN | 201 | no | no |
 | GET | `/api/codes/batches/{batchId}/export` | `codes.exportBatch` | ADMIN | 200 | yes | no |
@@ -114,28 +118,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/health` | `codes.healthProxy` | public / authenticated | 200 | yes | yes |
 | GET | `/info` | `codes.info` | public / authenticated | 200 | yes | yes |
 | GET | `/metrics` | `codes.metrics` | public / authenticated | 200 | yes | yes |
-| GET | `/actuator/health/liveness` | `config.liveness` | public / authenticated | 200 | yes | yes |
-| GET | `/actuator/health/readiness` | `config.readiness` | public / authenticated | 200 | yes | yes |
-| GET | `/api/config/universes/{universeId}/entries` | `config.entries` | READ | 200 | yes | yes |
-| DELETE | `/api/config/universes/{universeId}/entries/{key}` | `config.deleteEntry` | READ_WRITE | 204 | no | no |
-| GET | `/api/config/universes/{universeId}/entries/{key}` | `config.entry` | READ | 200 | yes | yes |
-| PUT | `/api/config/universes/{universeId}/entries/{key}` | `config.putEntry` | READ_WRITE | 200 | no | no |
-| GET | `/api/config/universes/{universeId}/environments/{env}/resources` | `config.environmentResources` | READ | 200 | yes | no |
-| PUT | `/api/config/universes/{universeId}/environments/{env}/resources` | `config.replaceEnvironmentResources` | ADMIN | 200 | yes | no |
-| POST | `/api/config/universes/{universeId}/evaluate` | `config.evaluate` | READ | 200 | no | no |
-| GET | `/api/config/universes/{universeId}/flags` | `config.flags` | READ | 200 | yes | yes |
-| DELETE | `/api/config/universes/{universeId}/flags/{key}` | `config.deleteFlag` | READ_WRITE | 204 | no | no |
-| GET | `/api/config/universes/{universeId}/flags/{key}` | `config.flag` | READ | 200 | yes | yes |
-| PUT | `/api/config/universes/{universeId}/flags/{key}` | `config.putFlag` | READ_WRITE | 200 | no | no |
-| POST | `/api/config/universes/{universeId}/flags/{key}/evaluate` | `config.evaluateFlag` | READ | 200 | no | no |
-| GET | `/api/config/universes/{universeId}/history` | `config.history` | READ | 200 | yes | yes |
-| GET | `/api/config/universes/{universeId}/maintenance` | `config.maintenance` | READ | 200 | yes | yes |
-| PUT | `/api/config/universes/{universeId}/maintenance` | `config.putMaintenance` | ADMIN | 200 | no | no |
-| POST | `/api/config/universes/{universeId}/rollback` | `config.rollback` | ADMIN | 200 | no | no |
-| GET | `/api/config/universes/{universeId}/snapshot` | `config.snapshot` | READ | 200, 304 | yes | no |
-| GET | `/health` | `config.healthProxy` | public / authenticated | 200 | yes | yes |
-| GET | `/info` | `config.info` | public / authenticated | 200 | yes | yes |
-| GET | `/metrics` | `config.metrics` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/liveness` | `fields.liveness` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/readiness` | `fields.readiness` | public / authenticated | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/alerts` | `fields.alerts` | ADMIN | 200 | yes | no |
@@ -143,7 +125,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | PUT | `/api/fields/universes/{universeId}/alerts/config` | `fields.putAlertConfig` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/alerts/webhook/test` | `fields.testWebhook` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/alerts/{id}/ack` | `fields.ackAlert` | ADMIN | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/analytics/daily` | `fields.dailyAnalytics` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/analytics/daily` | `fields.dailyAnalytics` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/bulk` | `fields.bulk` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/bulk/definitions` | `fields.createBulkDefinition` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/bulk/definitions/{id}` | `fields.bulkDefinition` | ADMIN | 200 | yes | no |
@@ -161,10 +143,27 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/migrations/preview` | `fields.migrationPreview` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/definitions/{id}/references` | `fields.definitionReferences` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/definitions/{id}/unarchive` | `fields.unarchive` | ADMIN | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/environments/{env}/resources` | `fields.environmentResources` | READ | 200 | yes | no |
-| PUT | `/api/fields/universes/{universeId}/environments/{env}/resources` | `fields.replaceEnvironmentResources` | ADMIN | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/environments/{env}/resources` | `fields.environmentResources` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/environments/{env}/resources` | `fields.replaceEnvironmentResources` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/export` | `fields.export` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/fields/batch-get` | `fields.batch` | READ | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/flags` | `fields.flags` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/flags` | `fields.createFlag` | READ_WRITE | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/flags/evaluate` | `fields.evaluateFlags` | READ | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/flags/evaluate-batch` | `fields.evaluateFlagsBatch` | READ | 200 | no | no |
+| DELETE | `/api/fields/universes/{universeId}/flags/{key}` | `fields.deleteFlag` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/flags/{key}` | `fields.flag` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/flags/{key}` | `fields.updateFlag` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/game-values/{fieldPath}/history` | `fields.gameValueHistory` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback` | `fields.rollbackGameValue` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/generators` | `fields.listGenerators` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/generators` | `fields.createGenerator` | READ_WRITE | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/generators/preview` | `fields.previewGenerator` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/generators/roll` | `fields.rollGenerator` | READ_WRITE | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/generators/simulate` | `fields.simulateGenerator` | READ | 200 | yes | no |
+| DELETE | `/api/fields/universes/{universeId}/generators/{key}` | `fields.deleteGenerator` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/generators/{key}` | `fields.getGenerator` | READ | 200 | yes | no |
+| PUT | `/api/fields/universes/{universeId}/generators/{key}` | `fields.putGenerator` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/health/summary` | `fields.healthSummary` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/import` | `fields.import` | ADMIN | 200 | keyed apply / dry-run | no |
 | GET | `/api/fields/universes/{universeId}/jobs` | `fields.jobs` | ADMIN | 200 | yes | no |
@@ -178,13 +177,17 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/fields/universes/{universeId}/leaderboard-bindings` | `fields.leaderboardBindings` | ADMIN | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/ledger/{entryId}` | `fields.entry` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/ledger/{entryId}/reverse` | `fields.reverseEntry` | ADMIN | 200 | keyed | no |
+| GET | `/api/fields/universes/{universeId}/maintenance` | `fields.maintenance` | READ | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/maintenance` | `fields.putMaintenance` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/migrations/{id}/cancel` | `fields.cancelMigration` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/migrations/{id}/rollback` | `fields.rollbackMigration` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/ops/validate` | `fields.validateOps` | READ | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/outbox` | `fields.outbox` | ADMIN | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/outbox/{id}/retry` | `fields.retryOutbox` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/sample` | `fields.samplePlayers` | READ | 200 | yes | yes |
-| GET | `/api/fields/universes/{universeId}/players/search` | `fields.searchPlayers` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/players/search` | `fields.searchPlayers` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/players/{playerId}/randomness/claims` | `fields.playerClaimHistory` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls` | `fields.playerRollHistory` | READ | 200 | yes | no |
 | DELETE | `/api/fields/universes/{universeId}/players/{userId}` | `fields.deletePlayer` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/changes` | `fields.changes` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/document` | `fields.document` | READ | 200 | yes | yes |
@@ -194,7 +197,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/fields/universes/{universeId}/players/{userId}/fields/batch-get` | `fields.playerBatch` | READ | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/fields/{fieldId}` | `fields.field` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/ledger` | `fields.ledger` | READ | 200 | yes | yes |
-| GET | `/api/fields/universes/{universeId}/players/{userId}/overview` | `fields.playerOverview` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/overview` | `fields.playerOverview` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/presence` | `fields.presence` | READ | 200 | yes | yes |
 | PUT | `/api/fields/universes/{universeId}/players/{userId}/presence` | `fields.putPresence` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/receipts` | `fields.receipts` | READ | 200 | yes | yes |
@@ -205,12 +208,34 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/fields/universes/{universeId}/products/{id}` | `fields.deleteProduct` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/products/{id}` | `fields.product` | READ | 200 | yes | yes |
 | PUT | `/api/fields/universes/{universeId}/products/{id}` | `fields.putProduct` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/random-tables` | `fields.listRandomTables` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/random-tables` | `fields.createRandomTable` | READ_WRITE | 200 | no | no |
+| DELETE | `/api/fields/universes/{universeId}/random-tables/{key}` | `fields.deleteRandomTable` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/random-tables/{key}` | `fields.getRandomTable` | READ | 200 | yes | no |
+| PUT | `/api/fields/universes/{universeId}/random-tables/{key}` | `fields.putRandomTable` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/random-tables/{key}/odds` | `fields.tableOdds` | READ | 200 | yes | no |
+| DELETE | `/api/fields/universes/{universeId}/randomness` | `fields.eraseRandomness` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/randomness/definitions/{key}/history` | `fields.randomDefinitionHistory` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/randomness/fields` | `fields.randomnessFields` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/randomness/schema` | `fields.randomnessSchema` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/receipts` | `fields.purchase` | READ_WRITE | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/receipts/{purchaseId}` | `fields.receipt` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/receipts/{purchaseId}/refund` | `fields.refund` | ADMIN | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/reconcile` | `fields.reconcile` | ADMIN | 200 | yes | yes |
 | DELETE | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.deleteReferences` | READ_WRITE | 204 | yes | no |
 | PUT | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.putReferences` | READ_WRITE | 204 | yes | no |
+| GET | `/api/fields/universes/{universeId}/rotations` | `fields.listRotations` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/rotations` | `fields.createRotation` | READ_WRITE | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/rotations/claim` | `fields.claimRotation` | READ_WRITE | 200 | keyed | no |
+| GET | `/api/fields/universes/{universeId}/rotations/instances/{id}/stock` | `fields.rotationStock` | READ | 200 | yes | no |
+| DELETE | `/api/fields/universes/{universeId}/rotations/{key}` | `fields.deleteRotation` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/rotations/{key}` | `fields.getRotation` | READ | 200 | yes | no |
+| PUT | `/api/fields/universes/{universeId}/rotations/{key}` | `fields.putRotation` | READ_WRITE | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/rotations/{key}/active` | `fields.activeRotation` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/rotations/{key}/advance` | `fields.advanceRotation` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/rotations/{key}/history` | `fields.rotationHistory` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/rotations/{key}/reroll` | `fields.rerollRotation` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/runtime/snapshot` | `fields.runtimeSnapshot` | READ | 200, 304 | yes | no |
 | GET | `/api/fields/universes/{universeId}/schedules` | `fields.schedules` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/schedules` | `fields.createSchedule` | ADMIN | 200 | keyed | no |
 | POST | `/api/fields/universes/{universeId}/schedules/preview` | `fields.schedulePreview` | ADMIN | 200 | no | no |
@@ -218,7 +243,9 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | PUT | `/api/fields/universes/{universeId}/schedules/{id}` | `fields.editSchedule` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/schedules/{id}/actions` | `fields.scheduleActions` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/schedules/{id}/cancel` | `fields.cancelSchedule` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/schedules/{id}/definition` | `fields.scheduleDefinition` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/schedules/{id}/end-now` | `fields.endSchedule` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/schedules/{id}/runs` | `fields.scheduleRuns` | READ | 200 | yes | no |
 | GET | `/api/fields/universes/{universeId}/schema` | `fields.schema` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/schema/luau` | `fields.luau` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/schema/typescript` | `fields.typescript` | READ | 200 | yes | yes |
@@ -238,8 +265,10 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/actuator/health/liveness` | `leaderboards.liveness` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/readiness` | `leaderboards.readiness` | public / authenticated | 200 | yes | yes |
 | POST | `/api/leaderboards/ratings/universes/{universeId}/matches` | `leaderboards.ratingMatch` | READ_WRITE | 200 | keyed | no |
+| GET | `/api/leaderboards/ratings/universes/{universeId}/ratings` | `leaderboards.ratingScopes` | READ | 200 | yes | yes |
 | GET | `/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config` | `leaderboards.ratingConfig` | ADMIN | 200 | yes | yes |
 | PUT | `/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config` | `leaderboards.ratingConfigure` | ADMIN | 200 | no | no |
+| PUT | `/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/label` | `leaderboards.ratingLabel` | ADMIN | 200 | no | no |
 | GET | `/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/top` | `leaderboards.ratingTop` | READ | 200 | yes | yes |
 | POST | `/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/users` | `leaderboards.ratingUsers` | READ | 200 | no | no |
 | GET | `/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/users/{userId}` | `leaderboards.ratingUser` | READ | 200 | yes | yes |
@@ -278,8 +307,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/bans/universe/{universeId}/temporary` | `matchmaking.getTemporaryBans` | READ | 200 | yes | yes |
 | GET | `/api/gamemodes` | `matchmaking.getGameModes` | READ | 200 | yes | yes |
 | POST | `/api/gamemodes` | `matchmaking.createGameMode` | ADMIN | 201 | no | no |
-| GET | `/api/gamemodes/universes/{universeId}/environments/{env}/resources` | `matchmaking.environmentResources` | READ | 200 | yes | no |
-| PUT | `/api/gamemodes/universes/{universeId}/environments/{env}/resources` | `matchmaking.replaceEnvironmentResources` | ADMIN | 200 | yes | no |
 | DELETE | `/api/gamemodes/{id}` | `matchmaking.deleteGameMode` | ADMIN | 200 | no | no |
 | PUT | `/api/gamemodes/{id}` | `matchmaking.updateGameMode` | ADMIN | 200 | no | no |
 | GET | `/api/gamemodes/{id}/criteria/explain` | `matchmaking.explainCriteria` | READ | 200 | yes | yes |
@@ -331,57 +358,46 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/poll/health` | `party.health` | public / authenticated | 200 | yes | no |
 | GET | `/api/poll/updates` | `party.getUpdates` | public / authenticated | 200 | yes | no |
 | GET | `/health` | `party.healthProxy` | public / authenticated | 200 | yes | yes |
+| GET | `/actuator/health/liveness` | `platform.liveness` | public / authenticated | 200 | yes | no |
+| GET | `/actuator/health/readiness` | `platform.readiness` | public / authenticated | 200 | yes | no |
 | POST | `/api/metering/events` | `platform.ingestUsage` | READ_WRITE | 200 | no | no |
 | GET | `/api/openapi.json` | `platform.openapi` | READ | 200 | yes | no |
-| GET | `/api/orgs/{org}/invoices` | `platform.invoices` | READ | 200 | yes | no |
-| GET | `/api/orgs/{org}/limits` | `platform.limits` | READ | 200 | yes | no |
-| GET | `/api/orgs/{org}/plan` | `platform.orgPlan` | READ | 200 | yes | no |
-| PUT | `/api/orgs/{org}/plan` | `platform.setOrgPlan` | READ_WRITE | 200 | yes | no |
-| GET | `/api/orgs/{org}/ratelimits` | `platform.rateLimits` | READ | 200 | yes | no |
-| PUT | `/api/orgs/{org}/ratelimits` | `platform.setRateLimits` | READ_WRITE | 200 | yes | no |
-| POST | `/api/orgs/{org}/sandbox` | `platform.sandbox` | READ_WRITE | 200 | no | no |
-| PUT | `/api/orgs/{org}/service-accounts/{id}/ratelimit` | `platform.setKeyRateLimit` | READ_WRITE | 200 | yes | no |
-| GET | `/api/orgs/{org}/usage` | `platform.usage` | READ | 200 | yes | no |
+| GET | `/api/orgs/{org}/invoices` | `platform.invoices` | IDENTITY | 200 | yes | no |
+| GET | `/api/orgs/{org}/limits` | `platform.limits` | IDENTITY | 200 | yes | no |
+| GET | `/api/orgs/{org}/plan` | `platform.orgPlan` | IDENTITY | 200 | yes | no |
+| PUT | `/api/orgs/{org}/plan` | `platform.setOrgPlan` | IDENTITY | 200 | no | no |
+| DELETE | `/api/orgs/{org}/ratelimits` | `platform.resetRateLimits` | SUPER_ADMIN | 204 | no | no |
+| GET | `/api/orgs/{org}/ratelimits` | `platform.rateLimits` | IDENTITY | 200 | yes | no |
+| PUT | `/api/orgs/{org}/ratelimits` | `platform.setRateLimits` | SUPER_ADMIN | 200 | no | no |
+| POST | `/api/orgs/{org}/sandbox` | `platform.sandbox` | IDENTITY | 201 | no | no |
+| DELETE | `/api/orgs/{org}/service-accounts/{id}/ratelimit` | `platform.resetKeyRateLimit` | SUPER_ADMIN | 204 | no | no |
+| PUT | `/api/orgs/{org}/service-accounts/{id}/ratelimit` | `platform.setKeyRateLimit` | SUPER_ADMIN | 200 | no | no |
+| GET | `/api/orgs/{org}/usage` | `platform.usage` | IDENTITY | 200 | yes | no |
 | GET | `/api/ping` | `platform.ping` | READ | 200 | yes | no |
-| GET | `/api/plans` | `platform.plans` | READ | 200 | yes | no |
-| PUT | `/api/plans` | `platform.putPlan` | SUPER_ADMIN | 200 | yes | no |
+| GET | `/api/plans` | `platform.plans` | public / authenticated | 200 | yes | no |
+| POST | `/api/plans` | `platform.createPlan` | SUPER_ADMIN | 201 | no | no |
+| PUT | `/api/plans` | `platform.putPlan` | SUPER_ADMIN | 200 | no | no |
+| DELETE | `/api/plans/{name}` | `platform.deletePlan` | SUPER_ADMIN | 204 | no | no |
+| PUT | `/api/plans/{name}` | `platform.updatePlan` | SUPER_ADMIN | 200 | no | no |
 | GET | `/api/status` | `platform.status` | public / authenticated | 200 | yes | no |
-| POST | `/api/status/incidents` | `platform.createIncident` | SUPER_ADMIN | 200 | no | no |
-| DELETE | `/api/status/incidents/{id}` | `platform.deleteIncident` | SUPER_ADMIN | 204 | yes | no |
-| PUT | `/api/status/incidents/{id}` | `platform.updateIncident` | SUPER_ADMIN | 200 | yes | no |
+| GET | `/api/status/incidents` | `platform.incidents` | SUPER_ADMIN | 200 | yes | no |
+| POST | `/api/status/incidents` | `platform.createIncident` | SUPER_ADMIN | 201 | no | no |
+| DELETE | `/api/status/incidents/{id}` | `platform.deleteIncident` | SUPER_ADMIN | 204 | no | no |
+| PUT | `/api/status/incidents/{id}` | `platform.updateIncident` | SUPER_ADMIN | 200 | no | no |
 | POST | `/api/universes/{universeId}/analytics/backfill` | `platform.backfillAnalytics` | ADMIN | 200 | no | no |
 | GET | `/api/universes/{universeId}/analytics/economy` | `platform.analyticsEconomy` | READ | 200 | yes | no |
 | GET | `/api/universes/{universeId}/analytics/summary` | `platform.analyticsSummary` | READ | 200 | yes | no |
 | GET | `/api/universes/{universeId}/analytics/timeseries` | `platform.analyticsTimeseries` | READ | 200 | yes | no |
-| GET | `/api/universes/{universeId}/environments/diff` | `platform.environmentDiff` | READ | 200 | yes | no |
-| POST | `/api/universes/{universeId}/environments/promote` | `platform.promoteEnvironment` | ADMIN | 200 | no | no |
-| GET | `/api/universes/{universeId}/environments/promotions` | `platform.promotions` | READ | 200 | yes | no |
-| POST | `/api/universes/{universeId}/environments/rollback/{promotionId}` | `platform.rollbackEnvironment` | ADMIN | 200 | no | no |
-| POST | `/api/universes/{universeId}/environments/{env}/snapshot` | `platform.snapshotEnvironment` | ADMIN | 200 | no | no |
-| POST | `/api/universes/{universeId}/experiments/exposure` | `platform.recordExposure` | READ_WRITE | 200 | no | no |
-| GET | `/api/universes/{universeId}/flags` | `platform.flags` | READ | 200 | yes | no |
-| POST | `/api/universes/{universeId}/flags` | `platform.createFlag` | READ_WRITE | 200 | no | no |
-| POST | `/api/universes/{universeId}/flags/evaluate` | `platform.evaluateFlags` | READ | 200 | no | no |
-| DELETE | `/api/universes/{universeId}/flags/{key}` | `platform.deleteFlag` | READ_WRITE | 204 | yes | no |
-| GET | `/api/universes/{universeId}/flags/{key}` | `platform.flag` | READ | 200 | yes | no |
-| PUT | `/api/universes/{universeId}/flags/{key}` | `platform.updateFlag` | READ_WRITE | 200 | yes | no |
-| GET | `/api/universes/{universeId}/liveops/events` | `platform.liveEvents` | READ | 200 | yes | no |
-| POST | `/api/universes/{universeId}/liveops/events` | `platform.createLiveEvent` | ADMIN | 200 | no | no |
-| DELETE | `/api/universes/{universeId}/liveops/events/{id}` | `platform.deleteLiveEvent` | ADMIN | 204 | yes | no |
-| GET | `/api/universes/{universeId}/liveops/events/{id}` | `platform.liveEvent` | READ | 200 | yes | no |
-| PUT | `/api/universes/{universeId}/liveops/events/{id}` | `platform.updateLiveEvent` | ADMIN | 200 | yes | no |
-| GET | `/api/universes/{universeId}/liveops/events/{id}/preview` | `platform.liveEventOccurrences` | READ | 200 | yes | no |
-| GET | `/api/universes/{universeId}/liveops/events/{id}/runs` | `platform.liveEventRuns` | READ | 200 | yes | no |
-| POST | `/api/universes/{universeId}/liveops/events/{id}/start` | `platform.startLiveEvent` | ADMIN | 200 | no | no |
-| POST | `/api/universes/{universeId}/liveops/events/{id}/stop` | `platform.stopLiveEvent` | ADMIN | 200 | no | no |
 | GET | `/api/universes/{universeId}/webhooks` | `platform.webhooks` | READ | 200 | yes | no |
-| POST | `/api/universes/{universeId}/webhooks` | `platform.createWebhook` | READ_WRITE | 200 | no | no |
-| DELETE | `/api/universes/{universeId}/webhooks/{id}` | `platform.deleteWebhook` | READ_WRITE | 204 | yes | no |
+| POST | `/api/universes/{universeId}/webhooks` | `platform.createWebhook` | READ_WRITE | 201 | no | no |
+| DELETE | `/api/universes/{universeId}/webhooks/{id}` | `platform.deleteWebhook` | READ_WRITE | 204 | no | no |
 | GET | `/api/universes/{universeId}/webhooks/{id}` | `platform.webhook` | READ | 200 | yes | no |
-| PUT | `/api/universes/{universeId}/webhooks/{id}` | `platform.updateWebhook` | READ_WRITE | 200 | yes | no |
+| PUT | `/api/universes/{universeId}/webhooks/{id}` | `platform.updateWebhook` | READ_WRITE | 200 | no | no |
 | GET | `/api/universes/{universeId}/webhooks/{id}/deliveries` | `platform.webhookDeliveries` | READ | 200 | yes | no |
 | POST | `/api/universes/{universeId}/webhooks/{id}/deliveries/{deliveryId}/redeliver` | `platform.redeliverWebhook` | READ_WRITE | 200 | no | no |
 | POST | `/api/universes/{universeId}/webhooks/{id}/test` | `platform.testWebhook` | READ_WRITE | 200 | no | no |
 | GET | `/health` | `platform.healthProxy` | public / authenticated | 200 | yes | no |
+| GET | `/info` | `platform.info` | public / authenticated | 200 | yes | no |
 | POST | `/internal/events` | `platform.publishEvent` | READ_WRITE | 200 | no | no |
 | GET | `/internal/ratelimits/{orgId}` | `platform.gatewayRateLimits` | READ | 200 | yes | no |
+| GET | `/metrics` | `platform.metrics` | public / authenticated | 200 | yes | no |

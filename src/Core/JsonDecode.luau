@@ -2,7 +2,7 @@
 local Core = require("../Types/Core")
 local Json = require("./Json")
 local Decode = {}
---- Decode Fields JSON without dropping present null members or rounding unsafe integer tokens.
+--- Decode service JSON without dropping present null members or rounding unsafe integer tokens.
 function Decode.decode(text: string): Core.Json
 	local at = 1
 	--- Consume JSON whitespace only (not arbitrary locale whitespace).

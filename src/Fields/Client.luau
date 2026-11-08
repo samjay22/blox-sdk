@@ -10,6 +10,7 @@ local Universe = require("../Core/Universe")
 local Operations = require("./Operations")
 local OpBuilder = require("./OpBuilder")
 local Types = require("./Types")
+local Snapshot = require("../Core/SnapshotCache")
 local Helpers = {}
 export type State = {
 	runtime: Core.Runtime,
@@ -17,11 +18,31 @@ export type State = {
 	schemas: { [string]: Schema.Schema },
 	profiles: { Profile.Profile },
 	closed: boolean,
+	snapshots: { [string]: Snapshot.Snapshot? },
+	snapshotListeners: { [(string, Snapshot.Snapshot?) -> ()]: boolean },
+	cleanups: { [() -> ()]: boolean },
 	onUse: () -> (),
 }
 --- Create shared helper ownership without starting a poll or issuing any HTTP.
 function Helpers.new(runtime: Core.Runtime, invoke: Core.Invoke, onUse: () -> ()): State
-	return { runtime = runtime, invoke = invoke, schemas = {}, profiles = {}, closed = false, onUse = onUse }
+	return {
+		runtime = runtime,
+		invoke = invoke,
+		schemas = {},
+		profiles = {},
+		closed = false,
+		snapshots = {},
+		snapshotListeners = {},
+		cleanups = {},
+		onUse = onUse,
+	}
+end
+--- Publish snapshot ownership changes so existing watches can switch modes without polling.
+function Helpers.setSnapshot(state: State, universe: string, snapshot: Snapshot.Snapshot?)
+	state.snapshots[universe] = snapshot
+	for listener in state.snapshotListeners do
+		listener(universe, snapshot)
+	end
 end
 --- Get one universe cache; repeated accesses reuse its compiled schema generation.
 function Helpers.schema(state: State, universeId: string | number): Schema.Schema
@@ -179,6 +200,9 @@ end
 --- Drain owned leases before pipeline admission closes; there is no hidden write-behind data queue.
 function Helpers.close(state: State, deadline: number): boolean
 	state.closed = true
+	for cleanup in state.cleanups do
+		cleanup()
+	end
 	for _, schema in state.schemas do
 		schema:Destroy()
 	end
@@ -193,6 +217,9 @@ end
 --- Cancel all helper tasks without sending a request.
 function Helpers.destroy(state: State)
 	state.closed = true
+	for cleanup in state.cleanups do
+		cleanup()
+	end
 	for _, schema in state.schemas do
 		schema:Destroy()
 	end

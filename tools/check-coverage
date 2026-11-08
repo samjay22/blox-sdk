@@ -7,20 +7,22 @@ from service_contracts import SOURCES
 from collections import Counter
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCES = {**SOURCES, 'platform': ROOT.parent/'svc/platform-service'}
+SOURCES = dict(SOURCES)
 ALIASES={'mm':'matchmaking','code':'codes'}
 # Independent deployment contract: do not import the generator's routing declarations.
 GATEWAY='https://lb1.blox-api.com'
 PREFIXES={
     'auth':'/auth-service', 'matchmaking':'/matchmaking-service',
     'party':'/party-service', 'codes':'/code-service', 'audit':'/audit-service',
-    'config':'/remote-config-service', 'leaderboards':'/leaderboard-service',
+    'leaderboards':'/leaderboard-service',
     'fields':'/fields-service', 'platform':'/platform-service',
 }
+# Documented Boot routes have no annotated controller; keep them independently required.
+BOOT_SERVICES = {'audit', 'leaderboards', 'fields', 'platform', 'codes'}
 
 
 def assert_gateway_coverage(endpoints: list[dict], routing: str) -> None:
-    """Verify every generated gateway target independently, including the reserved config prefix."""
+    """Verify every generated gateway target independently, rejecting retired service targets."""
     gateway = re.search(r'gatewayUrl\s*=\s*"([^"]+)"', routing)
     prefixes = dict(re.findall(r'\["([^"]+)"\]\s*=\s*"([^"]+)"', routing))
     assert gateway and gateway[1] == GATEWAY, 'Incorrect default gateway'
@@ -93,24 +95,24 @@ def controller_routes() -> set[tuple[str,str,str]]:
                     for suffix in mapping_paths(args):
                         path = (prefix+suffix).replace("{u}", "{universeId}")
                         if service == "platform" and path.startswith("/platform-service/"): path = path[len("/platform-service"): ]
-                        if not path.startswith('/actuator/'):
-                            found.add((service, method, path))
+                        paths = [path]
+                        for token, options in re.findall(r"\{(\w+):([^{}]+)\}", path):
+                            paths = [p.replace("{"+token+":"+options+"}", choice) for p in paths for choice in options.split("|")]
+                        for expanded in paths: found.add((service, method, expanded))
         assert controllers, f'Missing backend controller sources: {root}'
-    # The shared F6 contract supersedes the pre-feature GAS source route. No
-    # legacy SDK alias is retained while independent backend worktrees converge.
-    legacy = ('auth', 'POST', '/api/auth/service-accounts/{id}/rotate')
-    if legacy in found:
-        found.remove(legacy)
-        found.add(('auth', 'POST', '/api/auth/orgs/{org}/service-accounts/{id}/rotate'))
     return found
 
 
 def assert_controller_coverage(actual: set[tuple[str,str,str]]) -> None:
     """Fail if even a route absent from the checked-in inventory is absent from the SDK."""
-    missing = controller_routes() - actual
+    framework = {(service, 'GET', '/'+name) for service in BOOT_SERVICES for name in ('metrics','info')}
+    missing = (controller_routes() | framework) - actual
     assert not missing, f'Missing controller routes: {sorted(missing)}'
-    auth = {r for r in actual if r[0]=='auth'}
-    assert auth == {r for r in controller_routes() if r[0]=='auth'}, 'Removed or fabricated Auth routes'
+    # Only documented framework endpoints and the explicitly unverified Party snapshot
+    # may exist without a controller; stale speculative domain APIs must fail too.
+    extra = {r for r in actual - controller_routes()
+             if r[0] != 'party' and (r[1], r[2]) not in {('GET','/metrics'),('GET','/info')}}
+    assert not extra, f'Removed or fabricated routes: {sorted(extra)}'
 
 
 def main() -> None:
@@ -126,7 +128,7 @@ def main() -> None:
     assert_controller_coverage(actual)
     assert len(actual)==len(endpoints),'Duplicate endpoint mappings'
     assert len({e['id'] for e in endpoints})==len(endpoints),'Duplicate SDK method IDs'
-    assert not expected-actual, f'Missing routes: {sorted(expected-actual)}'
+    assert expected == actual, f'Inventory mismatch: {sorted(expected ^ actual)}'
     required={('auth','DELETE',p) for p in ['/api/auth/universes/{universeId}/places/{placeId}']}
     required|={('auth',m,'/api/auth/service-accounts'+p) for m,p in [('POST',''),('GET',''),('GET','/{id}'),('PUT','/{id}/permissions'),('PATCH','/{id}'),('DELETE','/{id}')]}
     required.add(('auth','POST','/api/auth/orgs/{org}/service-accounts/{id}/rotate'))

@@ -1,13 +1,14 @@
 # Fields durable jobs: trusted server/admin-key usage
 
 All paths below are relative to `/api/fields/universes/{universeId}`. The gateway adds `/fields-service`.
-**Every job, migration, bulk, import/export, schedule and alert endpoint requires FieldsService ADMIN**,
-including previews, reads and downloads. Only `GET /health/summary` permits READ. Gateway callers also
+**Job, migration, bulk, import/export, schedule controls and alert endpoints require FieldsService ADMIN**,
+including previews, definition reads and downloads. `GET /health/summary` and schedule run history
+(`GET /schedules/{id}/runs`) permit READ. Gateway callers also
 need Gateway permission. Universe-bound service keys cannot switch universes; SDK `levels` do not grant
 authority. Keep admin credentials and controls in trusted game-server/operator code, never LocalScripts,
 replicated modules or arbitrary player-request handlers. Normal gameplay should retain READ_WRITE keys.
 
-The generated facade covers all 33 new endpoints; [ENDPOINTS](ENDPOINTS.md) lists exact method names,
+The generated facade covers 35 durable-control endpoints; [ENDPOINTS](ENDPOINTS.md) lists exact method names,
 request DTOs and permissions. Typed helpers provide preflight only; raw generated wrappers retain
 server-authoritative semantic validation. Neither adds new backend authority.
 
@@ -126,7 +127,8 @@ Helpers accept the explicit UTC subset `YYYY-MM-DDTHH:mm:ss[.1-9 digits]Z`; the 
 may accept broader representations. Unsupported forms fail local preflight rather than being coerced.
 Use `["end"]=...` in Luau because `end` is reserved. Actions: SET_CONFIG `{key,type,value}`, ENABLE_FLAG
 or DISABLE_FLAG `{key}`, RUN_BULK `{bulkDefinitionId}`. Config types STRING/NUMBER/BOOLEAN/JSON are
-ConfigService types, **not Fields TypeExpr**. Referenced resources must already exist; keys within each
+schedule scalar labels, **not Fields TypeExpr**. Actions operate on Fields-owned runtime state.
+Referenced resources must already exist; keys within each
 edge must be unique within their config-entry or flag namespace. An entry and flag with the same name
 are valid together. There is no runtime-definition rebinding or arbitrary script action.
 
@@ -168,3 +170,16 @@ per 15-minute bucket. Monitoring/webhook delivery is best-effort, not transactio
 `client.fields:Health(universeId):summary()` returns typed `{openAlerts={WARNING,CRITICAL},runningJobs,
 upcomingSchedules}` with READ access. Open includes acknowledged-but-unresolved alerts; no captured
 values or webhook information is returned. This differs from `client:health()` process/service probes.
+
+## Recurring schedule definitions and runs
+
+`ScheduleInput.recurrence` is optional: `{type="NONE"|"DAILY"|"WEEKLY",daysOfWeek={...},timezone="America/Chicago"}`.
+Weekdays use uppercase Java names (e.g. `"SATURDAY"`); only WEEKLY has a nonempty distinct weekday list.
+DAILY/WEEKLY require an end time. IANA zone validity, DST and catch-up behavior remain server checks.
+The helper preserves `daysOfWeek={}` as `[]`. Omit recurrence for a one-time schedule.
+
+`scheduleDefinition({path={id=...}})` reads the original input plan (ADMIN), not captured prior values.
+`scheduleRuns({path={id=...},query={before="9223372036854775807",limit=64}})` reads safe outcomes (READ).
+Pass the smallest returned run ID as `before` for older runs; use a decimal string for int64 cursors beyond
+Luau's exact range. `scheduleActions` pages forward using `after` ordinals (initial `-1`) and `limit`.
+Action results include optional/null `skipped` and `skipReason`; run `finishedAt` and `error` can be null.

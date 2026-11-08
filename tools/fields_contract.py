@@ -11,6 +11,8 @@ def record(**fields: str) -> dict:
 def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[dict], dict]:
     """Resolve overloads, JsonProperty, dynamic map responses, nulls and operation wire types."""
     del root
+    rotations = [e for e in endpoints if e["source"].endswith("/RotationsController.java")]
+    endpoints = [e for e in endpoints if e not in rotations]
     from jobs_contract import definitions_into, curate as curate_jobs
     definitions_into(definitions)
     definitions.update({
@@ -116,5 +118,8 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         endpoints.append(dict(health,id='fields.'+name,name=name,path='/'+name,
                               responseJava='MetricsResponse' if name=='metrics' else 'Map<String, Object>',
                               responseType=name.capitalize()+'ResultValue'))
+    from runtime_contract import curate as curate_runtime
+    curate_runtime(endpoints, definitions)
     from references_contract import curate as curate_references
-    return curate_references(curate_jobs(endpoints), definitions)
+    from rotations_contract import curate as curate_rotations
+    return curate_rotations(*curate_references(curate_jobs(endpoints), definitions), rotations)

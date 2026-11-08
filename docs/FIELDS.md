@@ -352,3 +352,7 @@ or key. Existing capitalized `Transaction:Validate()` checks the full transactio
 reason, key, scope and conditions; `:Commit()` still uses that full check. Multi-subject dry runs are rejected
 because this endpoint is player-template-only. Neither validation method reserves or writes anything.
 The [Codes builder](CODES.md) composes the same operation builder and TypeSystem.
+
+## Rotations, generators and table odds
+
+See [Rotations & Generators](ROTATIONS.md) for current/next heads, snapshot-backed Watch, countdowns, live stock, atomic claims, player rolls/previews and explicitly labeled table odds. All use this SDK's shared Result/pipeline and universe/auth lifetime.

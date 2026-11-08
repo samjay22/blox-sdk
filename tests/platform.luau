@@ -25,7 +25,7 @@ end
 
 --- Register public facade, strict DTO, privacy and conservative retry regressions.
 return function(test: (string, () -> ()) -> ())
-	test("platform flags use canonical routing and the shared explicit universe binding", function()
+	test("Fields flags use canonical routing and the shared explicit universe binding", function()
 		local s = Scheduler.new()
 		local c, f = client(s, {
 			{
@@ -38,14 +38,14 @@ return function(test: (string, () -> ()) -> ())
 					check(
 						r.Method == "POST"
 							and r.Url
-								== "https://lb1.blox-api.com/platform-service/api/universes/123/flags/evaluate"
+								== "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate"
 					)
 					check(string.find(r.Body :: string, '"userId":7', 1, true))
 				end,
 			},
 		})
 		s.run(function()
-			local result = c.platform:evaluateFlags({ body = { userId = 7, keys = { "double_xp" } } })
+			local result = c.fields:evaluateFlags({ body = { userId = 7, keys = { "double_xp" } } })
 			check(result.ok and result.value.values.double_xp.value == true)
 		end)
 		check(f.count() == 1)
@@ -55,14 +55,13 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, { { status = 503, body = s.json({ message = "unavailable" }) } })
 		s.run(function()
-			local result = c.platform:recordExposure({
-				body = {
-					userId = 7,
-					key = "double_xp",
-					variant = "treatment",
-					eventId = "synthetic-event",
-					occurredAt = "2026-11-06T00:00:00Z",
-				},
+			local result = c.platform:publishEvent({
+				universeId = 123,
+				orgId = "org",
+				type = "field.changed",
+				data = {},
+				eventId = "event",
+				occurredAt = "2026-11-07T00:00:00Z",
 			})
 			check(not result.ok and result.error.status == 503)
 		end)

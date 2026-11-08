@@ -68,22 +68,12 @@ function Transport.send(
 				and (wire.Body ~= "" or spec.responseFormat == "text")
 				and request.Method ~= "HEAD"
 			then
-				value = if spec.responseFormat == "text"
-					then wire.Body
-					elseif
-						spec.service == "fields"
-						or spec.service == "codes"
-						or spec.service == "auth"
-					then JsonDecode.decode(wire.Body)
-					else runtime.decode(wire.Body)
+				value = if spec.responseFormat == "text" then wire.Body else JsonDecode.decode(wire.Body)
 			end
 			if wire.StatusCode >= 200 and wire.StatusCode < 300 then
 				assert(Validation.response(spec.id, value, wire.StatusCode), "Invalid response schema")
 			end
-			if
-				wire.StatusCode >= 400
-				and (spec.service == "fields" or spec.service == "codes" or spec.service == "auth")
-			then
+			if wire.StatusCode >= 400 then
 				local decodedOk, domain = pcall(runtime.decode, wire.Body)
 				if decodedOk then
 					value = domain
@@ -102,6 +92,13 @@ function Transport.send(
 						or (spec.conditional and response.StatusCode == 304)
 					then { ok = true, value = decoded, status = response.StatusCode }
 					else Errors.domain(response.StatusCode, spec.id, attempt, decoded)
+			end
+			if result.ok and spec.conditional then
+				for name, value in headers do
+					if string.lower(name) == "etag" then
+						result.etag = value
+					end
+				end
 			end
 			finished = true
 		end

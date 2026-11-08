@@ -17,37 +17,11 @@ export type Page<T> = {
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 export type DateRange = { from: string, to: string }
-export type EvaluateInput = { keys: { string }?, userId: number }
-export type Evaluation = { values: { [string]: EvaluationValue } }
-export type EvaluationValue = { reason: string, value: Core.Json, variant: string? }
-export type ExposureInput = {
-	eventId: string,
-	key: string,
-	occurredAt: string,
-	userId: number,
-	variant: string,
-}
-export type FlagInput = {
-	defaultValue: Core.Json,
-	enabled: boolean,
-	key: string,
-	rules: { FlagRule },
-	sticky: boolean?,
-	type: string,
-	variants: { Variant }?,
-}
-export type FlagMatch = { field: string, op: string, value: Core.Json }
-export type FlagRule = { match: FlagMatch, rolloutPct: number, value: Core.Json }
+export type HealthComponent = { status: string }
+export type HealthResponse = { service: string, status: string, timestamp: string }
 export type IncidentInput = { message: string, resolved: boolean, severity: string }
-export type LiveAction = { codeId: number?, flag: string?, key: string?, type: string, value: Core.Json? }
-export type LiveEventInput = {
-	actions: { LiveAction },
-	endsAt: string,
-	name: string,
-	recurrence: string?,
-	startsAt: string,
-	timezone: string,
-}
+export type Metric = "requests" | "storage_bytes" | "active_players"
+export type MetricsResponse = { names: { string } }
 export type PlanChange = { plan: string }
 export type PlanInput = {
 	monthlyLimits: { [string]: number },
@@ -63,68 +37,75 @@ export type PlatformEvent = {
 	type: string,
 	universeId: number,
 }
-export type PromotionInput = {
-	dryRun: boolean?,
-	from: string,
-	reason: string,
-	resources: { string },
-	to: string,
-}
 export type RateLimit = { burst: number, dailyRequests: number, requestsPerSecond: number }
 export type UsageBatch = { batchId: string, events: { UsageEvent } }
 export type UsageEvent = {
 	at: string,
 	count: number,
-	metric: string,
+	metric: Metric,
 	orgId: string,
 	service: string,
 	universeId: number?,
 }
-export type Variant = { name: string, value: Core.Json, weightPct: number }
-export type WebhookInput = { enabled: boolean, events: { string }, secret: string?, url: string }
+export type WebhookInput = { enabled: boolean?, events: { string }, secret: string?, url: string }
+export type LivenessCall = {}
+export type LivenessResultValue = HealthComponent
+export type ReadinessCall = {}
+export type ReadinessResultValue = HealthComponent
 export type IngestUsageCall = UsageBatch
 export type IngestUsageResultValue = Core.Json
 export type OpenapiCall = {}
 export type OpenapiResultValue = Core.Json
 export type InvoicesCall = { path: { org: string }, query: { limit: number? }? }
-export type InvoicesResultValue = { Core.Json }
+export type InvoicesResultValue = { { [string]: Core.Json } }
 export type LimitsCall = { path: { org: string } }
-export type LimitsResultValue = Core.Json
+export type LimitsResultValue = { [string]: Core.Json }
 export type OrgPlanCall = { path: { org: string } }
 export type OrgPlanResultValue = Core.Json
 export type SetOrgPlanCall = { path: { org: string }, body: PlanChange }
 export type SetOrgPlanResultValue = Core.Json
+export type ResetRateLimitsCall = { path: { org: string } }
+export type ResetRateLimitsResultValue = nil
 export type RateLimitsCall = { path: { org: string } }
-export type RateLimitsResultValue = Core.Json
+export type RateLimitsResultValue = { [string]: Core.Json }
 export type SetRateLimitsCall = { path: { org: string }, body: RateLimit }
 export type SetRateLimitsResultValue = Core.Json
-export type SandboxCall = { path: { org: string } }
-export type SandboxResultValue = Core.Json
+export type SandboxCall = { path: { org: string }, query: { universeId: (string | number)? }? }
+export type SandboxResultValue = { [string]: Core.Json }
+export type ResetKeyRateLimitCall = { path: { org: string, id: string } }
+export type ResetKeyRateLimitResultValue = nil
 export type SetKeyRateLimitCall = { path: { org: string, id: string }, body: RateLimit }
 export type SetKeyRateLimitResultValue = Core.Json
-export type UsageCall = { path: { org: string }, query: { from: string, to: string, groupBy: string? } }
-export type UsageResultValue = { Core.Json }
+export type UsageCall = { path: { org: string }, query: { from: string, groupBy: string?, to: string } }
+export type UsageResultValue = { { [string]: Core.Json } }
 export type PingCall = {}
-export type PingResultValue = Core.Json
+export type PingResultValue = { [string]: string }
 export type PlansCall = {}
-export type PlansResultValue = { PlanInput }
-export type PutPlanCall = { query: { universeId: (string | number)? }?, body: PlanInput }
+export type PlansResultValue = { Core.Json }
+export type CreatePlanCall = PlanInput
+export type CreatePlanResultValue = Core.Json
+export type PutPlanCall = PlanInput
 export type PutPlanResultValue = Core.Json
+export type DeletePlanCall = { path: { name: string } }
+export type DeletePlanResultValue = nil
+export type UpdatePlanCall = { path: { name: string }, body: PlanInput }
+export type UpdatePlanResultValue = Core.Json
 export type StatusCall = {}
-export type StatusResultValue = Core.Json
-export type CreateIncidentCall = { query: { universeId: (string | number)? }?, body: IncidentInput }
+export type StatusResultValue = { [string]: Core.Json }
+export type IncidentsCall = { query: { after: string?, limit: number? }? }
+export type IncidentsResultValue = { Core.Json }
+export type CreateIncidentCall = IncidentInput
 export type CreateIncidentResultValue = Core.Json
-export type DeleteIncidentCall = { path: { id: string }, query: { universeId: (string | number)? }? }
+export type DeleteIncidentCall = { path: { id: string } }
 export type DeleteIncidentResultValue = nil
-export type UpdateIncidentCall = {
-	path: { id: string },
-	query: { universeId: (string | number)? }?,
-	body: IncidentInput,
-}
+export type UpdateIncidentCall = { path: { id: string }, body: IncidentInput }
 export type UpdateIncidentResultValue = Core.Json
 export type BackfillAnalyticsCall = { path: { universeId: (string | number)? }?, body: DateRange }
-export type BackfillAnalyticsResultValue = Core.Json
-export type AnalyticsEconomyCall = { path: { universeId: (string | number)? }?, query: { field: string } }
+export type BackfillAnalyticsResultValue = { [string]: Core.Json }
+export type AnalyticsEconomyCall = {
+	path: { universeId: (string | number)? }?,
+	query: { field: string?, from: string?, to: string? }?,
+}
 export type AnalyticsEconomyResultValue = { Core.Json }
 export type AnalyticsSummaryCall = {
 	path: { universeId: (string | number)? }?,
@@ -133,72 +114,12 @@ export type AnalyticsSummaryCall = {
 		to: string,
 	},
 }
-export type AnalyticsSummaryResultValue = Core.Json
+export type AnalyticsSummaryResultValue = { [string]: Core.Json }
 export type AnalyticsTimeseriesCall = {
 	path: { universeId: (string | number)? }?,
-	query: { metric: string, from: string, to: string },
+	query: { from: string, metric: string, to: string },
 }
-export type AnalyticsTimeseriesResultValue = { Core.Json }
-export type EnvironmentDiffCall = {
-	path: { universeId: (string | number)? }?,
-	query: { from: string, to: string },
-}
-export type EnvironmentDiffResultValue = Core.Json
-export type PromoteEnvironmentCall = { path: { universeId: (string | number)? }?, body: PromotionInput }
-export type PromoteEnvironmentResultValue = Core.Json
-export type PromotionsCall = {
-	path: { universeId: (string | number)? }?,
-	query: {
-		after: string?,
-		limit: number?,
-	}?,
-}
-export type PromotionsResultValue = { Core.Json }
-export type RollbackEnvironmentCall = { path: { universeId: (string | number)?, promotionId: string } }
-export type RollbackEnvironmentResultValue = Core.Json
-export type SnapshotEnvironmentCall = { path: { universeId: (string | number)?, env: string } }
-export type SnapshotEnvironmentResultValue = Core.Json
-export type RecordExposureCall = { path: { universeId: (string | number)? }?, body: ExposureInput }
-export type RecordExposureResultValue = Core.Json
-export type FlagsCall = {
-	path: { universeId: (string | number)? }?,
-	query: { after: string?, limit: number? }?,
-}
-export type FlagsResultValue = { FlagInput }
-export type CreateFlagCall = { path: { universeId: (string | number)? }?, body: FlagInput }
-export type CreateFlagResultValue = Core.Json
-export type EvaluateFlagsCall = { path: { universeId: (string | number)? }?, body: EvaluateInput }
-export type EvaluateFlagsResultValue = Evaluation
-export type DeleteFlagCall = { path: { universeId: (string | number)?, key: string } }
-export type DeleteFlagResultValue = nil
-export type FlagCall = { path: { universeId: (string | number)?, key: string } }
-export type FlagResultValue = FlagInput
-export type UpdateFlagCall = { path: { universeId: (string | number)?, key: string }, body: FlagInput }
-export type UpdateFlagResultValue = Core.Json
-export type LiveEventsCall = {
-	path: { universeId: (string | number)? }?,
-	query: {
-		after: string?,
-		limit: number?,
-	}?,
-}
-export type LiveEventsResultValue = { Core.Json }
-export type CreateLiveEventCall = { path: { universeId: (string | number)? }?, body: LiveEventInput }
-export type CreateLiveEventResultValue = Core.Json
-export type DeleteLiveEventCall = { path: { universeId: (string | number)?, id: string } }
-export type DeleteLiveEventResultValue = nil
-export type LiveEventCall = { path: { universeId: (string | number)?, id: string } }
-export type LiveEventResultValue = Core.Json
-export type UpdateLiveEventCall = { path: { universeId: (string | number)?, id: string }, body: LiveEventInput }
-export type UpdateLiveEventResultValue = Core.Json
-export type LiveEventOccurrencesCall = { path: { universeId: (string | number)?, id: string } }
-export type LiveEventOccurrencesResultValue = { Core.Json }
-export type LiveEventRunsCall = { path: { universeId: (string | number)?, id: string } }
-export type LiveEventRunsResultValue = { Core.Json }
-export type StartLiveEventCall = { path: { universeId: (string | number)?, id: string } }
-export type StartLiveEventResultValue = Core.Json
-export type StopLiveEventCall = { path: { universeId: (string | number)?, id: string } }
-export type StopLiveEventResultValue = Core.Json
+export type AnalyticsTimeseriesResultValue = { { [string]: Core.Json } }
 export type WebhooksCall = {
 	path: { universeId: (string | number)? }?,
 	query: { after: string?, limit: number? }?,
@@ -216,15 +137,19 @@ export type WebhookDeliveriesCall = {
 	path: { universeId: (string | number)?, id: string },
 	query: { limit: number? }?,
 }
-export type WebhookDeliveriesResultValue = { Core.Json }
+export type WebhookDeliveriesResultValue = { { [string]: Core.Json } }
 export type RedeliverWebhookCall = { path: { universeId: (string | number)?, id: string, deliveryId: string } }
-export type RedeliverWebhookResultValue = Core.Json
+export type RedeliverWebhookResultValue = { [string]: Core.Json }
 export type TestWebhookCall = { path: { universeId: (string | number)?, id: string } }
-export type TestWebhookResultValue = Core.Json
+export type TestWebhookResultValue = { [string]: Core.Json }
 export type HealthProxyCall = {}
-export type HealthProxyResultValue = Core.Json
+export type HealthProxyResultValue = HealthResponse
+export type InfoCall = {}
+export type InfoResultValue = { [string]: Core.Json }
 export type PublishEventCall = PlatformEvent
-export type PublishEventResultValue = Core.Json
+export type PublishEventResultValue = { [string]: Core.Json }
 export type GatewayRateLimitsCall = { path: { orgId: string } }
-export type GatewayRateLimitsResultValue = Core.Json
+export type GatewayRateLimitsResultValue = { [string]: Core.Json }
+export type MetricsCall = {}
+export type MetricsResultValue = MetricsResponse
 return {}

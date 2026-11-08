@@ -1624,6 +1624,1668 @@ local data: any = Json.object({
 			} :: { any }),
 		} :: any),
 	} :: { any }),
+	["rotations"] = Json.object({
+		["active"] = Json.object({
+			["current"] = Json.object({
+				["definitionVersions"] = Json.object(
+					{ ["generator:weather"] = 1, ["rotation:weather"] = 1, ["table:weather"] = 1 } :: any
+				),
+				["endsAt"] = "2026-11-08T12:07:45Z",
+				["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+				["key"] = "weather",
+				["result"] = Json.object({
+					["cost"] = Json.array({} :: { any }),
+					["picks"] = Json.array({
+						Json.object({
+							["durationSeconds"] = 465,
+							["entryId"] = "rain",
+							["grants"] = Json.array({} :: { any }),
+							["index"] = 0,
+							["path"] = Json.array({ "weather/rain" } :: { any }),
+							["payload"] = Json.object({ ["intensity"] = 0.7, ["weather"] = "RAIN" } :: any),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "weather:0",
+							["table"] = "weather",
+							["tags"] = Json.array({ "wet" } :: { any }),
+						} :: any),
+					} :: { any }),
+					["pityAfter"] = Json.null,
+					["resolvedConfig"] = Json.object({} :: any),
+				} :: any),
+				["sequence"] = 41,
+				["startsAt"] = "2026-11-08T12:00:00Z",
+			} :: any),
+			["enabled"] = true,
+			["next"] = Json.object({
+				["definitionVersions"] = Json.object(
+					{ ["generator:weather"] = 1, ["rotation:weather"] = 1, ["table:weather"] = 1 } :: any
+				),
+				["endsAt"] = "2026-11-08T12:23:23Z",
+				["id"] = "0f656472-95e3-4f68-b0ee-679a90cdd960",
+				["key"] = "weather",
+				["result"] = Json.object({
+					["cost"] = Json.array({} :: { any }),
+					["picks"] = Json.array({
+						Json.object({
+							["durationSeconds"] = 938,
+							["entryId"] = "clear",
+							["grants"] = Json.array({} :: { any }),
+							["index"] = 0,
+							["path"] = Json.array({ "weather/clear" } :: { any }),
+							["payload"] = Json.object({ ["intensity"] = 0, ["weather"] = "CLEAR" } :: any),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "weather:0",
+							["table"] = "weather",
+							["tags"] = Json.array({ "clear" } :: { any }),
+						} :: any),
+					} :: { any }),
+					["pityAfter"] = Json.null,
+					["resolvedConfig"] = Json.object(
+						{ ["Weather.MaxDuration"] = 1200, ["Weather.MinDuration"] = 600 } :: any
+					),
+				} :: any),
+				["sequence"] = 42,
+				["startsAt"] = "2026-11-08T12:07:45Z",
+			} :: any),
+		} :: any),
+		["claim"] = Json.object({
+			["createdAt"] = "2026-11-08T12:01:00Z",
+			["entryId"] = "starter_pack",
+			["id"] = "52a25291-02d5-49a4-8053-03432614619f",
+			["instanceId"] = "00000000-0000-4000-8000-000000000001",
+			["quantity"] = 1,
+			["remaining"] = 19,
+			["slot"] = "packs:0",
+			["transaction"] = Json.object({
+				["replayed"] = false,
+				["results"] = Json.array({
+					Json.object({
+						["after"] = 800,
+						["before"] = 900,
+						["entryId"] = "fef2202a-fb3a-4b94-a3ea-7b439663ef1c",
+						["field"] = "Currency.Gems",
+						["op"] = "ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 2,
+					} :: any),
+					Json.object({
+						["after"] = Json.object({ ["starter_pack"] = 1 } :: any),
+						["before"] = Json.object({} :: any),
+						["entryId"] = "d629558e-1135-42d4-8360-4addd23c7c4e",
+						["field"] = "Inventory.Packs",
+						["op"] = "MAP_ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["seq"] = Json.object({ ["7"] = 2 } :: any),
+				["txId"] = "2eb8f984-af40-449f-b5cc-30cc80ee60d2",
+			} :: any),
+		} :: any),
+		["odds"] = Json.object({
+			["entryProbabilities"] = Json.object(
+				{ ["common"] = 0.7, ["epic"] = 0.045, ["legendary"] = 0.005, ["rare"] = 0.25 } :: any
+			),
+			["probabilities"] = Json.object(
+				{ ["cards_common/c01"] = 0.0875, ["cards_rare/r01"] = 0.03125 } :: any
+			),
+			["resolvedConfig"] = Json.object({} :: any),
+		} :: any),
+		["roll"] = Json.object({
+			["createdAt"] = "2026-11-08T12:00:00Z",
+			["definitionVersions"] = Json.object({
+				["generator:card_pack"] = 1,
+				["table:cards_common"] = 1,
+				["table:cards_epic"] = 1,
+				["table:cards_legendary"] = 1,
+				["table:cards_rare"] = 1,
+				["table:rarity"] = 1,
+			} :: any),
+			["generator"] = "card_pack",
+			["id"] = "636b3dbf-e042-4c91-b5a5-e844a78585a6",
+			["playerId"] = 7,
+			["results"] = Json.array({
+				Json.object({
+					["cost"] = Json.array({
+						Json.object({ ["delta"] = -100, ["field"] = "Currency.Gems", ["op"] = "ADD" } :: any),
+					} :: { any }),
+					["picks"] = Json.array({
+						Json.object({
+							["durationSeconds"] = Json.null,
+							["entryId"] = "r02",
+							["grants"] = Json.array({
+								Json.object({
+									["delta"] = 1,
+									["field"] = "Inventory.Cards",
+									["key"] = "r02",
+									["op"] = "MAP_ADD",
+								} :: any),
+							} :: { any }),
+							["index"] = 0,
+							["path"] = Json.array({ "rarity/rare", "cards_rare/r02" } :: { any }),
+							["payload"] = Json.object(
+								{ ["cardId"] = "r02", ["name"] = "Rare card 2" } :: any
+							),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "cards:0",
+							["table"] = "cards_rare",
+							["tags"] = Json.array({ "rare" } :: { any }),
+						} :: any),
+						Json.object({
+							["durationSeconds"] = Json.null,
+							["entryId"] = "c05",
+							["grants"] = Json.array({
+								Json.object({
+									["delta"] = 1,
+									["field"] = "Inventory.Cards",
+									["key"] = "c05",
+									["op"] = "MAP_ADD",
+								} :: any),
+							} :: { any }),
+							["index"] = 1,
+							["path"] = Json.array({ "rarity/common", "cards_common/c05" } :: { any }),
+							["payload"] = Json.object(
+								{ ["cardId"] = "c05", ["name"] = "Common card 5" } :: any
+							),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "cards:1",
+							["table"] = "cards_common",
+							["tags"] = Json.array({ "common" } :: { any }),
+						} :: any),
+						Json.object({
+							["durationSeconds"] = Json.null,
+							["entryId"] = "r08",
+							["grants"] = Json.array({
+								Json.object({
+									["delta"] = 1,
+									["field"] = "Inventory.Cards",
+									["key"] = "r08",
+									["op"] = "MAP_ADD",
+								} :: any),
+							} :: { any }),
+							["index"] = 2,
+							["path"] = Json.array({ "rarity/rare", "cards_rare/r08" } :: { any }),
+							["payload"] = Json.object(
+								{ ["cardId"] = "r08", ["name"] = "Rare card 8" } :: any
+							),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "cards:2",
+							["table"] = "cards_rare",
+							["tags"] = Json.array({ "rare" } :: { any }),
+						} :: any),
+						Json.object({
+							["durationSeconds"] = Json.null,
+							["entryId"] = "c03",
+							["grants"] = Json.array({
+								Json.object({
+									["delta"] = 1,
+									["field"] = "Inventory.Cards",
+									["key"] = "c03",
+									["op"] = "MAP_ADD",
+								} :: any),
+							} :: { any }),
+							["index"] = 3,
+							["path"] = Json.array({ "rarity/common", "cards_common/c03" } :: { any }),
+							["payload"] = Json.object(
+								{ ["cardId"] = "c03", ["name"] = "Common card 3" } :: any
+							),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "cards:3",
+							["table"] = "cards_common",
+							["tags"] = Json.array({ "common" } :: { any }),
+						} :: any),
+						Json.object({
+							["durationSeconds"] = Json.null,
+							["entryId"] = "r04",
+							["grants"] = Json.array({
+								Json.object({
+									["delta"] = 1,
+									["field"] = "Inventory.Cards",
+									["key"] = "r04",
+									["op"] = "MAP_ADD",
+								} :: any),
+							} :: { any }),
+							["index"] = 0,
+							["path"] = Json.array({ "rarity/rare", "cards_rare/r04" } :: { any }),
+							["payload"] = Json.object(
+								{ ["cardId"] = "r04", ["name"] = "Rare card 4" } :: any
+							),
+							["rolls"] = Json.object({} :: any),
+							["slot"] = "bonus:0",
+							["table"] = "cards_rare",
+							["tags"] = Json.array({ "rare" } :: { any }),
+						} :: any),
+					} :: { any }),
+					["pityAfter"] = 1,
+					["resolvedConfig"] = Json.object(
+						{ ["Cards.PityThreshold"] = 50, ["Economy.PackDebit"] = -100 } :: any
+					),
+				} :: any),
+			} :: { any }),
+			["transaction"] = Json.object({
+				["replayed"] = false,
+				["results"] = Json.array({
+					Json.object({
+						["after"] = 900,
+						["before"] = 1000,
+						["entryId"] = "b40a56dd-15ea-4b8a-a6d4-dba0d6d21463",
+						["field"] = "Currency.Gems",
+						["op"] = "ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+					Json.object({
+						["after"] = Json.object({ ["r02"] = 1 } :: any),
+						["before"] = Json.object({} :: any),
+						["entryId"] = "5b02eb5f-c260-4fd5-8dd6-0e7b7f287385",
+						["field"] = "Inventory.Cards",
+						["op"] = "MAP_ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+					Json.object({
+						["after"] = Json.object({ ["c05"] = 1, ["r02"] = 1 } :: any),
+						["before"] = Json.object({ ["r02"] = 1 } :: any),
+						["entryId"] = "87cad386-fcf5-4f18-8241-9c066b14c8cc",
+						["field"] = "Inventory.Cards",
+						["op"] = "MAP_ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+					Json.object({
+						["after"] = Json.object({ ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any),
+						["before"] = Json.object({ ["c05"] = 1, ["r02"] = 1 } :: any),
+						["entryId"] = "6566a778-3254-467e-a5f3-e84ce397c399",
+						["field"] = "Inventory.Cards",
+						["op"] = "MAP_ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+					Json.object({
+						["after"] = Json.object(
+							{ ["c03"] = 1, ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any
+						),
+						["before"] = Json.object({ ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any),
+						["entryId"] = "4a6e1470-c1c6-440a-851f-db72845514f4",
+						["field"] = "Inventory.Cards",
+						["op"] = "MAP_ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+					Json.object({
+						["after"] = Json.object(
+							{ ["c03"] = 1, ["c05"] = 1, ["r02"] = 1, ["r04"] = 1, ["r08"] = 1 } :: any
+						),
+						["before"] = Json.object(
+							{ ["c03"] = 1, ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any
+						),
+						["entryId"] = "e219d74d-4980-4019-b1b1-57d841e0fd25",
+						["field"] = "Inventory.Cards",
+						["op"] = "MAP_ADD",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+					Json.object({
+						["after"] = 1,
+						["before"] = 0,
+						["entryId"] = "8423b1fa-4320-404b-9e20-109ac75cceb4",
+						["field"] = "Pity.Legendary",
+						["op"] = "SET",
+						["path"] = Json.array({} :: { any }),
+						["subject"] = 7,
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["seq"] = Json.object({ ["7"] = 1 } :: any),
+				["txId"] = "f9f4a6bd-d059-47a3-9c93-40db1a58ce6e",
+			} :: any),
+		} :: any),
+		["stock"] = Json.array({
+			Json.object({ ["entryId"] = "starter_pack", ["remaining"] = 19, ["slot"] = "packs:0" } :: any),
+		} :: { any }),
+		["vectors"] = Json.array({
+			Json.object({
+				["endpoint"] = "fields.listRandomTables",
+				["method"] = "GET",
+				["request"] = Json.object({} :: any),
+				["response"] = Json.array({
+					Json.object({
+						["definition"] = Json.object({
+							["entries"] = Json.array({
+								Json.object({
+									["durationSeconds"] = Json.object(
+										{ ["max"] = 600, ["min"] = 600 } :: any
+									),
+									["id"] = "clear",
+								} :: any),
+							} :: { any }),
+							["mode"] = "UNIFORM",
+						} :: any),
+						["key"] = "weather",
+						["kind"] = "TABLE",
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.getRandomTable",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "weather" } :: any) } :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["entries"] = Json.array({
+							Json.object({
+								["durationSeconds"] = Json.object({ ["max"] = 600, ["min"] = 600 } :: any),
+								["id"] = "clear",
+							} :: any),
+						} :: { any }),
+						["mode"] = "UNIFORM",
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "TABLE",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.createRandomTable",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["definition"] = Json.object({
+							["entries"] = Json.array({
+								Json.object({
+									["durationSeconds"] = Json.object(
+										{ ["max"] = 600, ["min"] = 600 } :: any
+									),
+									["id"] = "clear",
+								} :: any),
+							} :: { any }),
+							["mode"] = "UNIFORM",
+						} :: any),
+						["key"] = "weather",
+						["reason"] = "Initial weather setup",
+					} :: any),
+				} :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["entries"] = Json.array({
+							Json.object({
+								["durationSeconds"] = Json.object({ ["max"] = 600, ["min"] = 600 } :: any),
+								["id"] = "clear",
+							} :: any),
+						} :: { any }),
+						["mode"] = "UNIFORM",
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "TABLE",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.putRandomTable",
+				["method"] = "PUT",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["definition"] = Json.object({
+							["entries"] = Json.array({
+								Json.object({
+									["durationSeconds"] = Json.object(
+										{ ["max"] = 600, ["min"] = 600 } :: any
+									),
+									["id"] = "clear",
+								} :: any),
+							} :: { any }),
+							["mode"] = "UNIFORM",
+						} :: any),
+						["expectedVersion"] = 1,
+						["reason"] = "Updated weather setup",
+					} :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["entries"] = Json.array({
+							Json.object({
+								["durationSeconds"] = Json.object({ ["max"] = 600, ["min"] = 600 } :: any),
+								["id"] = "clear",
+							} :: any),
+						} :: { any }),
+						["mode"] = "UNIFORM",
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "TABLE",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.deleteRandomTable",
+				["method"] = "DELETE",
+				["request"] = Json.object({
+					["body"] = Json.object({ ["reason"] = "Remove weather setup" } :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = true,
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.listGenerators",
+				["method"] = "GET",
+				["request"] = Json.object({} :: any),
+				["response"] = Json.array({
+					Json.object({
+						["definition"] = Json.object({
+							["slots"] = Json.array({
+								Json.object({
+									["count"] = 1,
+									["key"] = "weather",
+									["table"] = "weather",
+								} :: any),
+							} :: { any }),
+						} :: any),
+						["key"] = "weather",
+						["kind"] = "GENERATOR",
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.getGenerator",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "weather" } :: any) } :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["slots"] = Json.array({
+							Json.object({
+								["count"] = 1,
+								["key"] = "weather",
+								["table"] = "weather",
+							} :: any),
+						} :: { any }),
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "GENERATOR",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.createGenerator",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["definition"] = Json.object({
+							["slots"] = Json.array({
+								Json.object({
+									["count"] = 1,
+									["key"] = "weather",
+									["table"] = "weather",
+								} :: any),
+							} :: { any }),
+						} :: any),
+						["key"] = "weather",
+						["reason"] = "Initial weather setup",
+					} :: any),
+				} :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["slots"] = Json.array({
+							Json.object({
+								["count"] = 1,
+								["key"] = "weather",
+								["table"] = "weather",
+							} :: any),
+						} :: { any }),
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "GENERATOR",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.putGenerator",
+				["method"] = "PUT",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["definition"] = Json.object({
+							["slots"] = Json.array({
+								Json.object({
+									["count"] = 1,
+									["key"] = "weather",
+									["table"] = "weather",
+								} :: any),
+							} :: { any }),
+						} :: any),
+						["expectedVersion"] = 1,
+						["reason"] = "Updated weather setup",
+					} :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["slots"] = Json.array({
+							Json.object({
+								["count"] = 1,
+								["key"] = "weather",
+								["table"] = "weather",
+							} :: any),
+						} :: { any }),
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "GENERATOR",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.deleteGenerator",
+				["method"] = "DELETE",
+				["request"] = Json.object({
+					["body"] = Json.object({ ["reason"] = "Remove weather setup" } :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = true,
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.listRotations",
+				["method"] = "GET",
+				["request"] = Json.object({} :: any),
+				["response"] = Json.array({
+					Json.object({
+						["definition"] = Json.object({
+							["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+							["enabled"] = true,
+							["table"] = "weather",
+						} :: any),
+						["key"] = "weather",
+						["kind"] = "ROTATION",
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.getRotation",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "weather" } :: any) } :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+						["enabled"] = true,
+						["table"] = "weather",
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "ROTATION",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.createRotation",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["definition"] = Json.object({
+							["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+							["enabled"] = true,
+							["table"] = "weather",
+						} :: any),
+						["key"] = "weather",
+						["reason"] = "Initial weather setup",
+					} :: any),
+				} :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+						["enabled"] = true,
+						["table"] = "weather",
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "ROTATION",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.putRotation",
+				["method"] = "PUT",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["definition"] = Json.object({
+							["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+							["enabled"] = true,
+							["table"] = "weather",
+						} :: any),
+						["expectedVersion"] = 1,
+						["reason"] = "Updated weather setup",
+					} :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = Json.object({
+					["definition"] = Json.object({
+						["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+						["enabled"] = true,
+						["table"] = "weather",
+					} :: any),
+					["key"] = "weather",
+					["kind"] = "ROTATION",
+					["version"] = 1,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.deleteRotation",
+				["method"] = "DELETE",
+				["request"] = Json.object({
+					["body"] = Json.object({ ["reason"] = "Remove weather setup" } :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = true,
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.activeRotation",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "weather" } :: any) } :: any),
+				["response"] = Json.object({
+					["current"] = Json.object({
+						["definitionVersions"] = Json.object({
+							["generator:weather"] = 1,
+							["rotation:weather"] = 1,
+							["table:weather"] = 1,
+						} :: any),
+						["endsAt"] = "2026-11-08T12:07:45Z",
+						["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+						["key"] = "weather",
+						["result"] = Json.object({
+							["cost"] = Json.array({} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = 465,
+									["entryId"] = "rain",
+									["grants"] = Json.array({} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "weather/rain" } :: { any }),
+									["payload"] = Json.object({
+										["intensity"] = 0.7,
+										["weather"] = "RAIN",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "weather:0",
+									["table"] = "weather",
+									["tags"] = Json.array({ "wet" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = Json.null,
+							["resolvedConfig"] = Json.object({} :: any),
+						} :: any),
+						["sequence"] = 41,
+						["startsAt"] = "2026-11-08T12:00:00Z",
+					} :: any),
+					["enabled"] = true,
+					["next"] = Json.object({
+						["definitionVersions"] = Json.object({
+							["generator:weather"] = 1,
+							["rotation:weather"] = 1,
+							["table:weather"] = 1,
+						} :: any),
+						["endsAt"] = "2026-11-08T12:23:23Z",
+						["id"] = "0f656472-95e3-4f68-b0ee-679a90cdd960",
+						["key"] = "weather",
+						["result"] = Json.object({
+							["cost"] = Json.array({} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = 938,
+									["entryId"] = "clear",
+									["grants"] = Json.array({} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "weather/clear" } :: { any }),
+									["payload"] = Json.object({
+										["intensity"] = 0,
+										["weather"] = "CLEAR",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "weather:0",
+									["table"] = "weather",
+									["tags"] = Json.array({ "clear" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = Json.null,
+							["resolvedConfig"] = Json.object({
+								["Weather.MaxDuration"] = 1200,
+								["Weather.MinDuration"] = 600,
+							} :: any),
+						} :: any),
+						["sequence"] = 42,
+						["startsAt"] = "2026-11-08T12:07:45Z",
+					} :: any),
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/active",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.tableOdds",
+				["method"] = "GET",
+				["request"] = Json.object({
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+					["query"] = Json.object({ ["playerId"] = 7 } :: any),
+				} :: any),
+				["response"] = Json.object({
+					["entryProbabilities"] = Json.object(
+						{ ["common"] = 0.7, ["epic"] = 0.045, ["legendary"] = 0.005, ["rare"] = 0.25 } :: any
+					),
+					["probabilities"] = Json.object(
+						{ ["cards_common/c01"] = 0.0875, ["cards_rare/r01"] = 0.03125 } :: any
+					),
+					["resolvedConfig"] = Json.object({} :: any),
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather/odds?playerId=7",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.previewGenerator",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object(
+						{ ["count"] = 1, ["generator"] = "card_pack", ["playerId"] = 7 } :: any
+					),
+				} :: any),
+				["response"] = Json.array({
+					Json.object({
+						["cost"] = Json.array({
+							Json.object({
+								["delta"] = -100,
+								["field"] = "Currency.Gems",
+								["op"] = "ADD",
+							} :: any),
+						} :: { any }),
+						["picks"] = Json.array({
+							Json.object({
+								["durationSeconds"] = Json.null,
+								["entryId"] = "r02",
+								["grants"] = Json.array({
+									Json.object({
+										["delta"] = 1,
+										["field"] = "Inventory.Cards",
+										["key"] = "r02",
+										["op"] = "MAP_ADD",
+									} :: any),
+								} :: { any }),
+								["index"] = 0,
+								["path"] = Json.array({ "rarity/rare", "cards_rare/r02" } :: { any }),
+								["payload"] = Json.object(
+									{ ["cardId"] = "r02", ["name"] = "Rare card 2" } :: any
+								),
+								["rolls"] = Json.object({} :: any),
+								["slot"] = "cards:0",
+								["table"] = "cards_rare",
+								["tags"] = Json.array({ "rare" } :: { any }),
+							} :: any),
+							Json.object({
+								["durationSeconds"] = Json.null,
+								["entryId"] = "c05",
+								["grants"] = Json.array({
+									Json.object({
+										["delta"] = 1,
+										["field"] = "Inventory.Cards",
+										["key"] = "c05",
+										["op"] = "MAP_ADD",
+									} :: any),
+								} :: { any }),
+								["index"] = 1,
+								["path"] = Json.array({ "rarity/common", "cards_common/c05" } :: { any }),
+								["payload"] = Json.object({
+									["cardId"] = "c05",
+									["name"] = "Common card 5",
+								} :: any),
+								["rolls"] = Json.object({} :: any),
+								["slot"] = "cards:1",
+								["table"] = "cards_common",
+								["tags"] = Json.array({ "common" } :: { any }),
+							} :: any),
+							Json.object({
+								["durationSeconds"] = Json.null,
+								["entryId"] = "r08",
+								["grants"] = Json.array({
+									Json.object({
+										["delta"] = 1,
+										["field"] = "Inventory.Cards",
+										["key"] = "r08",
+										["op"] = "MAP_ADD",
+									} :: any),
+								} :: { any }),
+								["index"] = 2,
+								["path"] = Json.array({ "rarity/rare", "cards_rare/r08" } :: { any }),
+								["payload"] = Json.object(
+									{ ["cardId"] = "r08", ["name"] = "Rare card 8" } :: any
+								),
+								["rolls"] = Json.object({} :: any),
+								["slot"] = "cards:2",
+								["table"] = "cards_rare",
+								["tags"] = Json.array({ "rare" } :: { any }),
+							} :: any),
+							Json.object({
+								["durationSeconds"] = Json.null,
+								["entryId"] = "c03",
+								["grants"] = Json.array({
+									Json.object({
+										["delta"] = 1,
+										["field"] = "Inventory.Cards",
+										["key"] = "c03",
+										["op"] = "MAP_ADD",
+									} :: any),
+								} :: { any }),
+								["index"] = 3,
+								["path"] = Json.array({ "rarity/common", "cards_common/c03" } :: { any }),
+								["payload"] = Json.object({
+									["cardId"] = "c03",
+									["name"] = "Common card 3",
+								} :: any),
+								["rolls"] = Json.object({} :: any),
+								["slot"] = "cards:3",
+								["table"] = "cards_common",
+								["tags"] = Json.array({ "common" } :: { any }),
+							} :: any),
+							Json.object({
+								["durationSeconds"] = Json.null,
+								["entryId"] = "r04",
+								["grants"] = Json.array({
+									Json.object({
+										["delta"] = 1,
+										["field"] = "Inventory.Cards",
+										["key"] = "r04",
+										["op"] = "MAP_ADD",
+									} :: any),
+								} :: { any }),
+								["index"] = 0,
+								["path"] = Json.array({ "rarity/rare", "cards_rare/r04" } :: { any }),
+								["payload"] = Json.object(
+									{ ["cardId"] = "r04", ["name"] = "Rare card 4" } :: any
+								),
+								["rolls"] = Json.object({} :: any),
+								["slot"] = "bonus:0",
+								["table"] = "cards_rare",
+								["tags"] = Json.array({ "rare" } :: { any }),
+							} :: any),
+						} :: { any }),
+						["pityAfter"] = 1,
+						["resolvedConfig"] = Json.object(
+							{ ["Cards.PityThreshold"] = 50, ["Economy.PackDebit"] = -100 } :: any
+						),
+					} :: any),
+				} :: { any }),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/preview",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.rollGenerator",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["count"] = 1,
+						["generator"] = "card_pack",
+						["idempotencyKey"] = "roll-golden",
+						["playerId"] = 7,
+					} :: any),
+				} :: any),
+				["response"] = Json.object({
+					["createdAt"] = "2026-11-08T12:00:00Z",
+					["definitionVersions"] = Json.object({
+						["generator:card_pack"] = 1,
+						["table:cards_common"] = 1,
+						["table:cards_epic"] = 1,
+						["table:cards_legendary"] = 1,
+						["table:cards_rare"] = 1,
+						["table:rarity"] = 1,
+					} :: any),
+					["generator"] = "card_pack",
+					["id"] = "636b3dbf-e042-4c91-b5a5-e844a78585a6",
+					["playerId"] = 7,
+					["results"] = Json.array({
+						Json.object({
+							["cost"] = Json.array({
+								Json.object({
+									["delta"] = -100,
+									["field"] = "Currency.Gems",
+									["op"] = "ADD",
+								} :: any),
+							} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = Json.null,
+									["entryId"] = "r02",
+									["grants"] = Json.array({
+										Json.object({
+											["delta"] = 1,
+											["field"] = "Inventory.Cards",
+											["key"] = "r02",
+											["op"] = "MAP_ADD",
+										} :: any),
+									} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "rarity/rare", "cards_rare/r02" } :: { any }),
+									["payload"] = Json.object({
+										["cardId"] = "r02",
+										["name"] = "Rare card 2",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "cards:0",
+									["table"] = "cards_rare",
+									["tags"] = Json.array({ "rare" } :: { any }),
+								} :: any),
+								Json.object({
+									["durationSeconds"] = Json.null,
+									["entryId"] = "c05",
+									["grants"] = Json.array({
+										Json.object({
+											["delta"] = 1,
+											["field"] = "Inventory.Cards",
+											["key"] = "c05",
+											["op"] = "MAP_ADD",
+										} :: any),
+									} :: { any }),
+									["index"] = 1,
+									["path"] = Json.array({
+										"rarity/common",
+										"cards_common/c05",
+									} :: { any }),
+									["payload"] = Json.object({
+										["cardId"] = "c05",
+										["name"] = "Common card 5",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "cards:1",
+									["table"] = "cards_common",
+									["tags"] = Json.array({ "common" } :: { any }),
+								} :: any),
+								Json.object({
+									["durationSeconds"] = Json.null,
+									["entryId"] = "r08",
+									["grants"] = Json.array({
+										Json.object({
+											["delta"] = 1,
+											["field"] = "Inventory.Cards",
+											["key"] = "r08",
+											["op"] = "MAP_ADD",
+										} :: any),
+									} :: { any }),
+									["index"] = 2,
+									["path"] = Json.array({ "rarity/rare", "cards_rare/r08" } :: { any }),
+									["payload"] = Json.object({
+										["cardId"] = "r08",
+										["name"] = "Rare card 8",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "cards:2",
+									["table"] = "cards_rare",
+									["tags"] = Json.array({ "rare" } :: { any }),
+								} :: any),
+								Json.object({
+									["durationSeconds"] = Json.null,
+									["entryId"] = "c03",
+									["grants"] = Json.array({
+										Json.object({
+											["delta"] = 1,
+											["field"] = "Inventory.Cards",
+											["key"] = "c03",
+											["op"] = "MAP_ADD",
+										} :: any),
+									} :: { any }),
+									["index"] = 3,
+									["path"] = Json.array({
+										"rarity/common",
+										"cards_common/c03",
+									} :: { any }),
+									["payload"] = Json.object({
+										["cardId"] = "c03",
+										["name"] = "Common card 3",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "cards:3",
+									["table"] = "cards_common",
+									["tags"] = Json.array({ "common" } :: { any }),
+								} :: any),
+								Json.object({
+									["durationSeconds"] = Json.null,
+									["entryId"] = "r04",
+									["grants"] = Json.array({
+										Json.object({
+											["delta"] = 1,
+											["field"] = "Inventory.Cards",
+											["key"] = "r04",
+											["op"] = "MAP_ADD",
+										} :: any),
+									} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "rarity/rare", "cards_rare/r04" } :: { any }),
+									["payload"] = Json.object({
+										["cardId"] = "r04",
+										["name"] = "Rare card 4",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "bonus:0",
+									["table"] = "cards_rare",
+									["tags"] = Json.array({ "rare" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = 1,
+							["resolvedConfig"] = Json.object({
+								["Cards.PityThreshold"] = 50,
+								["Economy.PackDebit"] = -100,
+							} :: any),
+						} :: any),
+					} :: { any }),
+					["transaction"] = Json.object({
+						["replayed"] = false,
+						["results"] = Json.array({
+							Json.object({
+								["after"] = 900,
+								["before"] = 1000,
+								["entryId"] = "b40a56dd-15ea-4b8a-a6d4-dba0d6d21463",
+								["field"] = "Currency.Gems",
+								["op"] = "ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+							Json.object({
+								["after"] = Json.object({ ["r02"] = 1 } :: any),
+								["before"] = Json.object({} :: any),
+								["entryId"] = "5b02eb5f-c260-4fd5-8dd6-0e7b7f287385",
+								["field"] = "Inventory.Cards",
+								["op"] = "MAP_ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+							Json.object({
+								["after"] = Json.object({ ["c05"] = 1, ["r02"] = 1 } :: any),
+								["before"] = Json.object({ ["r02"] = 1 } :: any),
+								["entryId"] = "87cad386-fcf5-4f18-8241-9c066b14c8cc",
+								["field"] = "Inventory.Cards",
+								["op"] = "MAP_ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+							Json.object({
+								["after"] = Json.object({ ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any),
+								["before"] = Json.object({ ["c05"] = 1, ["r02"] = 1 } :: any),
+								["entryId"] = "6566a778-3254-467e-a5f3-e84ce397c399",
+								["field"] = "Inventory.Cards",
+								["op"] = "MAP_ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+							Json.object({
+								["after"] = Json.object(
+									{ ["c03"] = 1, ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any
+								),
+								["before"] = Json.object({ ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any),
+								["entryId"] = "4a6e1470-c1c6-440a-851f-db72845514f4",
+								["field"] = "Inventory.Cards",
+								["op"] = "MAP_ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+							Json.object({
+								["after"] = Json.object({
+									["c03"] = 1,
+									["c05"] = 1,
+									["r02"] = 1,
+									["r04"] = 1,
+									["r08"] = 1,
+								} :: any),
+								["before"] = Json.object(
+									{ ["c03"] = 1, ["c05"] = 1, ["r02"] = 1, ["r08"] = 1 } :: any
+								),
+								["entryId"] = "e219d74d-4980-4019-b1b1-57d841e0fd25",
+								["field"] = "Inventory.Cards",
+								["op"] = "MAP_ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+							Json.object({
+								["after"] = 1,
+								["before"] = 0,
+								["entryId"] = "8423b1fa-4320-404b-9e20-109ac75cceb4",
+								["field"] = "Pity.Legendary",
+								["op"] = "SET",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+						} :: { any }),
+						["seq"] = Json.object({ ["7"] = 1 } :: any),
+						["txId"] = "f9f4a6bd-d059-47a3-9c93-40db1a58ce6e",
+					} :: any),
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/roll",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.claimRotation",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["entryId"] = "starter_pack",
+						["idempotencyKey"] = "claim-golden",
+						["instanceId"] = "00000000-0000-4000-8000-000000000001",
+						["playerId"] = 7,
+						["quantity"] = 1,
+						["slot"] = "packs:0",
+					} :: any),
+				} :: any),
+				["response"] = Json.object({
+					["createdAt"] = "2026-11-08T12:01:00Z",
+					["entryId"] = "starter_pack",
+					["id"] = "52a25291-02d5-49a4-8053-03432614619f",
+					["instanceId"] = "00000000-0000-4000-8000-000000000001",
+					["quantity"] = 1,
+					["remaining"] = 19,
+					["slot"] = "packs:0",
+					["transaction"] = Json.object({
+						["replayed"] = false,
+						["results"] = Json.array({
+							Json.object({
+								["after"] = 800,
+								["before"] = 900,
+								["entryId"] = "fef2202a-fb3a-4b94-a3ea-7b439663ef1c",
+								["field"] = "Currency.Gems",
+								["op"] = "ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 2,
+							} :: any),
+							Json.object({
+								["after"] = Json.object({ ["starter_pack"] = 1 } :: any),
+								["before"] = Json.object({} :: any),
+								["entryId"] = "d629558e-1135-42d4-8360-4addd23c7c4e",
+								["field"] = "Inventory.Packs",
+								["op"] = "MAP_ADD",
+								["path"] = Json.array({} :: { any }),
+								["subject"] = 7,
+								["version"] = 1,
+							} :: any),
+						} :: { any }),
+						["seq"] = Json.object({ ["7"] = 2 } :: any),
+						["txId"] = "2eb8f984-af40-449f-b5cc-30cc80ee60d2",
+					} :: any),
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/claim",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.rotationStock",
+				["method"] = "GET",
+				["request"] = Json.object({
+					["path"] = Json.object({ ["id"] = "00000000-0000-4000-8000-000000000001" } :: any),
+				} :: any),
+				["response"] = Json.array({
+					Json.object(
+						{ ["entryId"] = "starter_pack", ["remaining"] = 19, ["slot"] = "packs:0" } :: any
+					),
+				} :: { any }),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/instances/00000000-0000-4000-8000-000000000001/stock",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.advanceRotation",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({ ["reason"] = "Weather admin action" } :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = Json.object({
+					["current"] = Json.object({
+						["definitionVersions"] = Json.object({
+							["generator:weather"] = 1,
+							["rotation:weather"] = 1,
+							["table:weather"] = 1,
+						} :: any),
+						["endsAt"] = "2026-11-08T12:07:45Z",
+						["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+						["key"] = "weather",
+						["result"] = Json.object({
+							["cost"] = Json.array({} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = 465,
+									["entryId"] = "rain",
+									["grants"] = Json.array({} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "weather/rain" } :: { any }),
+									["payload"] = Json.object({
+										["intensity"] = 0.7,
+										["weather"] = "RAIN",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "weather:0",
+									["table"] = "weather",
+									["tags"] = Json.array({ "wet" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = Json.null,
+							["resolvedConfig"] = Json.object({} :: any),
+						} :: any),
+						["sequence"] = 41,
+						["startsAt"] = "2026-11-08T12:00:00Z",
+					} :: any),
+					["enabled"] = true,
+					["next"] = Json.object({
+						["definitionVersions"] = Json.object({
+							["generator:weather"] = 1,
+							["rotation:weather"] = 1,
+							["table:weather"] = 1,
+						} :: any),
+						["endsAt"] = "2026-11-08T12:23:23Z",
+						["id"] = "0f656472-95e3-4f68-b0ee-679a90cdd960",
+						["key"] = "weather",
+						["result"] = Json.object({
+							["cost"] = Json.array({} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = 938,
+									["entryId"] = "clear",
+									["grants"] = Json.array({} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "weather/clear" } :: { any }),
+									["payload"] = Json.object({
+										["intensity"] = 0,
+										["weather"] = "CLEAR",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "weather:0",
+									["table"] = "weather",
+									["tags"] = Json.array({ "clear" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = Json.null,
+							["resolvedConfig"] = Json.object({
+								["Weather.MaxDuration"] = 1200,
+								["Weather.MinDuration"] = 600,
+							} :: any),
+						} :: any),
+						["sequence"] = 42,
+						["startsAt"] = "2026-11-08T12:07:45Z",
+					} :: any),
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/advance",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.rerollRotation",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object({ ["reason"] = "Weather admin action" } :: any),
+					["path"] = Json.object({ ["key"] = "weather" } :: any),
+				} :: any),
+				["response"] = Json.object({
+					["current"] = Json.object({
+						["definitionVersions"] = Json.object({
+							["generator:weather"] = 1,
+							["rotation:weather"] = 1,
+							["table:weather"] = 1,
+						} :: any),
+						["endsAt"] = "2026-11-08T12:07:45Z",
+						["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+						["key"] = "weather",
+						["result"] = Json.object({
+							["cost"] = Json.array({} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = 465,
+									["entryId"] = "rain",
+									["grants"] = Json.array({} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "weather/rain" } :: { any }),
+									["payload"] = Json.object({
+										["intensity"] = 0.7,
+										["weather"] = "RAIN",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "weather:0",
+									["table"] = "weather",
+									["tags"] = Json.array({ "wet" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = Json.null,
+							["resolvedConfig"] = Json.object({} :: any),
+						} :: any),
+						["sequence"] = 41,
+						["startsAt"] = "2026-11-08T12:00:00Z",
+					} :: any),
+					["enabled"] = true,
+					["next"] = Json.object({
+						["definitionVersions"] = Json.object({
+							["generator:weather"] = 1,
+							["rotation:weather"] = 1,
+							["table:weather"] = 1,
+						} :: any),
+						["endsAt"] = "2026-11-08T12:23:23Z",
+						["id"] = "0f656472-95e3-4f68-b0ee-679a90cdd960",
+						["key"] = "weather",
+						["result"] = Json.object({
+							["cost"] = Json.array({} :: { any }),
+							["picks"] = Json.array({
+								Json.object({
+									["durationSeconds"] = 938,
+									["entryId"] = "clear",
+									["grants"] = Json.array({} :: { any }),
+									["index"] = 0,
+									["path"] = Json.array({ "weather/clear" } :: { any }),
+									["payload"] = Json.object({
+										["intensity"] = 0,
+										["weather"] = "CLEAR",
+									} :: any),
+									["rolls"] = Json.object({} :: any),
+									["slot"] = "weather:0",
+									["table"] = "weather",
+									["tags"] = Json.array({ "clear" } :: { any }),
+								} :: any),
+							} :: { any }),
+							["pityAfter"] = Json.null,
+							["resolvedConfig"] = Json.object({
+								["Weather.MaxDuration"] = 1200,
+								["Weather.MinDuration"] = 600,
+							} :: any),
+						} :: any),
+						["sequence"] = 42,
+						["startsAt"] = "2026-11-08T12:07:45Z",
+					} :: any),
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/reroll",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.randomDefinitionHistory",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "weather" } :: any) } :: any),
+				["response"] = Json.object({
+					["items"] = Json.array({
+						Json.object({
+							["counter"] = 1,
+							["data"] = Json.object({
+								["definitionVersions"] = Json.object({
+									["generator:weather"] = 1,
+									["rotation:weather"] = 1,
+									["table:weather"] = 1,
+								} :: any),
+								["endsAt"] = "2026-11-08T12:07:45Z",
+								["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+								["key"] = "weather",
+								["result"] = Json.object({
+									["cost"] = Json.array({} :: { any }),
+									["picks"] = Json.array({
+										Json.object({
+											["durationSeconds"] = 465,
+											["entryId"] = "rain",
+											["grants"] = Json.array({} :: { any }),
+											["index"] = 0,
+											["path"] = Json.array({ "weather/rain" } :: { any }),
+											["payload"] = Json.object({
+												["intensity"] = 0.7,
+												["weather"] = "RAIN",
+											} :: any),
+											["rolls"] = Json.object({} :: any),
+											["slot"] = "weather:0",
+											["table"] = "weather",
+											["tags"] = Json.array({ "wet" } :: { any }),
+										} :: any),
+									} :: { any }),
+									["pityAfter"] = Json.null,
+									["resolvedConfig"] = Json.object({} :: any),
+								} :: any),
+								["sequence"] = 41,
+								["startsAt"] = "2026-11-08T12:00:00Z",
+							} :: any),
+						} :: any),
+					} :: { any }),
+					["nextCursor"] = Json.null,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness/definitions/weather/history",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.rotationHistory",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "weather" } :: any) } :: any),
+				["response"] = Json.object({
+					["items"] = Json.array({
+						Json.object({
+							["counter"] = 1,
+							["data"] = Json.object({
+								["definitionVersions"] = Json.object({
+									["generator:weather"] = 1,
+									["rotation:weather"] = 1,
+									["table:weather"] = 1,
+								} :: any),
+								["endsAt"] = "2026-11-08T12:07:45Z",
+								["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+								["key"] = "weather",
+								["result"] = Json.object({
+									["cost"] = Json.array({} :: { any }),
+									["picks"] = Json.array({
+										Json.object({
+											["durationSeconds"] = 465,
+											["entryId"] = "rain",
+											["grants"] = Json.array({} :: { any }),
+											["index"] = 0,
+											["path"] = Json.array({ "weather/rain" } :: { any }),
+											["payload"] = Json.object({
+												["intensity"] = 0.7,
+												["weather"] = "RAIN",
+											} :: any),
+											["rolls"] = Json.object({} :: any),
+											["slot"] = "weather:0",
+											["table"] = "weather",
+											["tags"] = Json.array({ "wet" } :: { any }),
+										} :: any),
+									} :: { any }),
+									["pityAfter"] = Json.null,
+									["resolvedConfig"] = Json.object({} :: any),
+								} :: any),
+								["sequence"] = 41,
+								["startsAt"] = "2026-11-08T12:00:00Z",
+							} :: any),
+						} :: any),
+					} :: { any }),
+					["nextCursor"] = Json.null,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/history",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.playerRollHistory",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["playerId"] = 7 } :: any) } :: any),
+				["response"] = Json.object({
+					["items"] = Json.array({
+						Json.object({
+							["counter"] = 1,
+							["data"] = Json.object({
+								["definitionVersions"] = Json.object({
+									["generator:weather"] = 1,
+									["rotation:weather"] = 1,
+									["table:weather"] = 1,
+								} :: any),
+								["endsAt"] = "2026-11-08T12:07:45Z",
+								["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+								["key"] = "weather",
+								["result"] = Json.object({
+									["cost"] = Json.array({} :: { any }),
+									["picks"] = Json.array({
+										Json.object({
+											["durationSeconds"] = 465,
+											["entryId"] = "rain",
+											["grants"] = Json.array({} :: { any }),
+											["index"] = 0,
+											["path"] = Json.array({ "weather/rain" } :: { any }),
+											["payload"] = Json.object({
+												["intensity"] = 0.7,
+												["weather"] = "RAIN",
+											} :: any),
+											["rolls"] = Json.object({} :: any),
+											["slot"] = "weather:0",
+											["table"] = "weather",
+											["tags"] = Json.array({ "wet" } :: { any }),
+										} :: any),
+									} :: { any }),
+									["pityAfter"] = Json.null,
+									["resolvedConfig"] = Json.object({} :: any),
+								} :: any),
+								["sequence"] = 41,
+								["startsAt"] = "2026-11-08T12:00:00Z",
+							} :: any),
+						} :: any),
+					} :: { any }),
+					["nextCursor"] = Json.null,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/7/randomness/rolls",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.playerClaimHistory",
+				["method"] = "GET",
+				["request"] = Json.object({ ["path"] = Json.object({ ["playerId"] = 7 } :: any) } :: any),
+				["response"] = Json.object({
+					["items"] = Json.array({
+						Json.object({
+							["counter"] = 1,
+							["data"] = Json.object({
+								["definitionVersions"] = Json.object({
+									["generator:weather"] = 1,
+									["rotation:weather"] = 1,
+									["table:weather"] = 1,
+								} :: any),
+								["endsAt"] = "2026-11-08T12:07:45Z",
+								["id"] = "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+								["key"] = "weather",
+								["result"] = Json.object({
+									["cost"] = Json.array({} :: { any }),
+									["picks"] = Json.array({
+										Json.object({
+											["durationSeconds"] = 465,
+											["entryId"] = "rain",
+											["grants"] = Json.array({} :: { any }),
+											["index"] = 0,
+											["path"] = Json.array({ "weather/rain" } :: { any }),
+											["payload"] = Json.object({
+												["intensity"] = 0.7,
+												["weather"] = "RAIN",
+											} :: any),
+											["rolls"] = Json.object({} :: any),
+											["slot"] = "weather:0",
+											["table"] = "weather",
+											["tags"] = Json.array({ "wet" } :: { any }),
+										} :: any),
+									} :: { any }),
+									["pityAfter"] = Json.null,
+									["resolvedConfig"] = Json.object({} :: any),
+								} :: any),
+								["sequence"] = 41,
+								["startsAt"] = "2026-11-08T12:00:00Z",
+							} :: any),
+						} :: any),
+					} :: { any }),
+					["nextCursor"] = Json.null,
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/7/randomness/claims",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.randomnessSchema",
+				["method"] = "GET",
+				["request"] = Json.object({} :: any),
+				["response"] = Json.object(
+					{ ["$defs"] = Json.object({} :: any), ["type"] = "object" } :: any
+				),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness/schema",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.randomnessFields",
+				["method"] = "GET",
+				["request"] = Json.object({} :: any),
+				["response"] = Json.array({
+					Json.object({
+						["field"] = "Currency.Gems",
+						["numericGameValue"] = false,
+						["path"] = "Currency.Gems",
+						["scope"] = "PLAYER",
+						["type"] = Json.object({ ["kind"] = "int", ["min"] = 0 } :: any),
+						["validOps"] = Json.array({ "ADD" } :: { any }),
+					} :: any),
+				} :: { any }),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness/fields",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.eraseRandomness",
+				["method"] = "DELETE",
+				["request"] = Json.object({
+					["body"] = Json.object({
+						["confirmUniverseId"] = 123,
+						["reason"] = "Confirmed subsystem erasure",
+					} :: any),
+				} :: any),
+				["response"] = true,
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness",
+			} :: any),
+			Json.object({
+				["endpoint"] = "fields.simulateGenerator",
+				["method"] = "POST",
+				["request"] = Json.object({
+					["body"] = Json.object(
+						{ ["generator"] = "card_pack", ["iterations"] = 1000, ["playerId"] = 7 } :: any
+					),
+				} :: any),
+				["response"] = Json.object({
+					["appearanceProbabilities"] = Json.object({ ["cards_common/c01"] = 0.05 } :: any),
+					["entryCounts"] = Json.object({ ["cards_common/c01"] = 50 } :: any),
+					["iterations"] = 1000,
+					["picks"] = 5000,
+					["pityMode"] = "independent trials from current counter",
+				} :: any),
+				["status"] = 200,
+				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/simulate",
+			} :: any),
+		} :: { any }),
+	} :: any),
 	["schema"] = Json.object({
 		["definitions"] = Json.array({
 			Json.object({
@@ -1814,6 +3476,819 @@ local data: any = Json.object({
 		["schemaVersion"] = 12,
 		["universeId"] = 123,
 	} :: any),
+	["service-contracts"] = Json.array({
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.flags",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.array({
+				Json.object({
+					["createdAt"] = "2026-11-07T00:00:00Z",
+					["defaultValue"] = false,
+					["displayName"] = "Double XP",
+					["enabled"] = true,
+					["key"] = "double_xp",
+					["rolloutPct"] = Json.null,
+					["rules"] = Json.array({} :: { any }),
+					["sticky"] = false,
+					["type"] = "bool",
+					["updatedAt"] = "2026-11-07T00:00:00Z",
+					["variants"] = Json.array({} :: { any }),
+					["version"] = 1,
+				} :: any),
+			} :: { any }),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.flag",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "double_xp" } :: any) } :: any),
+			["response"] = Json.object({
+				["createdAt"] = "2026-11-07T00:00:00Z",
+				["defaultValue"] = false,
+				["displayName"] = "Double XP",
+				["enabled"] = true,
+				["key"] = "double_xp",
+				["rolloutPct"] = Json.null,
+				["rules"] = Json.array({} :: { any }),
+				["sticky"] = false,
+				["type"] = "bool",
+				["updatedAt"] = "2026-11-07T00:00:00Z",
+				["variants"] = Json.array({} :: { any }),
+				["version"] = 1,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/double_xp",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["defaultValue"] = false,
+				["displayName"] = "Double XP",
+				["enabled"] = true,
+				["rules"] = Json.array({} :: { any }),
+				["type"] = "bool",
+				["variants"] = Json.array({} :: { any }),
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "fields.createFlag",
+			["identity"] = false,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["body"] = Json.object({
+					["defaultValue"] = false,
+					["displayName"] = "Double XP",
+					["enabled"] = true,
+					["rules"] = Json.array({} :: { any }),
+					["type"] = "bool",
+					["variants"] = Json.array({} :: { any }),
+				} :: any),
+			} :: any),
+			["response"] = Json.object({
+				["createdAt"] = "2026-11-07T00:00:00Z",
+				["defaultValue"] = false,
+				["displayName"] = "Double XP",
+				["enabled"] = true,
+				["key"] = "double_xp",
+				["rolloutPct"] = Json.null,
+				["rules"] = Json.array({} :: { any }),
+				["sticky"] = false,
+				["type"] = "bool",
+				["updatedAt"] = "2026-11-07T00:00:00Z",
+				["variants"] = Json.array({} :: { any }),
+				["version"] = 1,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["defaultValue"] = false,
+				["displayName"] = "Double XP",
+				["enabled"] = true,
+				["rules"] = Json.array({} :: { any }),
+				["type"] = "bool",
+				["variants"] = Json.array({} :: { any }),
+				["version"] = 1,
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "fields.updateFlag",
+			["identity"] = false,
+			["method"] = "PUT",
+			["request"] = Json.object({
+				["body"] = Json.object({
+					["defaultValue"] = false,
+					["displayName"] = "Double XP",
+					["enabled"] = true,
+					["rules"] = Json.array({} :: { any }),
+					["type"] = "bool",
+					["variants"] = Json.array({} :: { any }),
+					["version"] = 1,
+				} :: any),
+				["path"] = Json.object({ ["key"] = "double_xp" } :: any),
+			} :: any),
+			["response"] = Json.object({
+				["createdAt"] = "2026-11-07T00:00:00Z",
+				["defaultValue"] = false,
+				["displayName"] = "Double XP",
+				["enabled"] = true,
+				["key"] = "double_xp",
+				["rolloutPct"] = Json.null,
+				["rules"] = Json.array({} :: { any }),
+				["sticky"] = false,
+				["type"] = "bool",
+				["updatedAt"] = "2026-11-07T00:00:00Z",
+				["variants"] = Json.array({} :: { any }),
+				["version"] = 2,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/double_xp",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = true,
+			["endpoint"] = "fields.deleteFlag",
+			["identity"] = false,
+			["method"] = "DELETE",
+			["request"] = Json.object({ ["path"] = Json.object({ ["key"] = "double_xp" } :: any) } :: any),
+			["response"] = Json.null,
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/double_xp",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["context"] = Json.object({} :: any),
+				["keys"] = Json.array({ "double_xp" } :: { any }),
+				["userId"] = 7,
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "fields.evaluateFlags",
+			["identity"] = false,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["body"] = Json.object({
+					["context"] = Json.object({} :: any),
+					["keys"] = Json.array({ "double_xp" } :: { any }),
+					["userId"] = 7,
+				} :: any),
+			} :: any),
+			["response"] = Json.object({
+				["values"] = Json.object({
+					["double_xp"] = Json.object(
+						{ ["reason"] = "disabled", ["value"] = false, ["variant"] = Json.null } :: any
+					),
+				} :: any),
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({ ["userIds"] = Json.array({ 7 } :: { any }) } :: any),
+			["empty"] = false,
+			["endpoint"] = "fields.evaluateFlagsBatch",
+			["identity"] = false,
+			["method"] = "POST",
+			["request"] = Json.object(
+				{ ["body"] = Json.object({ ["userIds"] = Json.array({ 7 } :: { any }) } :: any) } :: any
+			),
+			["response"] = Json.object({
+				["items"] = Json.array({
+					Json.object({
+						["userId"] = 7,
+						["values"] = Json.object({
+							["double_xp"] = Json.object({
+								["reason"] = "disabled",
+								["value"] = false,
+								["variant"] = Json.null,
+							} :: any),
+						} :: any),
+					} :: any),
+				} :: { any }),
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate-batch",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.maintenance",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object(
+				{ ["allowlistUserIds"] = Json.array({} :: { any }), ["enabled"] = false, ["message"] = "" } :: any
+			),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/maintenance",
+		} :: any),
+		Json.object({
+			["body"] = Json.object(
+				{ ["allowlistUserIds"] = Json.array({} :: { any }), ["enabled"] = false, ["message"] = "" } :: any
+			),
+			["empty"] = false,
+			["endpoint"] = "fields.putMaintenance",
+			["identity"] = false,
+			["method"] = "PUT",
+			["request"] = Json.object({
+				["body"] = Json.object({
+					["allowlistUserIds"] = Json.array({} :: { any }),
+					["enabled"] = false,
+					["message"] = "",
+				} :: any),
+			} :: any),
+			["response"] = Json.object(
+				{ ["allowlistUserIds"] = Json.array({} :: { any }), ["enabled"] = false, ["message"] = "" } :: any
+			),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/maintenance",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.runtimeSnapshot",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object({
+				["flags"] = Json.array({
+					Json.object({
+						["createdAt"] = "2026-11-07T00:00:00Z",
+						["defaultValue"] = false,
+						["displayName"] = "Double XP",
+						["enabled"] = true,
+						["key"] = "double_xp",
+						["rolloutPct"] = Json.null,
+						["rules"] = Json.array({} :: { any }),
+						["sticky"] = false,
+						["type"] = "bool",
+						["updatedAt"] = "2026-11-07T00:00:00Z",
+						["variants"] = Json.array({} :: { any }),
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["gameValues"] = Json.object({ ["Welcome.Text"] = "Hello" } :: any),
+				["maintenance"] = Json.object({
+					["allowlistUserIds"] = Json.array({} :: { any }),
+					["enabled"] = false,
+					["message"] = "",
+				} :: any),
+				["version"] = 1,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/runtime/snapshot",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.gameValueHistory",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({
+				["path"] = Json.object({ ["fieldPath"] = "Welcome.Text" } :: any),
+				["query"] = Json.object({ ["limit"] = 1 } :: any),
+			} :: any),
+			["response"] = Json.object({
+				["items"] = Json.array({
+					Json.object({
+						["actor"] = "server",
+						["newValue"] = "Hello",
+						["previousValue"] = Json.null,
+						["time"] = "2026-11-07T00:00:00Z",
+						["version"] = 1,
+					} :: any),
+				} :: { any }),
+				["nextCursor"] = Json.null,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/history?limit=1",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({ ["version"] = 1 } :: any),
+			["empty"] = false,
+			["endpoint"] = "fields.rollbackGameValue",
+			["identity"] = false,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["body"] = Json.object({ ["version"] = 1 } :: any),
+				["path"] = Json.object({ ["fieldPath"] = "Welcome.Text" } :: any),
+			} :: any),
+			["response"] = Json.object({
+				["replayed"] = false,
+				["results"] = Json.array({} :: { any }),
+				["seq"] = Json.object({} :: any),
+				["txId"] = "00000000-0000-4000-8000-000000000001",
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/rollback",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.scheduleDefinition",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object(
+				{ ["path"] = Json.object({ ["id"] = "00000000-0000-4000-8000-000000000001" } :: any) } :: any
+			),
+			["response"] = Json.object({
+				["end"] = Json.null,
+				["endActions"] = Json.null,
+				["idempotencyKey"] = Json.null,
+				["name"] = "Weekend XP",
+				["reason"] = "Weekend event",
+				["recurrence"] = Json.null,
+				["restorePrevious"] = false,
+				["start"] = "2026-11-07T00:00:00Z",
+				["startActions"] = Json.array({
+					Json.object({
+						["bulkDefinitionId"] = Json.null,
+						["key"] = "double_xp",
+						["kind"] = "ENABLE_FLAG",
+						["type"] = Json.null,
+						["value"] = Json.null,
+					} :: any),
+				} :: { any }),
+				["universeId"] = Json.null,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schedules/00000000-0000-4000-8000-000000000001/definition",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.scheduleRuns",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({
+				["path"] = Json.object({ ["id"] = "00000000-0000-4000-8000-000000000001" } :: any),
+				["query"] = Json.object({ ["before"] = "9223372036854775807", ["limit"] = 1 } :: any),
+			} :: any),
+			["response"] = Json.array({
+				Json.object({
+					["actions"] = Json.array({
+						Json.object({
+							["done"] = false,
+							["error"] = Json.null,
+							["jobId"] = Json.null,
+							["key"] = "double_xp",
+							["kind"] = "ENABLE_FLAG",
+							["ordinal"] = 0,
+							["skipReason"] = Json.null,
+							["skipped"] = Json.null,
+							["version"] = Json.null,
+						} :: any),
+					} :: { any }),
+					["edge"] = "START",
+					["error"] = Json.null,
+					["finishedAt"] = Json.null,
+					["id"] = 1,
+					["occurrence"] = 0,
+					["startedAt"] = "2026-11-07T00:00:00Z",
+					["status"] = "RUNNING",
+				} :: any),
+			} :: { any }),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schedules/00000000-0000-4000-8000-000000000001/runs?before=9223372036854775807&limit=1",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "fields.scheduleActions",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({
+				["path"] = Json.object({ ["id"] = "00000000-0000-4000-8000-000000000001" } :: any),
+				["query"] = Json.object({ ["after"] = -1, ["limit"] = 1 } :: any),
+			} :: any),
+			["response"] = Json.array({
+				Json.object({
+					["done"] = false,
+					["error"] = Json.null,
+					["jobId"] = Json.null,
+					["key"] = "double_xp",
+					["kind"] = "ENABLE_FLAG",
+					["ordinal"] = 0,
+					["skipReason"] = Json.null,
+					["skipped"] = Json.null,
+					["version"] = Json.null,
+				} :: any),
+			} :: { any }),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schedules/00000000-0000-4000-8000-000000000001/actions?after=-1&limit=1",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "leaderboards.ratingScopes",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({ ["query"] = Json.object({ ["limit"] = 1 } :: any) } :: any),
+			["response"] = Json.object({
+				["items"] = Json.array(
+					{ Json.object({ ["displayName"] = "Ranked", ["scope"] = "ranked" } :: any) } :: { any }
+				),
+				["nextCursor"] = Json.null,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/ratings/universes/123/ratings?limit=1",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({ ["displayName"] = "Ranked" } :: any),
+			["empty"] = false,
+			["endpoint"] = "leaderboards.ratingLabel",
+			["identity"] = false,
+			["method"] = "PUT",
+			["request"] = Json.object({
+				["body"] = Json.object({ ["displayName"] = "Ranked" } :: any),
+				["path"] = Json.object({ ["scope"] = "ranked" } :: any),
+			} :: any),
+			["response"] = Json.object({ ["displayName"] = "Ranked", ["scope"] = "ranked" } :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/ratings/universes/123/ratings/ranked/label",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({ ["username"] = "synthetic-user" } :: any),
+			["empty"] = false,
+			["endpoint"] = "auth.assignOwner",
+			["identity"] = true,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["body"] = Json.object({ ["username"] = "synthetic-user" } :: any),
+				["path"] = Json.object({ ["org"] = "00000000-0000-4000-8000-000000000001" } :: any),
+			} :: any),
+			["response"] = Json.object({
+				["createdAt"] = "2026-11-07T00:00:00Z",
+				["createdBy"] = "00000000-0000-4000-8000-000000000001",
+				["orgId"] = "00000000-0000-4000-8000-000000000001",
+				["role"] = "OWNER",
+				["status"] = "ACTIVE",
+				["universeId"] = Json.null,
+				["userId"] = "00000000-0000-4000-8000-000000000001",
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/auth-service/api/auth/orgs/00000000-0000-4000-8000-000000000001/owner",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({ ["role"] = "ADMIN", ["username"] = "synthetic-user" } :: any),
+			["empty"] = false,
+			["endpoint"] = "auth.createMember",
+			["identity"] = true,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["body"] = Json.object({ ["role"] = "ADMIN", ["username"] = "synthetic-user" } :: any),
+				["path"] = Json.object({ ["org"] = "00000000-0000-4000-8000-000000000001" } :: any),
+			} :: any),
+			["response"] = Json.object({
+				["account"] = Json.object({
+					["accountId"] = "00000000-0000-4000-8000-000000000001",
+					["accountType"] = "USER",
+					["createdTime"] = "2026-11-07T00:00:00Z",
+					["enabled"] = true,
+					["metadata"] = Json.object({} :: any),
+					["updatedTime"] = "2026-11-07T00:00:00Z",
+					["username"] = "synthetic-user",
+				} :: any),
+				["member"] = Json.object({
+					["createdAt"] = "2026-11-07T00:00:00Z",
+					["createdBy"] = "00000000-0000-4000-8000-000000000001",
+					["orgId"] = "00000000-0000-4000-8000-000000000001",
+					["role"] = "ADMIN",
+					["status"] = "ACTIVE",
+					["universeId"] = Json.null,
+					["userId"] = "00000000-0000-4000-8000-000000000001",
+				} :: any),
+				["temporaryPassword"] = "synthetic-not-a-credential",
+			} :: any),
+			["status"] = 201,
+			["url"] = "https://lb1.blox-api.com/auth-service/api/auth/orgs/00000000-0000-4000-8000-000000000001/members/new",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "auth.listMembers",
+			["identity"] = true,
+			["method"] = "GET",
+			["request"] = Json.object(
+				{ ["path"] = Json.object({ ["org"] = "00000000-0000-4000-8000-000000000001" } :: any) } :: any
+			),
+			["response"] = Json.array({
+				Json.object({
+					["createdAt"] = "2026-11-07T00:00:00Z",
+					["createdBy"] = "00000000-0000-4000-8000-000000000001",
+					["displayName"] = Json.null,
+					["orgId"] = "00000000-0000-4000-8000-000000000001",
+					["overrides"] = Json.array({} :: { any }),
+					["role"] = "ADMIN",
+					["status"] = "ACTIVE",
+					["universeId"] = Json.null,
+					["userId"] = "00000000-0000-4000-8000-000000000001",
+					["username"] = "synthetic-user",
+				} :: any),
+			} :: { any }),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/auth-service/api/auth/orgs/00000000-0000-4000-8000-000000000001/members",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "auth.lookupServiceAccount",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({
+				["path"] = Json.object({
+					["id"] = "00000000-0000-4000-8000-000000000001",
+					["org"] = "00000000-0000-4000-8000-000000000001",
+				} :: any),
+			} :: any),
+			["response"] = Json.object({
+				["id"] = "00000000-0000-4000-8000-000000000001",
+				["orgId"] = "00000000-0000-4000-8000-000000000001",
+				["universeId"] = 123,
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/auth-service/api/auth/internal/orgs/00000000-0000-4000-8000-000000000001/service-accounts/00000000-0000-4000-8000-000000000001",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "platform.createPlan",
+			["identity"] = true,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["response"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["status"] = 201,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/plans",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "platform.updatePlan",
+			["identity"] = true,
+			["method"] = "PUT",
+			["request"] = Json.object({
+				["body"] = Json.object({
+					["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+					["name"] = "test",
+					["overagePrices"] = Json.object(
+						{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+					),
+					["rateLimit"] = Json.object(
+						{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+					),
+				} :: any),
+				["path"] = Json.object({ ["name"] = "test" } :: any),
+			} :: any),
+			["response"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/plans/test",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "platform.putPlan",
+			["identity"] = true,
+			["method"] = "PUT",
+			["request"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["response"] = Json.object({
+				["monthlyLimits"] = Json.object({ ["requests"] = 100 } :: any),
+				["name"] = "test",
+				["overagePrices"] = Json.object(
+					{ ["requests"] = "0.00000001", ["storage_bytes"] = 0.01 } :: any
+				),
+				["rateLimit"] = Json.object(
+					{ ["burst"] = 10, ["dailyRequests"] = 100, ["requestsPerSecond"] = 10 } :: any
+				),
+			} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/plans",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = true,
+			["endpoint"] = "platform.deletePlan",
+			["identity"] = true,
+			["method"] = "DELETE",
+			["request"] = Json.object({ ["path"] = Json.object({ ["name"] = "test" } :: any) } :: any),
+			["response"] = Json.null,
+			["status"] = 204,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/plans/test",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "platform.incidents",
+			["identity"] = true,
+			["method"] = "GET",
+			["request"] = Json.object(
+				{ ["query"] = Json.object({ ["after"] = "note:1", ["limit"] = 1 } :: any) } :: any
+			),
+			["response"] = Json.array({} :: { any }),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/status/incidents?after=note%3A1&limit=1",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = true,
+			["endpoint"] = "platform.resetRateLimits",
+			["identity"] = true,
+			["method"] = "DELETE",
+			["request"] = Json.object(
+				{ ["path"] = Json.object({ ["org"] = "00000000-0000-4000-8000-000000000001" } :: any) } :: any
+			),
+			["response"] = Json.null,
+			["status"] = 204,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/orgs/00000000-0000-4000-8000-000000000001/ratelimits",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = true,
+			["endpoint"] = "platform.resetKeyRateLimit",
+			["identity"] = true,
+			["method"] = "DELETE",
+			["request"] = Json.object({
+				["path"] = Json.object({
+					["id"] = "00000000-0000-4000-8000-000000000001",
+					["org"] = "00000000-0000-4000-8000-000000000001",
+				} :: any),
+			} :: any),
+			["response"] = Json.null,
+			["status"] = 204,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/orgs/00000000-0000-4000-8000-000000000001/service-accounts/00000000-0000-4000-8000-000000000001/ratelimit",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "platform.liveness",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object({ ["status"] = "UP" } :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/actuator/health/liveness",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "platform.readiness",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object({ ["status"] = "UP" } :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/actuator/health/readiness",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "codes.liveness",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object({ ["status"] = "UP" } :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/code-service/actuator/health/liveness",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "codes.readiness",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object({ ["status"] = "UP" } :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/code-service/actuator/health/readiness",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "platform.info",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object({} :: any),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/info",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "platform.metrics",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object({} :: any),
+			["response"] = Json.object(
+				{ ["names"] = Json.array({ "http.server.requests" } :: { any }) } :: any
+			),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/metrics",
+		} :: any),
+		Json.object({
+			["body"] = Json.null,
+			["empty"] = false,
+			["endpoint"] = "platform.analyticsEconomy",
+			["identity"] = false,
+			["method"] = "GET",
+			["request"] = Json.object(
+				{ ["query"] = Json.object({ ["from"] = "2026-11-01", ["to"] = "2026-11-07" } :: any) } :: any
+			),
+			["response"] = Json.array({} :: { any }),
+			["status"] = 200,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/universes/123/analytics/economy?from=2026-11-01&to=2026-11-07",
+		} :: any),
+		Json.object({
+			["body"] = Json.object({
+				["events"] = Json.array({ "field.changed" } :: { any }),
+				["url"] = "https://webhooks.example/events",
+			} :: any),
+			["empty"] = false,
+			["endpoint"] = "platform.createWebhook",
+			["identity"] = false,
+			["method"] = "POST",
+			["request"] = Json.object({
+				["body"] = Json.object({
+					["events"] = Json.array({ "field.changed" } :: { any }),
+					["url"] = "https://webhooks.example/events",
+				} :: any),
+			} :: any),
+			["response"] = Json.object({
+				["enabled"] = true,
+				["id"] = "00000000-0000-4000-8000-000000000001",
+				["secret"] = "synthetic-signing-material",
+			} :: any),
+			["status"] = 201,
+			["url"] = "https://lb1.blox-api.com/platform-service/api/universes/123/webhooks",
+		} :: any),
+	} :: { any }),
 	["type-system"] = Json.array({
 		Json.object({
 			["action"] = "validate",

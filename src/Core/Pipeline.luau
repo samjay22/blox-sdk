@@ -235,8 +235,8 @@ local function execute(
 		if spec.idempotencyHeader and request.idempotencyKey then
 			headers["Idempotency-Key"] = request.idempotencyKey
 		end
-		if spec.conditional and request.version ~= nil then
-			headers["If-None-Match"] = '"' .. tostring(request.version) .. '"'
+		if spec.conditional and request.etag ~= nil then
+			headers["If-None-Match"] = request.etag
 		end
 		local version = if auth.version then auth.version() else nil
 		if attempt == 0 then
@@ -329,7 +329,7 @@ local function execute(
 			end
 		end
 		local delay = Retry.backoff(retryCount, runtime.random(), 0.25, 8)
-		if result.error.status == 429 or result.error.status == 503 then
+		if result.error.status == 429 or (result.error.status and result.error.status >= 500) then
 			delay = math.max(delay, Retry.after(retryAfter, runtime.unix()) or 0)
 		end
 		if hooks and hooks.onRetry then
@@ -366,6 +366,26 @@ function Pipeline.call(
 	if universe ~= nil and not Universe.valid(universe) then
 		return Errors.make("Validation", spec.id, 0, "Invalid universeId")
 	end
+	if type(request) ~= "table" then
+		return Errors.make("Validation", spec.id, 0, "Invalid request structure")
+	end
+	if
+		(request.path ~= nil and type(request.path) ~= "table")
+		or (request.query ~= nil and type(request.query) ~= "table")
+	then
+		return Errors.make("Validation", spec.id, 0, "Invalid request selectors")
+	end
+	for name in request :: any do
+		if
+			name ~= "path"
+			and name ~= "query"
+			and name ~= "body"
+			and name ~= "etag"
+			and name ~= "idempotencyKey"
+		then
+			return Errors.make("Validation", spec.id, 0, "Unknown request field")
+		end
+	end
 	local copied, prepared = pcall(Idempotency.prepare, spec, request, runtime)
 	if not copied then
 		return Errors.make("Validation", spec.id, 0, "Invalid request structure")
@@ -381,26 +401,22 @@ function Pipeline.call(
 		spec.retryable = false
 	end
 	if
-		request.version ~= nil
+		request.etag ~= nil
 		and (
 			not spec.conditional
-			or type(request.version) ~= "number"
-			or request.version < 0
-			or request.version > 9007199254740991
-			or request.version % 1 ~= 0
+			or type(request.etag) ~= "string"
+			or #request.etag > 256
+			or not (string.match(request.etag, '^"[^"%c]+"$') or string.match(request.etag, '^W/"[^"%c]+"$') or request.etag == "*")
+			or string.find(request.etag, "[%c]") ~= nil
 		)
 	then
-		return Errors.make("Validation", spec.id, 0, "Invalid snapshot version")
+		return Errors.make("Validation", spec.id, 0, "Invalid snapshot ETag")
 	end
 	-- Import binds exact bytes and its header key, not a JSON string/body key or an arbitrary header map.
 	if request.idempotencyKey ~= nil then
-		local key = request.idempotencyKey
 		if
 			not spec.idempotencyHeader
-			or type(key) ~= "string"
-			or #key < 1
-			or #key > 200
-			or not string.match(key, "^[A-Za-z0-9._-]+$")
+			or not Idempotency.header(request.idempotencyKey, spec.id == "codes.bulkCreateCodes")
 		then
 			return Errors.make("Validation", spec.id, 0, "Invalid idempotency header")
 		end
@@ -451,7 +467,17 @@ function Pipeline.call(
 	if stop then
 		return stop
 	end
-	local url = self.config.baseUrls[spec.service] .. path
+	local base = self.config.baseUrls[spec.service]
+	-- Platform domain controllers preserve /platform-service even on direct hosts;
+	-- operational /health, /metrics, /info and actuator routes remain root-relative.
+	if
+		spec.service == "platform"
+		and self.config.origins.platform == base
+		and (string.sub(path, 1, 5) == "/api/" or string.sub(path, 1, 10) == "/internal/")
+	then
+		base ..= "/platform-service"
+	end
+	local url = base .. path
 	-- Scoped authorization must refresh before cache reads, not only before HTTP.
 	if auth.ready and not table.find(spec.authKinds, "none") then
 		local ready = auth.ready(deadline, opts.signal)
@@ -468,7 +494,7 @@ function Pipeline.call(
 		.. " "
 		.. tostring(self.epoch)
 		.. " "
-		.. tostring(request.version)
+		.. tostring(request.etag)
 		.. " "
 		.. auth.kind
 		.. " "

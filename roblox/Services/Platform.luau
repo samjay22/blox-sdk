@@ -14,6 +14,22 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe }, Service)
 end
+--- GET /platform-service/actuator/health/liveness via gateway; access: public/authenticated.
+function Service.liveness(
+	self: Service,
+	req: Types.LivenessCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.LivenessResultValue>
+	return self._invoke(Endpoints["platform.liveness"], (req or {}), opts, self._universe)
+end
+--- GET /platform-service/actuator/health/readiness via gateway; access: public/authenticated.
+function Service.readiness(
+	self: Service,
+	req: Types.ReadinessCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReadinessResultValue>
+	return self._invoke(Endpoints["platform.readiness"], (req or {}), opts, self._universe)
+end
 --- POST /platform-service/api/metering/events via gateway; access: READ_WRITE.
 function Service.ingestUsage(
 	self: Service,
@@ -30,7 +46,7 @@ function Service.openapi(
 ): Core.Result<Types.OpenapiResultValue>
 	return self._invoke(Endpoints["platform.openapi"], (req or {}), opts, self._universe)
 end
---- GET /platform-service/api/orgs/{org}/invoices via gateway; access: READ.
+--- GET /platform-service/api/orgs/{org}/invoices via gateway; access: IDENTITY.
 function Service.invoices(
 	self: Service,
 	req: Types.InvoicesCall,
@@ -38,7 +54,7 @@ function Service.invoices(
 ): Core.Result<Types.InvoicesResultValue>
 	return self._invoke(Endpoints["platform.invoices"], req, opts, self._universe)
 end
---- GET /platform-service/api/orgs/{org}/limits via gateway; access: READ.
+--- GET /platform-service/api/orgs/{org}/limits via gateway; access: IDENTITY.
 function Service.limits(
 	self: Service,
 	req: Types.LimitsCall,
@@ -46,7 +62,7 @@ function Service.limits(
 ): Core.Result<Types.LimitsResultValue>
 	return self._invoke(Endpoints["platform.limits"], req, opts, self._universe)
 end
---- GET /platform-service/api/orgs/{org}/plan via gateway; access: READ.
+--- GET /platform-service/api/orgs/{org}/plan via gateway; access: IDENTITY.
 function Service.orgPlan(
 	self: Service,
 	req: Types.OrgPlanCall,
@@ -54,7 +70,7 @@ function Service.orgPlan(
 ): Core.Result<Types.OrgPlanResultValue>
 	return self._invoke(Endpoints["platform.orgPlan"], req, opts, self._universe)
 end
---- PUT /platform-service/api/orgs/{org}/plan via gateway; access: READ_WRITE.
+--- PUT /platform-service/api/orgs/{org}/plan via gateway; access: IDENTITY.
 function Service.setOrgPlan(
 	self: Service,
 	req: Types.SetOrgPlanCall,
@@ -62,7 +78,15 @@ function Service.setOrgPlan(
 ): Core.Result<Types.SetOrgPlanResultValue>
 	return self._invoke(Endpoints["platform.setOrgPlan"], req, opts, self._universe)
 end
---- GET /platform-service/api/orgs/{org}/ratelimits via gateway; access: READ.
+--- DELETE /platform-service/api/orgs/{org}/ratelimits via gateway; access: SUPER_ADMIN.
+function Service.resetRateLimits(
+	self: Service,
+	req: Types.ResetRateLimitsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ResetRateLimitsResultValue>
+	return self._invoke(Endpoints["platform.resetRateLimits"], req, opts, self._universe)
+end
+--- GET /platform-service/api/orgs/{org}/ratelimits via gateway; access: IDENTITY.
 function Service.rateLimits(
 	self: Service,
 	req: Types.RateLimitsCall,
@@ -70,7 +94,7 @@ function Service.rateLimits(
 ): Core.Result<Types.RateLimitsResultValue>
 	return self._invoke(Endpoints["platform.rateLimits"], req, opts, self._universe)
 end
---- PUT /platform-service/api/orgs/{org}/ratelimits via gateway; access: READ_WRITE.
+--- PUT /platform-service/api/orgs/{org}/ratelimits via gateway; access: SUPER_ADMIN.
 function Service.setRateLimits(
 	self: Service,
 	req: Types.SetRateLimitsCall,
@@ -78,7 +102,7 @@ function Service.setRateLimits(
 ): Core.Result<Types.SetRateLimitsResultValue>
 	return self._invoke(Endpoints["platform.setRateLimits"], req, opts, self._universe)
 end
---- POST /platform-service/api/orgs/{org}/sandbox via gateway; access: READ_WRITE.
+--- POST /platform-service/api/orgs/{org}/sandbox via gateway; access: IDENTITY.
 function Service.sandbox(
 	self: Service,
 	req: Types.SandboxCall,
@@ -86,7 +110,15 @@ function Service.sandbox(
 ): Core.Result<Types.SandboxResultValue>
 	return self._invoke(Endpoints["platform.sandbox"], req, opts, self._universe)
 end
---- PUT /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit via gateway; access: READ_WRITE.
+--- DELETE /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit via gateway; access: SUPER_ADMIN.
+function Service.resetKeyRateLimit(
+	self: Service,
+	req: Types.ResetKeyRateLimitCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ResetKeyRateLimitResultValue>
+	return self._invoke(Endpoints["platform.resetKeyRateLimit"], req, opts, self._universe)
+end
+--- PUT /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit via gateway; access: SUPER_ADMIN.
 function Service.setKeyRateLimit(
 	self: Service,
 	req: Types.SetKeyRateLimitCall,
@@ -94,7 +126,7 @@ function Service.setKeyRateLimit(
 ): Core.Result<Types.SetKeyRateLimitResultValue>
 	return self._invoke(Endpoints["platform.setKeyRateLimit"], req, opts, self._universe)
 end
---- GET /platform-service/api/orgs/{org}/usage via gateway; access: READ.
+--- GET /platform-service/api/orgs/{org}/usage via gateway; access: IDENTITY.
 function Service.usage(
 	self: Service,
 	req: Types.UsageCall,
@@ -110,7 +142,7 @@ function Service.ping(
 ): Core.Result<Types.PingResultValue>
 	return self._invoke(Endpoints["platform.ping"], (req or {}), opts, self._universe)
 end
---- GET /platform-service/api/plans via gateway; access: READ.
+--- GET /platform-service/api/plans via gateway; access: public/authenticated.
 function Service.plans(
 	self: Service,
 	req: Types.PlansCall?,
@@ -118,13 +150,37 @@ function Service.plans(
 ): Core.Result<Types.PlansResultValue>
 	return self._invoke(Endpoints["platform.plans"], (req or {}), opts, self._universe)
 end
+--- POST /platform-service/api/plans via gateway; access: SUPER_ADMIN.
+function Service.createPlan(
+	self: Service,
+	req: Types.CreatePlanCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CreatePlanResultValue>
+	return self._invoke(Endpoints["platform.createPlan"], { body = req }, opts, self._universe)
+end
 --- PUT /platform-service/api/plans via gateway; access: SUPER_ADMIN.
 function Service.putPlan(
 	self: Service,
 	req: Types.PutPlanCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PutPlanResultValue>
-	return self._invoke(Endpoints["platform.putPlan"], req, opts, self._universe)
+	return self._invoke(Endpoints["platform.putPlan"], { body = req }, opts, self._universe)
+end
+--- DELETE /platform-service/api/plans/{name} via gateway; access: SUPER_ADMIN.
+function Service.deletePlan(
+	self: Service,
+	req: Types.DeletePlanCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.DeletePlanResultValue>
+	return self._invoke(Endpoints["platform.deletePlan"], req, opts, self._universe)
+end
+--- PUT /platform-service/api/plans/{name} via gateway; access: SUPER_ADMIN.
+function Service.updatePlan(
+	self: Service,
+	req: Types.UpdatePlanCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.UpdatePlanResultValue>
+	return self._invoke(Endpoints["platform.updatePlan"], req, opts, self._universe)
 end
 --- GET /platform-service/api/status via gateway; access: public/authenticated.
 function Service.status(
@@ -134,13 +190,21 @@ function Service.status(
 ): Core.Result<Types.StatusResultValue>
 	return self._invoke(Endpoints["platform.status"], (req or {}), opts, self._universe)
 end
+--- GET /platform-service/api/status/incidents via gateway; access: SUPER_ADMIN.
+function Service.incidents(
+	self: Service,
+	req: Types.IncidentsCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.IncidentsResultValue>
+	return self._invoke(Endpoints["platform.incidents"], (req or {}), opts, self._universe)
+end
 --- POST /platform-service/api/status/incidents via gateway; access: SUPER_ADMIN.
 function Service.createIncident(
 	self: Service,
 	req: Types.CreateIncidentCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateIncidentResultValue>
-	return self._invoke(Endpoints["platform.createIncident"], req, opts, self._universe)
+	return self._invoke(Endpoints["platform.createIncident"], { body = req }, opts, self._universe)
 end
 --- DELETE /platform-service/api/status/incidents/{id} via gateway; access: SUPER_ADMIN.
 function Service.deleteIncident(
@@ -169,10 +233,10 @@ end
 --- GET /platform-service/api/universes/{universeId}/analytics/economy via gateway; access: READ.
 function Service.analyticsEconomy(
 	self: Service,
-	req: Types.AnalyticsEconomyCall,
+	req: Types.AnalyticsEconomyCall?,
 	opts: Core.CallOptions?
 ): Core.Result<Types.AnalyticsEconomyResultValue>
-	return self._invoke(Endpoints["platform.analyticsEconomy"], req, opts, self._universe)
+	return self._invoke(Endpoints["platform.analyticsEconomy"], (req or {}), opts, self._universe)
 end
 --- GET /platform-service/api/universes/{universeId}/analytics/summary via gateway; access: READ.
 function Service.analyticsSummary(
@@ -189,174 +253,6 @@ function Service.analyticsTimeseries(
 	opts: Core.CallOptions?
 ): Core.Result<Types.AnalyticsTimeseriesResultValue>
 	return self._invoke(Endpoints["platform.analyticsTimeseries"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/environments/diff via gateway; access: READ.
-function Service.environmentDiff(
-	self: Service,
-	req: Types.EnvironmentDiffCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.EnvironmentDiffResultValue>
-	return self._invoke(Endpoints["platform.environmentDiff"], req, opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/environments/promote via gateway; access: ADMIN.
-function Service.promoteEnvironment(
-	self: Service,
-	req: Types.PromoteEnvironmentCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PromoteEnvironmentResultValue>
-	return self._invoke(Endpoints["platform.promoteEnvironment"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/environments/promotions via gateway; access: READ.
-function Service.promotions(
-	self: Service,
-	req: Types.PromotionsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.PromotionsResultValue>
-	return self._invoke(Endpoints["platform.promotions"], (req or {}), opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/environments/rollback/{promotionId} via gateway; access: ADMIN.
-function Service.rollbackEnvironment(
-	self: Service,
-	req: Types.RollbackEnvironmentCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RollbackEnvironmentResultValue>
-	return self._invoke(Endpoints["platform.rollbackEnvironment"], req, opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/environments/{env}/snapshot via gateway; access: ADMIN.
-function Service.snapshotEnvironment(
-	self: Service,
-	req: Types.SnapshotEnvironmentCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.SnapshotEnvironmentResultValue>
-	return self._invoke(Endpoints["platform.snapshotEnvironment"], req, opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/experiments/exposure via gateway; access: READ_WRITE.
-function Service.recordExposure(
-	self: Service,
-	req: Types.RecordExposureCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RecordExposureResultValue>
-	return self._invoke(Endpoints["platform.recordExposure"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/flags via gateway; access: READ.
-function Service.flags(
-	self: Service,
-	req: Types.FlagsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.FlagsResultValue>
-	return self._invoke(Endpoints["platform.flags"], (req or {}), opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/flags via gateway; access: READ_WRITE.
-function Service.createFlag(
-	self: Service,
-	req: Types.CreateFlagCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateFlagResultValue>
-	return self._invoke(Endpoints["platform.createFlag"], req, opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/flags/evaluate via gateway; access: READ.
-function Service.evaluateFlags(
-	self: Service,
-	req: Types.EvaluateFlagsCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.EvaluateFlagsResultValue>
-	return self._invoke(Endpoints["platform.evaluateFlags"], req, opts, self._universe)
-end
---- DELETE /platform-service/api/universes/{universeId}/flags/{key} via gateway; access: READ_WRITE.
-function Service.deleteFlag(
-	self: Service,
-	req: Types.DeleteFlagCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteFlagResultValue>
-	return self._invoke(Endpoints["platform.deleteFlag"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/flags/{key} via gateway; access: READ.
-function Service.flag(
-	self: Service,
-	req: Types.FlagCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.FlagResultValue>
-	return self._invoke(Endpoints["platform.flag"], req, opts, self._universe)
-end
---- PUT /platform-service/api/universes/{universeId}/flags/{key} via gateway; access: READ_WRITE.
-function Service.updateFlag(
-	self: Service,
-	req: Types.UpdateFlagCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.UpdateFlagResultValue>
-	return self._invoke(Endpoints["platform.updateFlag"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/liveops/events via gateway; access: READ.
-function Service.liveEvents(
-	self: Service,
-	req: Types.LiveEventsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.LiveEventsResultValue>
-	return self._invoke(Endpoints["platform.liveEvents"], (req or {}), opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/liveops/events via gateway; access: ADMIN.
-function Service.createLiveEvent(
-	self: Service,
-	req: Types.CreateLiveEventCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateLiveEventResultValue>
-	return self._invoke(Endpoints["platform.createLiveEvent"], req, opts, self._universe)
-end
---- DELETE /platform-service/api/universes/{universeId}/liveops/events/{id} via gateway; access: ADMIN.
-function Service.deleteLiveEvent(
-	self: Service,
-	req: Types.DeleteLiveEventCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteLiveEventResultValue>
-	return self._invoke(Endpoints["platform.deleteLiveEvent"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/liveops/events/{id} via gateway; access: READ.
-function Service.liveEvent(
-	self: Service,
-	req: Types.LiveEventCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.LiveEventResultValue>
-	return self._invoke(Endpoints["platform.liveEvent"], req, opts, self._universe)
-end
---- PUT /platform-service/api/universes/{universeId}/liveops/events/{id} via gateway; access: ADMIN.
-function Service.updateLiveEvent(
-	self: Service,
-	req: Types.UpdateLiveEventCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.UpdateLiveEventResultValue>
-	return self._invoke(Endpoints["platform.updateLiveEvent"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/liveops/events/{id}/preview via gateway; access: READ.
-function Service.liveEventOccurrences(
-	self: Service,
-	req: Types.LiveEventOccurrencesCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.LiveEventOccurrencesResultValue>
-	return self._invoke(Endpoints["platform.liveEventOccurrences"], req, opts, self._universe)
-end
---- GET /platform-service/api/universes/{universeId}/liveops/events/{id}/runs via gateway; access: READ.
-function Service.liveEventRuns(
-	self: Service,
-	req: Types.LiveEventRunsCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.LiveEventRunsResultValue>
-	return self._invoke(Endpoints["platform.liveEventRuns"], req, opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/liveops/events/{id}/start via gateway; access: ADMIN.
-function Service.startLiveEvent(
-	self: Service,
-	req: Types.StartLiveEventCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.StartLiveEventResultValue>
-	return self._invoke(Endpoints["platform.startLiveEvent"], req, opts, self._universe)
-end
---- POST /platform-service/api/universes/{universeId}/liveops/events/{id}/stop via gateway; access: ADMIN.
-function Service.stopLiveEvent(
-	self: Service,
-	req: Types.StopLiveEventCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.StopLiveEventResultValue>
-	return self._invoke(Endpoints["platform.stopLiveEvent"], req, opts, self._universe)
 end
 --- GET /platform-service/api/universes/{universeId}/webhooks via gateway; access: READ.
 function Service.webhooks(
@@ -430,6 +326,14 @@ function Service.healthProxy(
 ): Core.Result<Types.HealthProxyResultValue>
 	return self._invoke(Endpoints["platform.healthProxy"], (req or {}), opts, self._universe)
 end
+--- GET /platform-service/info via gateway; access: public/authenticated.
+function Service.info(
+	self: Service,
+	req: Types.InfoCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.InfoResultValue>
+	return self._invoke(Endpoints["platform.info"], (req or {}), opts, self._universe)
+end
 --- POST /platform-service/internal/events via gateway; access: READ_WRITE.
 function Service.publishEvent(
 	self: Service,
@@ -445,5 +349,13 @@ function Service.gatewayRateLimits(
 	opts: Core.CallOptions?
 ): Core.Result<Types.GatewayRateLimitsResultValue>
 	return self._invoke(Endpoints["platform.gatewayRateLimits"], req, opts, self._universe)
+end
+--- GET /platform-service/metrics via gateway; access: public/authenticated.
+function Service.metrics(
+	self: Service,
+	req: Types.MetricsCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.MetricsResultValue>
+	return self._invoke(Endpoints["platform.metrics"], (req or {}), opts, self._universe)
 end
 return table.freeze(Service)

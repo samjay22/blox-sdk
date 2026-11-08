@@ -181,6 +181,11 @@
   },
   {
     "svc": "auth",
+    "method": "GET",
+    "path": "/api/auth/internal/orgs/{org}/service-accounts/{id}"
+  },
+  {
+    "svc": "auth",
     "method": "POST",
     "path": "/api/auth/invitations/accept"
   },
@@ -261,6 +266,11 @@
   },
   {
     "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/members/new"
+  },
+  {
+    "svc": "auth",
     "method": "DELETE",
     "path": "/api/auth/orgs/{org}/members/{user}"
   },
@@ -268,6 +278,11 @@
     "svc": "auth",
     "method": "PATCH",
     "path": "/api/auth/orgs/{org}/members/{user}"
+  },
+  {
+    "svc": "auth",
+    "method": "POST",
+    "path": "/api/auth/orgs/{org}/owner"
   },
   {
     "svc": "auth",
@@ -442,6 +457,16 @@
   {
     "svc": "codes",
     "method": "GET",
+    "path": "/actuator/health/liveness"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
+    "path": "/actuator/health/readiness"
+  },
+  {
+    "svc": "codes",
+    "method": "GET",
     "path": "/api/codes"
   },
   {
@@ -500,106 +525,6 @@
     "path": "/metrics"
   },
   {
-    "svc": "config",
-    "method": "GET",
-    "path": "/actuator/health/liveness"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/actuator/health/readiness"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/entries"
-  },
-  {
-    "svc": "config",
-    "method": "DELETE",
-    "path": "/api/config/universes/{universeId}/entries/{key}"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/entries/{key}"
-  },
-  {
-    "svc": "config",
-    "method": "PUT",
-    "path": "/api/config/universes/{universeId}/entries/{key}"
-  },
-  {
-    "svc": "config",
-    "method": "POST",
-    "path": "/api/config/universes/{universeId}/evaluate"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/flags"
-  },
-  {
-    "svc": "config",
-    "method": "DELETE",
-    "path": "/api/config/universes/{universeId}/flags/{key}"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/flags/{key}"
-  },
-  {
-    "svc": "config",
-    "method": "PUT",
-    "path": "/api/config/universes/{universeId}/flags/{key}"
-  },
-  {
-    "svc": "config",
-    "method": "POST",
-    "path": "/api/config/universes/{universeId}/flags/{key}/evaluate"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/history"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/maintenance"
-  },
-  {
-    "svc": "config",
-    "method": "PUT",
-    "path": "/api/config/universes/{universeId}/maintenance"
-  },
-  {
-    "svc": "config",
-    "method": "POST",
-    "path": "/api/config/universes/{universeId}/rollback"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/api/config/universes/{universeId}/snapshot"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/health"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/info"
-  },
-  {
-    "svc": "config",
-    "method": "GET",
-    "path": "/metrics"
-  },
-  {
     "svc": "fields",
     "method": "GET",
     "path": "/actuator/health/liveness"
@@ -633,6 +558,11 @@
     "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/alerts/{id}/ack"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/analytics/daily"
   },
   {
     "svc": "fields",
@@ -721,6 +651,16 @@
   },
   {
     "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/environments/{env}/resources"
+  },
+  {
+    "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/export"
   },
@@ -728,6 +668,91 @@
     "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/fields/batch-get"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/flags"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/flags"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/flags/evaluate"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/flags/evaluate-batch"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/flags/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/flags/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/flags/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/game-values/{fieldPath}/history"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/generators"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/generators"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/generators/preview"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/generators/roll"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/generators/simulate"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/generators/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/generators/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/generators/{key}"
   },
   {
     "svc": "fields",
@@ -796,6 +821,16 @@
   },
   {
     "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/maintenance"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/maintenance"
+  },
+  {
+    "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/migrations/{id}/cancel"
   },
@@ -826,6 +861,21 @@
   },
   {
     "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/search"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{playerId}/randomness/claims"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls"
+  },
+  {
+    "svc": "fields",
     "method": "DELETE",
     "path": "/api/fields/universes/{universeId}/players/{userId}"
   },
@@ -843,6 +893,11 @@
     "svc": "fields",
     "method": "PUT",
     "path": "/api/fields/universes/{universeId}/players/{userId}/document"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/export"
   },
   {
     "svc": "fields",
@@ -867,6 +922,11 @@
   {
     "svc": "fields",
     "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/overview"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
     "path": "/api/fields/universes/{universeId}/players/{userId}/presence"
   },
   {
@@ -878,6 +938,11 @@
     "svc": "fields",
     "method": "GET",
     "path": "/api/fields/universes/{universeId}/players/{userId}/receipts"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/revert"
   },
   {
     "svc": "fields",
@@ -911,6 +976,56 @@
   },
   {
     "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/random-tables"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/random-tables"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/random-tables/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/random-tables/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/random-tables/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/random-tables/{key}/odds"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/randomness"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/randomness/definitions/{key}/history"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/randomness/fields"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/randomness/schema"
+  },
+  {
+    "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/receipts"
   },
@@ -938,6 +1053,66 @@
     "svc": "fields",
     "method": "PUT",
     "path": "/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/rotations"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/rotations/claim"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations/instances/{id}/stock"
+  },
+  {
+    "svc": "fields",
+    "method": "DELETE",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}/active"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}/advance"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}/history"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}/reroll"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/runtime/snapshot"
   },
   {
     "svc": "fields",
@@ -976,8 +1151,18 @@
   },
   {
     "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}/definition"
+  },
+  {
+    "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/schedules/{id}/end-now"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/schedules/{id}/runs"
   },
   {
     "svc": "fields",
@@ -1077,12 +1262,22 @@
   {
     "svc": "leaderboards",
     "method": "GET",
+    "path": "/api/leaderboards/ratings/universes/{universeId}/ratings"
+  },
+  {
+    "svc": "leaderboards",
+    "method": "GET",
     "path": "/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config"
   },
   {
     "svc": "leaderboards",
     "method": "PUT",
     "path": "/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config"
+  },
+  {
+    "svc": "leaderboards",
+    "method": "PUT",
+    "path": "/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/label"
   },
   {
     "svc": "leaderboards",
@@ -1450,59 +1645,14 @@
     "path": "/{universeId}/gamemodes/{gameModeName}/wait-estimate"
   },
   {
-    "svc": "config",
+    "svc": "platform",
     "method": "GET",
-    "path": "/api/config/universes/{universeId}/environments/{env}/resources"
+    "path": "/actuator/health/liveness"
   },
   {
-    "svc": "config",
-    "method": "PUT",
-    "path": "/api/config/universes/{universeId}/environments/{env}/resources"
-  },
-  {
-    "svc": "fields",
+    "svc": "platform",
     "method": "GET",
-    "path": "/api/fields/universes/{universeId}/analytics/daily"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/environments/{env}/resources"
-  },
-  {
-    "svc": "fields",
-    "method": "PUT",
-    "path": "/api/fields/universes/{universeId}/environments/{env}/resources"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/players/search"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/players/{userId}/export"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/players/{userId}/overview"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/players/{userId}/revert"
-  },
-  {
-    "svc": "matchmaking",
-    "method": "GET",
-    "path": "/api/gamemodes/universes/{universeId}/environments/{env}/resources"
-  },
-  {
-    "svc": "matchmaking",
-    "method": "PUT",
-    "path": "/api/gamemodes/universes/{universeId}/environments/{env}/resources"
+    "path": "/actuator/health/readiness"
   },
   {
     "svc": "platform",
@@ -1536,6 +1686,11 @@
   },
   {
     "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/orgs/{org}/ratelimits"
+  },
+  {
+    "svc": "platform",
     "method": "GET",
     "path": "/api/orgs/{org}/ratelimits"
   },
@@ -1548,6 +1703,11 @@
     "svc": "platform",
     "method": "POST",
     "path": "/api/orgs/{org}/sandbox"
+  },
+  {
+    "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/orgs/{org}/service-accounts/{id}/ratelimit"
   },
   {
     "svc": "platform",
@@ -1571,13 +1731,33 @@
   },
   {
     "svc": "platform",
+    "method": "POST",
+    "path": "/api/plans"
+  },
+  {
+    "svc": "platform",
     "method": "PUT",
     "path": "/api/plans"
   },
   {
     "svc": "platform",
+    "method": "DELETE",
+    "path": "/api/plans/{name}"
+  },
+  {
+    "svc": "platform",
+    "method": "PUT",
+    "path": "/api/plans/{name}"
+  },
+  {
+    "svc": "platform",
     "method": "GET",
     "path": "/api/status"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/api/status/incidents"
   },
   {
     "svc": "platform",
@@ -1613,111 +1793,6 @@
     "svc": "platform",
     "method": "GET",
     "path": "/api/universes/{universeId}/analytics/timeseries"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/environments/diff"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/environments/promote"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/environments/promotions"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/environments/rollback/{promotionId}"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/environments/{env}/snapshot"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/experiments/exposure"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/flags"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/flags"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/flags/evaluate"
-  },
-  {
-    "svc": "platform",
-    "method": "DELETE",
-    "path": "/api/universes/{universeId}/flags/{key}"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/flags/{key}"
-  },
-  {
-    "svc": "platform",
-    "method": "PUT",
-    "path": "/api/universes/{universeId}/flags/{key}"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/liveops/events"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/liveops/events"
-  },
-  {
-    "svc": "platform",
-    "method": "DELETE",
-    "path": "/api/universes/{universeId}/liveops/events/{id}"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/liveops/events/{id}"
-  },
-  {
-    "svc": "platform",
-    "method": "PUT",
-    "path": "/api/universes/{universeId}/liveops/events/{id}"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/liveops/events/{id}/preview"
-  },
-  {
-    "svc": "platform",
-    "method": "GET",
-    "path": "/api/universes/{universeId}/liveops/events/{id}/runs"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/liveops/events/{id}/start"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/universes/{universeId}/liveops/events/{id}/stop"
   },
   {
     "svc": "platform",
@@ -1766,6 +1841,11 @@
   },
   {
     "svc": "platform",
+    "method": "GET",
+    "path": "/info"
+  },
+  {
+    "svc": "platform",
     "method": "POST",
     "path": "/internal/events"
   },
@@ -1773,5 +1853,10 @@
     "svc": "platform",
     "method": "GET",
     "path": "/internal/ratelimits/{orgId}"
+  },
+  {
+    "svc": "platform",
+    "method": "GET",
+    "path": "/metrics"
   }
 ]

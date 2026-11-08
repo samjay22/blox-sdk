@@ -118,6 +118,7 @@ def endpoints_for(service: str, root: Path) -> list[dict]:
             sig = re.search(r'public\s+([\w<>?, .]+?)\s+(\w+)\s*\(', text[end:])
             if not sig: raise ValueError((file, path))
             response, name = sig.groups()
+            response = response.replace('reactor.core.publisher.', '').replace('java.util.', '')
             params, sigend = balanced(text, end + sig.end() - 1)
             blockstart = text.index('{', sigend)
             body, _ = balanced(text, blockstart, '{', '}')
@@ -156,6 +157,8 @@ def endpoints_for(service: str, root: Path) -> list[dict]:
             statuses = [201 if 'HttpStatus.CREATED' in body else 200]
             if 'noContent()' in body: statuses = ([200,204] if 'ResponseEntity.ok(' in body else [204])
             if 'notFound()' in body: statuses += [404]
+            status_annotation = re.search(r'@ResponseStatus\((?:HttpStatus\.|org.springframework.http.HttpStatus\.)(CREATED|NO_CONTENT|ACCEPTED)\)', text[max(0,end-120):end + sig.start()])
+            if status_annotation: statuses = [{'CREATED':201,'NO_CONTENT':204,'ACCEPTED':202}[status_annotation[1]]]
             route['statuses'] = sorted(set(statuses)); route['responseType'] = name[0].upper()+name[1:]+'Response'
             route['queryParams'].sort(key=lambda p:p['name'])
             result.append(route)

@@ -114,7 +114,7 @@ class JobsContractTests(unittest.TestCase):
                          {'QUEUED', 'RUNNING', 'SUCCEEDED', 'CANCELLED', 'FAILED'})
         self.assertEqual(set(types['JobReceipt']['fields']),
                          {'id', 'kind', 'state', 'total', 'succeeded', 'failed', 'prepared',
-                          'cancelRequested', 'attempts', 'updatedAt', 'error', 'phase', 'snapshotId'})
+                          'cancelRequested', 'attempts', 'updatedAt', 'error', 'phase', 'snapshotId', 'recurrence'})
         self.assertNotIn('webhook', types['AlertConfigResponse']['fields'])
         self.assertIn('webhookConfigured', types['AlertConfigResponse']['fields'])
         self.assertEqual(types['BulkInput']['fields']['ops']['java'], 'List<Fields.PlayerOperation>')

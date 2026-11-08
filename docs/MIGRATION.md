@@ -36,9 +36,12 @@ All eight services now default to `https://lb1.blox-api.com` plus their [service
 Permit `lb1.blox-api.com` in Roblox Secret destination restrictions. Change the gateway once with
 `gatewayUrl = "https://gateway.example"`; do not append a service prefix to that option.
 For an intentional direct host, replace `hosts = { fields = "https://direct.example" }` with
-`services = { fields = { baseUrl = "https://direct.example" } }`. That service's prefix is omitted.
+`services = { fields = { baseUrl = "https://direct.example" } }`. Fields' prefix is omitted.
+Platform domain routes retain their prefix even on direct hosts; its operational routes do not.
 The old `hosts` field is rejected; there are no per-host defaults, aliases or fallback shims.
-Config routes through `/remote-config-service`, never the gateway-reserved `/config-service`.
+Config is retired. Remove the Config facade/override from SDK callers; store game configuration
+in Fields UNIVERSE fields (subject 0). Replace snapshot polling with `client:runtimeSnapshot()`;
+it uses Fields runtime snapshots and opaque ETags. There is no compatibility alias or fallback.
 Gateway-routed services now share the same per-origin queue and circuit breaker.
 
 ## Service-account keys
@@ -79,7 +82,7 @@ player blobs become declared document leaves, backups become snapshots, and onli
 
 See [Fields workflow and boundaries](FIELDS.md) and `examples/fields-*.luau`. The SDK does not contact a live
 backend or move production data during generation, testing or migration. Universe identifiers remain exact;
-`idempotencyHint` cannot force unsafe retries or unkeyed mutation replay after 401.
+`idempotencyHint` is removed and rejected. No option can force unsafe retries or unkeyed mutation replay after 401.
 
 ## Fields-backed consumers (breaking, no compatibility layer)
 

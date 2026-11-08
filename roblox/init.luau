@@ -19,7 +19,6 @@ local Matchmaking = require(script.Services.Matchmaking)
 local Party = require(script.Services.Party)
 local Codes = require(script.Services.Codes)
 local Audit = require(script.Services.Audit)
-local ConfigService = require(script.Services.Config)
 local Leaderboards = require(script.Services.Leaderboards)
 local Fields = require(script.Services.Fields)
 local Platform = require(script.Services.Platform)
@@ -54,7 +53,6 @@ export type Client = typeof(setmetatable(
 		party: Party.Service,
 		codes: Codes.Service,
 		audit: Audit.Service,
-		config: ConfigService.Service,
 		leaderboards: Leaderboards.Service,
 		fields: Fields.Service,
 		platform: Platform.Service,
@@ -101,7 +99,6 @@ local function facade(
 		party = Party.new(invoke, universe),
 		codes = Codes.new(invoke, universe, helpers.fields),
 		audit = Audit.new(invoke, universe),
-		config = ConfigService.new(invoke, universe),
 		leaderboards = Leaderboards.new(invoke, universe),
 		fields = Fields.new(invoke, universe, helpers.fields),
 		platform = Platform.new(invoke, universe),
@@ -272,7 +269,7 @@ function Client.health(self: Client): { [string]: { result: Types.Result<any>, l
 	local results: { [string]: { result: Types.Result<any>, latency: number } } = {}
 	local runtime = self._state.config.runtime
 	for _, service in
-		{ "auth", "matchmaking", "party", "codes", "audit", "config", "leaderboards", "fields", "platform" }
+		{ "auth", "matchmaking", "party", "codes", "audit", "leaderboards", "fields", "platform" }
 	do
 		local start = runtime.now()
 		local result = self._invoke(Endpoints[service .. ".healthProxy"], {}, { priority = "critical" }, nil)
@@ -354,11 +351,25 @@ function Client.auditWriter(self: Client, options: AuditWriter.Options?): AuditW
 	return writer
 end
 --- Start a fault-tolerant snapshot poller, scoped to this facade and owned by the shared lifetime.
-function Client.configSnapshot(self: Client, interval: number?): SnapshotCache.Snapshot
+function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.Snapshot
 	assert(not self._state.closing, "Client is closing")
-	local snapshot = SnapshotCache.new(self._state.config.runtime, function(version, opts)
-		return self.config:snapshot({ version = version }, opts)
-	end, interval)
+	local fields = assert(self._helpers.fields, "Fields helpers unavailable")
+	local universe = tostring(self.fields._universe)
+	local existing = fields.snapshots[universe]
+	if existing and not existing:IsDestroyed() then
+		return existing
+	end
+	local snapshot = SnapshotCache.new(
+		self._state.config.runtime,
+		function(etag, opts)
+			return self.fields:runtimeSnapshot({ etag = etag }, opts)
+		end,
+		interval,
+		function()
+			FieldsHelpers.setSnapshot(fields, universe, nil)
+		end
+	)
+	FieldsHelpers.setSnapshot(fields, universe, snapshot)
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end

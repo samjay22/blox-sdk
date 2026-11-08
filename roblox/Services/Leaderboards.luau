@@ -40,6 +40,31 @@ function Service.ratingMatch(
 ): Core.Result<Types.RatingMatchResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingMatch"], req, opts, self._universe)
 end
+--- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings via gateway; access: READ.
+function Service.ratingScopes(
+	self: Service,
+	req: Types.RatingScopesCall?,
+	opts: Core.CallOptions?
+): Core.Result<Types.RatingScopesResultValue>
+	return self._invoke(Endpoints["leaderboards.ratingScopes"], (req or {}), opts, self._universe)
+end
+--- Lazily iterate cursor pages, preserving filters and surfacing errors.
+function Service.ratingScopesPages(
+	self: Service,
+	req: Types.RatingScopesCall?,
+	opts: Core.CallOptions?,
+	maximum: number?
+): () -> Core.Result<Types.RatingScopesResultValue>?
+	local request: Types.RatingScopesCall = Idempotency.copy(req or {})
+	local query = table.clone(request.query or {})
+	request.query = query
+	return Pagination.cursor(function(cursor: string?): Core.Result<Types.RatingScopesResultValue>
+		query.cursor = cursor
+		return self.ratingScopes(self, request, opts)
+	end, function(page: Types.RatingScopesResultValue): (string | Core.Null)?
+		return page.nextCursor
+	end, maximum, query.cursor)
+end
 --- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/config via gateway; access: ADMIN.
 function Service.ratingConfig(
 	self: Service,
@@ -55,6 +80,14 @@ function Service.ratingConfigure(
 	opts: Core.CallOptions?
 ): Core.Result<Types.RatingConfigureResultValue>
 	return self._invoke(Endpoints["leaderboards.ratingConfigure"], req, opts, self._universe)
+end
+--- PUT /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/label via gateway; access: ADMIN.
+function Service.ratingLabel(
+	self: Service,
+	req: Types.RatingLabelCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RatingLabelResultValue>
+	return self._invoke(Endpoints["leaderboards.ratingLabel"], req, opts, self._universe)
 end
 --- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings/{scope}/top via gateway; access: READ.
 function Service.ratingTop(

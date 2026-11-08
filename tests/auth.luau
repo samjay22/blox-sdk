@@ -96,11 +96,12 @@ return function(test: (string, () -> ()) -> ())
 			check(result.ok and result.value.status == "EXPIRING_SOON" and result.value.key == "one-time")
 			check(result.ok and result.value.previousKeyExpiresAt == metadata.previousKeyExpiresAt)
 			local lost = client.auth:rotateServiceAccount(
-				{ path = { org = "org", id = "key" } },
+				{ path = { org = "org", id = "key" }, body = {} },
 				{ retry = 3 }
 			)
 			check(not lost.ok and f.count() == 2)
-			local denied = client:scoped(42).auth:rotateServiceAccount({ path = { org = "org", id = "key" } })
+			local denied =
+				client:scoped(42).auth:rotateServiceAccount({ path = { org = "org", id = "key" }, body = {} })
 			check(not denied.ok and f.count() == 2)
 		end)
 	end)

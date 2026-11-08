@@ -10,11 +10,12 @@ import import_contract as java
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOT = Path(os.environ.get('BLOX_SOURCE_ROOT', str(ROOT.parent)))
 SOURCES = {name: SOURCE_ROOT / 'svc' / directory for name, directory in {
-    'audit': 'audit-service', 'config': 'config-service',
+    'audit': 'audit-service',
     'leaderboards': 'leaderboard-service', 'fields': 'fields-service',
 }.items()}
-CATALOG = {'audit': 'AuditService', 'config': 'ConfigService', 'leaderboards': 'LeaderboardService', 'fields': 'FieldsService'}
+CATALOG = {'audit': 'AuditService', 'leaderboards': 'LeaderboardService', 'fields': 'FieldsService'}
 SOURCES.update(codes=SOURCE_ROOT/'srv/src-roblox-code-service', matchmaking=SOURCE_ROOT/'srv/src-mm')
+SOURCES['platform'] = SOURCE_ROOT/'svc/platform-service'
 SOURCES['auth'] = SOURCE_ROOT/'srv/src-gas/global-auth-service'
 
 
@@ -31,10 +32,14 @@ def strip_annotations(text: str) -> str:
 def records(root: Path) -> dict:
     """Extract records/enums from all source packages, including nested submission DTOs."""
     result = {}
+    from runtime_contract import RECORD_NAMES, wire_type
     for file in sorted(root.glob('src/main/java/**/*.java')):
+        if '/rotations/' in str(file) or file.stem.startswith('Rotation'): continue  # Internal engine records are curated with isolated public DTO names in rotations_contract.
         text = java.clean(file.read_text())
         for match in re.finditer(r'\b(enum|record)\s+(\w+)\s*(?:<[^>]+>)?\s*([({])', text):
             kind, name, opening = match.groups()
+            owner = file.stem
+            name = RECORD_NAMES.get(owner, {}).get(name, name)
             if name == 'Page':
                 continue  # New services use CursorPage, not Spring's Page.
             body, _ = java.balanced(text, match.end()-1, opening, ')' if opening == '(' else '}')
@@ -50,7 +55,7 @@ def records(root: Path) -> dict:
                 required = bool(re.search(r'@(NotNull|NotBlank|NotEmpty)\b', prefix)) or typ in ('long','int','boolean','double')
                 wire = re.search(r'@JsonProperty\("([^"]+)"\)', item)
                 if wire: field = wire[1]
-                fields[field] = {'java': typ, 'required': required, 'notBlank': '@NotBlank' in prefix}
+                fields[field] = {'java': wire_type(typ, owner), 'required': required, 'notBlank': '@NotBlank' in prefix}
             result[name] = {'fields': fields, 'source': source}
     return result
 
@@ -58,6 +63,9 @@ def records(root: Path) -> dict:
 def extract(service: str, root: Path) -> tuple[list[dict], dict]:
     """Apply contract-documented wire and safety exceptions to controller/record extraction."""
     java.CATALOG.update(CATALOG)
+    if service == 'platform':
+        from platform_contract import extract as extract_platform
+        return extract_platform(root)
     if service == 'auth':
         from auth_contract import extract as extract_auth
         return extract_auth(root)
@@ -69,19 +77,16 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
     # Response references are required unless the documented nullable field is listed here.
     nullable = {
         'audit': {'Event': {'actorName','ipHash','requestId','metadata','idemKey'}, 'Summary': {'nextCursor'}},
-        'config': {'Entry': {'description'}, 'Flag': {'startsAt','endsAt','description','rules'}, 'State': {'maintenanceMessage'}, 'Snapshot': {'maintenanceMessage'}},
         'leaderboards': {'Board': {'maxDeltaPerSubmit'}, 'Period': {'closedAt'}, 'Submission': {'displayName'}},
     }[service]
     response_names = {
         'audit': 'Retention Receipt Count Summary Event Submission',
-        'config': 'Entry Flag State FullState Snapshot History Evaluation',
-        'leaderboards': 'Board Entry ScoreResult Submission Standing Period Rating RatingChange MatchResult',
+        'leaderboards': 'Board Entry ScoreResult Submission Standing Period Rating RatingScope RatingChange MatchResult',
     }[service].split()
     for name in response_names:
         for field, info in definitions[name]['fields'].items():
             info['required'] = field not in nullable.get(name, set())
-    if service == 'config':
-        definitions['History']['fields']['change']['java'] = 'FullState'
+            if field in nullable.get(name, set()): info['nullable'] = True
     definitions['HealthResponse'] = {'fields': {k: {'java':'String','required':True} for k in ('status','service','timestamp')}}
     definitions['HealthComponent'] = {'fields': {'status': {'java':'String','required':True}}}
     for endpoint in endpoints:
@@ -106,12 +111,9 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
         if endpoint['path'] == '/health': endpoint['responseJava'] = 'HealthResponse'
         if endpoint['method'] == 'POST' and name in ('create','createCurrency'): endpoint['statuses'] = [201]
         if service == 'audit' and name in ('append','batch'): endpoint['statuses'] = [202]
-        if service == 'config' and name in ('evaluate','evaluateFlag'): endpoint['minimumLevel'] = 'READ'
         # No mutation is inferred repeat-safe from PUT/DELETE alone.
         endpoint['idempotent'] = endpoint['method'] == 'GET'
         endpoint['retryable'] = endpoint['method'] == 'GET'
-        if service == 'config' and name == 'snapshot':
-            endpoint.update(responseJava='Snapshot|Void', statuses=[200,304], conditional=True, cacheable=False)
         if service == 'audit' and name == 'retention': endpoint['cacheable'] = False
         key = None
         batch = None
@@ -139,6 +141,8 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
 def refresh(doc: dict) -> dict:
     """Refresh local contracts, retaining reviewed map-built Matchmaking envelopes."""
     from consumer_contracts import refresh_consumers
+    doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] != 'config']
+    doc['types'].pop('config', None)
     refresh_consumers(doc)
     records_only = {k:v for k,v in SOURCES.items() if k not in ('codes','matchmaking')}
     doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] not in records_only]
@@ -167,7 +171,7 @@ def refresh(doc: dict) -> dict:
             if endpoint['requiredRole'] == 'ADMIN': endpoint['requiredRole'] = 'SUPER_ADMIN'
             if endpoint['requiredRole']:
                 endpoint['authKinds'] = [kind for kind in endpoint['authKinds'] if kind != 'scoped']
-            elif 'scoped' not in endpoint['authKinds']:
+            elif 'scoped' not in endpoint['authKinds'] and endpoint['authKinds'] != ['serviceAccount']:
                 endpoint['authKinds'].append('scoped')
     # Proxy login responses carry current identity data; do not retain retired grants
     # in SDK types. This does not upgrade or edit downstream Java DTO artifacts.
@@ -193,7 +197,5 @@ def refresh(doc: dict) -> dict:
             visit(schema(endpoint['responseJava']))
             if endpoint['bodyType']: visit(schema(endpoint['bodyType']))
         doc['types'][service] = {name:definitions[name] for name in sorted(needed)}
-    from platform_contract import apply as apply_platform
-    doc = apply_platform(doc)
     doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))
     return doc

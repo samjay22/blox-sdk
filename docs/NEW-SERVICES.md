@@ -1,16 +1,17 @@
-# Audit, Config, Leaderboards and Fields
+# Audit, Leaderboards and Fields
 
-All four facades share the existing Bearer service-account/user-session authentication, admission limits,
+These facades share Bearer service-account/user-session authentication, admission limits,
 error results, retry budget and backoff. All use `https://lb1.blox-api.com`, with prefixes
-`/audit-service`, `/remote-config-service`, `/leaderboard-service` and `/fields-service`, respectively.
-Never use `/config-service`; `/config*` is gateway-reserved. See the [complete prefix table and overrides](../README.md#gateway-routing).
-Exact permission names: `AuditService`, `ConfigService`,
+`/audit-service`, `/leaderboard-service` and `/fields-service`, respectively.
+Config is retired; runtime configuration belongs to Fields, with no alias or fallback.
+See the [complete prefix table and overrides](../README.md#gateway-routing).
+Exact permission names: `AuditService`,
 `LeaderboardService` (singular), `FieldsService`.
 
 Use `universeId` on client construction or `withUniverse(id)`. Universe selectors must be positive
 integers: numbers must be exactly representable (at most 2^53-1); canonical decimal strings support
 path/query IDs up to Java's signed 64-bit maximum. DTO numeric IDs remain limited to safe Luau integers.
-Audit has implied/query scope; writes fill a missing event universe from the client scope. Config,
+Audit has implied/query scope; writes fill a missing event universe from the client scope.
 Leaderboards and Fields use path universes. Explicit contradictory body scope is rejected locally;
 the backend is always the authorization authority. Arbitrary metadata fields are not scope selectors.
 
@@ -30,15 +31,15 @@ failures. Fields keys are universe-wide and durable; Audit deduplication ends wh
 the event. Reusing a key for a different payload is not a safe retry (Fields/Leaderboards return 409).
 
 Only contract-declared safe/idempotent operations retry, using the existing earned budget and full-jitter
-backoff. GETs with side effects remain excluded. Manual leaderboard rollover, config rollback and other
-unkeyed mutations **never** retry automatically, including on 401. The legacy `idempotencyHint` option
-is accepted for compatibility but no longer overrides safety. Read-only POSTs in the new services are
+backoff. GETs with side effects remain excluded. Manual leaderboard rollover, game-value rollback and other
+unkeyed mutations **never** retry automatically, including on 401. Removed `idempotencyHint`
+is rejected, not ignored. Read-only POSTs in the new services are
 conservatively single-attempt. A Network/Timeout result never proves that a write did not commit.
 
 ## Cursor pagination
 
 Every cursor-bearing method has a generated `<method>Pages(request?, options?, maximum?)` helper, e.g.
-`client.audit:listPages`, `client.config:entriesPages`, `client.leaderboards:ratingTopPages`, and
+`client.audit:listPages`, `client.leaderboards:ratingScopesPages`, `client.leaderboards:ratingTopPages`, and
 `client.fields:ledgerPages`. Mixed requests retain their path, body and filters. No request is made until
 the returned iterator is called. Each call yields a **Result containing a whole page**, then nil at the
 end. Missing/null/empty `nextCursor` ends iteration; failures yield once, rather than hiding incomplete
@@ -66,23 +67,37 @@ before pipeline admission closes. Shutdown waits yield cooperatively; normal enq
 on HTTP. Avoid multiple competing shutdown callbacks; finish application saves before final SDK flush.
 Do not put credentials/PII in audit metadata; backend sensitive-key validation remains authoritative.
 
-## Config snapshot cache
+## Fields runtime snapshot cache
 
-`client:configSnapshot(intervalSeconds?)` starts an asynchronous initial poll (default interval 30s),
-then serial polls after each completion. It requests `/snapshot` with `If-None-Match: "<version>"` after
-a successful snapshot. A 304 has no body and retains the cached state. Errors, malformed responses and
+`client:runtimeSnapshot(intervalSeconds?)` starts an asynchronous initial poll (default interval 30s),
+then serial polls after each completion. It requests Fields `/runtime/snapshot`, reusing the exact
+opaque response ETag in `If-None-Match`, never synthesizing one from a version. Raw calls accept
+`fields:runtimeSnapshot({etag='"opaque-validator"'})`; the Result exposes `etag`.
+A 304 has no body and retains the cached state. Errors, malformed responses and
 version regressions retain the last good snapshot; `LastError` is observable. No generic TTL cache is
 used for these requests.
 
-`:Get(key)` returns an immutable value or nil; `:IsEnabled(flag)` returns the cached **master enabled
+`:Get(key)` reads a literal UNIVERSE field ID from `gameValues` and returns an immutable value or nil;
+`:IsEnabled(flag)` returns the cached **master enabled
 switch only**, false when missing/unloaded. It does **not** evaluate user-specific rollout percentage,
-allow/deny lists, attributes, or schedules. Use `client.config:evaluate` / `evaluateFlag` for those
-contract-defined decisions. Maintenance is independent of flag enablement.
+attributes or rules. Use `client.fields:evaluateFlags({body={userId=7,keys={"double_xp"}}})` or
+`evaluateFlagsBatch({body={userIds={7,8}}})` for service-authoritative decisions. These read-only POSTs
+are conservatively single-attempt. `fields:maintenance()` / `putMaintenance` handle independent
+maintenance policy; writes require ADMIN. `flags` / `flag` read definitions; `createFlag` / `updateFlag`
+require WRITE, and updates require the current version; `deleteFlag` requires ADMIN.
+
+Game configuration is stored in UNIVERSE-scoped Fields definitions at subject 0. Use Fields transactions
+for writes, `gameValueHistoryPages` to read changes, and ADMIN-only `rollbackGameValue` for an unkeyed
+compensation to a prior version. It is not safe to automatically retry that rollback.
 
 `:Version()` reports the last successful generation. `Changed:Connect(callback)` returns a connection
 with `:Disconnect()`; callbacks run asynchronously on first load and each changed generation, not on
 304/equal versions. Listener exceptions are isolated. `:Destroy()` stops polling and disconnects
 listeners. Shared client flush/destroy stops owned caches. No polling starts merely by requiring the SDK.
+
+`leaderboards:ratingScopesPages()` discovers persisted rating scopes without creating them;
+`ratingLabel({path={scope="ranked"},body={displayName="Ranked"}})` sets an ADMIN-only display label.
+These are distinct from board names and rating-match submission.
 
 ## Fields typed gameplay
 

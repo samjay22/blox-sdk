@@ -23,25 +23,24 @@ export type Board = {
 	currentPeriodId: string,
 	displayName: string,
 	id: string,
-	maxDeltaPerSubmit: number?,
+	maxDeltaPerSubmit: (number | Core.Null)?,
 	maxScore: number,
 	minScore: number,
 	name: string,
 	periodStartedAt: string,
 	resetSchedule: ResetSchedule,
-	revision: number,
 	sortOrder: SortOrder,
 	universeId: number,
 }
 export type CreateBoard = {
-	aggregation: Aggregation,
+	aggregation: Aggregation?,
 	displayName: string,
 	maxDeltaPerSubmit: number?,
-	maxScore: number,
-	minScore: number,
-	name: string,
-	resetSchedule: ResetSchedule,
-	sortOrder: SortOrder,
+	maxScore: number?,
+	minScore: number?,
+	name: string?,
+	resetSchedule: ResetSchedule?,
+	sortOrder: SortOrder?,
 	universeId: number?,
 }
 export type HealthComponent = { status: string }
@@ -51,6 +50,7 @@ export type MatchResult = { matchId: string, players: { RatingChange } }
 export type MetricsResponse = { names: { string } }
 export type PatchBoard = {
 	aggregation: Aggregation?,
+	clearMaxDeltaPerSubmit: boolean?,
 	displayName: string?,
 	maxDeltaPerSubmit: number?,
 	maxScore: number?,
@@ -59,7 +59,7 @@ export type PatchBoard = {
 	sortOrder: SortOrder?,
 	universeId: number?,
 }
-export type Period = { closedAt: string?, periodId: string, startedAt: string, total: number }
+export type Period = { closedAt: (string | Core.Null)?, periodId: string, startedAt: string, total: number }
 export type Rating = {
 	deviation: number,
 	games: number,
@@ -71,6 +71,8 @@ export type Rating = {
 }
 export type RatingChange = { after: number, before: number, deviation: number, games: number, userId: number }
 export type RatingConfig = { floor: number, initialRating: number, kFactor: number, universeId: number? }
+export type RatingScope = { displayName: string, scope: string }
+export type RatingScopeLabel = { displayName: string, universeId: number? }
 export type ResetSchedule = "NONE" | "DAILY" | "WEEKLY" | "MONTHLY" | "SEASONAL"
 export type ScoreBatch = { scores: { ScoreInput }, universeId: number? }
 export type ScoreInput = {
@@ -97,6 +99,11 @@ export type ReadinessCall = {}
 export type ReadinessResultValue = HealthComponent
 export type RatingMatchCall = { path: { universeId: (string | number)? }?, body: MatchInput }
 export type RatingMatchResultValue = MatchResult
+export type RatingScopesCall = {
+	path: { universeId: (string | number)? }?,
+	query: { cursor: string?, limit: number? }?,
+}
+export type RatingScopesResultValue = CursorPage<RatingScope>
 export type RatingConfigCall = { path: { universeId: (string | number)?, scope: string } }
 export type RatingConfigResultValue = RatingConfig
 export type RatingConfigureCall = {
@@ -104,6 +111,11 @@ export type RatingConfigureCall = {
 	body: RatingConfig,
 }
 export type RatingConfigureResultValue = RatingConfig
+export type RatingLabelCall = {
+	path: { universeId: (string | number)?, scope: string },
+	body: RatingScopeLabel,
+}
+export type RatingLabelResultValue = RatingScope
 export type RatingTopCall = {
 	path: { universeId: (string | number)?, scope: string },
 	query: { cursor: string?, limit: number? }?,

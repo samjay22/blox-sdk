@@ -15,7 +15,7 @@ def definitions_into(definitions: dict) -> None:
         'JobState': {'enum': ['QUEUED','RUNNING','SUCCEEDED','CANCELLED','FAILED']},
         'JobReceipt': record(id='UUID', kind='JobKind', state='JobState', total='long', succeeded='long',
                              failed='long', prepared='boolean', cancelRequested='boolean', attempts='int',
-                             updatedAt='Instant', error='String?', phase='String?', snapshotId='UUID?'),
+                             updatedAt='Instant', error='String?', phase='String?', snapshotId='UUID?', recurrence='ScheduleRecurrence?'),
         'JobSummary': record(id='UUID', kind='JobKind', state='JobState', total='long', succeeded='long',
                              failed='long', updatedAt='Instant', error='String?'),
         'JobEvent': record(id='long', event='String', actor='String', metadata='Map<String, JsonNode>', createdAt='Instant'),
@@ -38,10 +38,10 @@ def definitions_into(definitions: dict) -> None:
                                   failureSamples='List<MigrationFailureSample>', unconverted='long', canApplyDirectly='boolean'),
         'ScheduleInput': record(universeId='Long?', name='String', start='Instant', end='Instant?',
                                 startActions='List<Fields.ScheduleAction>', endActions='List<Fields.ScheduleAction>?',
-                                restorePrevious='boolean?', reason='String', idempotencyKey='String?'),
+                                restorePrevious='boolean?', reason='String', idempotencyKey='String?', recurrence='ScheduleRecurrence?'),
         'SchedulePreview': record(start='Instant', startActions='List<Fields.ScheduleAction>', endActions='List<Fields.ScheduleAction>',
                                   restorePrevious='boolean', requiresExistingConfigResources='boolean'),
-        'ScheduleSummary': record(id='UUID', state='JobState', phase='String', name='String', start='Instant', end='Instant?'),
+        'ScheduleSummary': record(id='UUID', state='JobState', phase='String', name='String', start='Instant', end='Instant?', recurrence='ScheduleRecurrence?'),
         'ScheduleActionResult': record(ordinal='long', done='boolean', kind='String', key='String?', version='Long?', jobId='UUID?', error='String?'),
         'ImportError': record(line='long', code='String'),
         'ImportValidation': record(dryRun='boolean', valid='boolean', records='long', errors='List<ImportError>'),
@@ -57,8 +57,24 @@ def definitions_into(definitions: dict) -> None:
         'OpenAlertCounts': record(WARNING='long', CRITICAL='long'),
         'HealthSummary': record(openAlerts='OpenAlertCounts', runningJobs='long', upcomingSchedules='long'),
     })
+    definitions['ScheduleRecurrence'] = record(type='RecurrenceType', daysOfWeek='List<DayOfWeek>', timezone='String')
+    # Definition reads may include null record components; NON_NULL may omit them.
+    # Keep this distinct from ScheduleInput so requests do not accept meaningless nulls.
+    import copy
+    definitions['ScheduleDefinition'] = copy.deepcopy(definitions['ScheduleInput'])
+    for field in definitions['ScheduleDefinition']['fields'].values(): field['required'] = True
+    for name in ('universeId','end','endActions','idempotencyKey','recurrence'):
+        definitions['ScheduleDefinition']['fields'][name].update(nullable=True, required=False)
+    definitions['RecurrenceType'] = {'enum':['NONE','DAILY','WEEKLY']}
+    definitions['DayOfWeek'] = {'enum':['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY']}
+    definitions['ScheduleActionResult']['fields'].update(skipped={'java':'boolean','required':False,'nullable':True}, skipReason={'java':'String','required':False,'nullable':True})
+    definitions['ScheduleRun'] = record(id='long', occurrence='long', edge='ScheduleEdge', startedAt='Instant', finishedAt='Instant?', status='ScheduleRunStatus', error='String?', actions='List<ScheduleActionResult>')
+    for name in ('finishedAt','error'): definitions['ScheduleRun']['fields'][name]['nullable'] = True
+    definitions['ScheduleEdge'] = {'enum':['START','END']}
+    definitions['ScheduleRunStatus'] = {'enum':['RUNNING','SUCCEEDED','FAILED','CANCELLED']}
     # SQL jsonb_build_object emits explicit nulls for absent optional properties.
-    for name, fields in {'JobSummary':['error'], 'ScheduleSummary':['end'],
+    for name, fields in {'JobSummary':['error'], 'ScheduleSummary':['end','recurrence'],
+                         'JobReceipt':['recurrence'],
                          'ScheduleActionResult':['key','version','jobId','error'],
                          'AlertConfigInput':['webhook']}.items():
         for field in fields:
@@ -100,6 +116,8 @@ def curate(endpoints: list[dict]) -> list[dict]:
             ('POST','/jobs/{id}/retry'): ('retryJob','JobReceipt','JobActionInput'),
             ('GET','/schedules'): ('schedules','List<ScheduleSummary>',None),
             ('GET','/schedules/{id}'): ('schedule','JobReceipt',None),
+            ('GET','/schedules/{id}/definition'): ('scheduleDefinition','ScheduleDefinition',None),
+            ('GET','/schedules/{id}/runs'): ('scheduleRuns','List<ScheduleRun>',None),
             ('GET','/schedules/{id}/actions'): ('scheduleActions','List<ScheduleActionResult>',None),
             ('GET','/jobs/{id}/failures'): ('jobFailures','List<JobFailure>',None),
             ('GET','/jobs/{id}/failures/download'): ('jobFailuresDownload','String',None),
@@ -118,7 +136,7 @@ def curate(endpoints: list[dict]) -> list[dict]:
         }
         name, response, body = routes[e['method'], suffix]
         e.update(name=name, id='fields.'+name, responseJava=response, bodyType=body,
-                 responseType=name[0].upper()+name[1:]+'ResultValue', minimumLevel='READ' if name=='healthSummary' else 'ADMIN',
+                 responseType=name[0].upper()+name[1:]+'ResultValue', minimumLevel='READ' if name in ('healthSummary','scheduleRuns') else 'ADMIN',
                  cacheable=False, responseFormat='text' if name in ('jobDownload','jobFailuresDownload') else 'json')
         if name in ('bulk','export','migrate','rollbackMigration','reverseBulk','createSchedule'):
             e.update(idempotencyField='idempotencyKey', idempotent=True, retryable=True)

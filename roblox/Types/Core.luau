@@ -33,14 +33,13 @@ export type BloxError = {
 	grantPending: boolean?,
 }
 export type Result<T> =
-	{ ok: true, value: T, status: number?, stale: boolean? }
+	{ ok: true, value: T, status: number?, stale: boolean?, etag: string? }
 	| { ok: false, error: BloxError }
 export type Signal = { cancelled: boolean }
 export type CallOptions = {
 	deadline: number?,
 	priority: ("critical" | "bulk")?,
 	retry: number?,
-	idempotencyHint: boolean?,
 	cacheTtl: number?,
 	signal: Signal?,
 }
@@ -69,7 +68,6 @@ export type ServiceLevels = {
 	CodeService: Level?,
 	Gateway: Level?,
 	AuditService: Level?,
-	ConfigService: Level?,
 	LeaderboardService: Level?,
 	FieldsService: Level?,
 	PlatformService: Level?,
@@ -117,7 +115,7 @@ export type Endpoint = {
 }
 export type Request = {
 	idempotencyKey: string?,
-	version: number?,
+	etag: string?,
 	path: { [string]: unknown }?,
 	query: { [string]: unknown }?,
 	body: unknown?,

@@ -7,14 +7,14 @@ import re
 import subprocess
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
-SERVICES = {'auth':'Auth','matchmaking':'Matchmaking','party':'Party','codes':'Codes','audit':'Audit','config':'Config','leaderboards':'Leaderboards','fields':'Fields','platform':'Platform'}
+SERVICES = {'auth':'Auth','matchmaking':'Matchmaking','party':'Party','codes':'Codes','audit':'Audit','leaderboards':'Leaderboards','fields':'Fields','platform':'Platform'}
 GATEWAY_URL = 'https://lb1.blox-api.com'
 # The gateway strips these prefixes before forwarding the unchanged controller path.
 SERVICE_PREFIXES = {
     'auth': '/auth-service',
     'matchmaking': '/matchmaking-service', 'party': '/party-service',
     'codes': '/code-service', 'audit': '/audit-service',
-    'config': '/remote-config-service', 'leaderboards': '/leaderboard-service',
+    'leaderboards': '/leaderboard-service',
     'fields': '/fields-service', 'platform': '/platform-service',
 }
 
@@ -50,7 +50,7 @@ def schema(java: str) -> dict:
     if '|' in java: return {'kind':'union','items':[schema(x) for x in java.split('|')]}
     if java.startswith('Fields.'):
         return {'kind':'fields','name':java[7:]}
-    if java in ('String','UUID','Instant','LocalDateTime'): return {'kind':'string'}
+    if java in ('String','UUID','Instant','LocalDateTime','LocalDate'): return {'kind':'string'}
     if java in ('boolean','Boolean'): return {'kind':'boolean'}
     if java in ('long','Long','int','Integer','Double','double','Float','float'): return {'kind':'number'}
     if java=='BigDecimal': return {'kind':'decimal'}
@@ -132,7 +132,7 @@ def generate(doc: dict) -> dict[Path,str]:
                     typ='('+typ+' | Core.Null)'; s={'kind':'nullable','item':s}
                 if svc=='auth' and name=='ServiceAccountPatchRequest' and n in ('description','expiresAt'):
                     typ='('+typ+' | Core.Null)'; s={'kind':'nullable','item':s}
-                if n == 'entryId' and svc in ('fields','codes'):
+                if n == 'entryId' and svc in ('fields','codes') and name not in ('GeneratorPick','RotationClaimInput','RotationClaimResult','RotationStock'):
                     typ='(string | Core.Null)'; s={'kind':'nullable','item':{'kind':'string'}}
                 if svc=='fields' and name=='BoardActualSettings' and n=='maxDeltaPerSubmit':
                     typ='(number | Core.Null)'; s={'kind':'nullable','item':{'kind':'number'}}
@@ -156,7 +156,7 @@ def generate(doc: dict) -> dict[Path,str]:
             else:
                 groups=[]
                 if e.get('idempotencyHeader'): groups.append('idempotencyKey: string?')
-                if e.get('conditional'): groups.append('version: number?')
+                if e.get('conditional'): groups.append('etag: string?')
                 for which in ('path','query'):
                     params=e[which+'Params']
                     if not params:continue
@@ -189,11 +189,11 @@ def generate(doc: dict) -> dict[Path,str]:
                       'function Service.Award(self: Service, universeId: string | number): Award.Builder return Award.new(assert(self._fields, "Fields helpers unavailable"), universeId) end']
         if svc == 'fields':
             lines[3:3] = ['local Helpers = require("../Fields/Client")', 'local Schema = require("../Fields/Schema")', 'local Transaction = require("../Fields/Transaction")', 'local Profile = require("../Fields/Profile")', 'local OpBuilder = require("../Fields/OpBuilder")']
-            for module in ('Bulk','Schedules','Jobs','Health'):
+            for module in ('Bulk','Schedules','Jobs','Health','Rotations','Generators'):
                 lines.insert(3, 'local '+module+' = require("../Fields/'+module+'")')
                 helper_type = 'Builder' if module == 'Bulk' else 'Client'
                 lines.extend([
-                    '--- Bind '+module+' helpers to an explicit universe; control-plane mutations require a server ADMIN key.',
+                    '--- Bind '+module+' helpers to an explicit universe; '+('server authorization remains authoritative.' if module in ('Rotations','Generators') else 'control-plane mutations require a server ADMIN key.'),
                     f'function Service.{module}(self: Service, universeId: string | number): {module}.{helper_type} return {module}.new(assert(self._fields, "Fields helpers unavailable"), universeId) end',
                 ])
             lines += [
@@ -243,17 +243,19 @@ def generate(doc: dict) -> dict[Path,str]:
         '| Service | Gateway stripPrefix |', '|---|---|',
         *[f'| `{svc}` | `{prefix}` |' for svc, prefix in SERVICE_PREFIXES.items()], '',
         'Paths below are backend-relative: wire URL = gateway + service prefix + path. '
-        'Config uses `/remote-config-service`, never `/config-service` (the gateway reserves `/config*`). '
+        'Game configuration lives in Fields. Platform preserves its domain prefix on direct hosts. '
         'An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway '
         'and prefix for that service only. See [routing configuration](../README.md#gateway-routing).', '',
     ]
-    rows.extend(['', '**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedules, and alerts require FieldsService ADMIN, including previews and downloads. Only Fields `GET /health/summary` requires READ.', '', 'Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.'])
+    rows.extend(['', '**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedule controls, and alerts require FieldsService ADMIN, including previews and downloads. Fields health summary and schedule run history require READ.', '', 'Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.'])
     rows.extend(['', '**Auth IDENTITY means identity authentication, not an automatic capability grant.** Org ADMIN/OWNER gates, delegation caps, quotas and last-owner checks remain server-enforced. Scoped JWTs and machine keys cannot manage orgs/keys. Humans/tools use identity login then `client:scoped(id)` for downstream access; game servers should use `bsa_` keys. See [Auth role templates and error codes](AUTH.md).'])
     rows.extend(['', '| Method | Path | SDK method | Service level / role | Success / branch | Retry by default | Cache eligible |','|---|---|---|---|---|---|---|'])
     for e in doc['endpoints']:
         retry = 'keyed apply / dry-run' if e.get('idempotencyHeader') else 'keyed' if e.get('idempotencyField') else 'yes' if e['retryable'] else 'no'
         rows.append('| '+ ' | '.join([e['method'],'`'+e['path']+'`','`'+e['id']+'`',e['requiredRole'] or e['minimumLevel'] or 'public / authenticated',', '.join(map(str,e['statuses'])),retry,'yes' if e['cacheable'] else 'no'])+' |')
     output[ROOT/'docs/ENDPOINTS.md']='\n'.join(rows)+'\n'
+    from coverage_report import render
+    output[ROOT/'SDK_COVERAGE.md'] = render(doc, SERVICE_PREFIXES)
     provenance=json.loads((ROOT/'spec/provenance.json').read_text())
     prefixes=('srv/src-mm/', 'srv/src-roblox-code-service/', 'srv/src-gas/', 'svc/')
     provenance['files']={k:v for k,v in provenance['files'].items() if not k.startswith(prefixes)}
@@ -272,7 +274,7 @@ def main() -> None:
         doc=refresh(doc)
         (ROOT/'spec/endpoints.json').write_text(json.dumps(doc,indent=2,sort_keys=True)+'\n')
         routes=json.loads((ROOT/'routes.json').read_text())
-        routes=[r for r in routes if {'mm':'matchmaking','code':'codes'}.get(r['svc'],r['svc']) not in SOURCES]
+        routes=[r for r in routes if r['svc'] != 'config' and {'mm':'matchmaking','code':'codes'}.get(r['svc'],r['svc']) not in SOURCES]
         routes.extend({'svc':e['service'],'method':e['method'],'path':e['path']} for e in doc['endpoints'] if e['service'] in SOURCES)
         (ROOT/'routes.json').write_text(json.dumps(routes,indent=2)+'\n')
     outputs=generate(doc)

@@ -50,11 +50,12 @@ local function matches(
 	elseif kind == "string" or kind == "boolean" then
 		return type(value) == kind
 	elseif kind == "decimal" then
-		return (type(value) == "number" and value % 1 == 0 and math.abs(value) <= 9007199254740991)
+		-- BigDecimal includes fractional prices; decimal strings avoid binary rounding.
+		return (type(value) == "number" and value == value and math.abs(value) <= 9007199254740991)
 			or (
 				type(value) == "string"
-				and string.match(value, "^%-?%d+$") ~= nil
-				and #string.gsub(value, "^-", "") <= 38
+				and (string.match(value, "^%-?%d+$") ~= nil or string.match(value, "^%-?%d+%.%d+$") ~= nil)
+				and #string.gsub(value, "[%-.]", "") <= 38
 			)
 	elseif kind == "number" then
 		return type(value) == "number" and value == value and math.abs(value) <= 9007199254740991

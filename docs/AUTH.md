@@ -60,7 +60,7 @@ Initial role templates (operators may replace them; query `listRoleTemplates` fo
 | Role | Initial service grants |
 |---|---|
 | OWNER / ADMIN | ADMIN on every catalog service, including AuthService and Gateway |
-| DEVELOPER | ADMIN on FieldsService, LeaderboardService, CodeService, ConfigService, MatchmakingService, PartyService; READ on AuditService; no AuthService/Gateway |
+| DEVELOPER | ADMIN on FieldsService, LeaderboardService, CodeService, ConfigService (backend legacy grant; no SDK facade), MatchmakingService, PartyService; READ on AuditService; no AuthService/Gateway |
 | VIEWER | READ on every catalog service except AuthService/Gateway |
 
 New catalog services initially give OWNER/ADMIN ADMIN and VIEWER READ. Explicit member overrides replace levels
@@ -112,8 +112,9 @@ Create/get/list/rotate metadata includes optional `expiresAt`, `rotatedAt`, `pre
 `status`: `ACTIVE | EXPIRING_SOON | EXPIRED | REVOKED`. `EXPIRING_SOON` means within seven days of
 `expiresAt` or `previousKeyExpiresAt`; it does not mean the current key is already rejected.
 
-`auth:rotateServiceAccount` uses **POST `/api/auth/orgs/{org}/service-accounts/{id}/rotate`**. The optional
-body accepts `gracePeriodSeconds`, an integer from 0 to 604800 (seven days), default 3600. Rotation reveals
+`auth:rotateServiceAccount` uses **POST `/api/auth/orgs/{org}/service-accounts/{id}/rotate`**. The required
+JSON body (use `{}` for defaults) accepts optional `gracePeriodSeconds`, an integer from 0 to 604800
+(seven days), default 3600. Rotation reveals
 the new secret once and keeps the old secret valid until `previousKeyExpiresAt` (or the account's earlier
 expiry/revocation). Zero grace invalidates it immediately. Only one previous key is retained: rotating again
 revokes the earlier previous secret immediately, even if its original grace deadline has not passed.
@@ -195,3 +196,16 @@ Login/refresh/scoped exchange, invitation creation and key creation/rotation ret
 in the general response cache or sent to hooks. Never print those results. Scoped tokens are retained only in
 the private helper cache. `BloxSDK.null` preserves explicit JSON null; nil is omission. Offline tests do not
 certify live gateway grants, server state, revocation timing or Roblox Secret destinations.
+
+## Current membership and internal key additions
+
+Identity/org-authorized management tools can use `assignOwner({path={org=...},body={username=...}})`;
+supply exactly one of username, email or accountId. `createMember` accepts username, role and optional
+email/displayName, and returns account/member plus a one-time temporary password. Never log its Result.
+`listMembers` returns identity details and explicit overrides; displayName and universeId may be null.
+These routes are not machine-key gameplay operations.
+
+`lookupServiceAccount({path={org=...,id=...}})` is machine-only, AuthService READ, org-bound safe metadata
+lookup for platform integrations; it never returns a key, digest or permission list. Backend machine/org
+checks remain authoritative. Existing sandbox provision/finalize/cancel APIs are internal machine controls,
+not ordinary game-server account administration.

@@ -573,6 +573,15 @@ test("all generated endpoints use default, custom gateway and direct-host URLs o
 			base ..= GatewayTests.prefixes[spec.service]
 			if mode == "direct" then
 				base = "https://direct.example"
+				if
+					spec.service == "platform"
+					and (
+						string.sub(spec.path, 1, 5) == "/api/"
+						or string.sub(spec.path, 1, 10) == "/internal/"
+					)
+				then
+					base ..= "/platform-service"
+				end
 			end
 			local expectedUrl = base .. (Path.build(spec, request, nil) :: string)
 			local c, f = client(s, {
@@ -1004,5 +1013,7 @@ require("./jobs")(test)
 require("./references")(test)
 require("./simulate")(test)
 require("./platform")(test)
+require("./service_contracts")(test)
+require("./rotations")(test)
 GatewayTests.register(test)
 print("PASS " .. tostring(passed) .. " test groups")

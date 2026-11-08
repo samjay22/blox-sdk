@@ -6,6 +6,7 @@ from fields_contract import record
 
 def refresh_consumers(doc: dict) -> None:
     """Replace retired Codes DTOs and refresh criteria from their authoritative sources."""
+    doc['endpoints'] = [e for e in doc['endpoints'] if not (e['service']=='matchmaking' and '/environments/' in e['path'])]
     root = java.SOURCES['codes']
     definitions = java.types_for('codes', root)
     for definition in definitions.values():
@@ -25,12 +26,11 @@ def refresh_consumers(doc: dict) -> None:
     definitions['Result']['fields']['entryId']['java'] = 'String|JsonNode'
     definitions['HealthResponse'] = record(status='String', timestamp='String?', database='String?')
     definitions['MetricsResponse'] = record(names='List<String>')
+    definitions['HealthComponent'] = record(status='String')
     # FieldOperation is a @JsonValue closed union, not its private implementation members.
     definitions.pop('FieldOperation', None)
     endpoints = []
     for e in java.endpoints_for('codes', root):
-        if e['path'].startswith('/actuator/'):
-            continue  # Deployment probes are outside the SDK inventory.
         response = e['javaResponse']
         while response.startswith(('Mono<','ResponseEntity<')):
             response = response[response.index('<')+1:-1]
@@ -38,6 +38,8 @@ def refresh_consumers(doc: dict) -> None:
                  responseType=e['name'][0].upper()+e['name'][1:]+'ResultValue',
                  errorStatuses=[400,401,403,404,409,422,423,429,500,503],
                  errorStatusNote='CodeService API_CONTRACT.md; Fields remains authoritative.')
+        if e['path'].startswith('/actuator/health/'):
+            e.update(minimumLevel=None, requiredRole=None, authKinds=['none','serviceAccount','user','custom'])
         e['retryable'] = e['idempotent'] = e['method']=='GET'
         endpoints.append(e)
     health = next(e for e in endpoints if e['path']=='/health')

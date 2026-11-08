@@ -1,0 +1,1984 @@
+{
+  "active": {
+    "current": {
+      "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+      "key": "weather",
+      "sequence": 41,
+      "startsAt": "2026-11-08T12:00:00Z",
+      "endsAt": "2026-11-08T12:07:45Z",
+      "definitionVersions": {
+        "rotation:weather": 1,
+        "table:weather": 1,
+        "generator:weather": 1
+      },
+      "result": {
+        "picks": [
+          {
+            "slot": "weather:0",
+            "index": 0,
+            "table": "weather",
+            "entryId": "rain",
+            "path": [
+              "weather/rain"
+            ],
+            "tags": [
+              "wet"
+            ],
+            "payload": {
+              "weather": "RAIN",
+              "intensity": 0.7
+            },
+            "rolls": {},
+            "durationSeconds": 465,
+            "grants": []
+          }
+        ],
+        "cost": [],
+        "pityAfter": null,
+        "resolvedConfig": {}
+      }
+    },
+    "next": {
+      "id": "0f656472-95e3-4f68-b0ee-679a90cdd960",
+      "key": "weather",
+      "sequence": 42,
+      "startsAt": "2026-11-08T12:07:45Z",
+      "endsAt": "2026-11-08T12:23:23Z",
+      "definitionVersions": {
+        "rotation:weather": 1,
+        "table:weather": 1,
+        "generator:weather": 1
+      },
+      "result": {
+        "picks": [
+          {
+            "slot": "weather:0",
+            "index": 0,
+            "table": "weather",
+            "entryId": "clear",
+            "path": [
+              "weather/clear"
+            ],
+            "tags": [
+              "clear"
+            ],
+            "payload": {
+              "weather": "CLEAR",
+              "intensity": 0
+            },
+            "rolls": {},
+            "durationSeconds": 938,
+            "grants": []
+          }
+        ],
+        "cost": [],
+        "pityAfter": null,
+        "resolvedConfig": {
+          "Weather.MinDuration": 600,
+          "Weather.MaxDuration": 1200
+        }
+      }
+    },
+    "enabled": true
+  },
+  "roll": {
+    "id": "636b3dbf-e042-4c91-b5a5-e844a78585a6",
+    "generator": "card_pack",
+    "playerId": 7,
+    "results": [
+      {
+        "picks": [
+          {
+            "slot": "cards:0",
+            "index": 0,
+            "table": "cards_rare",
+            "entryId": "r02",
+            "path": [
+              "rarity/rare",
+              "cards_rare/r02"
+            ],
+            "tags": [
+              "rare"
+            ],
+            "payload": {
+              "cardId": "r02",
+              "name": "Rare card 2"
+            },
+            "rolls": {},
+            "durationSeconds": null,
+            "grants": [
+              {
+                "field": "Inventory.Cards",
+                "op": "MAP_ADD",
+                "key": "r02",
+                "delta": 1
+              }
+            ]
+          },
+          {
+            "slot": "cards:1",
+            "index": 1,
+            "table": "cards_common",
+            "entryId": "c05",
+            "path": [
+              "rarity/common",
+              "cards_common/c05"
+            ],
+            "tags": [
+              "common"
+            ],
+            "payload": {
+              "cardId": "c05",
+              "name": "Common card 5"
+            },
+            "rolls": {},
+            "durationSeconds": null,
+            "grants": [
+              {
+                "field": "Inventory.Cards",
+                "op": "MAP_ADD",
+                "key": "c05",
+                "delta": 1
+              }
+            ]
+          },
+          {
+            "slot": "cards:2",
+            "index": 2,
+            "table": "cards_rare",
+            "entryId": "r08",
+            "path": [
+              "rarity/rare",
+              "cards_rare/r08"
+            ],
+            "tags": [
+              "rare"
+            ],
+            "payload": {
+              "cardId": "r08",
+              "name": "Rare card 8"
+            },
+            "rolls": {},
+            "durationSeconds": null,
+            "grants": [
+              {
+                "field": "Inventory.Cards",
+                "op": "MAP_ADD",
+                "key": "r08",
+                "delta": 1
+              }
+            ]
+          },
+          {
+            "slot": "cards:3",
+            "index": 3,
+            "table": "cards_common",
+            "entryId": "c03",
+            "path": [
+              "rarity/common",
+              "cards_common/c03"
+            ],
+            "tags": [
+              "common"
+            ],
+            "payload": {
+              "cardId": "c03",
+              "name": "Common card 3"
+            },
+            "rolls": {},
+            "durationSeconds": null,
+            "grants": [
+              {
+                "field": "Inventory.Cards",
+                "op": "MAP_ADD",
+                "key": "c03",
+                "delta": 1
+              }
+            ]
+          },
+          {
+            "slot": "bonus:0",
+            "index": 0,
+            "table": "cards_rare",
+            "entryId": "r04",
+            "path": [
+              "rarity/rare",
+              "cards_rare/r04"
+            ],
+            "tags": [
+              "rare"
+            ],
+            "payload": {
+              "cardId": "r04",
+              "name": "Rare card 4"
+            },
+            "rolls": {},
+            "durationSeconds": null,
+            "grants": [
+              {
+                "field": "Inventory.Cards",
+                "op": "MAP_ADD",
+                "key": "r04",
+                "delta": 1
+              }
+            ]
+          }
+        ],
+        "cost": [
+          {
+            "field": "Currency.Gems",
+            "op": "ADD",
+            "delta": -100
+          }
+        ],
+        "pityAfter": 1,
+        "resolvedConfig": {
+          "Economy.PackDebit": -100,
+          "Cards.PityThreshold": 50
+        }
+      }
+    ],
+    "definitionVersions": {
+      "generator:card_pack": 1,
+      "table:cards_common": 1,
+      "table:cards_epic": 1,
+      "table:cards_legendary": 1,
+      "table:cards_rare": 1,
+      "table:rarity": 1
+    },
+    "transaction": {
+      "txId": "f9f4a6bd-d059-47a3-9c93-40db1a58ce6e",
+      "replayed": false,
+      "results": [
+        {
+          "subject": 7,
+          "field": "Currency.Gems",
+          "path": [],
+          "op": "ADD",
+          "before": 1000,
+          "after": 900,
+          "version": 1,
+          "entryId": "b40a56dd-15ea-4b8a-a6d4-dba0d6d21463"
+        },
+        {
+          "subject": 7,
+          "field": "Inventory.Cards",
+          "path": [],
+          "op": "MAP_ADD",
+          "before": {},
+          "after": {
+            "r02": 1
+          },
+          "version": 1,
+          "entryId": "5b02eb5f-c260-4fd5-8dd6-0e7b7f287385"
+        },
+        {
+          "subject": 7,
+          "field": "Inventory.Cards",
+          "path": [],
+          "op": "MAP_ADD",
+          "before": {
+            "r02": 1
+          },
+          "after": {
+            "c05": 1,
+            "r02": 1
+          },
+          "version": 1,
+          "entryId": "87cad386-fcf5-4f18-8241-9c066b14c8cc"
+        },
+        {
+          "subject": 7,
+          "field": "Inventory.Cards",
+          "path": [],
+          "op": "MAP_ADD",
+          "before": {
+            "c05": 1,
+            "r02": 1
+          },
+          "after": {
+            "c05": 1,
+            "r02": 1,
+            "r08": 1
+          },
+          "version": 1,
+          "entryId": "6566a778-3254-467e-a5f3-e84ce397c399"
+        },
+        {
+          "subject": 7,
+          "field": "Inventory.Cards",
+          "path": [],
+          "op": "MAP_ADD",
+          "before": {
+            "c05": 1,
+            "r02": 1,
+            "r08": 1
+          },
+          "after": {
+            "c03": 1,
+            "c05": 1,
+            "r02": 1,
+            "r08": 1
+          },
+          "version": 1,
+          "entryId": "4a6e1470-c1c6-440a-851f-db72845514f4"
+        },
+        {
+          "subject": 7,
+          "field": "Inventory.Cards",
+          "path": [],
+          "op": "MAP_ADD",
+          "before": {
+            "c03": 1,
+            "c05": 1,
+            "r02": 1,
+            "r08": 1
+          },
+          "after": {
+            "c03": 1,
+            "c05": 1,
+            "r02": 1,
+            "r04": 1,
+            "r08": 1
+          },
+          "version": 1,
+          "entryId": "e219d74d-4980-4019-b1b1-57d841e0fd25"
+        },
+        {
+          "subject": 7,
+          "field": "Pity.Legendary",
+          "path": [],
+          "op": "SET",
+          "before": 0,
+          "after": 1,
+          "version": 1,
+          "entryId": "8423b1fa-4320-404b-9e20-109ac75cceb4"
+        }
+      ],
+      "seq": {
+        "7": 1
+      }
+    },
+    "createdAt": "2026-11-08T12:00:00Z"
+  },
+  "claim": {
+    "id": "52a25291-02d5-49a4-8053-03432614619f",
+    "instanceId": "00000000-0000-4000-8000-000000000001",
+    "slot": "packs:0",
+    "entryId": "starter_pack",
+    "quantity": 1,
+    "remaining": 19,
+    "transaction": {
+      "txId": "2eb8f984-af40-449f-b5cc-30cc80ee60d2",
+      "replayed": false,
+      "results": [
+        {
+          "subject": 7,
+          "field": "Currency.Gems",
+          "path": [],
+          "op": "ADD",
+          "before": 900,
+          "after": 800,
+          "version": 2,
+          "entryId": "fef2202a-fb3a-4b94-a3ea-7b439663ef1c"
+        },
+        {
+          "subject": 7,
+          "field": "Inventory.Packs",
+          "path": [],
+          "op": "MAP_ADD",
+          "before": {},
+          "after": {
+            "starter_pack": 1
+          },
+          "version": 1,
+          "entryId": "d629558e-1135-42d4-8360-4addd23c7c4e"
+        }
+      ],
+      "seq": {
+        "7": 2
+      }
+    },
+    "createdAt": "2026-11-08T12:01:00Z"
+  },
+  "stock": [
+    {
+      "slot": "packs:0",
+      "entryId": "starter_pack",
+      "remaining": 19
+    }
+  ],
+  "odds": {
+    "entryProbabilities": {
+      "common": 0.7,
+      "rare": 0.25,
+      "epic": 0.045,
+      "legendary": 0.005
+    },
+    "probabilities": {
+      "cards_common/c01": 0.0875,
+      "cards_rare/r01": 0.03125
+    },
+    "resolvedConfig": {}
+  },
+  "vectors": [
+    {
+      "endpoint": "fields.listRandomTables",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables",
+      "status": 200,
+      "request": {},
+      "response": [
+        {
+          "kind": "TABLE",
+          "key": "weather",
+          "version": 1,
+          "definition": {
+            "mode": "UNIFORM",
+            "entries": [
+              {
+                "id": "clear",
+                "durationSeconds": {
+                  "min": 600,
+                  "max": 600
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "fields.getRandomTable",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        }
+      },
+      "response": {
+        "kind": "TABLE",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "mode": "UNIFORM",
+          "entries": [
+            {
+              "id": "clear",
+              "durationSeconds": {
+                "min": 600,
+                "max": 600
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "fields.createRandomTable",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables",
+      "status": 200,
+      "request": {
+        "body": {
+          "key": "weather",
+          "definition": {
+            "mode": "UNIFORM",
+            "entries": [
+              {
+                "id": "clear",
+                "durationSeconds": {
+                  "min": 600,
+                  "max": 600
+                }
+              }
+            ]
+          },
+          "reason": "Initial weather setup"
+        }
+      },
+      "response": {
+        "kind": "TABLE",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "mode": "UNIFORM",
+          "entries": [
+            {
+              "id": "clear",
+              "durationSeconds": {
+                "min": 600,
+                "max": 600
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "fields.putRandomTable",
+      "method": "PUT",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "definition": {
+            "mode": "UNIFORM",
+            "entries": [
+              {
+                "id": "clear",
+                "durationSeconds": {
+                  "min": 600,
+                  "max": 600
+                }
+              }
+            ]
+          },
+          "expectedVersion": 1,
+          "reason": "Updated weather setup"
+        }
+      },
+      "response": {
+        "kind": "TABLE",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "mode": "UNIFORM",
+          "entries": [
+            {
+              "id": "clear",
+              "durationSeconds": {
+                "min": 600,
+                "max": 600
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "fields.deleteRandomTable",
+      "method": "DELETE",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "reason": "Remove weather setup"
+        }
+      },
+      "response": true
+    },
+    {
+      "endpoint": "fields.listGenerators",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators",
+      "status": 200,
+      "request": {},
+      "response": [
+        {
+          "kind": "GENERATOR",
+          "key": "weather",
+          "version": 1,
+          "definition": {
+            "slots": [
+              {
+                "table": "weather",
+                "count": 1,
+                "key": "weather"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "fields.getGenerator",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        }
+      },
+      "response": {
+        "kind": "GENERATOR",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "slots": [
+            {
+              "table": "weather",
+              "count": 1,
+              "key": "weather"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "fields.createGenerator",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators",
+      "status": 200,
+      "request": {
+        "body": {
+          "key": "weather",
+          "definition": {
+            "slots": [
+              {
+                "table": "weather",
+                "count": 1,
+                "key": "weather"
+              }
+            ]
+          },
+          "reason": "Initial weather setup"
+        }
+      },
+      "response": {
+        "kind": "GENERATOR",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "slots": [
+            {
+              "table": "weather",
+              "count": 1,
+              "key": "weather"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "fields.putGenerator",
+      "method": "PUT",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "definition": {
+            "slots": [
+              {
+                "table": "weather",
+                "count": 1,
+                "key": "weather"
+              }
+            ]
+          },
+          "expectedVersion": 1,
+          "reason": "Updated weather setup"
+        }
+      },
+      "response": {
+        "kind": "GENERATOR",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "slots": [
+            {
+              "table": "weather",
+              "count": 1,
+              "key": "weather"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "endpoint": "fields.deleteGenerator",
+      "method": "DELETE",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "reason": "Remove weather setup"
+        }
+      },
+      "response": true
+    },
+    {
+      "endpoint": "fields.listRotations",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations",
+      "status": 200,
+      "request": {},
+      "response": [
+        {
+          "kind": "ROTATION",
+          "key": "weather",
+          "version": 1,
+          "definition": {
+            "table": "weather",
+            "cadence": {
+              "type": "ENTRY_DURATION"
+            },
+            "enabled": true
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "fields.getRotation",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        }
+      },
+      "response": {
+        "kind": "ROTATION",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "table": "weather",
+          "cadence": {
+            "type": "ENTRY_DURATION"
+          },
+          "enabled": true
+        }
+      }
+    },
+    {
+      "endpoint": "fields.createRotation",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations",
+      "status": 200,
+      "request": {
+        "body": {
+          "key": "weather",
+          "definition": {
+            "table": "weather",
+            "cadence": {
+              "type": "ENTRY_DURATION"
+            },
+            "enabled": true
+          },
+          "reason": "Initial weather setup"
+        }
+      },
+      "response": {
+        "kind": "ROTATION",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "table": "weather",
+          "cadence": {
+            "type": "ENTRY_DURATION"
+          },
+          "enabled": true
+        }
+      }
+    },
+    {
+      "endpoint": "fields.putRotation",
+      "method": "PUT",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "definition": {
+            "table": "weather",
+            "cadence": {
+              "type": "ENTRY_DURATION"
+            },
+            "enabled": true
+          },
+          "expectedVersion": 1,
+          "reason": "Updated weather setup"
+        }
+      },
+      "response": {
+        "kind": "ROTATION",
+        "key": "weather",
+        "version": 1,
+        "definition": {
+          "table": "weather",
+          "cadence": {
+            "type": "ENTRY_DURATION"
+          },
+          "enabled": true
+        }
+      }
+    },
+    {
+      "endpoint": "fields.deleteRotation",
+      "method": "DELETE",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "reason": "Remove weather setup"
+        }
+      },
+      "response": true
+    },
+    {
+      "endpoint": "fields.activeRotation",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/active",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        }
+      },
+      "response": {
+        "current": {
+          "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+          "key": "weather",
+          "sequence": 41,
+          "startsAt": "2026-11-08T12:00:00Z",
+          "endsAt": "2026-11-08T12:07:45Z",
+          "definitionVersions": {
+            "rotation:weather": 1,
+            "table:weather": 1,
+            "generator:weather": 1
+          },
+          "result": {
+            "picks": [
+              {
+                "slot": "weather:0",
+                "index": 0,
+                "table": "weather",
+                "entryId": "rain",
+                "path": [
+                  "weather/rain"
+                ],
+                "tags": [
+                  "wet"
+                ],
+                "payload": {
+                  "weather": "RAIN",
+                  "intensity": 0.7
+                },
+                "rolls": {},
+                "durationSeconds": 465,
+                "grants": []
+              }
+            ],
+            "cost": [],
+            "pityAfter": null,
+            "resolvedConfig": {}
+          }
+        },
+        "next": {
+          "id": "0f656472-95e3-4f68-b0ee-679a90cdd960",
+          "key": "weather",
+          "sequence": 42,
+          "startsAt": "2026-11-08T12:07:45Z",
+          "endsAt": "2026-11-08T12:23:23Z",
+          "definitionVersions": {
+            "rotation:weather": 1,
+            "table:weather": 1,
+            "generator:weather": 1
+          },
+          "result": {
+            "picks": [
+              {
+                "slot": "weather:0",
+                "index": 0,
+                "table": "weather",
+                "entryId": "clear",
+                "path": [
+                  "weather/clear"
+                ],
+                "tags": [
+                  "clear"
+                ],
+                "payload": {
+                  "weather": "CLEAR",
+                  "intensity": 0
+                },
+                "rolls": {},
+                "durationSeconds": 938,
+                "grants": []
+              }
+            ],
+            "cost": [],
+            "pityAfter": null,
+            "resolvedConfig": {
+              "Weather.MinDuration": 600,
+              "Weather.MaxDuration": 1200
+            }
+          }
+        },
+        "enabled": true
+      }
+    },
+    {
+      "endpoint": "fields.tableOdds",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather/odds?playerId=7",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "query": {
+          "playerId": 7
+        }
+      },
+      "response": {
+        "entryProbabilities": {
+          "common": 0.7,
+          "rare": 0.25,
+          "epic": 0.045,
+          "legendary": 0.005
+        },
+        "probabilities": {
+          "cards_common/c01": 0.0875,
+          "cards_rare/r01": 0.03125
+        },
+        "resolvedConfig": {}
+      }
+    },
+    {
+      "endpoint": "fields.previewGenerator",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/preview",
+      "status": 200,
+      "request": {
+        "body": {
+          "generator": "card_pack",
+          "playerId": 7,
+          "count": 1
+        }
+      },
+      "response": [
+        {
+          "picks": [
+            {
+              "slot": "cards:0",
+              "index": 0,
+              "table": "cards_rare",
+              "entryId": "r02",
+              "path": [
+                "rarity/rare",
+                "cards_rare/r02"
+              ],
+              "tags": [
+                "rare"
+              ],
+              "payload": {
+                "cardId": "r02",
+                "name": "Rare card 2"
+              },
+              "rolls": {},
+              "durationSeconds": null,
+              "grants": [
+                {
+                  "field": "Inventory.Cards",
+                  "op": "MAP_ADD",
+                  "key": "r02",
+                  "delta": 1
+                }
+              ]
+            },
+            {
+              "slot": "cards:1",
+              "index": 1,
+              "table": "cards_common",
+              "entryId": "c05",
+              "path": [
+                "rarity/common",
+                "cards_common/c05"
+              ],
+              "tags": [
+                "common"
+              ],
+              "payload": {
+                "cardId": "c05",
+                "name": "Common card 5"
+              },
+              "rolls": {},
+              "durationSeconds": null,
+              "grants": [
+                {
+                  "field": "Inventory.Cards",
+                  "op": "MAP_ADD",
+                  "key": "c05",
+                  "delta": 1
+                }
+              ]
+            },
+            {
+              "slot": "cards:2",
+              "index": 2,
+              "table": "cards_rare",
+              "entryId": "r08",
+              "path": [
+                "rarity/rare",
+                "cards_rare/r08"
+              ],
+              "tags": [
+                "rare"
+              ],
+              "payload": {
+                "cardId": "r08",
+                "name": "Rare card 8"
+              },
+              "rolls": {},
+              "durationSeconds": null,
+              "grants": [
+                {
+                  "field": "Inventory.Cards",
+                  "op": "MAP_ADD",
+                  "key": "r08",
+                  "delta": 1
+                }
+              ]
+            },
+            {
+              "slot": "cards:3",
+              "index": 3,
+              "table": "cards_common",
+              "entryId": "c03",
+              "path": [
+                "rarity/common",
+                "cards_common/c03"
+              ],
+              "tags": [
+                "common"
+              ],
+              "payload": {
+                "cardId": "c03",
+                "name": "Common card 3"
+              },
+              "rolls": {},
+              "durationSeconds": null,
+              "grants": [
+                {
+                  "field": "Inventory.Cards",
+                  "op": "MAP_ADD",
+                  "key": "c03",
+                  "delta": 1
+                }
+              ]
+            },
+            {
+              "slot": "bonus:0",
+              "index": 0,
+              "table": "cards_rare",
+              "entryId": "r04",
+              "path": [
+                "rarity/rare",
+                "cards_rare/r04"
+              ],
+              "tags": [
+                "rare"
+              ],
+              "payload": {
+                "cardId": "r04",
+                "name": "Rare card 4"
+              },
+              "rolls": {},
+              "durationSeconds": null,
+              "grants": [
+                {
+                  "field": "Inventory.Cards",
+                  "op": "MAP_ADD",
+                  "key": "r04",
+                  "delta": 1
+                }
+              ]
+            }
+          ],
+          "cost": [
+            {
+              "field": "Currency.Gems",
+              "op": "ADD",
+              "delta": -100
+            }
+          ],
+          "pityAfter": 1,
+          "resolvedConfig": {
+            "Economy.PackDebit": -100,
+            "Cards.PityThreshold": 50
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "fields.rollGenerator",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/roll",
+      "status": 200,
+      "request": {
+        "body": {
+          "generator": "card_pack",
+          "playerId": 7,
+          "count": 1,
+          "idempotencyKey": "roll-golden"
+        }
+      },
+      "response": {
+        "id": "636b3dbf-e042-4c91-b5a5-e844a78585a6",
+        "generator": "card_pack",
+        "playerId": 7,
+        "results": [
+          {
+            "picks": [
+              {
+                "slot": "cards:0",
+                "index": 0,
+                "table": "cards_rare",
+                "entryId": "r02",
+                "path": [
+                  "rarity/rare",
+                  "cards_rare/r02"
+                ],
+                "tags": [
+                  "rare"
+                ],
+                "payload": {
+                  "cardId": "r02",
+                  "name": "Rare card 2"
+                },
+                "rolls": {},
+                "durationSeconds": null,
+                "grants": [
+                  {
+                    "field": "Inventory.Cards",
+                    "op": "MAP_ADD",
+                    "key": "r02",
+                    "delta": 1
+                  }
+                ]
+              },
+              {
+                "slot": "cards:1",
+                "index": 1,
+                "table": "cards_common",
+                "entryId": "c05",
+                "path": [
+                  "rarity/common",
+                  "cards_common/c05"
+                ],
+                "tags": [
+                  "common"
+                ],
+                "payload": {
+                  "cardId": "c05",
+                  "name": "Common card 5"
+                },
+                "rolls": {},
+                "durationSeconds": null,
+                "grants": [
+                  {
+                    "field": "Inventory.Cards",
+                    "op": "MAP_ADD",
+                    "key": "c05",
+                    "delta": 1
+                  }
+                ]
+              },
+              {
+                "slot": "cards:2",
+                "index": 2,
+                "table": "cards_rare",
+                "entryId": "r08",
+                "path": [
+                  "rarity/rare",
+                  "cards_rare/r08"
+                ],
+                "tags": [
+                  "rare"
+                ],
+                "payload": {
+                  "cardId": "r08",
+                  "name": "Rare card 8"
+                },
+                "rolls": {},
+                "durationSeconds": null,
+                "grants": [
+                  {
+                    "field": "Inventory.Cards",
+                    "op": "MAP_ADD",
+                    "key": "r08",
+                    "delta": 1
+                  }
+                ]
+              },
+              {
+                "slot": "cards:3",
+                "index": 3,
+                "table": "cards_common",
+                "entryId": "c03",
+                "path": [
+                  "rarity/common",
+                  "cards_common/c03"
+                ],
+                "tags": [
+                  "common"
+                ],
+                "payload": {
+                  "cardId": "c03",
+                  "name": "Common card 3"
+                },
+                "rolls": {},
+                "durationSeconds": null,
+                "grants": [
+                  {
+                    "field": "Inventory.Cards",
+                    "op": "MAP_ADD",
+                    "key": "c03",
+                    "delta": 1
+                  }
+                ]
+              },
+              {
+                "slot": "bonus:0",
+                "index": 0,
+                "table": "cards_rare",
+                "entryId": "r04",
+                "path": [
+                  "rarity/rare",
+                  "cards_rare/r04"
+                ],
+                "tags": [
+                  "rare"
+                ],
+                "payload": {
+                  "cardId": "r04",
+                  "name": "Rare card 4"
+                },
+                "rolls": {},
+                "durationSeconds": null,
+                "grants": [
+                  {
+                    "field": "Inventory.Cards",
+                    "op": "MAP_ADD",
+                    "key": "r04",
+                    "delta": 1
+                  }
+                ]
+              }
+            ],
+            "cost": [
+              {
+                "field": "Currency.Gems",
+                "op": "ADD",
+                "delta": -100
+              }
+            ],
+            "pityAfter": 1,
+            "resolvedConfig": {
+              "Economy.PackDebit": -100,
+              "Cards.PityThreshold": 50
+            }
+          }
+        ],
+        "definitionVersions": {
+          "generator:card_pack": 1,
+          "table:cards_common": 1,
+          "table:cards_epic": 1,
+          "table:cards_legendary": 1,
+          "table:cards_rare": 1,
+          "table:rarity": 1
+        },
+        "transaction": {
+          "txId": "f9f4a6bd-d059-47a3-9c93-40db1a58ce6e",
+          "replayed": false,
+          "results": [
+            {
+              "subject": 7,
+              "field": "Currency.Gems",
+              "path": [],
+              "op": "ADD",
+              "before": 1000,
+              "after": 900,
+              "version": 1,
+              "entryId": "b40a56dd-15ea-4b8a-a6d4-dba0d6d21463"
+            },
+            {
+              "subject": 7,
+              "field": "Inventory.Cards",
+              "path": [],
+              "op": "MAP_ADD",
+              "before": {},
+              "after": {
+                "r02": 1
+              },
+              "version": 1,
+              "entryId": "5b02eb5f-c260-4fd5-8dd6-0e7b7f287385"
+            },
+            {
+              "subject": 7,
+              "field": "Inventory.Cards",
+              "path": [],
+              "op": "MAP_ADD",
+              "before": {
+                "r02": 1
+              },
+              "after": {
+                "c05": 1,
+                "r02": 1
+              },
+              "version": 1,
+              "entryId": "87cad386-fcf5-4f18-8241-9c066b14c8cc"
+            },
+            {
+              "subject": 7,
+              "field": "Inventory.Cards",
+              "path": [],
+              "op": "MAP_ADD",
+              "before": {
+                "c05": 1,
+                "r02": 1
+              },
+              "after": {
+                "c05": 1,
+                "r02": 1,
+                "r08": 1
+              },
+              "version": 1,
+              "entryId": "6566a778-3254-467e-a5f3-e84ce397c399"
+            },
+            {
+              "subject": 7,
+              "field": "Inventory.Cards",
+              "path": [],
+              "op": "MAP_ADD",
+              "before": {
+                "c05": 1,
+                "r02": 1,
+                "r08": 1
+              },
+              "after": {
+                "c03": 1,
+                "c05": 1,
+                "r02": 1,
+                "r08": 1
+              },
+              "version": 1,
+              "entryId": "4a6e1470-c1c6-440a-851f-db72845514f4"
+            },
+            {
+              "subject": 7,
+              "field": "Inventory.Cards",
+              "path": [],
+              "op": "MAP_ADD",
+              "before": {
+                "c03": 1,
+                "c05": 1,
+                "r02": 1,
+                "r08": 1
+              },
+              "after": {
+                "c03": 1,
+                "c05": 1,
+                "r02": 1,
+                "r04": 1,
+                "r08": 1
+              },
+              "version": 1,
+              "entryId": "e219d74d-4980-4019-b1b1-57d841e0fd25"
+            },
+            {
+              "subject": 7,
+              "field": "Pity.Legendary",
+              "path": [],
+              "op": "SET",
+              "before": 0,
+              "after": 1,
+              "version": 1,
+              "entryId": "8423b1fa-4320-404b-9e20-109ac75cceb4"
+            }
+          ],
+          "seq": {
+            "7": 1
+          }
+        },
+        "createdAt": "2026-11-08T12:00:00Z"
+      }
+    },
+    {
+      "endpoint": "fields.claimRotation",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/claim",
+      "status": 200,
+      "request": {
+        "body": {
+          "instanceId": "00000000-0000-4000-8000-000000000001",
+          "slot": "packs:0",
+          "entryId": "starter_pack",
+          "quantity": 1,
+          "playerId": 7,
+          "idempotencyKey": "claim-golden"
+        }
+      },
+      "response": {
+        "id": "52a25291-02d5-49a4-8053-03432614619f",
+        "instanceId": "00000000-0000-4000-8000-000000000001",
+        "slot": "packs:0",
+        "entryId": "starter_pack",
+        "quantity": 1,
+        "remaining": 19,
+        "transaction": {
+          "txId": "2eb8f984-af40-449f-b5cc-30cc80ee60d2",
+          "replayed": false,
+          "results": [
+            {
+              "subject": 7,
+              "field": "Currency.Gems",
+              "path": [],
+              "op": "ADD",
+              "before": 900,
+              "after": 800,
+              "version": 2,
+              "entryId": "fef2202a-fb3a-4b94-a3ea-7b439663ef1c"
+            },
+            {
+              "subject": 7,
+              "field": "Inventory.Packs",
+              "path": [],
+              "op": "MAP_ADD",
+              "before": {},
+              "after": {
+                "starter_pack": 1
+              },
+              "version": 1,
+              "entryId": "d629558e-1135-42d4-8360-4addd23c7c4e"
+            }
+          ],
+          "seq": {
+            "7": 2
+          }
+        },
+        "createdAt": "2026-11-08T12:01:00Z"
+      }
+    },
+    {
+      "endpoint": "fields.rotationStock",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/instances/00000000-0000-4000-8000-000000000001/stock",
+      "status": 200,
+      "request": {
+        "path": {
+          "id": "00000000-0000-4000-8000-000000000001"
+        }
+      },
+      "response": [
+        {
+          "slot": "packs:0",
+          "entryId": "starter_pack",
+          "remaining": 19
+        }
+      ]
+    },
+    {
+      "endpoint": "fields.advanceRotation",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/advance",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "reason": "Weather admin action"
+        }
+      },
+      "response": {
+        "current": {
+          "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+          "key": "weather",
+          "sequence": 41,
+          "startsAt": "2026-11-08T12:00:00Z",
+          "endsAt": "2026-11-08T12:07:45Z",
+          "definitionVersions": {
+            "rotation:weather": 1,
+            "table:weather": 1,
+            "generator:weather": 1
+          },
+          "result": {
+            "picks": [
+              {
+                "slot": "weather:0",
+                "index": 0,
+                "table": "weather",
+                "entryId": "rain",
+                "path": [
+                  "weather/rain"
+                ],
+                "tags": [
+                  "wet"
+                ],
+                "payload": {
+                  "weather": "RAIN",
+                  "intensity": 0.7
+                },
+                "rolls": {},
+                "durationSeconds": 465,
+                "grants": []
+              }
+            ],
+            "cost": [],
+            "pityAfter": null,
+            "resolvedConfig": {}
+          }
+        },
+        "next": {
+          "id": "0f656472-95e3-4f68-b0ee-679a90cdd960",
+          "key": "weather",
+          "sequence": 42,
+          "startsAt": "2026-11-08T12:07:45Z",
+          "endsAt": "2026-11-08T12:23:23Z",
+          "definitionVersions": {
+            "rotation:weather": 1,
+            "table:weather": 1,
+            "generator:weather": 1
+          },
+          "result": {
+            "picks": [
+              {
+                "slot": "weather:0",
+                "index": 0,
+                "table": "weather",
+                "entryId": "clear",
+                "path": [
+                  "weather/clear"
+                ],
+                "tags": [
+                  "clear"
+                ],
+                "payload": {
+                  "weather": "CLEAR",
+                  "intensity": 0
+                },
+                "rolls": {},
+                "durationSeconds": 938,
+                "grants": []
+              }
+            ],
+            "cost": [],
+            "pityAfter": null,
+            "resolvedConfig": {
+              "Weather.MinDuration": 600,
+              "Weather.MaxDuration": 1200
+            }
+          }
+        },
+        "enabled": true
+      }
+    },
+    {
+      "endpoint": "fields.rerollRotation",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/reroll",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        },
+        "body": {
+          "reason": "Weather admin action"
+        }
+      },
+      "response": {
+        "current": {
+          "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+          "key": "weather",
+          "sequence": 41,
+          "startsAt": "2026-11-08T12:00:00Z",
+          "endsAt": "2026-11-08T12:07:45Z",
+          "definitionVersions": {
+            "rotation:weather": 1,
+            "table:weather": 1,
+            "generator:weather": 1
+          },
+          "result": {
+            "picks": [
+              {
+                "slot": "weather:0",
+                "index": 0,
+                "table": "weather",
+                "entryId": "rain",
+                "path": [
+                  "weather/rain"
+                ],
+                "tags": [
+                  "wet"
+                ],
+                "payload": {
+                  "weather": "RAIN",
+                  "intensity": 0.7
+                },
+                "rolls": {},
+                "durationSeconds": 465,
+                "grants": []
+              }
+            ],
+            "cost": [],
+            "pityAfter": null,
+            "resolvedConfig": {}
+          }
+        },
+        "next": {
+          "id": "0f656472-95e3-4f68-b0ee-679a90cdd960",
+          "key": "weather",
+          "sequence": 42,
+          "startsAt": "2026-11-08T12:07:45Z",
+          "endsAt": "2026-11-08T12:23:23Z",
+          "definitionVersions": {
+            "rotation:weather": 1,
+            "table:weather": 1,
+            "generator:weather": 1
+          },
+          "result": {
+            "picks": [
+              {
+                "slot": "weather:0",
+                "index": 0,
+                "table": "weather",
+                "entryId": "clear",
+                "path": [
+                  "weather/clear"
+                ],
+                "tags": [
+                  "clear"
+                ],
+                "payload": {
+                  "weather": "CLEAR",
+                  "intensity": 0
+                },
+                "rolls": {},
+                "durationSeconds": 938,
+                "grants": []
+              }
+            ],
+            "cost": [],
+            "pityAfter": null,
+            "resolvedConfig": {
+              "Weather.MinDuration": 600,
+              "Weather.MaxDuration": 1200
+            }
+          }
+        },
+        "enabled": true
+      }
+    },
+    {
+      "endpoint": "fields.randomDefinitionHistory",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness/definitions/weather/history",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        }
+      },
+      "response": {
+        "items": [
+          {
+            "counter": 1,
+            "data": {
+              "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+              "key": "weather",
+              "sequence": 41,
+              "startsAt": "2026-11-08T12:00:00Z",
+              "endsAt": "2026-11-08T12:07:45Z",
+              "definitionVersions": {
+                "rotation:weather": 1,
+                "table:weather": 1,
+                "generator:weather": 1
+              },
+              "result": {
+                "picks": [
+                  {
+                    "slot": "weather:0",
+                    "index": 0,
+                    "table": "weather",
+                    "entryId": "rain",
+                    "path": [
+                      "weather/rain"
+                    ],
+                    "tags": [
+                      "wet"
+                    ],
+                    "payload": {
+                      "weather": "RAIN",
+                      "intensity": 0.7
+                    },
+                    "rolls": {},
+                    "durationSeconds": 465,
+                    "grants": []
+                  }
+                ],
+                "cost": [],
+                "pityAfter": null,
+                "resolvedConfig": {}
+              }
+            }
+          }
+        ],
+        "nextCursor": null
+      }
+    },
+    {
+      "endpoint": "fields.rotationHistory",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/weather/history",
+      "status": 200,
+      "request": {
+        "path": {
+          "key": "weather"
+        }
+      },
+      "response": {
+        "items": [
+          {
+            "counter": 1,
+            "data": {
+              "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+              "key": "weather",
+              "sequence": 41,
+              "startsAt": "2026-11-08T12:00:00Z",
+              "endsAt": "2026-11-08T12:07:45Z",
+              "definitionVersions": {
+                "rotation:weather": 1,
+                "table:weather": 1,
+                "generator:weather": 1
+              },
+              "result": {
+                "picks": [
+                  {
+                    "slot": "weather:0",
+                    "index": 0,
+                    "table": "weather",
+                    "entryId": "rain",
+                    "path": [
+                      "weather/rain"
+                    ],
+                    "tags": [
+                      "wet"
+                    ],
+                    "payload": {
+                      "weather": "RAIN",
+                      "intensity": 0.7
+                    },
+                    "rolls": {},
+                    "durationSeconds": 465,
+                    "grants": []
+                  }
+                ],
+                "cost": [],
+                "pityAfter": null,
+                "resolvedConfig": {}
+              }
+            }
+          }
+        ],
+        "nextCursor": null
+      }
+    },
+    {
+      "endpoint": "fields.playerRollHistory",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/7/randomness/rolls",
+      "status": 200,
+      "request": {
+        "path": {
+          "playerId": 7
+        }
+      },
+      "response": {
+        "items": [
+          {
+            "counter": 1,
+            "data": {
+              "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+              "key": "weather",
+              "sequence": 41,
+              "startsAt": "2026-11-08T12:00:00Z",
+              "endsAt": "2026-11-08T12:07:45Z",
+              "definitionVersions": {
+                "rotation:weather": 1,
+                "table:weather": 1,
+                "generator:weather": 1
+              },
+              "result": {
+                "picks": [
+                  {
+                    "slot": "weather:0",
+                    "index": 0,
+                    "table": "weather",
+                    "entryId": "rain",
+                    "path": [
+                      "weather/rain"
+                    ],
+                    "tags": [
+                      "wet"
+                    ],
+                    "payload": {
+                      "weather": "RAIN",
+                      "intensity": 0.7
+                    },
+                    "rolls": {},
+                    "durationSeconds": 465,
+                    "grants": []
+                  }
+                ],
+                "cost": [],
+                "pityAfter": null,
+                "resolvedConfig": {}
+              }
+            }
+          }
+        ],
+        "nextCursor": null
+      }
+    },
+    {
+      "endpoint": "fields.playerClaimHistory",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/7/randomness/claims",
+      "status": 200,
+      "request": {
+        "path": {
+          "playerId": 7
+        }
+      },
+      "response": {
+        "items": [
+          {
+            "counter": 1,
+            "data": {
+              "id": "8ec19b12-2402-4aed-ab7f-3032286d8f2c",
+              "key": "weather",
+              "sequence": 41,
+              "startsAt": "2026-11-08T12:00:00Z",
+              "endsAt": "2026-11-08T12:07:45Z",
+              "definitionVersions": {
+                "rotation:weather": 1,
+                "table:weather": 1,
+                "generator:weather": 1
+              },
+              "result": {
+                "picks": [
+                  {
+                    "slot": "weather:0",
+                    "index": 0,
+                    "table": "weather",
+                    "entryId": "rain",
+                    "path": [
+                      "weather/rain"
+                    ],
+                    "tags": [
+                      "wet"
+                    ],
+                    "payload": {
+                      "weather": "RAIN",
+                      "intensity": 0.7
+                    },
+                    "rolls": {},
+                    "durationSeconds": 465,
+                    "grants": []
+                  }
+                ],
+                "cost": [],
+                "pityAfter": null,
+                "resolvedConfig": {}
+              }
+            }
+          }
+        ],
+        "nextCursor": null
+      }
+    },
+    {
+      "endpoint": "fields.randomnessSchema",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness/schema",
+      "status": 200,
+      "request": {},
+      "response": {
+        "type": "object",
+        "$defs": {}
+      }
+    },
+    {
+      "endpoint": "fields.randomnessFields",
+      "method": "GET",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness/fields",
+      "status": 200,
+      "request": {},
+      "response": [
+        {
+          "field": "Currency.Gems",
+          "path": "Currency.Gems",
+          "type": {
+            "kind": "int",
+            "min": 0
+          },
+          "scope": "PLAYER",
+          "validOps": [
+            "ADD"
+          ],
+          "numericGameValue": false
+        }
+      ]
+    },
+    {
+      "endpoint": "fields.eraseRandomness",
+      "method": "DELETE",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness",
+      "status": 200,
+      "request": {
+        "body": {
+          "confirmUniverseId": 123,
+          "reason": "Confirmed subsystem erasure"
+        }
+      },
+      "response": true
+    },
+    {
+      "endpoint": "fields.simulateGenerator",
+      "method": "POST",
+      "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/simulate",
+      "status": 200,
+      "request": {
+        "body": {
+          "generator": "card_pack",
+          "playerId": 7,
+          "iterations": 1000
+        }
+      },
+      "response": {
+        "iterations": 1000,
+        "picks": 5000,
+        "entryCounts": {
+          "cards_common/c01": 50
+        },
+        "appearanceProbabilities": {
+          "cards_common/c01": 0.05
+        },
+        "pityMode": "independent trials from current counter"
+      }
+    }
+  ]
+}

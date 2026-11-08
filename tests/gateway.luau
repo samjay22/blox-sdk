@@ -18,7 +18,6 @@ Tests.prefixes = table.freeze({
 	party = "/party-service",
 	codes = "/code-service",
 	audit = "/audit-service",
-	config = "/remote-config-service",
 	leaderboards = "/leaderboard-service",
 	fields = "/fields-service",
 	platform = "/platform-service",
@@ -34,11 +33,11 @@ function Tests.register(test: (string, () -> ()) -> ())
 			check(origins[service] == Routing.gatewayUrl and bases[service] == Routing.gatewayUrl .. prefix)
 		end
 		local options: { [string]: Config.ServiceConfig } =
-			{ fields = { baseUrl = "https://DIRECT.example:0443/" }, config = {} }
+			{ fields = { baseUrl = "https://DIRECT.example:0443/" }, audit = {} }
 		local customOrigins, customBases =
 			Config.resolve({ gatewayUrl = "https://GATEWAY.example:8443/", services = options })
 		check(customOrigins.fields == "https://direct.example" and customBases.fields == customOrigins.fields)
-		check(customBases.config == "https://gateway.example:8443/remote-config-service")
+		check(customBases.audit == "https://gateway.example:8443/audit-service")
 		options.fields.baseUrl = "https://changed.example"
 		check(customBases.fields == "https://direct.example")
 		check(bases.fields == "https://lb1.blox-api.com/fields-service")
@@ -84,13 +83,13 @@ function Tests.register(test: (string, () -> ()) -> ())
 		end
 	end)
 
-	test("health covers all nine prefixes with custom gateways and direct-host exceptions", function()
+	test("health covers all eight prefixes with custom gateways and direct-host exceptions", function()
 		local policies: { SDK.Config } = {
 			{},
 			{ gatewayUrl = "https://gateway.example/" },
 			{
 				gatewayUrl = "https://gateway.example",
-				services = { config = { baseUrl = "https://direct.example/" } },
+				services = { audit = { baseUrl = "https://direct.example/" } },
 			},
 		}
 		for index, config in policies do
@@ -112,24 +111,31 @@ function Tests.register(test: (string, () -> ()) -> ())
 				for service, prefix in Tests.prefixes do
 					check(results[service].result.ok)
 					local base = if index == 1 then "https://lb1.blox-api.com" else "https://gateway.example"
-					local url = if index == 3 and service == "config"
+					local url = if index == 3 and service == "audit"
 						then "https://direct.example/health"
 						else base .. prefix .. "/health"
 					check(seen[url])
 				end
 			end)
-			check(c:metrics().attempts == 9)
+			check(c:metrics().attempts == 8)
 			c:destroy()
 		end
 	end)
 
-	test("audit list, config snapshot and Fields transaction use exact gateway URLs", function()
+	test("audit list, runtime snapshot and Fields transaction use exact gateway URLs", function()
 		local s = Scheduler.new()
 		local urls: { string } = {}
 		local methods: { string } = {}
 		local fake = Fake.new(s.runtime, {
 			{ body = s.json({ items = SDK.array({}) }) },
-			{ body = s.json({ version = 1, entries = {}, flags = SDK.array({}), maintenance = false }) },
+			{
+				body = s.json({
+					version = 1,
+					gameValues = {},
+					flags = SDK.array({}),
+					maintenance = { enabled = false, message = "", allowlistUserIds = SDK.array({}) },
+				}),
+			},
 			{ body = s.json({ txId = "tx", results = SDK.array({}), seq = {}, replayed = false }) },
 		})
 		local c = SDK.new({
@@ -143,7 +149,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 		})
 		s.run(function()
 			check(c.audit:list().ok)
-			check(c:withUniverse(123).config:snapshot().ok)
+			check(c:withUniverse(123).fields:runtimeSnapshot().ok)
 			check(c:withUniverse(123).fields:transaction({
 				path = { userId = 7 },
 				body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 100 } }, reason = "reward" },
@@ -151,7 +157,7 @@ function Tests.register(test: (string, () -> ()) -> ())
 		end)
 		check(urls[1] == "https://lb1.blox-api.com/audit-service/api/audit/events" and methods[1] == "GET")
 		check(
-			urls[2] == "https://lb1.blox-api.com/remote-config-service/api/config/universes/123/snapshot"
+			urls[2] == "https://lb1.blox-api.com/fields-service/api/fields/universes/123/runtime/snapshot"
 				and methods[2] == "GET"
 		)
 		check(

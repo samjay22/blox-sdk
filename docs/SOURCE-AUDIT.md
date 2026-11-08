@@ -1,22 +1,26 @@
 # Source audit and evidence boundary
 
-`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the GAS tenant controllers/DTOs, four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 281 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
+`spec/endpoints.json` is the input to reproducible generation. `gen.py --refresh-sources` refreshes the GAS tenant controllers/DTOs, four record-based services and Codes/Matchmaking consumer contracts directly from local Java sources and documented wire exceptions. It includes Java request/response field types, requiredness, parameter location/names/defaults, controller provenance, guards, reviewed service/level metadata, statuses, and safety flags. `routes.json` contains 372 routes across the eight current services. `spec/provenance.json` records hashes of inspected local source files; source contents and credentials are not copied into the SDK.
 
-| Service | Inventory | Exposed |
-|---|---:|---:|
-| Auth | 55 | 55 |
-| Matchmaking | 51 | 51 |
-| Party | 16 | 16 |
-| Codes | 10 | 10 |
-| Audit | 13 | 13 |
-| Config | 20 | 20 |
-| Leaderboards | 26 | 26 |
-| Fields | 90 | 90 |
-| **Total** | **281 (100%)** | **281** |
+| Service | Inventory / SDK methods | Current source parity |
+|---|---:|---|
+| Auth | 62 | Inspected controllers/DTOs |
+| Matchmaking | 52 | Inspected controllers/DTOs |
+| Party | 16 | Unverified: requested source locations unavailable |
+| Codes | 14 | Inspected controllers/DTOs |
+| Audit | 13 | Inspected controllers/DTOs |
+| Leaderboards | 28 | Inspected controllers/DTOs |
+| Fields | 144 | Inspected controllers/DTOs, including Rotations/Generators/Tables |
+| Platform | 43 | Inspected controllers/DTOs |
+| **Total** | **372** | Offline evidence only |
 
-Fields includes all 85 domain routes, controller health/probe routes and documented metrics/info routes.
-Auth coverage is exact against current controllers: removed routes fail coverage as well as missing routes.
-Coverage independently scans seven refreshed backend trees, so stale inventory cannot hide omissions.
+[SDK_COVERAGE.md](../SDK_COVERAGE.md) maps every discovered endpoint to its SDK method and access.
+Coverage scans all seven available source trees, failing on missing controllers or fabricated domain routes.
+Party sources are absent at `~/work/srv/src-CrossServerPartyService` and `~/build/src-CrossServerPartyService`;
+retained methods are a checked-in contract snapshot, not a current server-parity claim.
+Config is retired. Platform planned flags/LiveOps/environment APIs and Matchmaking environments have
+no controllers in the requested current sources and are not generated. Fields owns runtime config,
+flags, maintenance, schedule controls and environments. Rotations/Generators/Tables include expanded literal resource routes and reviewed engine response envelopes.
 
 ## Reviewed exceptions
 
@@ -26,10 +30,10 @@ Coverage independently scans seven refreshed backend trees, so stale inventory c
 - Codes create/update/delete and redemption-history listing require CodeService ADMIN. Redeeming requires READ_WRITE.
 - Matchmaking validation and bulk status are read-only POSTs. Process/flush and ban mutation require ADMIN.
 - Auth key management requires identity plus org ADMIN/OWNER (or SUPER_ADMIN). Catalog reads accept identity/scoped tokens; mutations are platform-only. Org capabilities remain server-enforced. Place operations retain AuthService guards.
-- Party `/api/poll/**` is public in the checked-in security configuration. The SDK records this rather than inventing an auth requirement. Do not treat possession of a serverId as a security boundary; review deployment policy before relying on this feed.
+- Party `/api/poll/**` is public in the retained contract snapshot (current security source is unavailable). The SDK records this rather than inventing an auth requirement. Do not treat possession of a serverId as a security boundary; review deployment policy before relying on this feed.
 - Queue DTOs inherit player IDs and retain the documented singular/comma-separated ID inputs. Caller metadata is not exposed: the service replaces it with Fields computed values. The criteria DTO wire fields are unchanged; fieldName accepts any computed Fields ID, including namespaced IDs such as `Stats.Elo`, with the Fields field-id grammar and 200-character maximum. Dots are literal ID separators, not metadata traversal.
 - ServiceAccountPatchRequest distinguishes absent from explicit null. Only enabled/description/expiresAt are accepted. Creation/rotation can return a one-time key and are never cached.
-- Leave-party may return 204. HEAD key-existence checks may return 200/404. The metrics and polling-health responses are text.
+- Leave-party may return 204. HEAD key-existence checks may return 200/404. Matchmaking metrics and Party polling-health responses are text; Boot metrics catalogs are JSON.
 
 ## Re-audit workflow
 
@@ -57,7 +61,7 @@ Independent offline checks are the verification evidence, not a claim of Claude 
 
 `tools/consumer_contracts.py` extracts current CodeController/DTOs and MatchmakingCriteriaDTO, with
 reviewed Code receipt requiredness, subject-free operation union, and queue-enrichment input boundaries.
-Codes includes documented `/metrics` and `/info`; actuator deployment probes stay outside its inventory.
+Codes includes documented `/metrics` and `/info`, plus both named liveness/readiness probe controllers.
 The source hashes cover README/contracts, Java and the Code Postman collection. Generated provenance
 replaces obsolete consumer hashes instead of retaining deleted DTO paths.
 
@@ -94,3 +98,13 @@ Legacy downstream global-ADMIN guards are represented as SUPER_ADMIN identity-on
 do not inherit global bypass. No downstream binaries or DTO artifacts are changed.
 The handwritten scope cache is exercised with deterministic concurrency, cancellation, expiry, epoch changes,
 malformed responses, credential separation and 401 tests. No backend artifacts were upgraded or executed.
+
+## Runtime and current-service wire audit
+
+36 independently authored wire vectors cover all newly added methods plus fragile changed contracts:
+Fields runtime/flags/nulls, schedule definitions/runs/actions, rating scopes, Auth membership and key lookup,
+Platform plans/prices, rate resets, analytics, webhook creation and probes. These are checked through real
+facades/transport in portable Luau/Lune and the Roblox projection. They do not derive expected wire shapes
+from generated schemas. Additional regressions cover Retry-After across 429/5xx, finite deadlines, removed
+options, ETag injection, recurrence, and strict JSON null/array/integer boundaries. Source parity and golden
+fixtures are not live integration certification.

@@ -15,5 +15,5 @@ return function(
 		services = if directFieldsUrl then { fields = { baseUrl = directFieldsUrl } } else nil,
 	})
 	-- E.g. gatewayUrl="https://gateway.example", directFieldsUrl="https://direct-fields.example".
-	-- Config still uses /remote-config-service; the fields exception uses only its backend path.
+	-- Fields uses only its backend path on a direct host; Platform retains its domain prefix.
 end

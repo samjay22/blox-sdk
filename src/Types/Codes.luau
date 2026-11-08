@@ -85,6 +85,7 @@ export type FieldsTransactionResult = {
 	seq: { [string]: number },
 	txId: string,
 }
+export type HealthComponent = { status: string }
 export type HealthResponse = { database: string?, status: string, timestamp: string? }
 export type MetricsResponse = { names: { string } }
 export type Op =
@@ -135,6 +136,10 @@ export type UpdateCodeRequest = {
 	name: string?,
 	startsAt: string?,
 }
+export type LivenessCall = {}
+export type LivenessResultValue = HealthComponent
+export type ReadinessCall = {}
+export type ReadinessResultValue = HealthComponent
 export type SearchCodesCall = {
 	query: {
 		active: boolean?,

@@ -16,7 +16,7 @@ export type Client = typeof(setmetatable({} :: { _scope: Scope.Scope }, Schedule
 function Schedules.new(state: Helpers.State, universe: string | number): Client
 	return setmetatable({ _scope = Scope.new(state, universe) }, Schedules)
 end
---- Snapshot and validate UTC windows and closed ConfigService actions before any HTTP.
+--- Snapshot and validate UTC windows and closed Fields-owned runtime actions before any HTTP.
 function Schedules.build(self: Client, input: Wire.ScheduleInput): Core.Result<Wire.ScheduleInput>
 	if self._scope.state.closed then
 		return Errors.make("Cancelled", "fields.createSchedule", 0, "Client is closed")
@@ -33,6 +33,7 @@ function Schedules.build(self: Client, input: Wire.ScheduleInput): Core.Result<W
 			"restorePrevious",
 			"reason",
 			"idempotencyKey",
+			"recurrence",
 		})
 		or not Control.reason(raw.reason)
 		or type(raw.name) ~= "string"
@@ -56,6 +57,38 @@ function Schedules.build(self: Client, input: Wire.ScheduleInput): Core.Result<W
 			and (not finish or finish < start or finish == start and (finishFraction :: string) <= (startFraction :: string))
 	then
 		return System.failure("invalid_request")
+	end
+	if raw.recurrence ~= nil then
+		local recurrence = raw.recurrence
+		if
+			not Control.object(recurrence, { "type", "daysOfWeek", "timezone" })
+			or (recurrence.type ~= "NONE" and recurrence.type ~= "DAILY" and recurrence.type ~= "WEEKLY")
+			or not Control.array(recurrence.daysOfWeek, 0, 7)
+			or type(recurrence.timezone) ~= "string"
+			or #recurrence.timezone == 0
+			or #recurrence.timezone > 100
+			or (recurrence.type == "WEEKLY") ~= (#recurrence.daysOfWeek > 0)
+			or (recurrence.type ~= "NONE" and not finish)
+		then
+			return System.failure("invalid_request")
+		end
+		local days = {
+			MONDAY = true,
+			TUESDAY = true,
+			WEDNESDAY = true,
+			THURSDAY = true,
+			FRIDAY = true,
+			SATURDAY = true,
+			SUNDAY = true,
+		}
+		local seen: { [string]: boolean } = {}
+		for _, day in recurrence.daysOfWeek do
+			if type(day) ~= "string" or not days[day] or seen[day] then
+				return System.failure("invalid_request")
+			end
+			seen[day] = true
+		end
+		-- IANA timezone validity and DST/catch-up behavior belong to the service.
 	end
 	if raw.restorePrevious and raw.endActions and #raw.endActions > 0 then
 		return System.failure("invalid_request")
@@ -83,6 +116,9 @@ function Schedules.build(self: Client, input: Wire.ScheduleInput): Core.Result<W
 	copied.startActions = Json.array(copied.startActions)
 	if copied.endActions then
 		copied.endActions = Json.array(copied.endActions)
+	end
+	if copied.recurrence then
+		copied.recurrence.daysOfWeek = Json.array(copied.recurrence.daysOfWeek)
 	end
 	return { ok = true, value = copied }
 end

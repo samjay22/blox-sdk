@@ -1,0 +1,972 @@
+[
+  {
+    "endpoint": "fields.flags",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags",
+    "request": {},
+    "response": [
+      {
+        "key": "double_xp",
+        "displayName": "Double XP",
+        "type": "bool",
+        "defaultValue": false,
+        "enabled": true,
+        "rules": [],
+        "variants": [],
+        "rolloutPct": null,
+        "sticky": false,
+        "version": 1,
+        "createdAt": "2026-11-07T00:00:00Z",
+        "updatedAt": "2026-11-07T00:00:00Z"
+      }
+    ],
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.flag",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/double_xp",
+    "request": {
+      "path": {
+        "key": "double_xp"
+      }
+    },
+    "response": {
+      "key": "double_xp",
+      "displayName": "Double XP",
+      "type": "bool",
+      "defaultValue": false,
+      "enabled": true,
+      "rules": [],
+      "variants": [],
+      "rolloutPct": null,
+      "sticky": false,
+      "version": 1,
+      "createdAt": "2026-11-07T00:00:00Z",
+      "updatedAt": "2026-11-07T00:00:00Z"
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.createFlag",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags",
+    "request": {
+      "body": {
+        "displayName": "Double XP",
+        "type": "bool",
+        "defaultValue": false,
+        "enabled": true,
+        "rules": [],
+        "variants": []
+      }
+    },
+    "response": {
+      "key": "double_xp",
+      "displayName": "Double XP",
+      "type": "bool",
+      "defaultValue": false,
+      "enabled": true,
+      "rules": [],
+      "variants": [],
+      "rolloutPct": null,
+      "sticky": false,
+      "version": 1,
+      "createdAt": "2026-11-07T00:00:00Z",
+      "updatedAt": "2026-11-07T00:00:00Z"
+    },
+    "status": 200,
+    "body": {
+      "displayName": "Double XP",
+      "type": "bool",
+      "defaultValue": false,
+      "enabled": true,
+      "rules": [],
+      "variants": []
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.updateFlag",
+    "method": "PUT",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/double_xp",
+    "request": {
+      "path": {
+        "key": "double_xp"
+      },
+      "body": {
+        "displayName": "Double XP",
+        "type": "bool",
+        "defaultValue": false,
+        "enabled": true,
+        "rules": [],
+        "variants": [],
+        "version": 1
+      }
+    },
+    "response": {
+      "key": "double_xp",
+      "displayName": "Double XP",
+      "type": "bool",
+      "defaultValue": false,
+      "enabled": true,
+      "rules": [],
+      "variants": [],
+      "rolloutPct": null,
+      "sticky": false,
+      "version": 2,
+      "createdAt": "2026-11-07T00:00:00Z",
+      "updatedAt": "2026-11-07T00:00:00Z"
+    },
+    "status": 200,
+    "body": {
+      "displayName": "Double XP",
+      "type": "bool",
+      "defaultValue": false,
+      "enabled": true,
+      "rules": [],
+      "variants": [],
+      "version": 1
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.deleteFlag",
+    "method": "DELETE",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/double_xp",
+    "request": {
+      "path": {
+        "key": "double_xp"
+      }
+    },
+    "response": null,
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": true
+  },
+  {
+    "endpoint": "fields.evaluateFlags",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate",
+    "request": {
+      "body": {
+        "userId": 7,
+        "keys": [
+          "double_xp"
+        ],
+        "context": {}
+      }
+    },
+    "response": {
+      "values": {
+        "double_xp": {
+          "value": false,
+          "reason": "disabled",
+          "variant": null
+        }
+      }
+    },
+    "status": 200,
+    "body": {
+      "userId": 7,
+      "keys": [
+        "double_xp"
+      ],
+      "context": {}
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.evaluateFlagsBatch",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate-batch",
+    "request": {
+      "body": {
+        "userIds": [
+          7
+        ]
+      }
+    },
+    "response": {
+      "items": [
+        {
+          "userId": 7,
+          "values": {
+            "double_xp": {
+              "value": false,
+              "reason": "disabled",
+              "variant": null
+            }
+          }
+        }
+      ]
+    },
+    "status": 200,
+    "body": {
+      "userIds": [
+        7
+      ]
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.maintenance",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/maintenance",
+    "request": {},
+    "response": {
+      "enabled": false,
+      "message": "",
+      "allowlistUserIds": []
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.putMaintenance",
+    "method": "PUT",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/maintenance",
+    "request": {
+      "body": {
+        "enabled": false,
+        "message": "",
+        "allowlistUserIds": []
+      }
+    },
+    "response": {
+      "enabled": false,
+      "message": "",
+      "allowlistUserIds": []
+    },
+    "status": 200,
+    "body": {
+      "enabled": false,
+      "message": "",
+      "allowlistUserIds": []
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.runtimeSnapshot",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/runtime/snapshot",
+    "request": {},
+    "response": {
+      "version": 1,
+      "gameValues": {
+        "Welcome.Text": "Hello"
+      },
+      "flags": [
+        {
+          "key": "double_xp",
+          "displayName": "Double XP",
+          "type": "bool",
+          "defaultValue": false,
+          "enabled": true,
+          "rules": [],
+          "variants": [],
+          "rolloutPct": null,
+          "sticky": false,
+          "version": 1,
+          "createdAt": "2026-11-07T00:00:00Z",
+          "updatedAt": "2026-11-07T00:00:00Z"
+        }
+      ],
+      "maintenance": {
+        "enabled": false,
+        "message": "",
+        "allowlistUserIds": []
+      }
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.gameValueHistory",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/history?limit=1",
+    "request": {
+      "path": {
+        "fieldPath": "Welcome.Text"
+      },
+      "query": {
+        "limit": 1
+      }
+    },
+    "response": {
+      "items": [
+        {
+          "version": 1,
+          "previousValue": null,
+          "newValue": "Hello",
+          "actor": "server",
+          "time": "2026-11-07T00:00:00Z"
+        }
+      ],
+      "nextCursor": null
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.rollbackGameValue",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/rollback",
+    "request": {
+      "path": {
+        "fieldPath": "Welcome.Text"
+      },
+      "body": {
+        "version": 1
+      }
+    },
+    "response": {
+      "txId": "00000000-0000-4000-8000-000000000001",
+      "replayed": false,
+      "results": [],
+      "seq": {}
+    },
+    "status": 200,
+    "body": {
+      "version": 1
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.scheduleDefinition",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schedules/00000000-0000-4000-8000-000000000001/definition",
+    "request": {
+      "path": {
+        "id": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "response": {
+      "universeId": null,
+      "name": "Weekend XP",
+      "start": "2026-11-07T00:00:00Z",
+      "end": null,
+      "startActions": [
+        {
+          "kind": "ENABLE_FLAG",
+          "key": "double_xp",
+          "type": null,
+          "value": null,
+          "bulkDefinitionId": null
+        }
+      ],
+      "endActions": null,
+      "restorePrevious": false,
+      "reason": "Weekend event",
+      "idempotencyKey": null,
+      "recurrence": null
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.scheduleRuns",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schedules/00000000-0000-4000-8000-000000000001/runs?before=9223372036854775807&limit=1",
+    "request": {
+      "path": {
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "query": {
+        "before": "9223372036854775807",
+        "limit": 1
+      }
+    },
+    "response": [
+      {
+        "id": 1,
+        "occurrence": 0,
+        "edge": "START",
+        "startedAt": "2026-11-07T00:00:00Z",
+        "finishedAt": null,
+        "status": "RUNNING",
+        "error": null,
+        "actions": [
+          {
+            "ordinal": 0,
+            "kind": "ENABLE_FLAG",
+            "key": "double_xp",
+            "done": false,
+            "version": null,
+            "jobId": null,
+            "skipped": null,
+            "skipReason": null,
+            "error": null
+          }
+        ]
+      }
+    ],
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "fields.scheduleActions",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/schedules/00000000-0000-4000-8000-000000000001/actions?after=-1&limit=1",
+    "request": {
+      "path": {
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "query": {
+        "after": -1,
+        "limit": 1
+      }
+    },
+    "response": [
+      {
+        "ordinal": 0,
+        "kind": "ENABLE_FLAG",
+        "key": "double_xp",
+        "done": false,
+        "version": null,
+        "jobId": null,
+        "skipped": null,
+        "skipReason": null,
+        "error": null
+      }
+    ],
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "leaderboards.ratingScopes",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/ratings/universes/123/ratings?limit=1",
+    "request": {
+      "query": {
+        "limit": 1
+      }
+    },
+    "response": {
+      "items": [
+        {
+          "scope": "ranked",
+          "displayName": "Ranked"
+        }
+      ],
+      "nextCursor": null
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "leaderboards.ratingLabel",
+    "method": "PUT",
+    "url": "https://lb1.blox-api.com/leaderboard-service/api/leaderboards/ratings/universes/123/ratings/ranked/label",
+    "request": {
+      "path": {
+        "scope": "ranked"
+      },
+      "body": {
+        "displayName": "Ranked"
+      }
+    },
+    "response": {
+      "scope": "ranked",
+      "displayName": "Ranked"
+    },
+    "status": 200,
+    "body": {
+      "displayName": "Ranked"
+    },
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "auth.assignOwner",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/auth-service/api/auth/orgs/00000000-0000-4000-8000-000000000001/owner",
+    "request": {
+      "path": {
+        "org": "00000000-0000-4000-8000-000000000001"
+      },
+      "body": {
+        "username": "synthetic-user"
+      }
+    },
+    "response": {
+      "orgId": "00000000-0000-4000-8000-000000000001",
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "universeId": null,
+      "role": "OWNER",
+      "status": "ACTIVE",
+      "createdBy": "00000000-0000-4000-8000-000000000001",
+      "createdAt": "2026-11-07T00:00:00Z"
+    },
+    "status": 200,
+    "body": {
+      "username": "synthetic-user"
+    },
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "auth.createMember",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/auth-service/api/auth/orgs/00000000-0000-4000-8000-000000000001/members/new",
+    "request": {
+      "path": {
+        "org": "00000000-0000-4000-8000-000000000001"
+      },
+      "body": {
+        "username": "synthetic-user",
+        "role": "ADMIN"
+      }
+    },
+    "response": {
+      "account": {
+        "accountId": "00000000-0000-4000-8000-000000000001",
+        "username": "synthetic-user",
+        "accountType": "USER",
+        "enabled": true,
+        "metadata": {},
+        "createdTime": "2026-11-07T00:00:00Z",
+        "updatedTime": "2026-11-07T00:00:00Z"
+      },
+      "member": {
+        "orgId": "00000000-0000-4000-8000-000000000001",
+        "userId": "00000000-0000-4000-8000-000000000001",
+        "universeId": null,
+        "role": "ADMIN",
+        "status": "ACTIVE",
+        "createdBy": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2026-11-07T00:00:00Z"
+      },
+      "temporaryPassword": "synthetic-not-a-credential"
+    },
+    "status": 201,
+    "body": {
+      "username": "synthetic-user",
+      "role": "ADMIN"
+    },
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "auth.listMembers",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/auth-service/api/auth/orgs/00000000-0000-4000-8000-000000000001/members",
+    "request": {
+      "path": {
+        "org": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "response": [
+      {
+        "orgId": "00000000-0000-4000-8000-000000000001",
+        "userId": "00000000-0000-4000-8000-000000000001",
+        "universeId": null,
+        "role": "ADMIN",
+        "status": "ACTIVE",
+        "createdBy": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2026-11-07T00:00:00Z",
+        "username": "synthetic-user",
+        "displayName": null,
+        "overrides": []
+      }
+    ],
+    "status": 200,
+    "body": null,
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "auth.lookupServiceAccount",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/auth-service/api/auth/internal/orgs/00000000-0000-4000-8000-000000000001/service-accounts/00000000-0000-4000-8000-000000000001",
+    "request": {
+      "path": {
+        "org": "00000000-0000-4000-8000-000000000001",
+        "id": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "response": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "orgId": "00000000-0000-4000-8000-000000000001",
+      "universeId": 123
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.createPlan",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/platform-service/api/plans",
+    "request": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "response": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "status": 201,
+    "body": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.updatePlan",
+    "method": "PUT",
+    "url": "https://lb1.blox-api.com/platform-service/api/plans/test",
+    "request": {
+      "path": {
+        "name": "test"
+      },
+      "body": {
+        "name": "test",
+        "monthlyLimits": {
+          "requests": 100
+        },
+        "rateLimit": {
+          "requestsPerSecond": 10,
+          "burst": 10,
+          "dailyRequests": 100
+        },
+        "overagePrices": {
+          "requests": "0.00000001",
+          "storage_bytes": 0.01
+        }
+      }
+    },
+    "response": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "status": 200,
+    "body": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.putPlan",
+    "method": "PUT",
+    "url": "https://lb1.blox-api.com/platform-service/api/plans",
+    "request": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "response": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "status": 200,
+    "body": {
+      "name": "test",
+      "monthlyLimits": {
+        "requests": 100
+      },
+      "rateLimit": {
+        "requestsPerSecond": 10,
+        "burst": 10,
+        "dailyRequests": 100
+      },
+      "overagePrices": {
+        "requests": "0.00000001",
+        "storage_bytes": 0.01
+      }
+    },
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.deletePlan",
+    "method": "DELETE",
+    "url": "https://lb1.blox-api.com/platform-service/api/plans/test",
+    "request": {
+      "path": {
+        "name": "test"
+      }
+    },
+    "response": null,
+    "status": 204,
+    "body": null,
+    "identity": true,
+    "empty": true
+  },
+  {
+    "endpoint": "platform.incidents",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/platform-service/api/status/incidents?after=note%3A1&limit=1",
+    "request": {
+      "query": {
+        "after": "note:1",
+        "limit": 1
+      }
+    },
+    "response": [],
+    "status": 200,
+    "body": null,
+    "identity": true,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.resetRateLimits",
+    "method": "DELETE",
+    "url": "https://lb1.blox-api.com/platform-service/api/orgs/00000000-0000-4000-8000-000000000001/ratelimits",
+    "request": {
+      "path": {
+        "org": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "response": null,
+    "status": 204,
+    "body": null,
+    "identity": true,
+    "empty": true
+  },
+  {
+    "endpoint": "platform.resetKeyRateLimit",
+    "method": "DELETE",
+    "url": "https://lb1.blox-api.com/platform-service/api/orgs/00000000-0000-4000-8000-000000000001/service-accounts/00000000-0000-4000-8000-000000000001/ratelimit",
+    "request": {
+      "path": {
+        "org": "00000000-0000-4000-8000-000000000001",
+        "id": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    "response": null,
+    "status": 204,
+    "body": null,
+    "identity": true,
+    "empty": true
+  },
+  {
+    "endpoint": "platform.liveness",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/platform-service/actuator/health/liveness",
+    "request": {},
+    "response": {
+      "status": "UP"
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.readiness",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/platform-service/actuator/health/readiness",
+    "request": {},
+    "response": {
+      "status": "UP"
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "codes.liveness",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/code-service/actuator/health/liveness",
+    "request": {},
+    "response": {
+      "status": "UP"
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "codes.readiness",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/code-service/actuator/health/readiness",
+    "request": {},
+    "response": {
+      "status": "UP"
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.info",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/platform-service/info",
+    "request": {},
+    "response": {},
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.metrics",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/platform-service/metrics",
+    "request": {},
+    "response": {
+      "names": [
+        "http.server.requests"
+      ]
+    },
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.analyticsEconomy",
+    "method": "GET",
+    "url": "https://lb1.blox-api.com/platform-service/api/universes/123/analytics/economy?from=2026-11-01&to=2026-11-07",
+    "request": {
+      "query": {
+        "from": "2026-11-01",
+        "to": "2026-11-07"
+      }
+    },
+    "response": [],
+    "status": 200,
+    "body": null,
+    "identity": false,
+    "empty": false
+  },
+  {
+    "endpoint": "platform.createWebhook",
+    "method": "POST",
+    "url": "https://lb1.blox-api.com/platform-service/api/universes/123/webhooks",
+    "request": {
+      "body": {
+        "url": "https://webhooks.example/events",
+        "events": [
+          "field.changed"
+        ]
+      }
+    },
+    "response": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "secret": "synthetic-signing-material",
+      "enabled": true
+    },
+    "status": 201,
+    "body": {
+      "url": "https://webhooks.example/events",
+      "events": [
+        "field.changed"
+      ]
+    },
+    "identity": false,
+    "empty": false
+  }
+]

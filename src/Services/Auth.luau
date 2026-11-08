@@ -71,6 +71,14 @@ function Service.finalizeSandbox(
 ): Core.Result<Types.FinalizeSandboxResultValue>
 	return self._invoke(Endpoints["auth.finalizeSandbox"], req, opts, self._universe)
 end
+--- GET /auth-service/api/auth/internal/orgs/{org}/service-accounts/{id} via gateway; access: READ.
+function Service.lookupServiceAccount(
+	self: Service,
+	req: Types.LookupServiceAccountCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.LookupServiceAccountResultValue>
+	return self._invoke(Endpoints["auth.lookupServiceAccount"], req, opts, self._universe)
+end
 --- POST /auth-service/api/auth/invitations/accept via gateway; access: IDENTITY.
 function Service.acceptInvitation(
 	self: Service,
@@ -216,6 +224,14 @@ function Service.addMember(
 ): Core.Result<Types.AddMemberResultValue>
 	return self._invoke(Endpoints["auth.addMember"], req, opts, self._universe)
 end
+--- POST /auth-service/api/auth/orgs/{org}/members/new via gateway; access: IDENTITY.
+function Service.createMember(
+	self: Service,
+	req: Types.CreateMemberCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CreateMemberResultValue>
+	return self._invoke(Endpoints["auth.createMember"], req, opts, self._universe)
+end
 --- DELETE /auth-service/api/auth/orgs/{org}/members/{user} via gateway; access: IDENTITY.
 function Service.removeMember(
 	self: Service,
@@ -231,6 +247,14 @@ function Service.patchMember(
 	opts: Core.CallOptions?
 ): Core.Result<Types.PatchMemberResultValue>
 	return self._invoke(Endpoints["auth.patchMember"], req, opts, self._universe)
+end
+--- POST /auth-service/api/auth/orgs/{org}/owner via gateway; access: IDENTITY.
+function Service.assignOwner(
+	self: Service,
+	req: Types.AssignOwnerCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.AssignOwnerResultValue>
+	return self._invoke(Endpoints["auth.assignOwner"], req, opts, self._universe)
 end
 --- PUT /auth-service/api/auth/orgs/{org}/plan via gateway; access: SUPER_ADMIN.
 function Service.setOrgPlan(

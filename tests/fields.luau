@@ -603,7 +603,7 @@ return function(test: (string, () -> ()) -> ())
 				check(not c.fields:putDocument({
 					path = { userId = 7 },
 					body = { reason = "save", data = { Currency = { Gems = 1 } } },
-				}, { idempotencyHint = true }).ok)
+				}).ok)
 				check(f.count() == 1)
 				check(c.fields:putDocument({
 					path = { userId = 7 },
