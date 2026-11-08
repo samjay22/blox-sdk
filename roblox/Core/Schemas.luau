@@ -2956,6 +2956,43 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["BatchChangesInput"] = {
+			["fields"] = {
+				["maxEntries"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["responseNullable"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["players"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "PlayerChangesInput" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["BatchChangesResponse"] = {
+			["fields"] = {
+				["items"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "PlayerChangesItem" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["pollAfterMs"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["BatchItem"] = {
 			["fields"] = {
 				["field"] = {
@@ -5490,6 +5527,59 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerChangesInput"] = {
+			["fields"] = {
+				["sinceSeq"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["userId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerChangesItem"] = {
+			["fields"] = {
+				["entries"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "Entry" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["hasMore"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["latestSeq"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["needsSnapshot"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["nextSinceSeq"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["userId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -10852,6 +10942,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	},
 	["fields.changes"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "ChangesResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.changesBatch"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "BatchChangesInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "BatchChangesResponse" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.claimRotation"] = {

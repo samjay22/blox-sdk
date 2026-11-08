@@ -37,7 +37,12 @@ function Options.valid(opts: Types.CallOptions): boolean
 	then
 		return false
 	end
-	if opts.priority ~= nil and opts.priority ~= "critical" and opts.priority ~= "bulk" then
+	if
+		opts.priority ~= nil
+		and opts.priority ~= "critical"
+		and opts.priority ~= "bulk"
+		and opts.priority ~= "low"
+	then
 		return false
 	end
 	if

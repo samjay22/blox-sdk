@@ -51,4 +51,13 @@ end
 function Roblox.bindToClose(callback: () -> ())
 	game:BindToClose(callback)
 end
+--- Own one native player-removal connection per physical SDK client.
+function Roblox.playerRemoving(callback: (number) -> ()): () -> ()
+	local connection = game:GetService("Players").PlayerRemoving:Connect(function(player)
+		callback(player.UserId)
+	end)
+	return function()
+		connection:Disconnect()
+	end
+end
 return table.freeze(Roblox)

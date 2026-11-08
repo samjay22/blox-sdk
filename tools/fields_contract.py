@@ -12,7 +12,8 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
     """Resolve overloads, JsonProperty, dynamic map responses, nulls and operation wire types."""
     del root
     # Lock identities/barriers are database implementation records, not public DTOs.
-    for name in ('Lock', 'LockScope', 'CursorBarrier'):
+    for name in ('Lock', 'LockScope', 'CursorBarrier', 'ChangeHead', 'ChangeGroup', 'ChangeRange',
+                 'PlayerChangeCursor', 'ChangesBatchInput', 'PlayerChanges', 'ChangesBatchResult'):
         definitions.pop(name, None)
     rotations = [e for e in endpoints if e["source"].endswith("/RotationsController.java")]
     endpoints = [e for e in endpoints if e not in rotations]
@@ -40,6 +41,16 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         'BoardAggregation': {'enum': ['LAST','BEST','SUM']},
         'BoardResetSchedule': {'enum': ['NONE','DAILY','WEEKLY','MONTHLY','SEASONAL']},
     })
+    # This shared read-only batch protocol has stricter container guarantees than Java null inference.
+    batch_types = {
+        'BatchChangesInput': record(players='List<PlayerChangesInput>', maxEntries='Integer?'),
+        'PlayerChangesInput': record(userId='long', sinceSeq='long'),
+        'PlayerChangesItem': record(userId='long', entries='List<Entry>', latestSeq='long',
+                                    nextSinceSeq='long', hasMore='boolean', needsSnapshot='boolean'),
+        'BatchChangesResponse': record(items='List<PlayerChangesItem>', pollAfterMs='long'),
+    }
+    for definition in batch_types.values(): definition['source'] = 'docs/PROFILE-SYNC-CONTRACT.md'
+    definitions.update(batch_types)
     response_optional = {
         'Preview': {'willWiden'},
         'Definition': {'type','default','history','writeLevel','computed','bindings'},
@@ -111,6 +122,9 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
             e.update(minimumLevel='READ', authKinds=['serviceAccount','user','custom','scoped'], cacheable=False)
         if e['path']=='/health': e['responseJava']='HealthResponse'
         e['idempotent']=e['retryable']=e['method']=='GET'
+        if name == 'changesBatch':
+            e.update(bodyType='BatchChangesInput', responseJava='BatchChangesResponse',
+                     idempotent=True, retryable=True, cacheable=False)
         if name in ('create',): e['statuses']=[201]
         if name in ('transaction','multiTransaction','reverseEntry','reverseTransaction','restoreSnapshot','purchase','refund'):
             e.update(idempotencyField='idempotencyKey',idempotent=True,retryable=True)

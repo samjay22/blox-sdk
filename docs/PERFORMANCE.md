@@ -43,3 +43,15 @@ one @lune/net module/transport. No connection-level benchmark or real-gateway th
 relative timeout wins. Native RequestAsync cannot be cancelled: a late physical operation retains its
 concurrency slot until completion, even after the caller receives Timeout. Never blindly retry an
 uncertain non-idempotent mutation. See [fault tolerance](FAULT-TOLERANCE.md) and [errors](ERRORS.md).
+
+### Profile live-sync budget (1.2.0)
+
+Automatic profile sync adds a LOW lane behind both gameplay lanes. Polls and staggered snapshot
+reloads defer at `profileSync.budgetThreshold` (default 0.8 of the configured SDK rolling-minute
+limit), and never wait for rate tokens while holding a physical slot. For 1–200 players in one
+universe/scope, normal polling costs **one request per interval per server**, nominally 4/min at 15s.
+Over 200 players requires `ceil(players/200)` serial chunks, not one unbounded request. `hasMore`
+catch-up and snapshot/schema recovery add requests; [the budget table](FIELDS.md#rate-limit-budget)
+separates these costs. Native requests outliving their logical timeout retain sync's physical-poll
+exclusion until completion. Polls/reloads yield to game traffic; already-dispatched HTTP cannot be
+preempted. Unrelated scripts' HTTP is outside the SDK's usage measurements.

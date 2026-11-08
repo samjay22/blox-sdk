@@ -37,6 +37,8 @@ local Leaderboards = require(script.Services.Leaderboards)
 local Fields = require(script.Services.Fields)
 local Platform = require(script.Services.Platform)
 local FieldsHelpers = require(script.Fields.Client)
+local ProfileSync = require(script.Fields.ProfileSync)
+local ChangeSignal = require(script.Core.ChangeSignal)
 local Observers = require(script.Core.Observers)
 local AuditWriter = require(script.Core.AuditWriter)
 local SnapshotCache = require(script.Core.SnapshotCache)
@@ -68,6 +70,9 @@ export type Snapshot = SnapshotCache.Snapshot
 export type AuditWriter = AuditWriter.Writer
 export type Metrics = Pipeline.Counters
 export type HealthReport = { [string]: { result: Types.Result<Types.Json>, latency: number } }
+export type ProfileChange = ChangeSignal.Change
+export type ProfileChangeConnection = ChangeSignal.Connection
+export type ProfileSyncConfig = Config.ProfileSyncConfig
 export type Profile = Profile.Profile
 export type Transaction = Transaction.Transaction
 export type SchemaCache = Schema.Schema
@@ -95,6 +100,7 @@ type ScopeBinding = {
 	fields: FieldsHelpers.State,
 }
 type Helpers = {
+	sync: ProfileSync.Sync,
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
 	fields: FieldsHelpers.State?,
@@ -104,6 +110,7 @@ type Helpers = {
 }
 export type Client = typeof(setmetatable(
 	{} :: {
+		ProfileChanged: ChangeSignal.Signal,
 		auth: Auth.Service,
 		matchmaking: Matchmaking.Service,
 		party: Party.Service,
@@ -145,6 +152,7 @@ local function facade(
 	provider: Types.AuthProvider?
 ): Client
 	return setmetatable({
+		ProfileChanged = helpers.sync.Changed,
 		_state = state,
 		_helpers = helpers,
 		_invoke = invoke,
@@ -207,6 +215,8 @@ function SDK.new(config: Config): Client
 	if not config.runtime and not serverBucket then
 		serverBucket = Bucket.new(burst, rpm / 60, reserve, runtime.now())
 	end
+	local syncOptions: Config.ProfileSyncConfig = config.profileSync or {}
+	local threshold = Config.number(syncOptions.budgetThreshold, 0.8, 0.01, 1, "profileSync.budgetThreshold")
 	local state = Pipeline.new({
 		runtime = runtime,
 		backend = backend,
@@ -225,6 +235,7 @@ function SDK.new(config: Config): Client
 		staleIfError = Config.number(config.staleIfError, 0, 0, 3600, "staleIfError"),
 		hooks = Observers.new(config.hooks, config.logger),
 		sharedBucket = if not config.runtime then serverBucket else nil,
+		lowPriorityThreshold = threshold,
 	})
 	local invoke: Types.Invoke = function(
 		spec: Types.Endpoint,
@@ -251,7 +262,11 @@ function SDK.new(config: Config): Client
 			return invoke(Endpoints["auth." .. action], { body = body }, { priority = "critical" }, nil)
 		end)
 	end
+	local sync = ProfileSync.new(runtime, config.profileSync, function()
+		return Bucket.used(state.bucket, runtime.now()) < state.bucket.limit * threshold and not state.closing
+	end)
 	local helpers: Helpers = {
+		sync = sync,
 		writers = {},
 		snapshots = {},
 		fields = nil,
@@ -261,6 +276,11 @@ function SDK.new(config: Config): Client
 	}
 	local client: Client? = nil
 	helpers.fields = FieldsHelpers.new(runtime, invoke, function()
+		if helpers.lifecycle.native and not sync.cleanup then
+			sync.cleanup = Roblox.playerRemoving(function(userId)
+				sync:removePlayer(userId)
+			end)
+		end
 		if helpers.lifecycle.native and not helpers.lifecycle.bound then
 			helpers.lifecycle.bound = true
 			Roblox.bindToClose(function()
@@ -271,7 +291,7 @@ function SDK.new(config: Config): Client
 				end
 			end)
 		end
-	end)
+	end, sync)
 	table.insert(helpers.fieldStates, helpers.fields :: FieldsHelpers.State)
 	client = facade(state, invoke, config.universeId or auth.universeId, session, helpers)
 	return client :: Client
@@ -307,6 +327,11 @@ function Client.scoped(self: Client, id: string | number): Client
 			return Pipeline.call(self._state, spec, request, opts, universe, provider)
 		end
 		local fields = FieldsHelpers.new(self._state.config.runtime, invoke, function()
+			if self._helpers.lifecycle.native and not self._helpers.sync.cleanup then
+				self._helpers.sync.cleanup = Roblox.playerRemoving(function(userId)
+					self._helpers.sync:removePlayer(userId)
+				end)
+			end
 			if self._helpers.lifecycle.native and not self._helpers.lifecycle.bound then
 				self._helpers.lifecycle.bound = true
 				Roblox.bindToClose(function()
@@ -314,7 +339,7 @@ function Client.scoped(self: Client, id: string | number): Client
 					self:destroy()
 				end)
 			end
-		end)
+		end, self._helpers.sync)
 		binding = { provider = provider, invoke = invoke, fields = fields }
 		self._helpers.scopes[key] = binding
 		table.insert(self._helpers.fieldStates, fields)
@@ -354,6 +379,7 @@ end
 function Client.flush(self: Client, timeout: number?): boolean
 	local runtime = self._state.config.runtime
 	local deadline = runtime.now() + Config.number(timeout, 10, 0, 300, "flush timeout")
+	self._helpers.sync:destroy()
 	local drained = true
 	for _, fields in self._helpers.fieldStates do
 		drained = FieldsHelpers.close(fields, deadline) and drained
@@ -373,6 +399,7 @@ function Client.destroy(self: Client)
 	if self._state.destroyed then
 		return
 	end
+	self._helpers.sync:destroy()
 	for _, writer in self._helpers.writers do
 		writer:destroy()
 	end
@@ -432,7 +459,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "1.1.0"
+SDK.version = "1.2.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

@@ -6,7 +6,14 @@ local Universe = require("./Universe")
 local Routing = require("./Routing")
 local Config = {}
 export type ServiceConfig = { baseUrl: string? }
+export type ProfileSyncConfig = {
+	enabled: boolean?,
+	intervalSeconds: number?,
+	budgetThreshold: number?,
+	maxConcurrentReloads: number?,
+}
 export type Config = {
+	profileSync: ProfileSyncConfig?,
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,
 	authProvider: Types.AuthProvider?,
@@ -31,6 +38,7 @@ export type Config = {
 	logger: Types.Logger?,
 }
 local known = table.freeze({
+	profileSync = true,
 	backend = true,
 	runtime = true,
 	authProvider = true,
@@ -70,6 +78,19 @@ function Config.validate(config: Config)
 				"Invalid hook"
 			)
 		end
+	end
+	if config.profileSync ~= nil then
+		assert(type(config.profileSync) == "table", "profileSync must be a table")
+		for name in config.profileSync :: any do
+			assert(
+				table.find({ "enabled", "intervalSeconds", "budgetThreshold", "maxConcurrentReloads" }, name),
+				"Unknown profileSync field"
+			)
+		end
+		assert(
+			config.profileSync.enabled == nil or type(config.profileSync.enabled) == "boolean",
+			"Invalid profileSync enabled"
+		)
 	end
 	if config.key ~= nil then
 		assert(type(config.key) == "string", "key must be a string")

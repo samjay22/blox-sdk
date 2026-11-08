@@ -68,7 +68,7 @@ local function validId(id: string): boolean
 	return true
 end
 --- Atomically publish a complete validated generation, keeping last-good on every failure.
-function Schema.refresh(self: Schema): Core.Result<number>
+function Schema.refresh(self: Schema, opts: Core.CallOptions?): Core.Result<number>
 	if self._signal.cancelled then
 		return TypeSystem.failure("schema_closed")
 	end
@@ -79,7 +79,10 @@ function Schema.refresh(self: Schema): Core.Result<number>
 		return TypeSystem.failure("schema_closed")
 	end
 	self._busy = true
-	local ok, result = pcall(self._fetch, { signal = self._signal, cacheTtl = 0 })
+	local options = table.clone(opts or {})
+	options.signal = options.signal or self._signal
+	options.cacheTtl = 0
+	local ok, result = pcall(self._fetch, options)
 	local response: Core.Result<Types.SchemaResponse> = if ok
 		then result
 		else TypeSystem.failure("schema_unavailable")

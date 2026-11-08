@@ -379,3 +379,101 @@ The [Codes builder](CODES.md) composes the same operation builder and TypeSystem
 ## Rotations, generators and table odds
 
 See [Rotations & Generators](ROTATIONS.md) for current/next heads, snapshot-backed Watch, countdowns, live stock, atomic claims, player rolls/previews and explicitly labeled table odds. All use this SDK's shared Result/pipeline and universe/auth lifetime.
+
+## Admin edits & live sync
+
+Successfully loaded profiles now register with **one per-client ProfileSync registry** automatically.
+It polls `POST /api/fields/universes/{u}/players/changes/batch`, using Fields READ and game-server keys.
+Profiles for the same universe/credential scope and player share one request item (minimum applied
+watermark); distinct handles still receive their own updates/signals. Universe facades share the
+registry and only one batch request may be physically in flight. Different universes/credential scopes
+require separate serial batches. No profile poll runs without loaded profiles.
+
+```luau
+local client = BloxSDK.new({
+    secretName = "BLOX_SERVICE_ACCOUNT",
+    universeId = game.GameId,
+    profileSync = {
+        enabled = true,              -- default; false disables automatic polls/recovery
+        intervalSeconds = 15,        -- initial/fallback interval; minimum 5
+        budgetThreshold = 0.8,       -- fraction of configured rolling-minute SDK limit
+        maxConcurrentReloads = 2,    -- 1..16, default 2
+    },
+})
+```
+
+After a successful poll, the server's `pollAfterMs` controls the next interval (maximum hint across
+chunks). Normal intervals have ±20% jitter, clamped to at least 5 seconds. Any `hasMore` schedules
+another serial poll after 200–300 ms, applying only complete sequence groups and `nextSinceSeq`.
+Local transaction allocation tokens **never** advance the feed watermark. Whole-field snapshots can
+skip field versions; partial-path snapshots require contiguous versions or recovery. Older/duplicate
+versions do not overwrite or double-apply; same-version operations within one group apply in ordinal
+order. Loaded profiles remain non-authoritative: the server owns mutations and computed results.
+
+`needsSnapshot` schedules a deduplicated per-handle snapshot reload: NONE-history edits/deletions,
+hash-only snapshots (>16 KiB), erase/restore/replacement, field schema/type migrations, and retention
+gaps cannot be reconstructed from the ledger. Invalid/unusable entries and computed fields also
+recover conservatively. Reloads start at least 200 ms apart, use LOW priority, share fresh schemas
+within a poll generation, and run at most `maxConcurrentReloads` at once. An older in-flight read
+cannot clear recovery or publish a snapshot below the last safe cursor requiring recovery. Until
+recovery succeeds `tryGet` can report `profile_stale`; failures retain the cursor and retry with backoff.
+
+### Reacting to changes
+
+```luau
+local loaded = client.fields:loadProfile(game.GameId, player.UserId)
+if loaded.ok then
+    local profile = loaded.value
+    profile.Changed:connect(function(change)
+        -- values uses literal field IDs, not nested dotted paths.
+        local gems = change.values["Currency.Gems"]
+        if type(gems) == "number" then
+            player.leaderstats.Gems.Value = gems
+        end
+        -- change.source is "external" (feed/snapshot) or "local" (acknowledged commit).
+    end)
+end
+
+client.ProfileChanged:connect(function(change)
+    -- Same immutable payload: userId, universeId (string), fieldIds, values, source.
+    -- Filter by player/universe/field as needed; this is server-side, not a RemoteEvent.
+end)
+```
+
+Signals fire asynchronously after publishing final field values, only when values actually change
+(not merely a version bump). Observer exceptions are isolated. `connect` returns a connection with
+`:disconnect()`; profile/client destruction clears listeners and suppresses queued callbacks. A feed
+echo of a local commit does not fire twice. Initial profile loading does not emit a change notification;
+initialize UI/leaderstats with `get`/`tryGet` after loading. Explicit snapshot refresh notifications have
+source `external`; transaction `apply` notifications default to `local`.
+
+Call `profile:release()` to release presence and unregister, or `profile:destroy()` to unregister without
+HTTP. Native clients also destroy all handles for a user on `Players.PlayerRemoving`. A profile
+released during a request ignores the late response. `flush` stops sync **before** draining leases;
+`destroy`/the shared native `game:BindToClose` stop polling/reloads and disconnect the removal hook.
+Already-dispatched native HttpService requests cannot be aborted, but no follow-up work is started.
+
+### Rate-limit budget
+
+Polls/reloads use a dedicated `low` lane, behind both gameplay `critical` and `bulk` traffic; they cannot
+spend critical reserve or hold a slot waiting for rate tokens. At the configured threshold (default
+80% of the SDK's default 450/min = 360 admissions), polls are skipped/delayed and reloads deferred.
+Admission rechecks the threshold after queue waits. This uses **SDK-observed** traffic only; leave
+headroom for unrelated HttpService users. 429/5xx use bounded exponential backoff (5–300s base,
+±20% jitter) honoring parsed Retry-After seconds or HTTP dates as a floor. Successful polling resets
+backoff. Polls disable in-call retries: recovery is scheduled, not stacked on pipeline retries.
+
+| Work | Request cost | Default nominal rate |
+|---|---|---|
+| Empty registry | 0 profile polls | 0/min |
+| 1–200 loaded distinct players, one universe/scope | **1 batch request per interval per server**, not per player | 4/min at 15s; fastest normal jitter 12s ≈ 5/min |
+| More than 200 | `ceil(players / 200)` serial requests per poll, summed across universes/scopes | E.g. 201–400 players: 8/min nominal |
+| `hasMore` catch-up | Additional batch every 200–300ms until drained or deferred | Not a fixed 4/min ceiling; LOW admission/rolling budget still applies |
+| Snapshot recovery | 1 document GET per affected handle, plus shared schema refresh | Staggered, ≤N concurrent; retries add requests |
+| Initial load / presence / schema polling | Existing schema+document reads / optional heartbeat writes / schema refresh | Separate from the batch poll cost |
+
+Thus “one request regardless of player count” applies only up to the contract's 200-player chunk
+limit, not arbitrarily many loaded players or recovery bursts. The hard bound remains the configured
+rolling-minute limiter (<500/min), with background admission cut off at the lower threshold.
+See [performance and budgets](PERFORMANCE.md). This checkout verifies SDK behavior offline; backend
+set-based query cost, deployed batch support and native Roblox runtime behavior are not certified.

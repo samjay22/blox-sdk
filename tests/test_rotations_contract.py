@@ -87,8 +87,8 @@ class RotationsContractTests(unittest.TestCase):
         """Regeneration must retain new coverage and the unpublished 0.2.0 work."""
         coverage=(ROOT/'SDK_COVERAGE.md').read_text()
         self.assertNotIn('TODO: Fields generic Rotations',coverage)
-        self.assertIn('372',coverage)
-        self.assertIn('version = "1.1.0"',(ROOT/'wally.toml').read_text())
+        self.assertIn('373',coverage)
+        self.assertIn('version = "1.2.0"',(ROOT/'wally.toml').read_text())
         for file in ('CHANGELOG.md','docs/CHANGELOG.md'):
             text=(ROOT/file).read_text()
             self.assertIn('## 0.3.0',text)

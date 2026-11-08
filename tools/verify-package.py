@@ -102,8 +102,16 @@ local http={
   return {StatusCode=200,Body=scheduler.json({universeId=123,schemaVersion=0,definitions=wireJson.array({})}),Headers={}}
  end,
 }
+local removingListeners = {}
+local removalConnections = 0
+local players = {PlayerRemoving={Connect=function(_,callback)
+ removalConnections+=1
+ removingListeners[callback]=true
+ return {Disconnect=function() removingListeners[callback]=nil; removalConnections-=1 end}
+end}}
 base.game={BindToClose=function(_,callback) table.insert(closeCallbacks,callback) end,GetService=function(_,name)
  if name=="RunService" then return {IsServer=function() return server end} end
+ if name=="Players" then return players end
  assert(name=="HttpService","Unexpected service lookup")
  return http
 end}
@@ -114,12 +122,15 @@ scheduler.run(function() assert(client.fields:schema().ok,"Default adapter reque
 assert(requests==1,"Unexpected HTTP request count")
 local writer=client:auditWriter({batchSize=10})
 client:withUniverse(123):auditWriter()
+client.fields:schemaCache(123)
+assert(removalConnections==1,"Audit-first lifecycle must still bind PlayerRemoving")
 assert(#closeCallbacks==1,"Shutdown must be registered once per shared client")
 assert(writer:enqueue({occurredAt="2026-11-05T00:00:00Z",actorType="SYSTEM",actorId="server",action="game.close",resourceType="game",resourceId="123",outcome="SUCCESS"}))
 assert(requests==1,"Enqueue must not block or dispatch inline")
 scheduler.run(closeCallbacks[1])
 assert(requests==2 and writer:pending()==0 and client._state.destroyed,"BindToClose failed to drain audit queue")
 client:destroy()
+assert(removalConnections==0,"Client destroy leaked removal connection")
 fieldsMode=true
 local fieldsClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
 scheduler.run(function()
@@ -131,7 +142,20 @@ scheduler.run(function()
 end)
 assert(#presenceStates==2 and presenceStates[1] and not presenceStates[2],"Fields BindToClose must release presence")
 assert(fieldsClient._state.destroyed and scheduler.pending()==0,"Fields tasks survived shutdown")
-print("PASS projected Fields BindToClose flush, session release and profile lifecycle")
+assert(removalConnections==0,"Fields close leaked player connection")
+local leavingClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
+scheduler.run(function()
+ local a=leavingClient.fields:loadProfile(123,7)
+ local b=leavingClient.fields:loadProfile(123,7)
+ assert(a.ok and b.ok and removalConnections==1,"Native duplicate profile setup failed")
+ for callback in removingListeners do callback({UserId=7}) end
+ assert(a.value._closed and b.value._closed,"PlayerRemoving did not destroy every handle")
+ assert(next(leavingClient._helpers.sync._profiles)==nil,"Departed player leaked registry entries")
+ assert(next(leavingClient._helpers.fields.profiles)==nil,"Departed player leaked helper ownership")
+ leavingClient:destroy()
+end)
+assert(removalConnections==0 and scheduler.pending()==0,"PlayerRemoving cleanup leaked work")
+print("PASS projected Fields BindToClose flush, session release, PlayerRemoving and profile lifecycle")
 server=false
 local ok=pcall(sdk.new,{key="bsa_"..string.rep("a",8).."_"..string.rep("b",43),universeId=123})
 assert(not ok,"Client-side construction must fail")

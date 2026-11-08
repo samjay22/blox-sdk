@@ -17,9 +17,24 @@ game:GetService("Players").PlayerAdded:Connect(function(player: any)
 		profile:destroy()
 		return
 	end
+	local leaderstats = player:FindFirstChild("leaderstats") or Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+	local stat = leaderstats:FindFirstChild("Counter") or Instance.new("IntValue")
+	stat.Name = "Counter"
+	stat.Parent = leaderstats
+	if type(counter.value) == "number" then
+		stat.Value = counter.value
+	end
+	profile.Changed:connect(function(change)
+		local value = change.values["Smoke.Counter"]
+		if type(value) == "number" then
+			stat.Value = value
+		end
+	end)
 	local saved = profile:transaction():add("Smoke.Counter", 1):reason("Server example"):commit()
 	if not saved.ok then
 		warn(saved.error.code)
 	end
-	profile:destroy()
+	-- Keep the profile loaded for automatic admin-edit sync. Native PlayerRemoving unregisters it.
 end)

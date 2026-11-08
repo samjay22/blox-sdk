@@ -28,6 +28,9 @@ function Transport.send(
 	local timer = runtime.delay(math.max(0, deadline - runtime.now()), function()
 		expired = true
 	end)
+	if signal then
+		signal.inFlight = (signal.inFlight or 0) + 1
+	end
 	runtime.spawn(function()
 		local ok, response, decoded = pcall(function(): (Types.HttpResponse, unknown)
 			if auth then
@@ -85,6 +88,9 @@ function Transport.send(
 		request.Body = nil
 		-- Slots track native operations, not just waiting callers. Roblox cannot abort HTTP.
 		Gate.release(gate)
+		if signal then
+			signal.inFlight = (signal.inFlight or 1) - 1
+		end
 		if not abandoned then
 			if ok then
 				headers = response.Headers

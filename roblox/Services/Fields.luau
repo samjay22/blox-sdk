@@ -690,6 +690,14 @@ function Service.retryOutbox(
 ): Core.Result<Types.RetryOutboxResultValue>
 	return self._invoke(Endpoints["fields.retryOutbox"], req, opts, self._universe)
 end
+--- POST /fields-service/api/fields/universes/{universeId}/players/changes/batch via gateway; access: READ.
+function Service.changesBatch(
+	self: Service,
+	req: Types.ChangesBatchCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ChangesBatchResultValue>
+	return self._invoke(Endpoints["fields.changesBatch"], req, opts, self._universe)
+end
 --- GET /fields-service/api/fields/universes/{universeId}/players/sample via gateway; access: READ.
 function Service.samplePlayers(
 	self: Service,

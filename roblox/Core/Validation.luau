@@ -217,6 +217,31 @@ function Validation.body(endpoint: string, value: unknown): boolean
 	if not matches(value, schema.body, Schemas.definitions[schema.service], 0, false) then
 		return false
 	end
+	if endpoint == "fields.changesBatch" then
+		local body = value :: any
+		if #body.players < 1 or #body.players > 200 then
+			return false
+		end
+		if
+			body.maxEntries ~= nil
+			and (body.maxEntries % 1 ~= 0 or body.maxEntries < 1 or body.maxEntries > 1000)
+		then
+			return false
+		end
+		local seen: { [number]: boolean } = {}
+		for _, player in body.players do
+			if
+				not Universe.valid(player.userId)
+				or player.sinceSeq < 0
+				or player.sinceSeq % 1 ~= 0
+				or seen[player.userId]
+			then
+				return false
+			end
+			seen[player.userId] = true
+		end
+		return true
+	end
 	if endpoint == "auth.rotateServiceAccount" then
 		local grace = (value :: any).gracePeriodSeconds
 		return grace == nil or (grace % 1 == 0 and grace >= 0 and grace <= 604800)

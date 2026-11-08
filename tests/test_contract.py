@@ -100,7 +100,7 @@ class ContractTests(unittest.TestCase):
         for e in self.doc['endpoints']:
             if e['service']=='auth' and e['name'].endswith('Rest'):self.assertEqual(e['statuses'],[204])
             if e['method']=='POST' and e['retryable']:
-                self.assertTrue(e.get('idempotencyField') or (e['id']=='fields.import' and e.get('idempotencyHeader') and e.get('requestFormat')=='ndjson') or e['id'] in {'matchmaking.validateQueue','matchmaking.getBulkQueueStatus','fields.previewGenerator','fields.simulateGenerator'})
+                self.assertTrue(e.get('idempotencyField') or (e['id']=='fields.import' and e.get('idempotencyHeader') and e.get('requestFormat')=='ndjson') or e['id'] in {'matchmaking.validateQueue','matchmaking.getBulkQueueStatus','fields.previewGenerator','fields.simulateGenerator','fields.changesBatch'})
 
     def test_live_source_contract_is_reproducible(self) -> None:
         """Compare record/route extraction and source hashes without changing workspace files."""

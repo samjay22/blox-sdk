@@ -1858,5 +1858,10 @@
     "svc": "platform",
     "method": "GET",
     "path": "/metrics"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/players/changes/batch"
   }
 ]

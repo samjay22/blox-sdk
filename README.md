@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**372 typed endpoints, version 1.1.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**373 typed endpoints, version 1.2.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@1.1.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@1.2.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@1.1.0"
+BloxSDK = "blox-api/blox-sdk@1.2.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -85,7 +85,7 @@ local joined = client.matchmaking:joinQueue({
 
 `Result<T>` is `{ok=true,value:T,status?,stale?}` or `{ok=false,error:BloxError}`. HTTP/network failures return results rather than throwing. Invalid construction config throws a value-free assertion. Errors include kind, HTTP status when available, endpoint ID, attempt count, and a **fully redacted** error body. There is deliberately no raw-response debug logging.
 
-`CallOptions`: relative `timeout` (seconds), absolute monotonic `deadline` (the earlier bound wins), optional `idempotencyKey` for single-key operations, `priority` (`critical`/`bulk`), maximum `retry` count, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. Removed options such as `idempotencyHint` are rejected, not shimmed. Unkeyed non-idempotent mutations are never automatically retried. Retry-After seconds/HTTP dates are honored for 429 and all 5xx within the original deadline and earned retry budget.
+`CallOptions`: relative `timeout` (seconds), absolute monotonic `deadline` (the earlier bound wins), optional `idempotencyKey` for single-key operations, `priority` (`critical`/`bulk`/`low`), maximum `retry` count, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. Removed options such as `idempotencyHint` are rejected, not shimmed. Unkeyed non-idempotent mutations are never automatically retried. Retry-After seconds/HTTP dates are honored for 429 and all 5xx within the original deadline and earned retry budget.
 
 Responses shared by cache/single-flight are recursively frozen. Clone before editing. `BloxSDK.null` represents an explicit JSON null (e.g. clearing service-account expiration). `BloxSDK.array({})` marks an empty array in arbitrary JSON; declared DTO array fields are encoded correctly automatically.
 
@@ -99,6 +99,7 @@ Current Platform methods and Fields-owned player administration are documented i
 - `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `get`/`isEnabled`, `Changed` signal, last-good-state retention. `get` reads literal `gameValues` field IDs; `isEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
 - Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
+- Loaded profiles automatically share low-priority batch sync (up to 200 players/request) and expose `Profile.Changed` / `client.ProfileChanged` for admin edits. Configure `profileSync` or disable it; see [Admin edits & live sync](docs/FIELDS.md#admin-edits--live-sync).
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
 - Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; health summary and schedule run history need READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
 

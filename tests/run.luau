@@ -556,7 +556,9 @@ test("all generated endpoints use default, custom gateway and direct-host URLs o
 					{ fixture(Schemas.definitions[spec.service][dto], Schemas.definitions[spec.service]) }
 			end
 		end
-		if id == "fields.validateOps" then
+		if id == "fields.changesBatch" then
+			request.body = { players = { { userId = 1, sinceSeq = 0 } } }
+		elseif id == "fields.validateOps" then
 			request.body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 1 } } }
 		elseif id == "codes.createCode" or id == "codes.bulkCreateCodes" then
 			(request.body :: any).award = { { field = "Currency.Gems", op = "ADD", delta = 1 } }
@@ -1009,6 +1011,7 @@ end)
 require("./new_services")(test)
 require("./auth")(test)
 require("./fields")(test)
+require("./profile_sync")(test)
 require("./field_bindings")(test)
 require("./operations")(test)
 require("./matchmaking")(test)

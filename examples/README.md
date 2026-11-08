@@ -43,3 +43,5 @@ is experience-specific and intentionally not an undocumented, insecure RemoteFun
 
 No native Studio session or real purchase was executed by offline verification. See the
 [opt-in gateway smoke runner](../docs/LIVE-SMOKE.md) and [API](../docs/api/README.md).
+
+- `profile-leaderstats.luau`: initialize leaderstats and refresh them from `Profile.Changed`, including live admin edits. Release the returned profile when no longer needed. The native `server/fields.server.luau` example keeps its profile loaded until PlayerRemoving.

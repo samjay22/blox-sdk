@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "1.1.0"
+SDK.version = "1.2.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -240,6 +240,12 @@ export type Metrics = Pipeline.Counters
 
 export type HealthReport = { [string]: { result: Types.Result<Types.Json>, latency: number } }
 
+export type ProfileChange = ChangeSignal.Change
+
+export type ProfileChangeConnection = ChangeSignal.Connection
+
+export type ProfileSyncConfig = Config.ProfileSyncConfig
+
 export type Profile = Profile.Profile
 
 export type Transaction = Transaction.Transaction
@@ -287,6 +293,7 @@ type ScopeBinding = {
 	fields: FieldsHelpers.State,
 }
 type Helpers = {
+	sync: ProfileSync.Sync,
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
 	fields: FieldsHelpers.State?,
@@ -338,7 +345,15 @@ Config.resolve(config: Config): ({ [string]: string }, { [string]: string })
 ```luau
 export type ServiceConfig = { baseUrl: string? }
 
+export type ProfileSyncConfig = {
+	enabled: boolean?,
+	intervalSeconds: number?,
+	budgetThreshold: number?,
+	maxConcurrentReloads: number?,
+}
+
 export type Config = {
+	profileSync: ProfileSyncConfig?,
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,
 	authProvider: Types.AuthProvider?,
@@ -407,19 +422,20 @@ export type BloxError = {
 	placeId: number?,
 	errors: { OperationDiagnostic }?,
 	grantPending: boolean?,
+	retryAfterSeconds: number?,
 }
 
 export type Result<T> =
 	{ ok: true, value: T, status: number?, stale: boolean?, etag: string? }
 	| { ok: false, error: BloxError }
 
-export type Signal = { cancelled: boolean }
+export type Signal = { cancelled: boolean, inFlight: number? }
 
 export type CallOptions = {
 	timeout: number?,
 	idempotencyKey: string?,
 	deadline: number?,
-	priority: ("critical" | "bulk")?,
+	priority: ("critical" | "bulk" | "low")?,
 	retry: number?,
 	cacheTtl: number?,
 	signal: Signal?,
@@ -553,4 +569,28 @@ export type Schema = {
 }
 
 export type EndpointSchema = { service: string, body: Schema?, response: Schema }
+```
+
+## ChangeSignal
+
+Source: [src/Core/ChangeSignal.luau](../../src/Core/ChangeSignal.luau)
+
+### Exported types
+
+```luau
+export type Change = {
+	userId: number,
+	universeId: string?,
+	fieldIds: { string },
+	values: { [string]: Core.Json },
+	source: "external" | "local",
+}
+
+export type Connection = { disconnect: (Connection) -> () }
+
+export type Signal = {
+	connect: (Signal, (Change) -> ()) -> Connection,
+	fire: (Signal, Change) -> (),
+	destroy: (Signal) -> (),
+}
 ```

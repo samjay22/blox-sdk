@@ -10,6 +10,7 @@ local Cache = require(script.Parent.Parent.Core.Cache)
 local Json = require(script.Parent.Parent.Core.Json)
 local Errors = require(script.Parent.Parent.Core.Errors)
 local FieldTypes = require(script.Parent.Parent.Fields.Types)
+local ChangeSignal = require(script.Parent.Parent.Core.ChangeSignal)
 local Profile = {}
 Profile.__index = Profile
 export type IO = {
@@ -20,6 +21,10 @@ export type IO = {
 }
 export type Profile = typeof(setmetatable(
 	{} :: {
+		Changed: ChangeSignal.Signal,
+		_universe: string?,
+		_onChange: ((ChangeSignal.Change) -> ())?,
+		_onRelease: (() -> ())?,
 		_runtime: Core.Runtime,
 		_schema: Schema.Schema,
 		_schemaVersion: number?,
@@ -28,6 +33,7 @@ export type Profile = typeof(setmetatable(
 		_data: { [string]: Core.Json },
 		versions: { [string]: number },
 		seq: number,
+		_snapshotFloor: number,
 		_stale: boolean,
 		_epoch: number,
 		_closed: boolean,
@@ -66,6 +72,10 @@ end
 --- Construct a profile only through a successful schema/document load.
 function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number, io: IO): Profile
 	return setmetatable({
+		Changed = ChangeSignal.new(runtime),
+		_universe = nil,
+		_onChange = nil,
+		_onRelease = nil,
 		_runtime = runtime,
 		_schema = schema,
 		_schemaVersion = nil,
@@ -74,6 +84,7 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		_data = {},
 		versions = {},
 		seq = 0,
+		_snapshotFloor = 0,
 		_stale = true,
 		_epoch = 0,
 		_closed = false,
@@ -86,6 +97,35 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		_stopping = false,
 		lastError = nil,
 	}, Profile)
+end
+--- Notify once per changed field with immutable final values, never intermediate operations.
+function Profile._notify(self: Profile, old: { [string]: Core.Json }, source: "external" | "local")
+	local ids: { string } = {}
+	local values: { [string]: Core.Json } = {}
+	for id, definition in self._schema:definitions() do
+		if definition.scope == "PLAYER" and definition.status == "ACTIVE" then
+			local value = read(self._data, id)
+			if value ~= nil and not System.equal(read(old, id), value) then
+				table.insert(ids, id)
+				values[id] = value
+			end
+		end
+	end
+	if #ids == 0 then
+		return
+	end
+	table.sort(ids)
+	local change: ChangeSignal.Change = Cache.freeze({
+		userId = self._user,
+		universeId = self._universe,
+		fieldIds = ids,
+		values = values,
+		source = source,
+	})
+	self.Changed:fire(change)
+	if self._onChange then
+		self._onChange(change)
+	end
 end
 --- Accept only exact nonnegative counters representable by Luau numbers.
 local function counter(value: unknown): boolean
@@ -114,7 +154,7 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 	if
 		document.userId ~= self._user
 		or not counter(document.seq)
-		or document.seq < self.seq
+		or document.seq < math.max(self.seq, self._snapshotFloor)
 		or epoch ~= self._epoch
 		or schemaVersion ~= self._schema:version()
 	then
@@ -149,13 +189,19 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 			put(data, id, value)
 		end
 	end
+	local old = self._data
+	local wasLoaded = self._schemaVersion ~= nil
 	self._data = Cache.freeze(data)
 	self.versions = Cache.freeze(Copy.copy(documentVersions))
 	self.seq = document.seq
+	self._snapshotFloor = 0
 	self._schemaVersion = schemaVersion
 	self._stale = false
 	self._epoch += 1
 	self.lastError = nil
+	if wasLoaded then
+		self:_notify(old, "external")
+	end
 	return { ok = true, value = true }
 end
 --- Return a validated immutable value; unknown/archived ids and stale snapshots return typed errors.
@@ -194,7 +240,7 @@ function Profile.get(self: Profile, id: string): Core.Json
 	return result.value
 end
 --- Apply newer per-field versions; mutation allocation tokens never advance the snapshot watermark.
-function Profile.apply(self: Profile, result: Wire.Result): boolean
+function Profile.apply(self: Profile, result: Wire.Result, source: ("external" | "local")?): boolean
 	if self._closed then
 		return false
 	end
@@ -279,9 +325,98 @@ function Profile.apply(self: Profile, result: Wire.Result): boolean
 			self._stale = true
 		end
 	end
+	local old = self._data
 	self._data = Cache.freeze(data)
 	self.versions = Cache.freeze(versions)
+	self:_notify(old, source or "local")
 	return not self._stale
+end
+--- Fence older in-flight reads and require recovery to cover the last safe server cursor.
+function Profile._invalidate(self: Profile, floor: number?)
+	self._stale = true
+	self._epoch += 1
+	if floor then
+		self._snapshotFloor = math.max(self._snapshotFloor, floor)
+	end
+end
+--- Apply only complete server-visible ledger groups; acknowledgements never become watermarks.
+function Profile.applyChanges(self: Profile, page: Wire.PlayerChangesItem, since: number): boolean
+	if self._closed then
+		return false
+	end
+	if
+		not counter(page.nextSinceSeq)
+		or not counter(page.latestSeq)
+		or page.nextSinceSeq < since
+		or page.nextSinceSeq > page.latestSeq
+	then
+		self:_invalidate()
+		return false
+	end
+	-- A concurrent snapshot can already cover this response. Never rewind its cursor.
+	if page.nextSinceSeq < self.seq then
+		return true
+	end
+	if page.needsSnapshot or self._stale or self._schemaVersion ~= self._schema:version() then
+		self:_invalidate(page.nextSinceSeq)
+		return false
+	end
+	local entries = table.clone(page.entries)
+	table.sort(entries, function(a, b)
+		return if a.seq == b.seq then a.ordinal < b.ordinal else a.seq < b.seq
+	end)
+	local groups: { { Wire.ResultItem } } = {}
+	local lastSeq: number? = nil
+	local ordinal = -1
+	for _, entry in entries do
+		if
+			not counter(entry.seq)
+			or entry.seq <= since
+			or entry.seq > page.nextSinceSeq
+			or entry.subject ~= self._user
+			or tostring(entry.universeId) ~= self._universe
+			or type(entry.field) ~= "string"
+			or not counter(entry.ordinal)
+			or not counter(entry.versionAfter)
+			or entry.versionAfter == 0
+			or entry.afterSize > 16384
+			or not entry.afterExists
+			or entry.after == nil
+			or (entry.afterHash ~= nil and (entry.afterHash :: any) ~= Json.null)
+			or entry.refType == "migration"
+		then
+			self:_invalidate(page.nextSinceSeq)
+			return false
+		end
+		if lastSeq ~= entry.seq then
+			table.insert(groups, {})
+			lastSeq = entry.seq
+			ordinal = -1
+		end
+		if entry.ordinal <= ordinal then
+			self:_invalidate(page.nextSinceSeq)
+			return false
+		end
+		ordinal = entry.ordinal
+		table.insert(groups[#groups], {
+			subject = entry.subject,
+			field = entry.field,
+			path = entry.path,
+			op = entry.op,
+			before = entry.before,
+			after = entry.after,
+			version = entry.versionAfter,
+			entryId = entry.entryId or Json.null,
+		})
+	end
+	for _, items in groups do
+		if not self:apply(({ results = items } :: any) :: Wire.Result, "external") then
+			self:_invalidate(page.nextSinceSeq)
+			return false
+		end
+	end
+	self.seq = math.max(self.seq, page.nextSinceSeq)
+	return true
 end
 --- Build an owned transaction that updates this profile after acknowledgement, not before commit.
 function Profile.transaction(self: Profile): Transaction.Transaction
@@ -418,11 +553,24 @@ function Profile.close(self: Profile, deadline: number): boolean
 end
 --- Cancel background activity without issuing any new requests.
 function Profile.destroy(self: Profile)
+	if self._closed then
+		return
+	end
 	self._closed = true
+	if self._onRelease then
+		self._onRelease()
+		self._onRelease = nil
+	end
+	self._onChange = nil
+	self.Changed:destroy()
 	self._signal.cancelled = true
 	if self._timer then
 		self._runtime.cancel(self._timer)
 		self._timer = nil
 	end
+end
+--- Release this profile and its owned presence/background registration.
+function Profile.release(self: Profile): boolean
+	return self:close(self._runtime.now() + 15)
 end
 return table.freeze(Profile)

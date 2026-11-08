@@ -1,5 +1,18 @@
 # BloxSDK changelog
 
+## 1.2.0 — 2026-11-08 (unpublished)
+
+- Add automatic per-client loaded-profile batch synchronization, chunked at 200 distinct players.
+- Apply complete ledger groups by per-field version and advance only safe `nextSinceSeq` cursors;
+  recover NONE-history, hash-only, erased/restored/replaced and schema-migration state via bounded,
+  staggered, deduplicated snapshot reloads with in-flight read fencing.
+- Add `Profile.Changed`, `client.ProfileChanged`, explicit `profile:release()`, immediate registry
+  cleanup on release/player leave, and cancellation on flush/destroy/native BindToClose.
+- Add a LOW limiter lane, rolling-minute budget threshold, server poll hints, jitter, fast `hasMore`
+  drains, and exponential Retry-After-aware backoff without concurrent physical batch requests.
+- Document live-sync configuration, request budgets and leaderstats notifications. Batch support is
+  based on the shared contract; deployed backend support and native Roblox behavior are not live-certified.
+
 ## 1.1.0 — 2026-11-08 (unpublished)
 
 - Behavior change, no API break: reconcile Fields acknowledgements by per-field version; concurrent

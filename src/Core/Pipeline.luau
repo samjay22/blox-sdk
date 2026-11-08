@@ -35,6 +35,7 @@ export type Config = {
 	staleIfError: number,
 	hooks: Types.Hooks?,
 	sharedBucket: Bucket.Bucket?,
+	lowPriorityThreshold: number?,
 }
 export type Host = { gate: Gate.State, breaker: Breaker.State }
 export type Flight = { result: Types.Result<any>?, done: boolean }
@@ -179,7 +180,7 @@ local function execute(
 		if stop then
 			return stop
 		end
-		local ticket = Gate.enter(host.gate, opts.priority == "critical")
+		local ticket = Gate.enter(host.gate, opts.priority == "critical", opts.priority == "low")
 		if not ticket then
 			self.counters.rateLimited += 1
 			if hooks and hooks.onRateLimited then
@@ -205,7 +206,19 @@ local function execute(
 			Gate.release(host.gate)
 			return Errors.make("CircuitOpen", spec.id, attempt, "Host circuit is open")
 		end
+		if
+			opts.priority == "low"
+			and Bucket.used(self.bucket, runtime.now())
+				>= self.bucket.limit * (config.lowPriorityThreshold or 0.8)
+		then
+			Gate.release(host.gate)
+			return Errors.make("RateLimited", spec.id, attempt, "Background budget deferred")
+		end
 		local waitFor = Bucket.take(self.bucket, runtime.now(), opts.priority == "critical")
+		if waitFor > 0 and opts.priority == "low" then
+			Gate.release(host.gate)
+			return Errors.make("RateLimited", spec.id, attempt, "Background admission deferred")
+		end
 		while waitFor > 0 do
 			self.counters.rateLimited += 1
 			if hooks and hooks.onRateLimited then
@@ -296,6 +309,12 @@ local function execute(
 		end
 		if result.ok then
 			return result
+		end
+		-- Expose only a parsed duration, never raw response headers, to background schedulers.
+		for name, value in responseHeaders do
+			if string.lower(name) == "retry-after" then
+				result.error.retryAfterSeconds = Retry.after(value, runtime.unix())
+			end
 		end
 		if result.error.kind == "Unauthorized" and not public and auth.invalidate then
 			auth.invalidate(version)

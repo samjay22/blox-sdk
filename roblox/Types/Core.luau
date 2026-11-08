@@ -32,16 +32,17 @@ export type BloxError = {
 	placeId: number?,
 	errors: { OperationDiagnostic }?,
 	grantPending: boolean?,
+	retryAfterSeconds: number?,
 }
 export type Result<T> =
 	{ ok: true, value: T, status: number?, stale: boolean?, etag: string? }
 	| { ok: false, error: BloxError }
-export type Signal = { cancelled: boolean }
+export type Signal = { cancelled: boolean, inFlight: number? }
 export type CallOptions = {
 	timeout: number?,
 	idempotencyKey: string?,
 	deadline: number?,
-	priority: ("critical" | "bulk")?,
+	priority: ("critical" | "bulk" | "low")?,
 	retry: number?,
 	cacheTtl: number?,
 	signal: Signal?,

@@ -10,6 +10,14 @@ Underscore members and module constructors other than `BloxSDK.new` are private 
 
 Source: [src/Fields/Profile.luau](../../src/Fields/Profile.luau)
 
+### `Profile._notify`
+
+Notify once per changed field with immutable final values, never intermediate operations.
+
+```luau
+Profile._notify(self: Profile, old: { [string]: Core.Json }, source: "external" | "local")
+```
+
 ### `Profile.refresh`
 
 Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
@@ -39,7 +47,23 @@ Profile.get(self: Profile, id: string): Core.Json
 Apply newer per-field versions; mutation allocation tokens never advance the snapshot watermark.
 
 ```luau
-Profile.apply(self: Profile, result: Wire.Result): boolean
+Profile.apply(self: Profile, result: Wire.Result, source: ("external" | "local")?): boolean
+```
+
+### `Profile._invalidate`
+
+Fence older in-flight reads and require recovery to cover the last safe server cursor.
+
+```luau
+Profile._invalidate(self: Profile, floor: number?)
+```
+
+### `Profile.applyChanges`
+
+Apply only complete server-visible ledger groups; acknowledgements never become watermarks.
+
+```luau
+Profile.applyChanges(self: Profile, page: Wire.PlayerChangesItem, since: number): boolean
 ```
 
 ### `Profile.transaction`
@@ -101,6 +125,14 @@ Cancel background activity without issuing any new requests.
 
 ```luau
 Profile.destroy(self: Profile)
+```
+
+### `Profile.release`
+
+Release this profile and its owned presence/background registration.
+
+```luau
+Profile.release(self: Profile): boolean
 ```
 
 ### Exported types
@@ -375,7 +407,7 @@ Source: [src/Fields/Schema.luau](../../src/Fields/Schema.luau)
 Atomically publish a complete validated generation, keeping last-good on every failure.
 
 ```luau
-Schema.refresh(self: Schema): Core.Result<number>
+Schema.refresh(self: Schema, opts: Core.CallOptions?): Core.Result<number>
 ```
 
 ### `Schema.load`

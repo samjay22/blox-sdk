@@ -28,15 +28,20 @@ function Bucket.new(capacity: number, rate: number, reserve: number, now: number
 		count = 0,
 	}
 end
+--- Read the rolling-minute usage without consuming a token; expire old ring entries.
+function Bucket.used(self: Bucket, now: number): number
+	while self.count > 0 and now - self.history[self.head] >= 60 do
+		self.head = self.head % self.limit + 1
+		self.count -= 1
+	end
+	return self.count
+end
 --- Consume a token or return the time until admission; never borrow from the reserve for bulk.
 function Bucket.take(self: Bucket, now: number, critical: boolean): number
 	self.tokens = math.min(self.capacity, self.tokens + math.max(0, now - self.last) * self.rate)
 	self.last = now
 	-- Token bursts alone can exceed a minute's quota. A bounded ring also caps every rolling minute.
-	while self.count > 0 and now - self.history[self.head] >= 60 do
-		self.head = self.head % self.limit + 1
-		self.count -= 1
-	end
+	Bucket.used(self, now)
 	if self.count >= self.limit then
 		return math.max(0.000001, self.history[self.head] + 60 - now)
 	end

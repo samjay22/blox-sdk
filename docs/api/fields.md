@@ -963,6 +963,18 @@ Service.retryOutbox(
 ): Core.Result<Types.RetryOutboxResultValue>
 ```
 
+### `Service.changesBatch`
+
+POST /fields-service/api/fields/universes/{universeId}/players/changes/batch via gateway; access: READ.
+
+```luau
+Service.changesBatch(
+	self: Service,
+	req: Types.ChangesBatchCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ChangesBatchResultValue>
+```
+
 ### `Service.samplePlayers`
 
 GET /fields-service/api/fields/universes/{universeId}/players/sample via gateway; access: READ.
@@ -2135,6 +2147,10 @@ export type AlertState = "OPEN" | "ACKED" | "RESOLVED"
 
 export type Batch = { fields: { string }, subjects: { number }?, universeId: number? }
 
+export type BatchChangesInput = { maxEntries: number?, players: { PlayerChangesInput } }
+
+export type BatchChangesResponse = { items: { PlayerChangesItem }, pollAfterMs: number }
+
 export type BatchItem = { field: FieldView, subject: number }
 
 export type BatchResponse = { items: { BatchItem } }
@@ -2639,6 +2655,17 @@ export type OpenAlertCounts = { CRITICAL: number, WARNING: number }
 export type OpsValidationInput = { ops: { FieldTypes.PlayerOperation }, universeId: number? }
 
 export type OpsValidationResult = { errors: ({ OpValidationError } | Core.Null)?, valid: boolean }
+
+export type PlayerChangesInput = { sinceSeq: number, userId: number }
+
+export type PlayerChangesItem = {
+	entries: { Entry },
+	hasMore: boolean,
+	latestSeq: number,
+	needsSnapshot: boolean,
+	nextSinceSeq: number,
+	userId: number,
+}
 
 export type PlayerEraseInput = { confirmUserId: number, reason: string }
 
@@ -3318,6 +3345,10 @@ export type OutboxResultValue = CursorPage<Item>
 export type RetryOutboxCall = { path: { universeId: (string | number)?, id: string } }
 
 export type RetryOutboxResultValue = Item
+
+export type ChangesBatchCall = { path: { universeId: (string | number)? }?, body: BatchChangesInput }
+
+export type ChangesBatchResultValue = BatchChangesResponse
 
 export type SamplePlayersCall = {
 	path: { universeId: (string | number)? }?,

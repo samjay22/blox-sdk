@@ -11,12 +11,14 @@ local Operations = require("./Operations")
 local OpBuilder = require("./OpBuilder")
 local Types = require("./Types")
 local Snapshot = require("../Core/SnapshotCache")
+local ProfileSync = require("./ProfileSync")
 local Helpers = {}
 export type State = {
 	runtime: Core.Runtime,
 	invoke: Core.Invoke,
 	schemas: { [string]: Schema.Schema },
-	profiles: { Profile.Profile },
+	profiles: { [Profile.Profile]: boolean },
+	sync: ProfileSync.Sync,
 	closed: boolean,
 	snapshots: { [string]: Snapshot.Snapshot? },
 	snapshotListeners: { [(string, Snapshot.Snapshot?) -> ()]: boolean },
@@ -24,12 +26,18 @@ export type State = {
 	onUse: () -> (),
 }
 --- Create shared helper ownership without starting a poll or issuing any HTTP.
-function Helpers.new(runtime: Core.Runtime, invoke: Core.Invoke, onUse: () -> ()): State
+function Helpers.new(
+	runtime: Core.Runtime,
+	invoke: Core.Invoke,
+	onUse: () -> (),
+	sync: ProfileSync.Sync
+): State
 	return {
 		runtime = runtime,
 		invoke = invoke,
 		schemas = {},
 		profiles = {},
+		sync = sync,
 		closed = false,
 		snapshots = {},
 		snapshotListeners = {},
@@ -158,9 +166,15 @@ function Helpers.loadProfile(
 		return System.failure("invalid_request")
 	end
 	local schema = Helpers.schema(state, universeId)
+	local ticket = state.sync:beginLoad(userId)
 	local loaded = schema:load()
 	if not loaded.ok then
+		state.sync:endLoad(ticket)
 		return loaded
+	end
+	if ticket.cancelled then
+		state.sync:endLoad(ticket)
+		return System.failure("profile_closed")
 	end
 	local profile = Profile.new(state.runtime, schema, userId, {
 		document = function(options)
@@ -191,18 +205,22 @@ function Helpers.loadProfile(
 			return Helpers.transaction(state, universeId, userId, callback)
 		end,
 	})
-	local result = profile:refresh()
+	local result = profile:refresh({ signal = ticket })
+	state.sync:endLoad(ticket)
 	if not result.ok then
 		profile:destroy()
 		return result
 	end
-	-- Closed profiles no longer own background work; do not retain reconnect history indefinitely.
-	for i = #state.profiles, 1, -1 do
-		if state.profiles[i]._closed then
-			table.remove(state.profiles, i)
-		end
+	if state.closed or ticket.cancelled then
+		profile:destroy()
+		return System.failure("client_closed")
 	end
-	table.insert(state.profiles, profile)
+	state.profiles[profile] = true
+	profile._onRelease = function()
+		state.profiles[profile] = nil
+		state.sync:unregister(profile)
+	end
+	state.sync:register(tostring(universeId), profile, state.invoke)
 	return { ok = true, value = profile }
 end
 --- Drain owned leases before pipeline admission closes; there is no hidden write-behind data queue.
@@ -215,7 +233,7 @@ function Helpers.close(state: State, deadline: number): boolean
 		schema:destroy()
 	end
 	local drained = true
-	for _, profile in state.profiles do
+	for profile in table.clone(state.profiles) do
 		if not profile:close(deadline) then
 			drained = false
 		end
@@ -231,7 +249,7 @@ function Helpers.destroy(state: State)
 	for _, schema in state.schemas do
 		schema:destroy()
 	end
-	for _, profile in state.profiles do
+	for profile in table.clone(state.profiles) do
 		profile:destroy()
 	end
 end
