@@ -9,8 +9,8 @@ local System = {}
 export type TypeExpr = Types.TypeExpr
 export type Validator = {
 	type: TypeExpr,
-	Validate: (unknown) -> Core.Result<Core.Json>,
-	Default: (Core.Json?) -> Core.Result<Core.Json>,
+	validate: (unknown) -> Core.Result<Core.Json>,
+	default: (Core.Json?) -> Core.Result<Core.Json>,
 }
 local SAFE = 9007199254740991
 --- Raise only a machine code; no input values or credentials enter errors.
@@ -424,12 +424,12 @@ function System.compile(expression: unknown): Core.Result<Validator>
 		ok = true,
 		value = {
 			type = t,
-			Validate = function(v)
+			validate = function(v)
 				return protect(function()
 					return validate(t, v)
 				end, nil)
 			end,
-			Default = function(explicit)
+			default = function(explicit)
 				return System.default(t, explicit)
 			end,
 		},

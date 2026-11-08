@@ -1,4 +1,5 @@
 --!strict
+local Endpoints = require("../src/Core/Endpoints")
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Json = require("../src/Core/Json")
@@ -42,7 +43,7 @@ return function(test: (string, () -> ()) -> ())
 					body = if vector.empty then "" else Json.encode(vector.response),
 					check = function(wire)
 						check(wire.Method == vector.method and wire.Url == vector.url, "Wire route drift")
-						local public = table.find(SDK.endpoints[vector.endpoint].authKinds, "none") ~= nil
+						local public = table.find(Endpoints[vector.endpoint].authKinds, "none") ~= nil
 						check(
 							wire.Headers.Authorization
 								== (
@@ -196,7 +197,7 @@ return function(test: (string, () -> ()) -> ())
 				reason = "Weekend XP",
 				recurrence = { type = "DAILY", daysOfWeek = {}, timezone = "America/Chicago" },
 			}
-			local schedules = c.fields:Schedules(123)
+			local schedules = c.fields:scheduleClient(123)
 			local built = schedules:build(input)
 			check(built.ok and string.find(Json.encode(built.value), '"daysOfWeek":[]', 1, true))
 			input.recurrence.type = "WEEKLY"

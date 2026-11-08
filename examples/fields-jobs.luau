@@ -6,16 +6,16 @@ local Wire = require("../src/Types/Fields")
 return function(client: SDK.Client, universeId: number, eventKey: string): Core.Result<Wire.JobReceipt>
 	-- Gateway plus FieldsService ADMIN is required, even for previews and polling.
 	-- Provision this separately from the ordinary gameplay READ_WRITE credential.
-	local loaded = client.fields:Schema(universeId):Load()
+	local loaded = client.fields:schemaCache(universeId):load()
 	if not loaded.ok then
 		return loaded
 	end
 	local grant = client.fields
-		:Bulk(universeId)
-		:Target({ kind = "WHERE", where = { op = "GE", field = "Currency.Gems", value = 100 } })
-		:Reason("Reviewed seasonal event bonus")
-		:IdempotencyKey(eventKey)
-	grant.Ops:Add("Currency.Gems", 10)
+		:bulkBuilder(universeId)
+		:target({ kind = "WHERE", where = { op = "GE", field = "Currency.Gems", value = 100 } })
+		:reason("Reviewed seasonal event bonus")
+		:idempotencyKey(eventKey)
+	grant.ops:add("Currency.Gems", 10)
 	local preview = grant:preview()
 	if not preview.ok then
 		return preview
@@ -37,7 +37,7 @@ return function(client: SDK.Client, universeId: number, eventKey: string): Core.
 	if not submitted.ok then
 		return submitted
 	end
-	local finished = client.fields:Jobs(universeId):waitFor(submitted.value.id, { timeout = 60 })
+	local finished = client.fields:jobClient(universeId):waitFor(submitted.value.id, { timeout = 60 })
 	-- Timeout stops only this caller's polling; the durable job continues server-side.
 	-- A successful Result is a terminal receipt, NOT proof that every item succeeded:
 	-- inspect state and failed; query Jobs:failures(id) before deciding on compensation.

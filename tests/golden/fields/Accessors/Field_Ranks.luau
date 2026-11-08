@@ -10,27 +10,27 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["key"]={["kind"]="int"},["kind"]="map",["value"]={["kind"]="string"}}
 local Accessor = {}
 --- Read the validated Ranks client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Ranks
- return Codec.decode(expression, profile:Get("Ranks")) :: FieldTypes.Field_Ranks
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Ranks
+ return Codec.decode(expression, profile:get("Ranks")) :: FieldTypes.Field_Ranks
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Ranks): Transaction.Transaction
- return tx:Set("Ranks", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Ranks): Transaction.Transaction
+ return tx:set("Ranks", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Ranks")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Ranks")
 end
 --- Merge typed map entries.
-function Accessor.MapPut(_self: unknown, tx: Transaction.Transaction, entries: FieldTypes.Field_Ranks): Transaction.Transaction
- return tx:MapPut("Ranks",Codec.encode(expression,entries) :: any)
+function Accessor.mapPut(_self: unknown, tx: Transaction.Transaction, entries: FieldTypes.Field_Ranks): Transaction.Transaction
+ return tx:mapPut("Ranks",Codec.encode(expression,entries) :: any)
 end
 --- Remove typed keys using canonical wire strings.
-function Accessor.MapRemove(_self: unknown, tx: Transaction.Transaction, keys: {number}): Transaction.Transaction
+function Accessor.mapRemove(_self: unknown, tx: Transaction.Transaction, keys: {number}): Transaction.Transaction
  local wire = {}
  for _,key in keys do
   table.insert(wire,Codec.key(key))
  end
- return tx:MapRemove("Ranks",wire)
+ return tx:mapRemove("Ranks",wire)
 end
 return table.freeze(Accessor)

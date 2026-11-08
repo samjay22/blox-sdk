@@ -136,8 +136,7 @@ local function matches(
 				response
 			)
 	elseif kind == "object" then
-		local fields =
-			schema.fields :: { [string]: { schema: Core.Schema, required: boolean, notBlank: boolean } }
+		local fields = schema.fields :: { [string]: Core.SchemaField }
 		for name, field in fields do
 			local child = value[name]
 			if
@@ -164,7 +163,10 @@ local function matches(
 				end
 			end
 			if child == nil then
-				if field.required then
+				local required = if response and field.responseRequired ~= nil
+					then field.responseRequired
+					else field.required
+				if required then
 					return false
 				end
 			else
@@ -175,7 +177,10 @@ local function matches(
 				then
 					return false
 				end
-				if not matches(child, field.schema, definitions, depth + 1, response) then
+				if
+					not (response and field.responseNullable and child == Json.null)
+					and not matches(child, field.schema, definitions, depth + 1, response)
+				then
 					return false
 				end
 				if
@@ -275,6 +280,11 @@ function Validation.response(endpoint: string, value: unknown, status: number?):
 	end
 	if endpoint == "fields.validateOps" then
 		local report: any = value
+		-- NON_NULL serializers may omit nullable DTO references. Semantic checks
+		-- apply only when the report includes a real diagnostic list.
+		if report.errors == nil or report.errors == Json.null then
+			return true
+		end
 		if #report.errors > 100 or report.valid ~= (#report.errors == 0) then
 			return false
 		end
@@ -284,7 +294,7 @@ function Validation.response(endpoint: string, value: unknown, status: number?):
 				issue.opIndex % 1 ~= 0
 				or issue.opIndex <= previous
 				or issue.opIndex > 99
-				or #issue.path > 8
+				or issue.path ~= nil and issue.path ~= Json.null and #issue.path > 8
 			then
 				return false
 			end

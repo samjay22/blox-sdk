@@ -1170,6 +1170,180 @@ local data: any = Json.object({
 			["name"] = "absent type",
 		} :: any),
 	} :: { any }),
+	["liveResponseBodies"] = Json.object({
+		["audit-service-health"] = '{"status":"UP","groups":["liveness","readiness"],"components":{"diskSpace":{"status":"UP","details":{"total":18294616940544,"free":17294376345600,"threshold":10485760,"path":"/app/.","exists":true}},"livenessState":{"status":"UP"},"ping":{"status":"UP"},"r2dbc":{"status":"UP","details":{"database":"PostgreSQL","validationQuery":"validate(REMOTE)"}},"readinessState":{"status":"UP"},"redis":{"status":"UP","details":{"version":"7.4.12"}},"ssl":{"status":"UP","details":{"validChains":[],"invalidChains":[]}}}}',
+		["auth-service-health"] = '{"status":"UP","database":"UP","timestamp":"2026-11-08T16:06:51.531076802Z"}',
+		["code-service-health"] = '{"status":"UP","groups":["liveness","readiness"],"components":{"diskSpace":{"status":"UP","details":{"total":18294616940544,"free":17294376341504,"threshold":10485760,"path":"/app/.","exists":true}},"livenessState":{"status":"UP"},"ping":{"status":"UP"},"r2dbc":{"status":"UP","details":{"database":"PostgreSQL","validationQuery":"validate(REMOTE)"}},"readinessState":{"status":"UP"},"redis":{"status":"UP","details":{"version":"7.4.12"}},"ssl":{"status":"UP","details":{"validChains":[],"invalidChains":[]}}}}',
+		["fields-service-health"] = '{"status":"UP","groups":["liveness","readiness"],"components":{"diskSpace":{"status":"UP","details":{"total":18294616940544,"free":17294376345600,"threshold":10485760,"path":"/app/.","exists":true}},"livenessState":{"status":"UP"},"ping":{"status":"UP"},"r2dbc":{"status":"UP","details":{"database":"PostgreSQL","validationQuery":"validate(REMOTE)"}},"readinessState":{"status":"UP"},"redis":{"status":"UP","details":{"version":"7.4.12"}},"ssl":{"status":"UP","details":{"validChains":[],"invalidChains":[]}}}}',
+		["leaderboard-service-health"] = '{"status":"UP","groups":["liveness","readiness"],"components":{"diskSpace":{"status":"UP","details":{"total":18294616940544,"free":17294376345600,"threshold":10485760,"path":"/app/.","exists":true}},"livenessState":{"status":"UP"},"ping":{"status":"UP"},"r2dbc":{"status":"UP","details":{"database":"PostgreSQL","validationQuery":"validate(REMOTE)"}},"readinessState":{"status":"UP"},"redis":{"status":"UP","details":{"version":"7.4.12"}},"ssl":{"status":"UP","details":{"validChains":[],"invalidChains":[]}}}}',
+		["matchmaking-service-health"] = '{"status":"UP","timestamp":"2026-11-08T16:06:51.631747570Z"}',
+		["mm-queue-status"] = '{"userId":"999999800005","universeId":"999999800","inQueue":false,"gameModeName":null,"gameModeNames":null,"partyId":null,"queuedAt":null}',
+		["party-service-health"] = '{"status":"UP","timestamp":"2026-11-08T16:06:51.735233382Z"}',
+	} :: any),
+	["liveResponses"] = Json.object({
+		["audit-service-health"] = Json.object({
+			["components"] = Json.object({
+				["diskSpace"] = Json.object({
+					["details"] = Json.object({
+						["exists"] = true,
+						["free"] = 17294376345600,
+						["path"] = "/app/.",
+						["threshold"] = 10485760,
+						["total"] = 18294616940544,
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["livenessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["ping"] = Json.object({ ["status"] = "UP" } :: any),
+				["r2dbc"] = Json.object({
+					["details"] = Json.object({
+						["database"] = "PostgreSQL",
+						["validationQuery"] = "validate(REMOTE)",
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["readinessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["redis"] = Json.object(
+					{ ["details"] = Json.object({ ["version"] = "7.4.12" } :: any), ["status"] = "UP" } :: any
+				),
+				["ssl"] = Json.object({
+					["details"] = Json.object({
+						["invalidChains"] = Json.array({} :: { any }),
+						["validChains"] = Json.array({} :: { any }),
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+			} :: any),
+			["groups"] = Json.array({ "liveness", "readiness" } :: { any }),
+			["status"] = "UP",
+		} :: any),
+		["auth-service-health"] = Json.object(
+			{ ["database"] = "UP", ["status"] = "UP", ["timestamp"] = "2026-11-08T16:06:51.531076802Z" } :: any
+		),
+		["code-service-health"] = Json.object({
+			["components"] = Json.object({
+				["diskSpace"] = Json.object({
+					["details"] = Json.object({
+						["exists"] = true,
+						["free"] = 17294376341504,
+						["path"] = "/app/.",
+						["threshold"] = 10485760,
+						["total"] = 18294616940544,
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["livenessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["ping"] = Json.object({ ["status"] = "UP" } :: any),
+				["r2dbc"] = Json.object({
+					["details"] = Json.object({
+						["database"] = "PostgreSQL",
+						["validationQuery"] = "validate(REMOTE)",
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["readinessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["redis"] = Json.object(
+					{ ["details"] = Json.object({ ["version"] = "7.4.12" } :: any), ["status"] = "UP" } :: any
+				),
+				["ssl"] = Json.object({
+					["details"] = Json.object({
+						["invalidChains"] = Json.array({} :: { any }),
+						["validChains"] = Json.array({} :: { any }),
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+			} :: any),
+			["groups"] = Json.array({ "liveness", "readiness" } :: { any }),
+			["status"] = "UP",
+		} :: any),
+		["fields-service-health"] = Json.object({
+			["components"] = Json.object({
+				["diskSpace"] = Json.object({
+					["details"] = Json.object({
+						["exists"] = true,
+						["free"] = 17294376345600,
+						["path"] = "/app/.",
+						["threshold"] = 10485760,
+						["total"] = 18294616940544,
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["livenessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["ping"] = Json.object({ ["status"] = "UP" } :: any),
+				["r2dbc"] = Json.object({
+					["details"] = Json.object({
+						["database"] = "PostgreSQL",
+						["validationQuery"] = "validate(REMOTE)",
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["readinessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["redis"] = Json.object(
+					{ ["details"] = Json.object({ ["version"] = "7.4.12" } :: any), ["status"] = "UP" } :: any
+				),
+				["ssl"] = Json.object({
+					["details"] = Json.object({
+						["invalidChains"] = Json.array({} :: { any }),
+						["validChains"] = Json.array({} :: { any }),
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+			} :: any),
+			["groups"] = Json.array({ "liveness", "readiness" } :: { any }),
+			["status"] = "UP",
+		} :: any),
+		["leaderboard-service-health"] = Json.object({
+			["components"] = Json.object({
+				["diskSpace"] = Json.object({
+					["details"] = Json.object({
+						["exists"] = true,
+						["free"] = 17294376345600,
+						["path"] = "/app/.",
+						["threshold"] = 10485760,
+						["total"] = 18294616940544,
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["livenessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["ping"] = Json.object({ ["status"] = "UP" } :: any),
+				["r2dbc"] = Json.object({
+					["details"] = Json.object({
+						["database"] = "PostgreSQL",
+						["validationQuery"] = "validate(REMOTE)",
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+				["readinessState"] = Json.object({ ["status"] = "UP" } :: any),
+				["redis"] = Json.object(
+					{ ["details"] = Json.object({ ["version"] = "7.4.12" } :: any), ["status"] = "UP" } :: any
+				),
+				["ssl"] = Json.object({
+					["details"] = Json.object({
+						["invalidChains"] = Json.array({} :: { any }),
+						["validChains"] = Json.array({} :: { any }),
+					} :: any),
+					["status"] = "UP",
+				} :: any),
+			} :: any),
+			["groups"] = Json.array({ "liveness", "readiness" } :: { any }),
+			["status"] = "UP",
+		} :: any),
+		["matchmaking-service-health"] = Json.object(
+			{ ["status"] = "UP", ["timestamp"] = "2026-11-08T16:06:51.631747570Z" } :: any
+		),
+		["mm-queue-status"] = Json.object({
+			["gameModeName"] = Json.null,
+			["gameModeNames"] = Json.null,
+			["inQueue"] = false,
+			["partyId"] = Json.null,
+			["queuedAt"] = Json.null,
+			["universeId"] = "999999800",
+			["userId"] = "999999800005",
+		} :: any),
+		["party-service-health"] = Json.object(
+			{ ["status"] = "UP", ["timestamp"] = "2026-11-08T16:06:51.735233382Z" } :: any
+		),
+	} :: any),
 	["ops-validation"] = Json.array({
 		Json.object({
 			["errors"] = Json.array({

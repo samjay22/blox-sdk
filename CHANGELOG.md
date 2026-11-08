@@ -1,5 +1,16 @@
 # BloxSDK changelog
 
+## 1.0.0 — 2026-11-08 (unpublished)
+
+- Stabilize all 372 typed routes and lowerCamelCase gameplay helpers; remove internal root exports with no shims.
+- Export public client/helper/result/error types; require stable error codes and shared timeout/idempotency options.
+- Enforce a bounded rolling-minute limiter below Roblox's 500-request ceiling, including bursts and retries.
+- Add metadata-only pluggable logging and reject client-side require/custom-adapter bypasses.
+- Retain deadline-aware jitter retries/Retry-After, bounded queues, circuit breakers and ETag snapshot polling.
+- Generate checked-in source API references with a CI drift gate; add feature, error, limits and 0.x migration guides.
+- Add 16 opt-in, type-checked native Roblox server scripts and an explicitly authorized Lune net live smoke runner.
+- This checkout is not published; offline verification is not a real-gateway/Studio certification.
+
 ## 0.3.0 — 2026-11-08 (unpublished)
 
 - Add all 31 Fields Rotations/Generators/Tables routes (372 total) and strict game-server result types.

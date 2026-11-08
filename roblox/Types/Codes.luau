@@ -34,38 +34,38 @@ export type BulkCreateCodesRequest = {
 }
 export type BulkCreateCodesResponse = { batchId: string, codes: { BulkCode }, count: number }
 export type CodeDto = {
-	active: boolean,
-	award: { FieldTypes.PlayerOperation },
+	active: (boolean | Core.Null)?,
+	award: ({ FieldTypes.PlayerOperation } | Core.Null)?,
 	batchId: (string | Core.Null)?,
-	code: string,
-	createdAt: string,
-	description: string?,
-	expiresAt: string?,
-	id: number,
-	maxGlobalRedemptions: number?,
-	maxRedemptionsPerUser: number,
-	metadata: Core.Json?,
-	name: string?,
-	pendingRedemptions: number,
-	redeemableNow: boolean,
-	remainingGlobalRedemptions: number?,
-	startsAt: string?,
-	timesRedeemed: number,
-	universeId: number,
-	updatedAt: string,
+	code: (string | Core.Null)?,
+	createdAt: (string | Core.Null)?,
+	description: (string | Core.Null)?,
+	expiresAt: (string | Core.Null)?,
+	id: (number | Core.Null)?,
+	maxGlobalRedemptions: (number | Core.Null)?,
+	maxRedemptionsPerUser: (number | Core.Null)?,
+	metadata: (Core.Json | Core.Null)?,
+	name: (string | Core.Null)?,
+	pendingRedemptions: (number | Core.Null)?,
+	redeemableNow: (boolean | Core.Null)?,
+	remainingGlobalRedemptions: (number | Core.Null)?,
+	startsAt: (string | Core.Null)?,
+	timesRedeemed: (number | Core.Null)?,
+	universeId: (number | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 }
 export type CodeRedemptionDto = {
-	award: { FieldTypes.PlayerOperation },
-	code: string,
-	codeId: number,
-	createdAt: string,
-	id: number,
-	placeId: number?,
-	redeemedByAccountId: string?,
-	requestId: string?,
-	robloxUserId: number,
-	transaction: FieldsTransactionResult,
-	universeId: number,
+	award: ({ FieldTypes.PlayerOperation } | Core.Null)?,
+	code: (string | Core.Null)?,
+	codeId: (number | Core.Null)?,
+	createdAt: (string | Core.Null)?,
+	id: (number | Core.Null)?,
+	placeId: (number | Core.Null)?,
+	redeemedByAccountId: (string | Core.Null)?,
+	requestId: (string | Core.Null)?,
+	robloxUserId: (number | Core.Null)?,
+	transaction: (FieldsTransactionResult | Core.Null)?,
+	universeId: (number | Core.Null)?,
 }
 export type CreateCodeRequest = {
 	active: boolean?,
@@ -81,13 +81,13 @@ export type CreateCodeRequest = {
 	universeId: number?,
 }
 export type FieldsTransactionResult = {
-	replayed: boolean,
-	results: { Result },
-	seq: { [string]: number },
-	txId: string,
+	replayed: (boolean | Core.Null)?,
+	results: ({ Result } | Core.Null)?,
+	seq: ({ [string]: number } | Core.Null)?,
+	txId: (string | Core.Null)?,
 }
 export type HealthComponent = { status: string }
-export type HealthResponse = { database: string?, status: string, timestamp: string? }
+export type HealthResponse = Core.HealthResponse
 export type MetricsResponse = { names: { string } }
 export type Op =
 	"SET"
@@ -106,24 +106,24 @@ export type Op =
 	| "MAP_ADD"
 export type RedeemCodeRequest = { code: string, placeId: number?, robloxUserId: number, universeId: number? }
 export type RedeemCodeResponse = {
-	code: string,
-	codeId: number,
-	redeemedAt: string,
-	redemptionId: number,
+	code: (string | Core.Null)?,
+	codeId: (number | Core.Null)?,
+	redeemedAt: (string | Core.Null)?,
+	redemptionId: (number | Core.Null)?,
 	replayed: boolean,
-	robloxUserId: number,
-	transaction: FieldsTransactionResult,
-	universeId: number,
+	robloxUserId: (number | Core.Null)?,
+	transaction: (FieldsTransactionResult | Core.Null)?,
+	universeId: (number | Core.Null)?,
 }
 export type Result = {
-	after: Core.Json,
-	before: Core.Json,
-	entryId: string | Core.Null,
-	field: string,
-	op: Op,
-	path: { FieldTypes.PathSegment },
-	subject: number,
-	version: number,
+	after: (Core.Json | Core.Null)?,
+	before: (Core.Json | Core.Null)?,
+	entryId: (string | Core.Null)?,
+	field: (string | Core.Null)?,
+	op: (Op | Core.Null)?,
+	path: ({ FieldTypes.PathSegment } | Core.Null)?,
+	subject: (number | Core.Null)?,
+	version: (number | Core.Null)?,
 }
 export type UpdateCodeRequest = {
 	active: boolean?,

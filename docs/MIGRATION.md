@@ -1,3 +1,5 @@
+[1.0 breaking migration](../MIGRATION.md) supersedes helper names below; this file retains tenant-auth migration context.
+
 # Migrating to organization-tenant authentication
 
 
@@ -67,7 +69,7 @@ Provision explicit Fields definitions before gameplay; balances are int fields, 
 player blobs become declared document leaves, backups become snapshots, and online flags become presence.
 
 - Grant `FieldsService` and allow `lb1.blox-api.com`; route via `/fields-service` (direct host optional).
-- Load `fields:Schema(universeId):Load()` before creating standalone transactions, or use LoadProfile.
+- Load `fields:schemaCache(universeId):load()` before creating standalone transactions, or use LoadProfile.
 - Replace opaque writes with builder operations and required audit reasons; preserve operation keys across
   uncertain outcomes and restarts. Document saves without keys do not retry automatically.
 - Use zero-based list path indexes, wire-string map keys and explicit BloxSDK.null. Keep all int fields,
@@ -87,12 +89,12 @@ backend or move production data during generation, testing or migration. Univers
 ## Fields-backed consumers (breaking, no compatibility layer)
 
 - Replace Code awards with an ordered list of subject-free Fields operations; regenerate callers against
-  `Types/Codes`. Load the universe schema, use `codes:Award(u)`, and build/validate before create.
+  `Types/Codes`. Load the universe schema, use `codes:award(u)`, and build/validate before create.
 - `maxRedemptionsPerUser` must be 1. Grant identity is backend-owned (`code-<codeId>-<userId>`); retries
   use the same code/player pair. Consume `transaction`, `replayed`, `redeemedAt` and touched subvalues,
   not a player document. History now contains the frozen operation list and receipt.
 - Use `fields:validateOps` or an op builder's lower-case `:validate()` for all-diagnostic, read-only
-  player-template checks. A transaction's capitalized `:Validate()` remains its full local commit check.
+  player-template checks. A transaction's capitalized `:validate()` remains its full local commit check.
 - Matchmaking criteria reference server-fetched Fields computed values. `fieldName` accepts any computed
   Fields ID, including namespaced IDs such as `Stats.Elo`, using the Fields field-id grammar (at most
   200 characters). Dots are literal ID separators, not metadata traversal. Stop supplying metadata in

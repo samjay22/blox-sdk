@@ -11,33 +11,33 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["item"]={["kind"]="object",["members"]={["Id"]={["type"]={["kind"]="int",["min"]=1}},["Level"]={["default"]=1,["type"]={["kind"]="int",["max"]=100,["min"]=1}},["Rarity"]={["default"]="COMMON",["type"]={["kind"]="enum",["values"]=Json.array({"COMMON","RARE","LEGENDARY"})}}}},["kind"]="list"}
 local Accessor = {}
 --- Read the validated Characters client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Characters
- return Codec.decode(expression, profile:Get("Characters")) :: FieldTypes.Field_Characters
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Characters
+ return Codec.decode(expression, profile:get("Characters")) :: FieldTypes.Field_Characters
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Characters): Transaction.Transaction
- return tx:Set("Characters", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Characters): Transaction.Transaction
+ return tx:set("Characters", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Characters")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Characters")
 end
---- Queue typed Append items.
-function Accessor.Append(_self: unknown, tx: Transaction.Transaction, items: {{["Id"]: number, ["Level"]: number, ["Rarity"]: "COMMON" | "RARE" | "LEGENDARY"}}): Transaction.Transaction
+--- Queue typed append items.
+function Accessor.append(_self: unknown, tx: Transaction.Transaction, items: {{["Id"]: number, ["Level"]: number, ["Rarity"]: "COMMON" | "RARE" | "LEGENDARY"}}): Transaction.Transaction
  local wire = Codec.encode({["item"]={["kind"]="object",["members"]={["Id"]={["type"]={["kind"]="int",["min"]=1}},["Level"]={["default"]=1,["type"]={["kind"]="int",["max"]=100,["min"]=1}},["Rarity"]={["default"]="COMMON",["type"]={["kind"]="enum",["values"]=Json.array({"COMMON","RARE","LEGENDARY"})}}}},["kind"]="list"},items)
- return tx:Append("Characters",wire :: any)
+ return tx:append("Characters",wire :: any)
 end
---- Queue typed Insert items.
-function Accessor.Insert(_self: unknown, tx: Transaction.Transaction, index: number, items: {{["Id"]: number, ["Level"]: number, ["Rarity"]: "COMMON" | "RARE" | "LEGENDARY"}}): Transaction.Transaction
+--- Queue typed insert items.
+function Accessor.insert(_self: unknown, tx: Transaction.Transaction, index: number, items: {{["Id"]: number, ["Level"]: number, ["Rarity"]: "COMMON" | "RARE" | "LEGENDARY"}}): Transaction.Transaction
  local wire = Codec.encode({["item"]={["kind"]="object",["members"]={["Id"]={["type"]={["kind"]="int",["min"]=1}},["Level"]={["default"]=1,["type"]={["kind"]="int",["max"]=100,["min"]=1}},["Rarity"]={["default"]="COMMON",["type"]={["kind"]="enum",["values"]=Json.array({"COMMON","RARE","LEGENDARY"})}}}},["kind"]="list"},items)
- return tx:Insert("Characters",index, wire :: any)
+ return tx:insert("Characters",index, wire :: any)
 end
 --- Remove a zero-based list range.
-function Accessor.RemoveAt(_self: unknown, tx: Transaction.Transaction, index: number, count: number?): Transaction.Transaction
- return tx:RemoveAt("Characters",index,count)
+function Accessor.removeAt(_self: unknown, tx: Transaction.Transaction, index: number, count: number?): Transaction.Transaction
+ return tx:removeAt("Characters",index,count)
 end
 --- Remove the first typed canonical match.
-function Accessor.RemoveValue(_self: unknown, tx: Transaction.Transaction, value: {["Id"]: number, ["Level"]: number, ["Rarity"]: "COMMON" | "RARE" | "LEGENDARY"}): Transaction.Transaction
- return tx:RemoveValue("Characters",Codec.encode({["kind"]="object",["members"]={["Id"]={["type"]={["kind"]="int",["min"]=1}},["Level"]={["default"]=1,["type"]={["kind"]="int",["max"]=100,["min"]=1}},["Rarity"]={["default"]="COMMON",["type"]={["kind"]="enum",["values"]=Json.array({"COMMON","RARE","LEGENDARY"})}}}},value))
+function Accessor.removeValue(_self: unknown, tx: Transaction.Transaction, value: {["Id"]: number, ["Level"]: number, ["Rarity"]: "COMMON" | "RARE" | "LEGENDARY"}): Transaction.Transaction
+ return tx:removeValue("Characters",Codec.encode({["kind"]="object",["members"]={["Id"]={["type"]={["kind"]="int",["min"]=1}},["Level"]={["default"]=1,["type"]={["kind"]="int",["max"]=100,["min"]=1}},["Rarity"]={["default"]="COMMON",["type"]={["kind"]="enum",["values"]=Json.array({"COMMON","RARE","LEGENDARY"})}}}},value))
 end
 return table.freeze(Accessor)

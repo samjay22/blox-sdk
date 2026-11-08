@@ -10,27 +10,27 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["kind"]="int",["max"]=1000000,["maxDelta"]=100000,["min"]=0}
 local Accessor = {}
 --- Read the validated Currency.Gems client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Currency_D_Gems
- return Codec.decode(expression, profile:Get("Currency.Gems")) :: FieldTypes.Field_Currency_D_Gems
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Currency_D_Gems
+ return Codec.decode(expression, profile:get("Currency.Gems")) :: FieldTypes.Field_Currency_D_Gems
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Currency_D_Gems): Transaction.Transaction
- return tx:Set("Currency.Gems", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Currency_D_Gems): Transaction.Transaction
+ return tx:set("Currency.Gems", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Currency.Gems")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Currency.Gems")
 end
 --- Queue a numeric add operation.
-function Accessor.Add(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction
- return tx:Add("Currency.Gems",value)
+function Accessor.add(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction
+ return tx:add("Currency.Gems",value)
 end
 --- Queue a numeric min operation.
-function Accessor.Min(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction
- return tx:Min("Currency.Gems",value)
+function Accessor.min(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction
+ return tx:min("Currency.Gems",value)
 end
 --- Queue a numeric max operation.
-function Accessor.Max(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction
- return tx:Max("Currency.Gems",value)
+function Accessor.max(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction
+ return tx:max("Currency.Gems",value)
 end
 return table.freeze(Accessor)

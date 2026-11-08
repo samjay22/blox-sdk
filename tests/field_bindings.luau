@@ -173,9 +173,12 @@ return function(test: (string, () -> ()) -> ())
 					})
 					assert(result.ok, "Preview request failed")
 					check(result.value.status == status and result.value.valid == valid)
-					check(result.value.effectiveSettings.maxScore == 1000)
+					check((result.value.effectiveSettings :: Fields.BoardSettings).maxScore == 1000)
 					if status == "COMPATIBLE" then
-						check(result.value.willWiden and result.value.willWiden.minScore == -5)
+						check(
+							result.value.willWiden
+								and (result.value.willWiden :: Fields.ScoreRange).minScore == -5
+						)
 					else
 						check(result.value.willWiden == nil)
 					end
@@ -238,7 +241,7 @@ return function(test: (string, () -> ()) -> ())
 			check(
 				result.ok
 					and result.value[1].status == "ARCHIVED"
-					and result.value[1].settings.aggregation == "BEST"
+					and (result.value[1].settings :: Fields.BoardSettings).aggregation == "BEST"
 			)
 		end)
 		check(f.count() == 2)
@@ -300,47 +303,54 @@ return function(test: (string, () -> ()) -> ())
 			end
 		end
 	)
-	test("Fields preview response rejects malformed required settings and binding DTOs", function()
-		local valid: any = {
-			settings = settings(),
-			effectiveSettings = settings(),
-			status = "COMPATIBLE",
-			valid = true,
-			conflicts = Json.array({}),
-		}
-		check(Validation.response("fields.previewBoard", valid))
-		for key in valid do
-			local bad = Copy.copy(valid)
-			bad[key] = nil
-			check(not Validation.response("fields.previewBoard", bad), key)
-		end
-		for key in valid.settings do
-			local bad = Copy.copy(valid)
-			bad.settings[key] = nil
-			check(not Validation.response("fields.previewBoard", bad), key)
-		end
-		for _, change in
-			{
-				{ aggregation = "MAX" },
-				{ sortOrder = "desc" },
-				{ resetSchedule = "YEARLY" },
-				{ minScore = "0" },
-			} :: { any }
-		do
-			local bad = Copy.copy(valid)
-			for key, value in change do
-				bad.settings[key] = value
-			end
-			check(not Validation.response("fields.previewBoard", bad))
-		end
-		check(not Validation.response("fields.leaderboardBindings", {
-			{
-				field = "Wins",
-				status = "ACTIVE",
+	test(
+		"Fields preview tolerates omitted references but rejects malformed settings and binding DTOs",
+		function()
+			local valid: any = {
 				settings = settings(),
-				binding = { board = "wins", submit = "DELTA", keep = "BEST" },
-			},
-		}))
-		check(System.equal(valid.settings, settings()))
-	end)
+				effectiveSettings = settings(),
+				status = "COMPATIBLE",
+				valid = true,
+				conflicts = Json.array({}),
+			}
+			check(Validation.response("fields.previewBoard", valid))
+			for key in valid do
+				local bad = Copy.copy(valid)
+				bad[key] = nil
+				check(Validation.response("fields.previewBoard", bad) == (key ~= "valid"), key)
+			end
+			for key in valid.settings do
+				local bad = Copy.copy(valid)
+				bad.settings[key] = nil
+				check(
+					Validation.response("fields.previewBoard", bad)
+						== (key ~= "minScore" and key ~= "maxScore"),
+					key
+				)
+			end
+			for _, change in
+				{
+					{ aggregation = "MAX" },
+					{ sortOrder = "desc" },
+					{ resetSchedule = "YEARLY" },
+					{ minScore = "0" },
+				} :: { any }
+			do
+				local bad = Copy.copy(valid)
+				for key, value in change do
+					bad.settings[key] = value
+				end
+				check(not Validation.response("fields.previewBoard", bad))
+			end
+			check(not Validation.response("fields.leaderboardBindings", {
+				{
+					field = "Wins",
+					status = "ACTIVE",
+					settings = settings(),
+					binding = { board = "wins", submit = "DELTA", keep = "BEST" },
+				},
+			}))
+			check(System.equal(valid.settings, settings()))
+		end
+	)
 end

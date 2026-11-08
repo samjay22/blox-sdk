@@ -1,9 +1,20 @@
 # Changelog
 
+## 1.0.0 — 2026-11-08 (unpublished)
+
+- Stabilize all 372 typed routes and lowerCamelCase gameplay helpers; remove internal root exports with no shims.
+- Export public client/helper/result/error types; require stable error codes and shared timeout/idempotency options.
+- Enforce a bounded rolling-minute limiter below Roblox's 500-request ceiling, including bursts and retries.
+- Add metadata-only pluggable logging and reject client-side require/custom-adapter bypasses.
+- Retain deadline-aware jitter retries/Retry-After, bounded queues, circuit breakers and ETag snapshot polling.
+- Generate checked-in source API references with a CI drift gate; add feature, error, limits and 0.x migration guides.
+- Add 16 opt-in, type-checked native Roblox server scripts and an explicitly authorized Lune net live smoke runner.
+- This checkout is not published; offline verification is not a real-gateway/Studio certification.
+
 ## 0.3.0 — 2026-11-08 (unpublished)
 
 - Add all 31 Fields Rotations/Generators/Tables routes (372 total) and strict game-server result types.
-- Add `Rotations:Get/GetAll/Watch/TimeRemaining/GetStock/Claim` and `Generators:Roll/Preview/GetOdds`.
+- Add `Rotations:get/getAll/watch/timeRemaining/getStock/claim` and `Generators:roll/preview/getOdds`.
 - Share ETag snapshot polling with rotation watches, including head-only ETag updates at the same config version; otherwise schedule one end-edge refresh with jitter, never a busy poll.
 - Generate mutation idempotency keys once per logical call and preserve permanent replay bodies and redacted sold-out/expired conflicts.
 - Add weather, pack-store and card-pack server examples, wire goldens and fake-clock/lifecycle/retry tests. Preserve the unpublished 0.2.0 coverage work.

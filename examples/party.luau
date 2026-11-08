@@ -21,7 +21,7 @@ return function(
 		return created
 	end
 	local partyId = created.value.id
-	if not partyId then
+	if type(partyId) ~= "string" then
 		return created
 	end
 	client.party:addMember({ partyId = partyId, requesterId = ownerId, userId = memberId })
@@ -30,10 +30,13 @@ return function(
 		if not polled.ok then
 			break
 		end
-		local updates: { Types.PartyUpdate } = polled.value.updates or {}
+		local updates = polled.value.updates
+		if not updates or (updates :: any) == SDK.null then
+			break
+		end
 		-- Polling is non-destructive: handlers must be idempotent; the same update may arrive more than once.
-		for i = 1, #updates do
-			onUpdate(updates[i])
+		for i = 1, #(updates :: { Types.PartyUpdate }) do
+			onUpdate((updates :: { Types.PartyUpdate })[i])
 		end
 		wait(2)
 	end

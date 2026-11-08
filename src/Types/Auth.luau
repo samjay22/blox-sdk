@@ -16,15 +16,19 @@ export type Page<T> = {
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 export type Accept = { token: string }
-export type Access = { memberships: { Member }, organization: Organization, universes: { Scope } }
+export type Access = {
+	memberships: { Member } | Core.Null,
+	organization: Organization | Core.Null,
+	universes: { Scope } | Core.Null,
+}
 export type AccessEvent = {
-	action: string,
+	action: string | Core.Null,
 	actor: string | Core.Null,
 	after: string | Core.Null,
 	before: string | Core.Null,
-	createdAt: string,
+	createdAt: string | Core.Null,
 	id: number,
-	orgId: string,
+	orgId: string | Core.Null,
 	requestId: string | Core.Null,
 	target: string | Core.Null,
 }
@@ -35,14 +39,14 @@ export type AccountCreateRequest = {
 	username: string,
 }
 export type AccountResponse = {
-	accountId: string,
-	accountType: AccountType,
-	createdTime: string,
-	email: string?,
-	enabled: boolean,
-	metadata: { [string]: Core.Json },
-	updatedTime: string,
-	username: string,
+	accountId: (string | Core.Null)?,
+	accountType: (AccountType | Core.Null)?,
+	createdTime: (string | Core.Null)?,
+	email: (string | Core.Null)?,
+	enabled: (boolean | Core.Null)?,
+	metadata: ({ [string]: Core.Json } | Core.Null)?,
+	updatedTime: (string | Core.Null)?,
+	username: (string | Core.Null)?,
 }
 export type AccountType = "SUPER_ADMIN" | "USER"
 export type AccountUpdateRequest = { email: string?, metadata: { [string]: Core.Json }? }
@@ -58,22 +62,27 @@ export type Create = { actorId: string, expiresAt: string, operationId: string }
 export type CreateOrg = { name: string }
 export type CreateUniverse = { name: string, universeId: number }
 export type Created = {
-	expiresAt: string?,
-	id: string?,
-	key: string?,
-	serviceAccountId: string?,
+	expiresAt: (string | Core.Null)?,
+	id: (string | Core.Null)?,
+	key: (string | Core.Null)?,
+	serviceAccountId: (string | Core.Null)?,
 	universeId: number,
 }
-export type CreatedMember = { account: AccountResponse, member: Member, temporaryPassword: string }
+export type CreatedMember = {
+	account: AccountResponse | Core.Null,
+	member: Member | Core.Null,
+	temporaryPassword: string | Core.Null,
+}
+export type HealthResponse = Core.HealthResponse
 export type Invitation = {
 	acceptedAt: string | Core.Null,
-	createdAt: string,
-	createdBy: string,
-	expiresAt: string,
-	id: string,
-	orgId: string,
+	createdAt: string | Core.Null,
+	createdBy: string | Core.Null,
+	expiresAt: string | Core.Null,
+	id: string | Core.Null,
+	orgId: string | Core.Null,
 	revokedAt: string | Core.Null,
-	role: TenantRole,
+	role: TenantRole | Core.Null,
 	targetUserId: string | Core.Null,
 	universeId: number | Core.Null,
 }
@@ -83,55 +92,59 @@ export type Invite = {
 	universeId: number?,
 	usernameOrEmail: string?,
 }
-export type Issued = { acceptPath: string, invitation: Invitation, token: string }
+export type Issued = {
+	acceptPath: string | Core.Null,
+	invitation: Invitation | Core.Null,
+	token: string | Core.Null,
+}
 export type LoginRequest = { password: string, username: string }
 export type LoginResponse = {
-	accessToken: string,
-	accountId: string,
-	accountType: AccountType,
-	createdTime: string,
-	email: string?,
+	accessToken: (string | Core.Null)?,
+	accountId: (string | Core.Null)?,
+	accountType: (AccountType | Core.Null)?,
+	createdTime: (string | Core.Null)?,
+	email: (string | Core.Null)?,
 	expiresIn: number,
-	metadata: { [string]: Core.Json },
-	refreshToken: string,
-	tokenType: string,
-	updatedTime: string,
-	username: string,
+	metadata: ({ [string]: Core.Json } | Core.Null)?,
+	refreshToken: (string | Core.Null)?,
+	tokenType: (string | Core.Null)?,
+	updatedTime: (string | Core.Null)?,
+	username: (string | Core.Null)?,
 }
 export type Member = {
-	createdAt: string,
-	createdBy: string,
-	orgId: string,
-	role: TenantRole,
-	status: MemberStatus,
+	createdAt: string | Core.Null,
+	createdBy: string | Core.Null,
+	orgId: string | Core.Null,
+	role: TenantRole | Core.Null,
+	status: MemberStatus | Core.Null,
 	universeId: number | Core.Null,
-	userId: string,
+	userId: string | Core.Null,
 }
 export type MemberDetail = {
-	createdAt: string,
-	createdBy: string,
+	createdAt: string | Core.Null,
+	createdBy: string | Core.Null,
 	displayName: string | Core.Null,
-	orgId: string,
-	overrides: { ServicePermissionResponse },
-	role: TenantRole,
-	status: MemberStatus,
+	orgId: string | Core.Null,
+	overrides: { ServicePermissionResponseRead } | Core.Null,
+	role: TenantRole | Core.Null,
+	status: MemberStatus | Core.Null,
 	universeId: number | Core.Null,
-	userId: string,
-	username: string,
+	userId: string | Core.Null,
+	username: string | Core.Null,
 }
 export type MemberStatus = "ACTIVE" | "DISABLED"
 export type MoveUniverse = { orgId: string }
 export type NewMember = { displayName: string?, email: string?, role: TenantRole, username: string }
 export type Organization = {
-	createdAt: string,
-	createdBy: string,
-	id: string,
+	createdAt: string | Core.Null,
+	createdBy: string | Core.Null,
+	id: string | Core.Null,
 	maxMembers: number | Core.Null,
 	maxServiceAccounts: number | Core.Null,
 	maxUniverses: number | Core.Null,
-	name: string,
-	slug: string,
-	status: Status,
+	name: string | Core.Null,
+	slug: string | Core.Null,
+	status: Status | Core.Null,
 }
 export type PasswordChangeRequest = { currentPassword: string, newPassword: string }
 export type PasswordResetConfirmDto = { newPassword: string, token: string }
@@ -145,11 +158,11 @@ export type PatchOrg = { name: string?, slug: string?, status: Status? }
 export type PatchUniverse = { enabled: boolean?, name: string? }
 export type PlaceCreateRequest = { name: string, placeId: number }
 export type PlaceResponse = {
-	createdAt: string,
-	name: string,
-	placeId: number,
-	universeId: number,
-	updatedAt: string,
+	createdAt: (string | Core.Null)?,
+	name: (string | Core.Null)?,
+	placeId: (number | Core.Null)?,
+	universeId: (number | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 }
 export type Plan = {
 	maxMembers: number | Core.Null,
@@ -158,15 +171,15 @@ export type Plan = {
 }
 export type RefreshRequest = { refreshToken: string }
 export type RefreshResponse = {
-	accessToken: string,
+	accessToken: string | Core.Null,
 	expiresIn: number,
-	refreshToken: string,
-	tokenType: string,
+	refreshToken: string | Core.Null,
+	tokenType: string | Core.Null,
 }
 export type Scope = {
-	orgId: string,
-	permissions: { ServicePermissionResponse },
-	role: TenantRole,
+	orgId: string | Core.Null,
+	permissions: { ServicePermissionResponseRead } | Core.Null,
+	role: TenantRole | Core.Null,
 	universeId: number,
 }
 export type ServiceAccessLevel = "ADMIN" | "READ_WRITE" | "READ"
@@ -183,60 +196,72 @@ export type ServiceAccountPatchRequest = {
 	expiresAt: (string | Core.Null)?,
 }
 export type ServiceAccountResponse = {
-	createdAt: string,
-	createdBy: string,
-	description: string?,
+	createdAt: (string | Core.Null)?,
+	createdBy: (string | Core.Null)?,
+	description: (string | Core.Null)?,
 	enabled: boolean,
-	expiresAt: string?,
-	id: string,
-	key: string?,
-	lastUsedAt: string?,
-	name: string,
-	orgId: string,
-	permissions: { ServicePermissionResponse },
-	previousKeyExpiresAt: string?,
-	revokedAt: string?,
-	rotatedAt: string?,
-	status: ServiceAccountStatus,
-	universeId: number,
+	expiresAt: (string | Core.Null)?,
+	id: (string | Core.Null)?,
+	key: (string | Core.Null)?,
+	lastUsedAt: (string | Core.Null)?,
+	name: (string | Core.Null)?,
+	orgId: (string | Core.Null)?,
+	permissions: ({ ServicePermissionResponseRead } | Core.Null)?,
+	previousKeyExpiresAt: (string | Core.Null)?,
+	revokedAt: (string | Core.Null)?,
+	rotatedAt: (string | Core.Null)?,
+	status: (ServiceAccountStatus | Core.Null)?,
+	universeId: (number | Core.Null)?,
 }
 export type ServiceAccountRotateRequest = { gracePeriodSeconds: number? }
 export type ServiceAccountStatus = "ACTIVE" | "EXPIRING_SOON" | "EXPIRED" | "REVOKED"
 export type ServiceDefinitionCreateRequest = { description: string, displayName: string, name: string? }
 export type ServiceDefinitionResponse = {
 	builtIn: boolean,
-	createdTime: string,
-	description: string,
-	displayName: string,
-	name: string,
-	updatedTime: string,
+	createdTime: string | Core.Null,
+	description: string | Core.Null,
+	displayName: string | Core.Null,
+	name: string | Core.Null,
+	updatedTime: string | Core.Null,
 }
 export type ServiceDefinitionUpdateRequest = { description: string, displayName: string }
 export type ServicePermissionRequest = { accessLevel: ServiceAccessLevel, serviceName: string }
 export type ServicePermissionResponse = { accessLevel: ServiceAccessLevel, serviceName: string }
+export type ServicePermissionResponseRead = {
+	accessLevel: ServiceAccessLevel | Core.Null,
+	serviceName: string | Core.Null,
+}
 export type Status = "ACTIVE" | "SUSPENDED"
-export type Template = { permissions: { ServicePermissionResponse }, role: TenantRole }
+export type Template = {
+	permissions: { ServicePermissionResponseRead } | Core.Null,
+	role: TenantRole | Core.Null,
+}
 export type TenantRole = "VIEWER" | "DEVELOPER" | "ADMIN" | "OWNER"
-export type Token = { accessToken: string, expiresIn: number, tokenType: string }
+export type Token = { accessToken: string | Core.Null, expiresIn: number, tokenType: string | Core.Null }
 export type TokenValidateRequest = { token: string }
 export type TokenValidateResponse = {
-	accountId: string?,
-	accountType: ValidationAccountType?,
-	error: string?,
-	expiresAt: string?,
-	orgId: string?,
-	orgRole: string?,
-	placeIds: { number }?,
+	accountId: (string | Core.Null)?,
+	accountType: (ValidationAccountType | Core.Null)?,
+	error: (string | Core.Null)?,
+	expiresAt: (string | Core.Null)?,
+	orgId: (string | Core.Null)?,
+	orgRole: (string | Core.Null)?,
+	placeIds: ({ number } | Core.Null)?,
 	platformOwner: boolean?,
-	role: TenantRole?,
-	serviceAccount: boolean?,
-	servicePermissions: { ServicePermissionResponse }?,
-	universeId: number?,
-	username: string?,
+	role: (TenantRole | Core.Null)?,
+	serviceAccount: (boolean | Core.Null)?,
+	servicePermissions: ({ ServicePermissionResponseRead } | Core.Null)?,
+	universeId: (number | Core.Null)?,
+	username: (string | Core.Null)?,
 	valid: boolean,
 }
 export type Transfer = { userId: string }
-export type Universe = { enabled: boolean, name: string, orgId: string, universeId: number }
+export type Universe = {
+	enabled: boolean,
+	name: string | Core.Null,
+	orgId: string | Core.Null,
+	universeId: number,
+}
 export type ValidationAccountType = "SUPER_ADMIN" | "USER" | "UNIVERSE_ACCOUNT"
 export type CreateAccountCall = AccountCreateRequest
 export type CreateAccountResultValue = AccountResponse
@@ -369,7 +394,7 @@ export type DeletePlaceResultValue = nil
 export type ExchangeScopedTokenCall = { path: { universe: string | number } }
 export type ExchangeScopedTokenResultValue = Token
 export type HealthProxyCall = {}
-export type HealthProxyResultValue = { [string]: Core.Json }
+export type HealthProxyResultValue = HealthResponse
 export type OpenApiSpecCall = {}
 export type OpenApiSpecResultValue = Core.Json
 return {}

@@ -42,31 +42,31 @@ local function push(
 	return self
 end
 --- Set a whole field or declared nested target.
-function Builder.Set(self: Builder, id: string, value: Core.Json, path: Types.Path?): Builder
+function Builder.set(self: Builder, id: string, value: Core.Json, path: Types.Path?): Builder
 	return push(self, id, "SET", { value = value }, path)
 end
 --- Add a nonzero numeric delta.
-function Builder.Add(self: Builder, id: string, delta: number, path: Types.Path?): Builder
+function Builder.add(self: Builder, id: string, delta: number, path: Types.Path?): Builder
 	return push(self, id, "ADD", { delta = delta }, path)
 end
 --- Clamp a numeric target downward.
-function Builder.Min(self: Builder, id: string, value: number, path: Types.Path?): Builder
+function Builder.min(self: Builder, id: string, value: number, path: Types.Path?): Builder
 	return push(self, id, "MIN", { value = value }, path)
 end
 --- Clamp a numeric target upward.
-function Builder.Max(self: Builder, id: string, value: number, path: Types.Path?): Builder
+function Builder.max(self: Builder, id: string, value: number, path: Types.Path?): Builder
 	return push(self, id, "MAX", { value = value }, path)
 end
 --- Reset to the field/member/natural default.
-function Builder.Reset(self: Builder, id: string, path: Types.Path?): Builder
+function Builder.reset(self: Builder, id: string, path: Types.Path?): Builder
 	return push(self, id, "RESET", {}, path)
 end
 --- Append validated list items.
-function Builder.Append(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
+function Builder.append(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
 	return push(self, id, "APPEND", { items = items }, path)
 end
 --- Insert items at a zero-based list index.
-function Builder.Insert(
+function Builder.insert(
 	self: Builder,
 	id: string,
 	index: number,
@@ -76,7 +76,7 @@ function Builder.Insert(
 	return push(self, id, "INSERT", { index = index, items = items }, path)
 end
 --- Remove a complete zero-based range (count defaults to one).
-function Builder.RemoveAt(
+function Builder.removeAt(
 	self: Builder,
 	id: string,
 	index: number,
@@ -86,19 +86,19 @@ function Builder.RemoveAt(
 	return push(self, id, "REMOVE_AT", { index = index, count = count }, path)
 end
 --- Remove the first canonical list match.
-function Builder.RemoveValue(self: Builder, id: string, value: Core.Json, path: Types.Path?): Builder
+function Builder.removeValue(self: Builder, id: string, value: Core.Json, path: Types.Path?): Builder
 	return push(self, id, "REMOVE_VALUE", { value = value }, path)
 end
 --- Union validated set members.
-function Builder.SetAdd(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
+function Builder.setAdd(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
 	return push(self, id, "SET_ADD", { items = items }, path)
 end
 --- Remove matching set members, ignoring absent values.
-function Builder.SetRemove(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
+function Builder.setRemove(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
 	return push(self, id, "SET_REMOVE", { items = items }, path)
 end
 --- Merge/replace validated map entries.
-function Builder.MapPut(
+function Builder.mapPut(
 	self: Builder,
 	id: string,
 	entries: { [string]: Core.Json },
@@ -107,11 +107,11 @@ function Builder.MapPut(
 	return push(self, id, "MAP_PUT", { entries = entries }, path)
 end
 --- Remove validated wire-string map keys.
-function Builder.MapRemove(self: Builder, id: string, keys: { string }, path: Types.Path?): Builder
+function Builder.mapRemove(self: Builder, id: string, keys: { string }, path: Types.Path?): Builder
 	return push(self, id, "MAP_REMOVE", { keys = keys }, path)
 end
 --- Add to a numeric map value (missing values start at zero).
-function Builder.MapAdd(self: Builder, id: string, key: string, delta: number, path: Types.Path?): Builder
+function Builder.mapAdd(self: Builder, id: string, key: string, delta: number, path: Types.Path?): Builder
 	return push(self, id, "MAP_ADD", { key = key, delta = delta }, path)
 end
 --- Produce a canonical, schema-validated snapshot; later builder edits cannot mutate it.

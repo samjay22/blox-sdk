@@ -20,49 +20,52 @@ export type AccountType = "SUPER_ADMIN" | "USER"
 export type AddMemberRequest = { partyId: string, requesterId: number, userId: number }
 export type CreatePartyRequest = { ownerId: number, placeId: number }
 export type DeletePartyRequest = { ownerId: number, partyId: string }
-export type HealthResponse = { database: string?, status: string, timestamp: string? }
+export type HealthResponse = Core.HealthResponse
 export type KickMemberRequest = { partyId: string, requesterId: number, userId: number }
 export type LeavePartyRequest = { partyId: string, userId: number }
 export type LoginRequest = { password: string, username: string }
 export type LoginResponse = {
-	accessToken: string,
-	accountId: string,
-	accountType: AccountType,
-	createdTime: string,
-	email: string?,
+	accessToken: (string | Core.Null)?,
+	accountId: (string | Core.Null)?,
+	accountType: (AccountType | Core.Null)?,
+	createdTime: (string | Core.Null)?,
+	email: (string | Core.Null)?,
 	expiresIn: number,
-	metadata: { [string]: Core.Json },
-	refreshToken: string,
-	tokenType: string,
-	updatedTime: string,
-	username: string,
+	metadata: ({ [string]: Core.Json } | Core.Null)?,
+	refreshToken: (string | Core.Null)?,
+	tokenType: (string | Core.Null)?,
+	updatedTime: (string | Core.Null)?,
+	username: (string | Core.Null)?,
 }
-export type PartyMemberResponse = { joinedAt: string?, robloxUserId: number? }
+export type PartyMemberResponse = { joinedAt: (string | Core.Null)?, robloxUserId: (number | Core.Null)? }
 export type PartyResponse = {
-	createdAt: string?,
-	id: string?,
-	maxSize: number?,
-	members: { PartyMemberResponse }?,
-	ownerId: number?,
-	universeId: number?,
-	updatedAt: string?,
+	createdAt: (string | Core.Null)?,
+	id: (string | Core.Null)?,
+	maxSize: (number | Core.Null)?,
+	members: ({ PartyMemberResponse } | Core.Null)?,
+	ownerId: (number | Core.Null)?,
+	universeId: (number | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 }
 export type PartyUpdate = {
-	ownerId: number?,
-	partyId: string?,
-	timestamp: string?,
-	updateType: string?,
-	userId: number?,
+	ownerId: (number | Core.Null)?,
+	partyId: (string | Core.Null)?,
+	timestamp: (string | Core.Null)?,
+	updateType: (string | Core.Null)?,
+	userId: (number | Core.Null)?,
 }
 export type RefreshRequest = { refreshToken: string }
 export type RefreshResponse = {
-	accessToken: string,
+	accessToken: string | Core.Null,
 	expiresIn: number,
-	refreshToken: string,
-	tokenType: string,
+	refreshToken: string | Core.Null,
+	tokenType: string | Core.Null,
 }
 export type RemoveMemberRequest = { partyId: string, requesterId: number, userId: number }
-export type ServerUpdateResponse = { timestamp: string?, updates: { PartyUpdate }? }
+export type ServerUpdateResponse = {
+	timestamp: (string | Core.Null)?,
+	updates: ({ PartyUpdate } | Core.Null)?,
+}
 export type TransferLeadershipRequest = { currentOwnerId: number, newOwnerId: number, partyId: string }
 export type LoginCall = LoginRequest
 export type LoginResultValue = LoginResponse

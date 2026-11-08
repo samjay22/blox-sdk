@@ -10,15 +10,15 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["kind"]="object",["members"]={["Kills"]={["default"]=0,["type"]={["kind"]="int",["min"]=0}},["PlaySeconds"]={["default"]=0,["type"]={["kind"]="int",["min"]=0}}}}
 local Accessor = {}
 --- Read the validated Metrics client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Metrics
- return Codec.decode(expression, profile:Get("Metrics")) :: FieldTypes.Field_Metrics
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Metrics
+ return Codec.decode(expression, profile:get("Metrics")) :: FieldTypes.Field_Metrics
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Metrics): Transaction.Transaction
- return tx:Set("Metrics", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Metrics): Transaction.Transaction
+ return tx:set("Metrics", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Metrics")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Metrics")
 end
 return table.freeze(Accessor)

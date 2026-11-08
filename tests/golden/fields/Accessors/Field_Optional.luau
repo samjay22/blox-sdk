@@ -10,15 +10,15 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["kind"]="nullable",["of"]={["kind"]="int"}}
 local Accessor = {}
 --- Read the validated Optional client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Optional
- return Codec.decode(expression, profile:Get("Optional")) :: FieldTypes.Field_Optional
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Optional
+ return Codec.decode(expression, profile:get("Optional")) :: FieldTypes.Field_Optional
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Optional): Transaction.Transaction
- return tx:Set("Optional", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Optional): Transaction.Transaction
+ return tx:set("Optional", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Optional")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Optional")
 end
 return table.freeze(Accessor)

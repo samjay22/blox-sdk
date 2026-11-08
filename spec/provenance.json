@@ -129,6 +129,7 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantSchemaGuard.java": "485f08f1f3959d5dac5b763f93df1297585bb602d976469d8acd8d155179d93b",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantService.java": "1bd694cb6656072a0afee864ebf1e9353ff3f7a06ca4151eab6983415d0982ed",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantUniverseService.java": "0c641c7acf58ab357588233be96ae3f4a89346137bd1e9a481f8fe54502ad919",
+    "srv/src-gas/global-auth-service/src/main/resources/application.properties": "4023c8f5922bac58fb12e30b568a127ba68133fe482cfdb694569e05f5885e5e",
     "srv/src-mm/FRONTEND_INTEGRATION_GUIDE.md": "17315596e57c7bf1f2502469013c606bba17180daeb45de7477b270da39378e1",
     "srv/src-mm/README.md": "ff8e3152df5bb4db05660cdbe4a1d5d81700219706768f79e28fb12e5ce57752",
     "srv/src-mm/src/main/java/sam/tech/Main.java": "8b5539e84e28ec47f19ca63247138ed879ec8583d63c05e76c808d25a6974827",
@@ -234,6 +235,7 @@
     "srv/src-mm/src/main/java/sam/tech/services/RobloxScriptExecutionService.java": "a47d08010ecb8947cf2017c57a55ba1d804b3d60b42d080c7c626f6d82f01fd7",
     "srv/src-mm/src/main/java/sam/tech/services/UniverseAuthorizationService.java": "b3ad4914b3e09bf725808908407510541ea6ff51fb2016c7b583623d03cf1b90",
     "srv/src-mm/src/main/java/sam/tech/services/UniverseInfoService.java": "6baa99f13b6c27bfccf69bdbafc93c69390531809eb2d36eb9b31dfec3b8f66b",
+    "srv/src-mm/src/main/resources/application.properties": "7d8c6db5c2c313db56413c4b80cfc62770e01def84eb85a6f55fd37b94fb5919",
     "srv/src-roblox-code-service/API_CONTRACT.md": "ff6ff9e9c01ba3caca3380d5f695ef569f029e9fbf462537f636f509668bf724",
     "srv/src-roblox-code-service/README.md": "0fea5a143c90d7e8c24edc3953848633151e9b9fc037fde52be2fa8b0136e9b3",
     "srv/src-roblox-code-service/postman/roblox-code-service.postman_collection.json": "2d43f8766c534c065801a79e24ab9d11e00fd6d8ef9c6a0a390cd9ec987d619e",
@@ -302,6 +304,7 @@
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/CodeNormalizer.java": "63edab89840a7b3679c40e0ab283a3c341a3f7397a4a7e97449df193dc165bc3",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/R2dbcJsonUtil.java": "18bcc00b91c67473e94c8b34f82c2dda7a1a83a28597e2c0157194960ce198ed",
+    "srv/src-roblox-code-service/src/main/resources/application.properties": "0041df2b1a3161a66b8ff4cbd303c7ce20ef25168aa24bb52171e708192ebffb",
     "svc/audit-service/API_CONTRACT.md": "29b17ed9dc3e46ee4bd68685afac7be0cb307e07c1202a474f864e893fad05ef",
     "svc/audit-service/README.md": "5638bf6c8144d666b727569440dd756087021775d0df5ea11be39a8bc720f8ec",
     "svc/audit-service/src/main/java/sam/tech/Main.java": "e4b8e8b831e002565b59d78586473238c9cca96addbd0b3f895147b0de32ace1",
@@ -338,6 +341,7 @@
     "svc/audit-service/src/main/java/sam/tech/repository/R2dbcAuditStore.java": "c33a14c5ee4fd6a3cebf857cf51060e71f53134301d66d965ab121f235b82712",
     "svc/audit-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "cfbff2d0f8e9057e249e84c80ac0f0131eb538cc27ef1d0539cebf98cb3a547a",
     "svc/audit-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
+    "svc/audit-service/src/main/resources/application.properties": "d4c650a2b0da198782d7bcc4f023b8c1587813d6feee7e457084a12042e2e91d",
     "svc/fields-service/API_CONTRACT.md": "d2e3b9170ebbcb52c5efda2ab3156e76dd78f6c11a6cf195d1c36b35ae1b508d",
     "svc/fields-service/README.md": "958655895958df6dba5482e403cb267140e1001621f62092a49aecfc23a637e8",
     "svc/fields-service/src/main/java/sam/tech/Main.java": "039a14098a9d6d1a64322d60835d63d6b868f7420be11dcda24cda55b33cb5cf",
@@ -460,6 +464,7 @@
     "svc/fields-service/src/main/java/sam/tech/logging/OpenObserveAppender.java": "587bbb344d44b9a10db19ac370523de6f332dd730b6ed0477d4dbf8927e32ebc",
     "svc/fields-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "18562d81bafc96bf2f9f1300547727c399093e61c78ccaa75d7e57f00330c426",
     "svc/fields-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
+    "svc/fields-service/src/main/resources/application.properties": "7471e191fe10b5ebba596d66eb1e1593b1ef0dc92dd1621c770bc35985a2cf83",
     "svc/leaderboard-service/API_CONTRACT.md": "8e5177afa0130f754918f4f634c752996e43b71c68f19d746a564b30c44b84ec",
     "svc/leaderboard-service/README.md": "3d8cb17df6a364a454200dc4e99dda385a0a10e3add6ef196b66fb36644509fe",
     "svc/leaderboard-service/src/main/java/sam/tech/Main.java": "1ac0135a93284a518c1d882be9087c941eca092174b77a9cb5bd0e0833a70378",
@@ -496,6 +501,7 @@
     "svc/leaderboard-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "ad8fe4266e7e97ce4afc24f991d266bfcefb6c8c07e5dff8d445e67b673eaaec",
     "svc/leaderboard-service/src/main/java/sam/tech/service/RolloverWorker.java": "eedc2ebb42650d79063377be877401d9734f582d8cad3df287d03fa5bab9bc1a",
     "svc/leaderboard-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
+    "svc/leaderboard-service/src/main/resources/application.properties": "7a329f75abfd99d5905551b8669ce1e7d21096192d36b12bbde2845d20c8f6f5",
     "svc/platform-service/README.md": "8370c2420301cf1b6fe887e3eb162bfdcef3b5f49568305b31e51cf3a97df898",
     "svc/platform-service/src/main/java/sam/tech/platform/Main.java": "9b16942ba827e6cede6eaf6da1f4be29a67f9ea7769e0b7275fd5c7c1ac14138",
     "svc/platform-service/src/main/java/sam/tech/platform/analytics/AnalyticsController.java": "ff001c692e34af5976cbde96deda704e19f360d8f8ef5c3d35edb1676fb0ad27",
@@ -576,7 +582,8 @@
     "svc/platform-service/src/main/java/sam/tech/platform/webhooks/WebhookRepository.java": "a9f77091cdcc3720552662ff288c9b6c3faf810a5a94f6e119534efc5b418143",
     "svc/platform-service/src/main/java/sam/tech/platform/webhooks/WebhookService.java": "53abd8030c73628396e7a8de62ac0ce1cb579da4dacc83c3ed8451ab69e2f12d",
     "svc/platform-service/src/main/java/sam/tech/platform/webhooks/WebhookWorker.java": "d74780ac7e2df80375c6d116b802c475a74bf2838d475f21e78a29a3fe49fbd7",
-    "svc/platform-service/src/main/java/sam/tech/platform/webhooks/package-info.java": "938671025a43f34884869b9e80e3f416f1ab455b943151769b31e3b8ffa652ce"
+    "svc/platform-service/src/main/java/sam/tech/platform/webhooks/package-info.java": "938671025a43f34884869b9e80e3f416f1ab455b943151769b31e3b8ffa652ce",
+    "svc/platform-service/src/main/resources/application.properties": "ea2fce2093459eb5683785cb5958e40ff80952ff9489859df771ff9b22efa4bf"
   },
   "sourceRoot": "~/work"
 }

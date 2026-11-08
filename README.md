@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**372 typed endpoints, version 0.3.0 (unpublished):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**372 typed endpoints, version 1.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -14,7 +14,18 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ## Install
 
-Use the checked-in `roblox/` package with Rojo:
+### Wally
+
+After `blox-api/blox-sdk@1.0.0` is published to the Wally index, add this to your game's `wally.toml`:
+
+```toml
+[server-dependencies]
+BloxSDK = "blox-api/blox-sdk@1.0.0"
+```
+
+Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
+`game.ServerScriptService.ServerPackages.BloxSDK`. This checkout does **not** publish or claim registry availability.
+Until publication, use the checked-in `roblox/` package with Rojo:
 
 ```sh
 rojo build default.project.json -o BloxSDK.rbxm
@@ -37,10 +48,10 @@ local client = BloxSDK.new({
     },
 })
 
-local loaded = client.fields:LoadProfile(game.GameId, 123456)
+local loaded = client.fields:loadProfile(game.GameId, 123456)
 if loaded.ok then
     local profile = loaded.value
-    local committed = profile:Transaction():Add("Currency.Gems", 10):Reason("Quest reward"):Commit()
+    local committed = profile:transaction():add("Currency.Gems", 10):reason("Quest reward"):commit()
     if not committed.ok then warn(committed.error.code) end
 end
 
@@ -74,7 +85,7 @@ local joined = client.matchmaking:joinQueue({
 
 `Result<T>` is `{ok=true,value:T,status?,stale?}` or `{ok=false,error:BloxError}`. HTTP/network failures return results rather than throwing. Invalid construction config throws a value-free assertion. Errors include kind, HTTP status when available, endpoint ID, attempt count, and a **fully redacted** error body. There is deliberately no raw-response debug logging.
 
-`CallOptions`: absolute monotonic `deadline`, `priority` (`critical`/`bulk`), maximum `retry` count, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. Removed options such as `idempotencyHint` are rejected, not shimmed. Unkeyed non-idempotent mutations are never automatically retried. Retry-After seconds/HTTP dates are honored for 429 and all 5xx within the original deadline and earned retry budget.
+`CallOptions`: relative `timeout` (seconds), absolute monotonic `deadline` (the earlier bound wins), optional `idempotencyKey` for single-key operations, `priority` (`critical`/`bulk`), maximum `retry` count, optional `cacheTtl` in seconds, and `signal={cancelled=false}`. Removed options such as `idempotencyHint` are rejected, not shimmed. Unkeyed non-idempotent mutations are never automatically retried. Retry-After seconds/HTTP dates are honored for 429 and all 5xx within the original deadline and earned retry budget.
 
 Responses shared by cache/single-flight are recursively frozen. Clone before editing. `BloxSDK.null` represents an explicit JSON null (e.g. clearing service-account expiration). `BloxSDK.array({})` marks an empty array in arbitrary JSON; declared DTO array fields are encoded correctly automatically.
 
@@ -85,26 +96,26 @@ Current Platform methods and Fields-owned player administration are documented i
 ## New service helpers
 
 - `client:auditWriter(...)`: bounded, nonblocking enqueue/flush; max 500 events per batch, interval flush and native Roblox BindToClose integration.
-- `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `Get`/`IsEnabled`, `Changed` signal, last-good-state retention. `Get` reads literal `gameValues` field IDs; `IsEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
+- `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `get`/`isEnabled`, `Changed` signal, last-good-state retention. `get` reads literal `gameValues` field IDs; `isEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
 - Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
 - Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; health summary and schedule run history need READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
 
-- Fields `Rotations(universeId)` supplies current/next heads, snapshot-backed `Watch`, countdowns, stock reads and atomic `Claim`; `Generators(universeId)` supplies `Roll`, read-only `Preview` and exact table `GetOdds`. See [Rotations & Generators](docs/ROTATIONS.md) and the [weather](examples/weather.luau), [pack store](examples/pack-store.luau), and [card pack](examples/card-pack.luau) server examples.
+- Fields `Rotations(universeId)` supplies current/next heads, snapshot-backed `watch`, countdowns, stock reads and atomic `claim`; `Generators(universeId)` supplies `roll`, read-only `preview` and exact table `getOdds`. See [Rotations & Generators](docs/ROTATIONS.md) and the [weather](examples/weather.luau), [pack store](examples/pack-store.luau), and [card pack](examples/card-pack.luau) server examples.
 
 See [new-service guide](docs/NEW-SERVICES.md) and the Fields examples for lifecycle and safety details.
 
 ## Fields validation and Code awards
 
 `client.fields:validateOps({body={ops=...}})` accepts 1–100 subject-free operations after explicitly
-loading `client.fields:Schema(universeId):Load()`. It pre-validates through TypeSystem, collects every
+loading `client.fields:schemaCache(universeId):load()`. It pre-validates through TypeSystem, collects every
 failing op with zero-based `opIndex/field/path/code`, and sends locally valid lists to Fields for current
-validation. `client.fields:Operations(universeId):Add("Currency.Gems",100):validate()` and player
+validation. `client.fields:operations(universeId):add("Currency.Gems",100):validate()` and player
 transaction `:validate()` provide dry runs without a reason, key or commit. No player state is read.
 
 Codes now take `award` directly as a list of Fields operations. Use
-`client.codes:Award(universeId):Add("Currency.Gems",100):build()` for a typed canonical snapshot;
+`client.codes:award(universeId):add("Currency.Gems",100):build()` for a typed canonical snapshot;
 `createCode` also pre-validates raw lists. Redemption returns `transaction`, `replayed`, `redeemedAt`;
 CodeService applies one atomic transaction using `code-<codeId>-<userId>`. The per-user maximum must be 1.
 See [Codes guide](docs/CODES.md), [award example](examples/code-award.luau), and [Fields guide](docs/FIELDS.md).
@@ -121,8 +132,8 @@ Save an authorized `GET /schema` response, then run the offline standard-library
 python3 tools/gen-field-types saved-schema.json --out game/GeneratedFields --sdk ../../roblox
 ```
 
-Require generated `Typed` and `FieldTypes` modules. `Typed.Currency.Gems:Get(profile)` is `number`,
-`:Add(tx, delta)` requires a number, map/list accessors enforce their schema's key/item types.
+Require generated `Typed` and `FieldTypes` modules. `Typed.Currency.Gems:get(profile)` is `number`,
+`:add(tx, delta)` requires a number, map/list accessors enforce their schema's key/item types.
 Every accessor queues through the validated transaction builder. See [complete workflow, Roblox
 projection, null/set conversion, int64 limits and examples](docs/FIELDS.md).
 
@@ -135,7 +146,7 @@ if login.ok then
     local access = admin.auth:getMyAccess()
     local accounts = admin.auth:listServiceAccounts({ query = { orgId = selectedOrgId } })
     local scoped = admin:scoped(selectedUniverseId)
-    local schema = scoped.fields:schema() -- Exchanges once; caches and refreshes early.
+    local schema = scoped.fields:schemaCache() -- Exchanges once; caches and refreshes early.
     -- Do not log login, createServiceAccount, or rotateServiceAccount responses.
 end
 admin:logout() -- Uses the latest rotated refresh token and clears the local session.
@@ -151,14 +162,14 @@ Identity refresh and per-universe scoped exchange are separate, versioned and si
 | Gateway | `https://lb1.blox-api.com` + per-service prefix below |
 | Timeout | 15 seconds, end-to-end |
 | Concurrency / pending queue | 6 / 64 per origin |
-| Rate / burst / critical reserve | 450 per minute / 15 / 3 |
+| Rate / burst / critical reserve | 450 per rolling minute / 15 / 3 |
 | Transient retries | At most 3; 20% earned retry budget, initially empty |
 | Backoff | Full jitter, 0.25-second base, 8-second cap |
 | Circuit | 5 failures in last 20 samples within 30 seconds; 10-second cooldown |
 | Cache | Off per call unless `cacheTtl` is supplied; max 128 entries |
 | Stale-if-error | Off (`staleIfError=0`) |
 
-Default-runtime clients from the same required ModuleScript share a server token bucket; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
+Every physical attempt (including retries) consumes a token and a rolling-window admission. `requestsPerMinute` is an integer 1–499; bursts never bypass that window. Default-runtime clients from the same required ModuleScript share this limiter; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
 
 ## Gateway routing
 
@@ -234,3 +245,37 @@ See [endpoint reference](docs/ENDPOINTS.md), [architecture](docs/ARCHITECTURE.md
 ## Verification boundary
 
 This is an offline-verified implementation, **not a live-deployment certification**. No backend requests or Studio play sessions were used. Actual Roblox Secret permissions, native HTTP timing/quotas, deployed backend parity, and live throughput remain unverified. Java semantic validation (authorization ownership, business rules, size constraints) remains authoritative. Endpoint error-status lists are service-wide guidance, not exhaustive per-route exception proofs. See [source audit](docs/SOURCE-AUDIT.md).
+
+
+## 1.0 guides and public API
+
+All SDK methods/properties use **lowerCamelCase** (native Roblox APIs retain engine casing).
+Route DTO wire names/enums are unchanged. Helper names are distinct from route calls:
+`fields:schema()` fetches a wire response; `fields:schemaCache(id)` owns a schema cache;
+`fields:transactionBuilder(id, user)` creates a builder; `fields:transaction(request)` submits a wire DTO.
+Underscore members and `Core`, `Services`, `Auth`, `Testing` modules are private, unsupported implementation details.
+The root exports no internal module tables. `Types/*` and `Fields/Types` are public type-contract modules.
+
+- [Generated API and Luau types](docs/api/README.md) — regenerate with `tools/gen-docs`; CI rejects drift.
+- [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [game configuration](docs/GAME-CONFIG.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
+- [Rotations/generators](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
+- [Codes](docs/CODES.md), [party](docs/PARTY.md), [audit](docs/AUDIT.md), [platform](docs/PLATFORM.md), [authentication](docs/AUTH.md).
+- [Error codes](docs/ERRORS.md), [performance/limits](docs/PERFORMANCE.md), [0.x migration](MIGRATION.md), [1.0 changelog](CHANGELOG.md).
+- [Runnable Roblox server scripts](examples/README.md) — 16 opt-in scripts, type-checked by an import-only projection.
+- [Live smoke](docs/LIVE-SMOKE.md) — explicit consent, isolated test fixtures, no credentials in output.
+
+### Pluggable logging
+
+```luau
+local client = BloxSDK.new({
+    secretName = "BLOX_SERVICE_ACCOUNT",
+    universeId = game.GameId,
+    logger = function(eventName, event)
+        print(eventName, event.endpoint, event.status) -- metadata only
+    end,
+})
+```
+
+Logger and hooks receive frozen allowlisted metadata, never request/response bodies, query strings,
+headers, credentials or raw exceptions. Observer exceptions are isolated. Do not capture secrets in your own logger.
+`onRateLimited` reports local budget waits; queue rejection returns `RateLimited` / `sdk_rate_limited`.

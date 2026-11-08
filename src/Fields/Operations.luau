@@ -187,23 +187,27 @@ function Operations.validate(
 	if not Operations.shape(ops) then
 		return System.failure("invalid_request")
 	end
-	if schema:Version() == nil then
+	if schema:version() == nil then
 		return System.failure("schema_unavailable")
 	end
 	local errors: { Wire.OpValidationError } = Json.array({})
 	for i, op in ops do
-		local d = schema:Get(op.field)
+		local d = schema:get(op.field)
 		local code: string? = nil
 		if not d then
 			code = "unknown_field"
 		elseif d.scope ~= "PLAYER" then
 			code = "field_scope_mismatch"
-		elseif not d.type or d.computed and (d.computed :: any) ~= Json.null then
+		elseif
+			not d.type
+			or (d.type :: any) == Json.null
+			or d.computed and (d.computed :: any) ~= Json.null
+		then
 			code = "field_computed"
 		elseif d.status == "ARCHIVED" then
 			code = "field_archived"
 		else
-			local result = System.checkOperation(d.type, op.op, operands(op), op.path)
+			local result = System.checkOperation(d.type :: Types.TypeExpr, op.op, operands(op), op.path)
 			if not result.ok then
 				code = result.error.code or "invalid_request"
 			end
@@ -229,12 +233,21 @@ function Operations.prepare(
 		return valid
 	end
 	if not valid.value.valid then
-		local e = valid.value.errors[1]
-		return System.failure(e.code, e.path, e.field, e.opIndex)
+		-- This report was constructed locally above, not read from a tolerant wire DTO.
+		local e = (valid.value.errors :: { Wire.OpValidationError })[1]
+		if type(e.code) ~= "string" then
+			return System.failure("invalid_request")
+		end
+		return System.failure(
+			e.code,
+			e.path :: { string | number }?,
+			if type(e.field) == "string" then e.field else nil,
+			e.opIndex
+		)
 	end
 	local result: { Types.PlayerOperation } = Json.array({})
 	for _, op in ops do
-		local d = schema:Get(op.field) :: Wire.Definition
+		local d = schema:get(op.field) :: Wire.Definition
 		local prepared = System.prepareOperation(d.type :: Types.TypeExpr, op.op, operands(op), op.path)
 		if not prepared.ok then
 			return prepared

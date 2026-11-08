@@ -42,7 +42,7 @@ local function client(
 		universeId = 123,
 		levels = if level then { CodeService = level } else nil,
 	})
-	local schema = c.fields:Schema(123)
+	local schema = c.fields:schemaCache(123)
 	schema._version = 1
 	schema._definitions["Currency.Gems"] = {
 		universeId = 123,
@@ -80,7 +80,7 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			local built = c.codes:Award(123):Add("Currency.Gems", 100):build()
+			local built = c.codes:award(123):add("Currency.Gems", 100):build()
 			check(built.ok)
 			if built.ok then
 				req.body.award = built.value
@@ -164,7 +164,7 @@ return function(test: (string, () -> ()) -> ())
 				value = body()
 				value.universeId = 456
 				check(not c.codes:bulkCreateCodes({ body = value }).ok)
-				c.fields:Schema(123)._version = nil
+				c.fields:schemaCache(123)._version = nil
 				local unloaded = c.codes:bulkCreateCodes({ body = body() })
 				check(not unloaded.ok and unloaded.error.code == "schema_unavailable")
 				check(f.count() == 0)

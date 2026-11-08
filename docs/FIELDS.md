@@ -37,8 +37,8 @@ it can differ from the list at the instant the mutation was rejected. Registry r
 
 ## Durable jobs and live-ops
 
-`client.fields:Bulk(universeId)`, `:Schedules(universeId)` and `:Jobs(universeId)` compose typed
-administrative requests; `:Health(universeId):summary()` exposes compact READ-level health. Bulk ops
+`client.fields:bulkBuilder(universeId)`, `:scheduleClient(universeId)` and `:jobClient(universeId)` compose typed
+administrative requests; `:healthClient(universeId):summary()` exposes compact READ-level health. Bulk ops
 reuse the existing operation builder and TypeSystem; target filters and import records validate locally
 against an explicitly loaded schema before submission. `Jobs:waitFor` observes durable server work with
 a total timeout and bounded backoff; it never cancels, retries or compensates the job automatically.
@@ -52,27 +52,23 @@ undo, and a SUCCEEDED job may have individual failures. Read the [durable jobs g
 ## Runtime schema and validation
 
 ```luau
-local cache = client.fields:Schema(universeId)
-local loaded = cache:Load() -- Initial synchronous GET /schema; check loaded.ok.
-local definitions = cache:Definitions() -- Immutable, includes archived/shared/computed definitions.
-local validator = cache:Validator("Currency.Gems")
+local cache = client.fields:schemaCache(universeId)
+local loaded = cache:load() -- Initial synchronous GET /schema; check loaded.ok.
+local definitions = cache:definitions() -- Immutable, includes archived/shared/computed definitions.
+local validator = cache:validator("Currency.Gems")
 if validator then
-    local checked = validator.Validate(100)
+    local checked = validator.validate(100)
 end
 ```
 
 The cache is shared by universe across client facades. Loading starts serial 30-second background
 refreshes. Equal `schemaVersion` reuses compiled validators; malformed, failed or regressing refreshes
-keep the last good generation. `Refresh`, `Version`, `Get`, and `LastError` expose its state. Shared
+keep the last good generation. `refresh`, `version`, `get`, and `lastError` expose its state. Shared
 `flush`/`destroy` stops pollers; requiring/constructing the SDK makes no requests.
 
-`BloxSDK.Fields.TypeSystem` exposes `compile(TypeExpr)`, `validate(type,value)`, `default(type,explicit?)`,
-`apply(type,current,fieldDefault,op,args,path?)`, `targetType`, and `checkOperation`. It implements closed
-objects, explicit member defaults, natural defaults, enums, lists, sorted unique sets, typed maps,
-pruneZero, nullable values, bounds/cardinality/UTF-8 limits and every contract operation. Results are
-ordinary SDK Results; typed failures carry `code` and the original zero-based operation `path` (the
-server does not add a nested-validation breadcrumb). Builders add `field` and zero-based `opIndex`.
-Unknown properties are not silently ignored. Inputs are copied rather than mutated.
+The internal TypeSystem is not a root export in 1.0. Load `fields:schemaCache(universeId):load()`
+and obtain a cached validator with `:validator(fieldId)`. Its `validate(value)` / `default(explicit?)`
+functions return typed Results. Use the transaction and operation builders for validated writes.
 
 ### Representation and precision
 
@@ -100,13 +96,13 @@ Unknown properties are not silently ignored. Inputs are copied rather than mutat
 ## Validated transactions
 
 ```luau
-local result = client.fields:Transaction(universeId, userId)
-    :Add("Currency.Gems", -50)
-    :MapAdd("Inventory.Items", "SWORD", 1)
-    :Expect("Inventory.Items", {exists=false}, {"SWORD"})
-    :Reason("Buy sword from shop")
-    :Ref("shop", "sword")
-    :Commit()
+local result = client.fields:transactionBuilder(universeId, userId)
+    :add("Currency.Gems", -50)
+    :mapAdd("Inventory.Items", "SWORD", 1)
+    :expect("Inventory.Items", {exists=false}, {"SWORD"})
+    :reason("Buy sword from shop")
+    :ref("shop", "sword")
+    :commit()
 ```
 
 Load Schema first (or use LoadProfile). An unloaded cache returns `schema_unavailable` **without HTTP**;
@@ -117,14 +113,14 @@ bounds, actual path existence, final collection sizes and preconditions require 
 state; the builder does **not** pretend a player's current balance equals its default. The server
 revalidates current schema, authority, runtime flags and values atomically.
 
-Methods: `Set(id,value,path?)`, `Add(id,delta,path?)`, `Min/Max(id,value,path?)`, `Reset(id,path?)`,
-`Append(id,items,path?)`, `Insert(id,index,items,path?)`, `RemoveAt(id,index,count?,path?)`,
-`RemoveValue(id,value,path?)`, `SetAdd/SetRemove(id,items,path?)`, `MapPut(id,entries,path?)`,
-`MapRemove(id,keys,path?)`, `MapAdd(id,key,delta,path?)`. Paths have at most eight segments; list indexes
-are **zero-based**, numeric map keys stay strings. `Expect(id,{version=n}|{equals=value}|{exists=bool},path?)`
+Methods: `set(id,value,path?)`, `add(id,delta,path?)`, `min/max(id,value,path?)`, `reset(id,path?)`,
+`append(id,items,path?)`, `insert(id,index,items,path?)`, `removeAt(id,index,count?,path?)`,
+`removeValue(id,value,path?)`, `setAdd/setRemove(id,items,path?)`, `mapPut(id,entries,path?)`,
+`mapRemove(id,keys,path?)`, `mapAdd(id,key,delta,path?)`. Paths have at most eight segments; list indexes
+are **zero-based**, numeric map keys stay strings. `expect(id,{version=n}|{equals=value}|{exists=bool},path?)`
 accepts exactly one discriminator. Reasons are required; ADMIN-field reasons need five characters.
 
-A transaction creates its key once. `IdempotencyKey()` exposes it; `Key(persistedKey)` overrides it before
+A transaction creates its key once. `idempotencyKey()` exposes it; `key(persistedKey)` overrides it before
 commit. First dispatch seals the payload; automatic retries, 401 replays and later Commit attempts after
 uncertain failure reuse the same body/key. Successful repeated Commit returns the cached acknowledgement.
 Do not change a sealed builder; create a new logical transaction only when a new operation is intended.
@@ -133,12 +129,12 @@ replace an uncertain key. Raw `putDocument` retries **only if an explicit key wa
 key is invented for document saves. Other required-key wrappers generate omitted keys before retry.
 
 ```luau
-local transfer = client.fields:MultiTransaction(universeId)
-    :Subject(senderId):Add("Currency.Gems", -10)
-    :Subject(receiverId):Add("Currency.Gems", 10)
-    :Subject(0):Add("Global.Trades", 1) -- UNIVERSE field
-    :Reason("Player-approved trade")
-    :Commit()
+local transfer = client.fields:multiTransactionBuilder(universeId)
+    :subject(senderId):add("Currency.Gems", -10)
+    :subject(receiverId):add("Currency.Gems", 10)
+    :subject(0):add("Global.Trades", 1) -- UNIVERSE field
+    :reason("Player-approved trade")
+    :commit()
 ```
 
 The limit of ten subjects includes conditions. At most 100 ops and 100 conditions. Single-player
@@ -146,26 +142,26 @@ transactions reject UNIVERSE fields. Multi-subject defaults to subject zero unti
 
 ## Profile and presence
 
-`fields:LoadProfile(universeId,userId)` returns `Result<Profile>` after schema + complete document loads.
-`profile:Get(id)` returns an immutable wire-shaped value and throws a value-free code for unknown,
+`fields:loadProfile(universeId,userId)` returns `Result<Profile>` after schema + complete document loads.
+`profile:get(id)` returns an immutable wire-shaped value and throws a value-free code for unknown,
 archived, shared, stale or missing ids; `TryGet(id)` returns a Result instead. `Versions` and `Seq` expose
 immutable field versions and subject watermark. Use generated accessors for compile-time field/value types.
 
-`profile:Transaction()` owns a commit callback. After success it applies returned authoritative **after
+`profile:transaction()` owns a commit callback. After success it applies returned authoritative **after
 subvalues**, not a second arithmetic delta. Duplicate/replayed acknowledgements never double-apply.
 Sequence gaps or missing local containers mark the profile stale rather than fabricate a coherent snapshot.
 Computed fields are refreshed from the server, never evaluated locally as write authority. A raw
-`fields:Transaction` can be applied explicitly with `profile:Apply(result.value)`.
+`fields:transactionBuilder` can be applied explicitly with `profile:apply(result.value)`.
 
-`Refresh()` validates a whole snapshot and rejects old/concurrently overtaken reads. `PullChanges()`
+`refresh()` validates a whole snapshot and rejects old/concurrently overtaken reads. `pullChanges()`
 follows `nextSinceSeq`, not `latestSeq`, through complete sequence groups, then refreshes the document
 when state advanced. This intentionally covers NONE-history writes, privacy deletions, hash-only ledger
 values and computed fields; a feed-only replay cannot reconstruct these. Cursor failures are visible.
 
-`StartPresence(placeId,sessionId?,heartbeatSeconds?)` acquires a session before scheduling heartbeats
-(default 30s, range 1–60s). An omitted ID is generated once. `Heartbeat` and `StopPresence` retain it.
+`startPresence(placeId,sessionId?,heartbeatSeconds?)` acquires a session before scheduling heartbeats
+(default 30s, range 1–60s). An omitted ID is generated once. `heartbeat` and `stopPresence` retain it.
 409 `session_conflict` remains a Conflict Result with `error.code`; it is not retried or taken over.
-Automatic heartbeat conflicts stop the loop; `LastError` remains observable. Presence is a lease marker,
+Automatic heartbeat conflicts stop the loop; `lastError` remains observable. Presence is a lease marker,
 not a lock or authorization credential. Keep game gameplay session policy separate.
 
 The first native Fields helper registers the same single BindToClose callback used by audit writers.
@@ -177,7 +173,7 @@ flush/destroy explicitly. A failed flush is not proof that an in-flight mutation
 ## Schema-specialized static accessors (offline build)
 
 1. In an authorized environment, fetch **GET /schema** with a scoped server credential and save the
-   JSON response. Use `client.fields:schema` or your approved secret-aware API tooling. Do not embed a
+   JSON response. Use `client.fields:schemaCache` or your approved secret-aware API tooling. Do not embed a
    credential in generated code. No fetch is performed by the generator or verification suite.
 2. Run Python with a relative SDK require root suited to your project:
 
@@ -193,12 +189,12 @@ python3 tools/gen-field-types saved-schema.json --out game/GeneratedFields --sdk
 local Typed = require("./GeneratedFields/Typed")
 local FieldTypes = require("./GeneratedFields/FieldTypes")
 type PlayerDocument = FieldTypes.PlayerDocument
-local gems: number = Typed.Currency.Gems:Get(profile)
-local tx = profile:Transaction():Reason("Quest completion")
-Typed.Currency.Gems:Add(tx, 10)
-Typed.Inventory.Items:MapAdd(tx, "SWORD", 1) -- enum/string key + numeric delta
-Typed.Characters:Append(tx, {{Id=42, Level=1, Rarity="COMMON"}})
-local committed = tx:Commit()
+local gems: number = Typed.Currency.Gems:get(profile)
+local tx = profile:transaction():reason("Quest completion")
+Typed.Currency.Gems:add(tx, 10)
+Typed.Inventory.Items:mapAdd(tx, "SWORD", 1) -- enum/string key + numeric delta
+Typed.Characters:append(tx, {{Id=42, Level=1, Rarity="COMMON"}})
+local committed = tx:commit()
 ```
 
 Output: one `FieldTypes.luau`, one nested `Typed.luau`, and per-field `Accessors/*.luau`. Aliases use
@@ -327,9 +323,9 @@ fixtures verify accessor typing. No live database, gateway, Roblox purchase or S
 
 ## Subject-free operation dry runs
 
-Load `client.fields:Schema(universeId):Load()` first. Then call
+Load `client.fields:schemaCache(universeId):load()` first. Then call
 `client.fields:validateOps({path={universeId=universeId},body={ops=ops}})` or use
-`client.fields:Operations(universeId):Add("Currency.Gems",100):validate()`.
+`client.fields:operations(universeId):add("Currency.Gems",100):validate()`.
 A scoped client may omit `path`. The optional body `universeId` must match the path.
 Requests accept only `ops` (1–100) and optional `universeId`; operations must omit `subject`, including null.
 No reason, conditions, ref or idempotency key is accepted. READ is sufficient even for ADMIN-write fields.
@@ -348,8 +344,8 @@ create state for later ones. Schema eligibility, paths, operands and statically 
 actual state, write authority and runtime policies remain server-authoritative.
 
 Player `Transaction:validate()` dry-runs **only ops**, without sealing the transaction or requiring a reason
-or key. Existing capitalized `Transaction:Validate()` checks the full transaction locally, including
-reason, key, scope and conditions; `:Commit()` still uses that full check. Multi-subject dry runs are rejected
+or key. `Transaction:validateLocal()` checks the full transaction locally, including
+reason, key, scope and conditions; `:commit()` still uses that full check. Multi-subject dry runs are rejected
 because this endpoint is player-template-only. Neither validation method reserves or writes anything.
 The [Codes builder](CODES.md) composes the same operation builder and TypeSystem.
 

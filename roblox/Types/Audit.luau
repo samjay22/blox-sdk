@@ -18,24 +18,24 @@ export type Page<T> = {
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 export type ActorType = "USER" | "SERVICE_ACCOUNT" | "SERVICE" | "SYSTEM"
 export type BatchInput = { events: { EventInput } }
-export type Count = { count: number, value: string }
+export type Count = { count: number, value: (string | Core.Null)? }
 export type Event = {
-	action: string,
-	actorId: string,
+	action: (string | Core.Null)?,
+	actorId: (string | Core.Null)?,
 	actorName: (string | Core.Null)?,
-	actorType: ActorType,
-	id: string,
+	actorType: (ActorType | Core.Null)?,
+	id: (string | Core.Null)?,
 	idemKey: (string | Core.Null)?,
 	ipHash: (string | Core.Null)?,
 	metadata: (Core.Json | Core.Null)?,
-	occurredAt: string,
-	outcome: Outcome,
-	receivedAt: string,
+	occurredAt: (string | Core.Null)?,
+	outcome: (Outcome | Core.Null)?,
+	receivedAt: (string | Core.Null)?,
 	requestId: (string | Core.Null)?,
-	resourceId: string,
-	resourceType: string,
-	sourceService: string,
-	submittedBy: Submission,
+	resourceId: (string | Core.Null)?,
+	resourceType: (string | Core.Null)?,
+	sourceService: (string | Core.Null)?,
+	submittedBy: (Submission | Core.Null)?,
 	universeId: number,
 }
 export type EventInput = {
@@ -55,14 +55,22 @@ export type EventInput = {
 }
 export type GroupBy = "action" | "actor" | "outcome"
 export type HealthComponent = { status: string }
-export type HealthResponse = { service: string, status: string, timestamp: string }
+export type HealthResponse = Core.HealthResponse
 export type MetricsResponse = { names: { string } }
 export type Outcome = "SUCCESS" | "DENIED" | "FAILURE"
 export type Receipt = { accepted: number, duplicate: number }
 export type Retention = { days: number, universeId: number }
 export type RetentionInput = { days: number, universeId: number? }
-export type Submission = { id: string, name: string, sourceService: string }
-export type Summary = { groupBy: GroupBy, items: { Count }, nextCursor: (string | Core.Null)? }
+export type Submission = {
+	id: (string | Core.Null)?,
+	name: (string | Core.Null)?,
+	sourceService: (string | Core.Null)?,
+}
+export type Summary = {
+	groupBy: (GroupBy | Core.Null)?,
+	items: ({ Count } | Core.Null)?,
+	nextCursor: ((string | Core.Null) | Core.Null)?,
+}
 export type LivenessCall = {}
 export type LivenessResultValue = HealthComponent
 export type ReadinessCall = {}

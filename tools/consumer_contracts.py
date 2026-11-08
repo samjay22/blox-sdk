@@ -53,6 +53,10 @@ def refresh_consumers(doc: dict) -> None:
     curate_bulk_codes(doc)
     mm = java.types_for('matchmaking', java.SOURCES['matchmaking'])
     doc['types']['matchmaking']['MatchmakingCriteriaDTO'] = mm['MatchmakingCriteriaDTO']
+    for name in ('PlayerQueueStatusResponse', 'BulkQueueStatusResponse', 'QueueMetricsResponse',
+                 'UniverseQueueInfo', 'GameModeQueueInfo', 'PlayerInQueueInfo', 'QueueFlushResponse',
+                 'QueueCountResponse', 'WaitEstimateResponse', 'ValidateQueueResponse', 'CriteriaValidationError'):
+        doc['types']['matchmaking'][name] = mm[name]
     # Queue metadata is supplied by Fields enrichment, not caller authority.
     for name in ('QueueRequest', 'MultiQueueRequest'):
         for field in ('metadata','playerMetadata','queuedAt'):

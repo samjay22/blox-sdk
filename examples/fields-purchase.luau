@@ -11,7 +11,7 @@ return function(
 	productId: number,
 	robuxSpent: number
 ): Core.Result<Fields.ReceiptResult>
-	return client.fields:ProcessReceipt(
+	return client.fields:processReceipt(
 		universeId,
 		{ purchaseId = purchaseId, userId = userId, productId = productId, robuxSpent = robuxSpent }
 	)

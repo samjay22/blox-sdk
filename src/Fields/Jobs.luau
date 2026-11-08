@@ -201,16 +201,16 @@ function Jobs.buildExport(self: Client, input: Wire.ExportInput): Core.Result<Wi
 			if type(id) ~= "string" or seen[id] then
 				return System.failure("invalid_request")
 			end
-			local d = schema:Get(id)
-			if not d or not schema:Validator(id) or d.scope ~= "PLAYER" then
+			local d = schema:get(id)
+			if not d or not schema:validator(id) or d.scope ~= "PLAYER" then
 				return System.failure("unknown_field")
 			end
 			seen[id] = true
 			table.insert(ids, id)
 		end
 	else
-		for id, d in schema:Definitions() do
-			if schema:Validator(id) and d.scope == "PLAYER" then
+		for id, d in schema:definitions() do
+			if schema:validator(id) and d.scope == "PLAYER" then
 				table.insert(ids, id)
 			end
 		end
@@ -250,7 +250,7 @@ function Jobs.buildImport(self: Client, records: { Types.ImportRecord }): Core.R
 		return System.failure("invalid_request")
 	end
 	local schema = Helpers.schema(self._scope.state, self._scope.universe)
-	if schema:Version() == nil then
+	if schema:version() == nil then
 		return System.failure("schema_unavailable")
 	end
 	local lines: { string } = table.create(#records)

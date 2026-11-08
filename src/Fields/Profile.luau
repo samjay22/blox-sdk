@@ -8,6 +8,7 @@ local Copy = require("../Core/Idempotency")
 local Cache = require("../Core/Cache")
 local Json = require("../Core/Json")
 local Errors = require("../Core/Errors")
+local FieldTypes = require("./Types")
 local Profile = {}
 Profile.__index = Profile
 export type IO = {
@@ -23,8 +24,8 @@ export type Profile = typeof(setmetatable(
 		_io: IO,
 		_user: number,
 		_data: { [string]: Core.Json },
-		Versions: { [string]: number },
-		Seq: number,
+		versions: { [string]: number },
+		seq: number,
 		_stale: boolean,
 		_epoch: number,
 		_closed: boolean,
@@ -35,7 +36,7 @@ export type Profile = typeof(setmetatable(
 		_signal: Core.Signal,
 		_presenceBusy: boolean,
 		_stopping: boolean,
-		LastError: Core.BloxError?,
+		lastError: Core.BloxError?,
 	},
 	Profile
 ))
@@ -68,8 +69,8 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		_user = user,
 		_io = io,
 		_data = {},
-		Versions = {},
-		Seq = 0,
+		versions = {},
+		seq = 0,
 		_stale = true,
 		_epoch = 0,
 		_closed = false,
@@ -80,46 +81,52 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		_signal = { cancelled = false },
 		_presenceBusy = false,
 		_stopping = false,
-		LastError = nil,
+		lastError = nil,
 	}, Profile)
 end
 --- Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
-function Profile.Refresh(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
+function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
 	if self._closed then
 		return System.failure("profile_closed")
 	end
 	local epoch = self._epoch
 	local result = self._io.document(opts)
 	if not result.ok then
-		self.LastError = result.error
+		self.lastError = result.error
 		return result
 	end
 	if self._closed then
 		return System.failure("profile_closed")
 	end
 	local document = result.value
+	if not document.versions or (document.versions :: any) == Json.null then
+		return System.failure("invalid_version")
+	end
+	local documentVersions = document.versions :: { [string]: number }
 	if
 		document.userId ~= self._user
 		or document.seq % 1 ~= 0
-		or document.seq < self.Seq
+		or document.seq < self.seq
 		or epoch ~= self._epoch
 	then
 		return System.failure("snapshot_race")
 	end
 	local data: { [string]: Core.Json } = {}
-	for id, definition in self._schema:Definitions() do
+	for id, definition in self._schema:definitions() do
 		if definition.status == "ACTIVE" and definition.scope == "PLAYER" then
 			local value = read(document.data, id)
-			local validator = self._schema:Validator(id)
+			local validator = self._schema:validator(id)
 			if validator then
-				local validated = validator.Validate(value)
+				local validated = validator.validate(value)
 				if not validated.ok then
 					return validated
 				end
 				value = validated.value
 			elseif definition.computed and (definition.computed :: any) ~= Json.null then
-				local checked =
-					System.validate({ kind = "nullable", of = { kind = definition.computed.returns } }, value)
+				local checked = System.validate({
+					kind = "nullable",
+					of = { kind = (definition.computed :: FieldTypes.Computed).returns },
+				}, value)
 				if not checked.ok then
 					return checked
 				end
@@ -127,30 +134,26 @@ function Profile.Refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 			else
 				return System.failure("missing_value")
 			end
-			if
-				document.versions[id] == nil
-				or document.versions[id] < 0
-				or document.versions[id] % 1 ~= 0
-			then
+			if documentVersions[id] == nil or documentVersions[id] < 0 or documentVersions[id] % 1 ~= 0 then
 				return System.failure("invalid_version")
 			end
 			put(data, id, value)
 		end
 	end
 	self._data = Cache.freeze(data)
-	self.Versions = Cache.freeze(Copy.copy(document.versions))
-	self.Seq = document.seq
+	self.versions = Cache.freeze(Copy.copy(documentVersions))
+	self.seq = document.seq
 	self._stale = false
 	self._epoch += 1
-	self.LastError = nil
+	self.lastError = nil
 	return { ok = true, value = true }
 end
 --- Return a validated immutable value; unknown/archived ids and stale snapshots return typed errors.
-function Profile.TryGet(self: Profile, id: string): Core.Result<Core.Json>
+function Profile.tryGet(self: Profile, id: string): Core.Result<Core.Json>
 	if self._closed then
 		return System.failure("profile_closed")
 	end
-	local definition = self._schema:Get(id)
+	local definition = self._schema:get(id)
 	if not definition then
 		return System.failure("unknown_field", nil, id)
 	end
@@ -170,36 +173,50 @@ function Profile.TryGet(self: Profile, id: string): Core.Result<Core.Json>
 	return { ok = true, value = value }
 end
 --- Synchronous getter for generated static accessors; throws only a value-free typed code on misuse.
-function Profile.Get(self: Profile, id: string): Core.Json
-	local result = self:TryGet(id)
+function Profile.get(self: Profile, id: string): Core.Json
+	local result = self:tryGet(id)
 	if not result.ok then
 		error(result.error.code or "profile_error", 2)
 	end
 	return result.value
 end
 --- Apply returned subvalues, not deltas, exactly once after a successful transaction acknowledgement.
-function Profile.Apply(self: Profile, result: Wire.Result): boolean
-	local seq = result.seq[tostring(self._user)]
-	if not seq or seq <= self.Seq then
+function Profile.apply(self: Profile, result: Wire.Result): boolean
+	if
+		not result.seq
+		or (result.seq :: any) == Json.null
+		or not result.results
+		or (result.results :: any) == Json.null
+	then
+		self._stale = true
+		return false
+	end
+	local seq = (result.seq :: { [string]: number })[tostring(self._user)]
+	if not seq or seq <= self.seq then
 		return true
 	end
 	self._epoch += 1
-	if self._stale or seq ~= self.Seq + 1 then
+	if self._stale or seq ~= self.seq + 1 then
 		self._stale = true
 		return false
 	end
 	local data = Copy.copy(self._data)
-	local versions = Copy.copy(self.Versions)
-	for _, item in result.results do
+	local versions = Copy.copy(self.versions)
+	for _, item in result.results :: { Wire.ResultItem } do
 		if item.subject == self._user then
-			local definition = self._schema:Get(item.field)
-			if not definition or not definition.type then
+			local definition = if type(item.field) == "string" then self._schema:get(item.field) else nil
+			if
+				not definition
+				or not definition.type
+				or (definition.type :: any) == Json.null
+				or type(item.field) ~= "string"
+			then
 				self._stale = true
 				return false
 			end
 			local current = read(data, item.field)
 			local replacement = System.apply(
-				definition.type,
+				definition.type :: FieldTypes.TypeExpr,
 				current,
 				definition.default,
 				"SET",
@@ -215,7 +232,7 @@ function Profile.Apply(self: Profile, result: Wire.Result): boolean
 		end
 	end
 	-- Computed results require a fresh coherent server snapshot, never client-side arithmetic authority.
-	for _, definition in self._schema:Definitions() do
+	for _, definition in self._schema:definitions() do
 		if
 			definition.status == "ACTIVE"
 			and definition.computed
@@ -225,28 +242,28 @@ function Profile.Apply(self: Profile, result: Wire.Result): boolean
 		end
 	end
 	self._data = Cache.freeze(data)
-	self.Versions = Cache.freeze(versions)
-	self.Seq = seq
+	self.versions = Cache.freeze(versions)
+	self.seq = seq
 	return not self._stale
 end
 --- Build an owned transaction that updates this profile after acknowledgement, not before commit.
-function Profile.Transaction(self: Profile): Transaction.Transaction
+function Profile.transaction(self: Profile): Transaction.Transaction
 	return self._io.transaction(function(result)
 		if not self._closed then
-			self:Apply(result)
+			self:apply(result)
 		end
 	end)
 end
 --- Drain complete sequence groups using nextSinceSeq, then snapshot NONE-history/computed/hash-only changes.
-function Profile.PullChanges(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
+function Profile.pullChanges(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
 	if self._closed then
 		return System.failure("profile_closed")
 	end
-	local cursor = self.Seq
+	local cursor = self.seq
 	for _ = 1, 10000 do
 		local result = self._io.changes(cursor, opts)
 		if not result.ok then
-			self.LastError = result.error
+			self.lastError = result.error
 			return result
 		end
 		local page = result.value
@@ -254,8 +271,8 @@ function Profile.PullChanges(self: Profile, opts: Core.CallOptions?): Core.Resul
 			return System.failure("invalid_changes_cursor")
 		end
 		if page.nextSinceSeq >= page.latestSeq then
-			if page.latestSeq > self.Seq or self._stale then
-				return self:Refresh(opts)
+			if page.latestSeq > self.seq or self._stale then
+				return self:refresh(opts)
 			end
 			return { ok = true, value = true }
 		end
@@ -267,16 +284,16 @@ function Profile.PullChanges(self: Profile, opts: Core.CallOptions?): Core.Resul
 	return System.failure("changes_limit")
 end
 --- Publish the current lease and expose session_conflict without overriding the holder.
-function Profile.Heartbeat(self: Profile, opts: Core.CallOptions?): Core.Result<Wire.Presence>
+function Profile.heartbeat(self: Profile, opts: Core.CallOptions?): Core.Result<Wire.Presence>
 	if self._closed or self._stopping or not self._session then
 		return System.failure("presence_not_started")
 	end
 	local result =
 		self._io.presence({ online = true, placeId = self._place, sessionId = self._session }, opts)
 	if not result.ok then
-		self.LastError = result.error
+		self.lastError = result.error
 	else
-		self.LastError = nil
+		self.lastError = nil
 	end
 	return result
 end
@@ -287,7 +304,7 @@ local function heartbeat(self: Profile)
 		if self._closed or not self._session then
 			return
 		end
-		local result = self:Heartbeat({ signal = self._signal })
+		local result = self:heartbeat({ signal = self._signal })
 		if not result.ok and result.error.code == "session_conflict" then
 			return
 		end
@@ -297,7 +314,7 @@ local function heartbeat(self: Profile)
 	end)
 end
 --- Acquire a session, then start serial heartbeats only after successful acquisition.
-function Profile.StartPresence(
+function Profile.startPresence(
 	self: Profile,
 	placeId: number,
 	sessionId: string?,
@@ -314,7 +331,7 @@ function Profile.StartPresence(
 	self._session = sessionId or Copy.key(self._runtime)
 	self._place = placeId
 	self._heartbeat = seconds
-	local result = self:Heartbeat()
+	local result = self:heartbeat()
 	if result.ok then
 		heartbeat(self)
 	else
@@ -323,7 +340,7 @@ function Profile.StartPresence(
 	return result
 end
 --- Stop future heartbeats and release only this session; retain identity on an uncertain release.
-function Profile.StopPresence(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
+function Profile.stopPresence(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
 	self._stopping = true
 	local deadline = if opts and opts.deadline then opts.deadline else self._runtime.now() + 15
 	while self._presenceBusy and self._runtime.now() < deadline do
@@ -342,20 +359,20 @@ function Profile.StopPresence(self: Profile, opts: Core.CallOptions?): Core.Resu
 	local result =
 		self._io.presence({ online = false, placeId = self._place, sessionId = self._session }, opts)
 	if not result.ok then
-		self.LastError = result.error
+		self.lastError = result.error
 		return result
 	end
 	self._session = nil
 	return { ok = true, value = true }
 end
 --- Release presence within the owning client's remaining shutdown deadline.
-function Profile.Close(self: Profile, deadline: number): boolean
-	local result = self:StopPresence({ deadline = deadline, priority = "critical" })
-	self:Destroy()
+function Profile.close(self: Profile, deadline: number): boolean
+	local result = self:stopPresence({ deadline = deadline, priority = "critical" })
+	self:destroy()
 	return result.ok
 end
 --- Cancel background activity without issuing any new requests.
-function Profile.Destroy(self: Profile)
+function Profile.destroy(self: Profile)
 	self._closed = true
 	self._signal.cancelled = true
 	if self._timer then

@@ -25,6 +25,7 @@ function Errors.make(
 		ok = false,
 		error = {
 			kind = kind,
+			code = "sdk_" .. string.lower((string.gsub(kind, "(%l)(%u)", "%1_%2"))),
 			endpoint = endpoint,
 			attempts = attempts,
 			message = message,
@@ -265,7 +266,7 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 		if string.sub(endpoint, 1, 5) == "auth." then
 			local code = body.errorCode or body.error
 			if type(code) == "string" and authCodes[code] then
-				result.error.code = code
+				result.error.code = string.lower(code)
 			end
 		end
 		if type(body.errors) == "table" then
@@ -293,7 +294,7 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 			then body.errorCode or body.code
 			else body.code
 		if type(code) == "string" and codes[code] then
-			result.error.code = code
+			result.error.code = string.lower(code)
 			if
 				body.code == "session_conflict"
 				and type(body.placeId) == "number"

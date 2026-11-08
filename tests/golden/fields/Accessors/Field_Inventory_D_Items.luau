@@ -11,31 +11,31 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["key"]={["kind"]="enum",["values"]=Json.array({"SWORD","POTION"})},["kind"]="map",["pruneZero"]=true,["value"]={["kind"]="int",["max"]=9999,["min"]=0}}
 local Accessor = {}
 --- Read the validated Inventory.Items client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Inventory_D_Items
- return Codec.decode(expression, profile:Get("Inventory.Items")) :: FieldTypes.Field_Inventory_D_Items
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Inventory_D_Items
+ return Codec.decode(expression, profile:get("Inventory.Items")) :: FieldTypes.Field_Inventory_D_Items
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Inventory_D_Items): Transaction.Transaction
- return tx:Set("Inventory.Items", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Inventory_D_Items): Transaction.Transaction
+ return tx:set("Inventory.Items", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Inventory.Items")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Inventory.Items")
 end
 --- Merge typed map entries.
-function Accessor.MapPut(_self: unknown, tx: Transaction.Transaction, entries: FieldTypes.Field_Inventory_D_Items): Transaction.Transaction
- return tx:MapPut("Inventory.Items",Codec.encode(expression,entries) :: any)
+function Accessor.mapPut(_self: unknown, tx: Transaction.Transaction, entries: FieldTypes.Field_Inventory_D_Items): Transaction.Transaction
+ return tx:mapPut("Inventory.Items",Codec.encode(expression,entries) :: any)
 end
 --- Remove typed keys using canonical wire strings.
-function Accessor.MapRemove(_self: unknown, tx: Transaction.Transaction, keys: {"SWORD" | "POTION"}): Transaction.Transaction
+function Accessor.mapRemove(_self: unknown, tx: Transaction.Transaction, keys: {"SWORD" | "POTION"}): Transaction.Transaction
  local wire = {}
  for _,key in keys do
   table.insert(wire,key)
  end
- return tx:MapRemove("Inventory.Items",wire)
+ return tx:mapRemove("Inventory.Items",wire)
 end
 --- Queue a numeric delta on one typed map key.
-function Accessor.MapAdd(_self: unknown, tx: Transaction.Transaction, key: "SWORD" | "POTION", delta: number): Transaction.Transaction
- return tx:MapAdd("Inventory.Items",key,delta)
+function Accessor.mapAdd(_self: unknown, tx: Transaction.Transaction, key: "SWORD" | "POTION", delta: number): Transaction.Transaction
+ return tx:mapAdd("Inventory.Items",key,delta)
 end
 return table.freeze(Accessor)

@@ -4,3 +4,4 @@ set -eu
 cd "$(dirname "$0")/.."
 python3 tools/gen.py --check
 python3 tools/build-roblox.py --check
+python3 tools/gen-docs --check

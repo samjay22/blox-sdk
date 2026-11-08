@@ -2,6 +2,7 @@
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Wire = require("../src/Types/Fields")
+local FieldTypes = require("../src/Fields/Types")
 local Codes = require("../src/Types/Codes")
 local Schema = require("../src/Fields/Schema")
 local Operations = require("../src/Fields/Operations")
@@ -50,22 +51,21 @@ local function code(result: Core.Result<any>, expected: string)
 end
 --- Construct the exact nullable Fields receipt returned by CodeService.
 local function receipt(): Codes.FieldsTransactionResult
+	local item: Codes.Result = {
+		subject = 7,
+		field = "Currency.Gems",
+		path = Json.array({}),
+		op = "ADD",
+		before = Json.null,
+		after = 10,
+		version = 1,
+		entryId = Json.null,
+	}
 	return {
 		txId = "tx-1",
 		replayed = false,
 		seq = { ["7"] = 1 },
-		results = {
-			{
-				subject = 7,
-				field = "Currency.Gems",
-				path = Json.array({}),
-				op = "ADD",
-				before = Json.null,
-				after = 10,
-				version = 1,
-				entryId = Json.null,
-			},
-		},
+		results = { item },
 	}
 end
 --- Register dry-run, award, response and source-independent regression fixtures.
@@ -111,7 +111,7 @@ return function(test: (string, () -> ()) -> ())
 		local cache = Schema.new(s.runtime, function()
 			return { ok = true, value = schema() }
 		end)
-		check(cache:Load().ok)
+		check(cache:load().ok)
 		for _, vector in Vectors["ops-validation"] do
 			local result = Operations.validate(cache, vector.ops)
 			if vector.code then
@@ -124,7 +124,7 @@ return function(test: (string, () -> ()) -> ())
 		local cycle: any = { field = "Currency.Gems", op = "SET" }
 		cycle.value = cycle
 		code(Operations.validate(cache, { cycle }), "invalid_request")
-		cache:Destroy()
+		cache:destroy()
 	end)
 	test(
 		"Fields validateOps preflight sends no invalid ops and preserves authoritative diagnostics",
@@ -164,17 +164,20 @@ return function(test: (string, () -> ()) -> ())
 					"schema_unavailable"
 				)
 				check(f.count() == 0)
-				check(c.fields:Schema(123):Load().ok)
+				check(c.fields:schemaCache(123):load().ok)
 				local invalid = c.fields:validateOps({
 					body = { ops = { { field = "Missing", op = "RESET" }, { field = "Old", op = "RESET" } } },
 				})
 				check(
-					invalid.ok and not invalid.value.valid and #invalid.value.errors == 2 and f.count() == 1
+					invalid.ok
+						and not invalid.value.valid
+						and #(invalid.value.errors :: { Wire.OpValidationError }) == 2
+						and f.count() == 1
 				)
 				local valid = c.fields
-					:Operations(123)
-					:Add("Currency.Gems", -1)
-					:MapAdd("Inventory.Items", "SWORD", 1)
+					:operations(123)
+					:add("Currency.Gems", -1)
+					:mapAdd("Inventory.Items", "SWORD", 1)
 					:validate()
 				check(
 					valid.ok and not valid.value.valid and System.equal(valid.value.errors, errors),
@@ -206,13 +209,13 @@ return function(test: (string, () -> ()) -> ())
 			{ body = s.json(receipt()) },
 		})
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
-			local tx = c.fields:Transaction(123, 7):Add("Currency.Gems", 1)
-			local key = tx:IdempotencyKey()
-			check(tx:validate().ok and not tx._sealed and tx:IdempotencyKey() == key)
-			check(tx:Add("Currency.Gems", 1):Reason("Admin reward"):Commit().ok)
+			check(c.fields:schemaCache(123):load().ok)
+			local tx = c.fields:transactionBuilder(123, 7):add("Currency.Gems", 1)
+			local key = tx:idempotencyKey()
+			check(tx:validate().ok and not tx._sealed and tx:idempotencyKey() == key)
+			check(tx:add("Currency.Gems", 1):reason("Admin reward"):commit().ok)
 			code(
-				c.fields:MultiTransaction(123):Subject(7):Add("Currency.Gems", 1):validate(),
+				c.fields:multiTransactionBuilder(123):subject(7):add("Currency.Gems", 1):validate(),
 				"invalid_request"
 			)
 			check(f.count() == 3)
@@ -221,11 +224,12 @@ return function(test: (string, () -> ()) -> ())
 	end)
 	test("Codes typed award builder snapshots and canonicalizes Fields operations before create", function()
 		local s = Scheduler.new()
+		local award: { FieldTypes.PlayerOperation } = { { field = "Currency.Gems", op = "ADD", delta = 10 } }
 		local response: Codes.CodeDto = {
 			id = 9,
 			universeId = 123,
 			code = "WELCOME",
-			award = { { field = "Currency.Gems", op = "ADD", delta = 10 } },
+			award = award,
 			maxRedemptionsPerUser = 1,
 			timesRedeemed = 0,
 			pendingRedemptions = 0,
@@ -249,15 +253,15 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
-			local builder = c.codes:Award(123):Add("Currency.Gems", 10):SetAdd("Tags", {}):Reset("Optional")
+			check(c.fields:schemaCache(123):load().ok)
+			local builder = c.codes:award(123):add("Currency.Gems", 10):setAdd("Tags", {}):reset("Optional")
 			local built = builder:build()
 			check(built.ok)
 			if not built.ok then
 				return
 			end
 			check(builder:validate().ok)
-			builder:Add("Currency.Gems", 5)
+			builder:add("Currency.Gems", 5)
 			check(#built.value == 3)
 			check(c.codes:createCode({ code = "WELCOME", award = built.value, maxRedemptionsPerUser = 1 }).ok)
 			code(
@@ -328,11 +332,20 @@ return function(test: (string, () -> ()) -> ())
 		})
 		s.run(function()
 			local result = c.codes:redeem({ code = "WELCOME", robloxUserId = 7 })
-			check(result.ok and result.value.replayed and not result.value.transaction.replayed)
 			check(
 				result.ok
-					and result.value.transaction.results[1].entryId == Json.null
-					and result.value.transaction.results[1].before == Json.null
+					and result.value.replayed
+					and not (result.value.transaction :: Codes.FieldsTransactionResult).replayed
+			)
+			check(
+				result.ok
+					and (
+						(result.value.transaction :: Codes.FieldsTransactionResult).results :: { Codes.Result }
+					)[1].entryId == Json.null
+					and (
+							(result.value.transaction :: Codes.FieldsTransactionResult).results :: { Codes.Result }
+						)[1].before
+						== Json.null
 			)
 			local rejected = c.codes:redeem({ code = "WELCOME", robloxUserId = 7 })
 			code(rejected, "invalid_award")

@@ -16,7 +16,7 @@ export type Page<T> = {
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 export type AccountType = "SUPER_ADMIN" | "USER"
-export type ApiKeyResponse = { apiKey: RobloxApiKeyResponse, message: string?, success: boolean }
+export type ApiKeyResponse = { apiKey: RobloxApiKeyResponse, message: (string | Core.Null)?, success: boolean }
 export type ApiKeysResponse = { apiKeys: { RobloxApiKeyResponse }, count: number, success: boolean }
 export type BanCheckResponse = { isBanned: boolean, success: boolean, universeId: string, userId: string }
 export type BanListResponse = { bans: { BannedPlayerResponse }, count: number, success: boolean }
@@ -28,35 +28,35 @@ export type BanPlayerRequest = {
 	robloxUniverseId: string?,
 	robloxUserId: string?,
 }
-export type BanResponse = { ban: BannedPlayerResponse, message: string?, success: boolean }
+export type BanResponse = { ban: BannedPlayerResponse, message: (string | Core.Null)?, success: boolean }
 export type BannedPlayerResponse = {
-	bannedAt: string?,
-	bannedBy: string?,
-	expiresAt: string?,
-	isExpired: boolean?,
-	isPermanent: boolean?,
-	notes: string?,
-	reason: string?,
-	robloxUniverseId: string?,
-	robloxUserId: string?,
+	bannedAt: (string | Core.Null)?,
+	bannedBy: (string | Core.Null)?,
+	expiresAt: (string | Core.Null)?,
+	isExpired: (boolean | Core.Null)?,
+	isPermanent: (boolean | Core.Null)?,
+	notes: (string | Core.Null)?,
+	reason: (string | Core.Null)?,
+	robloxUniverseId: (string | Core.Null)?,
+	robloxUserId: (string | Core.Null)?,
 }
 export type BaseQueueRequest = { robloxUserIds: ({ string } | string)? }
 export type BulkBanResponse = {
 	bannedCount: number,
 	bans: { BannedPlayerResponse },
-	message: string?,
+	message: (string | Core.Null)?,
 	success: boolean,
 	totalRequests: number,
 }
 export type BulkQueueStatusRequest = { robloxUniverseId: string?, robloxUserIds: { string }? }
-export type BulkQueueStatusResponse = { results: { [string]: PlayerQueueStatusResponse }? }
+export type BulkQueueStatusResponse = { results: { [string]: PlayerQueueStatusResponse } }
 export type BulkUnbanResponse = {
-	message: string?,
+	message: (string | Core.Null)?,
 	success: boolean,
 	totalRequests: number,
 	unbannedCount: number,
 }
-export type CleanupResponse = { message: string?, removedCount: number, success: boolean }
+export type CleanupResponse = { message: (string | Core.Null)?, removedCount: number, success: boolean }
 export type CreateGameModeRequest = {
 	matchmakingCriteria: { MatchmakingCriteriaDTO }?,
 	name: string?,
@@ -65,10 +65,10 @@ export type CreateGameModeRequest = {
 }
 export type CriteriaComputedReturn = "int" | "number"
 export type CriteriaExplanationResponse = {
-	gameModeId: string?,
-	gameModeName: string?,
-	optionalMetadataFields: { CriteriaFieldInfo }?,
-	requiredMetadataFields: { CriteriaFieldInfo }?,
+	gameModeId: (string | Core.Null)?,
+	gameModeName: (string | Core.Null)?,
+	optionalMetadataFields: ({ CriteriaFieldInfo } | Core.Null)?,
+	requiredMetadataFields: ({ CriteriaFieldInfo } | Core.Null)?,
 }
 export type CriteriaFieldCoverage = {
 	max: number | Core.Null,
@@ -80,10 +80,10 @@ export type CriteriaFieldCoverage = {
 	present: number,
 }
 export type CriteriaFieldInfo = {
-	constraint: string?,
-	criteriaType: string?,
-	description: string?,
-	fieldName: string?,
+	constraint: (string | Core.Null)?,
+	criteriaType: (string | Core.Null)?,
+	description: (string | Core.Null)?,
+	fieldName: (string | Core.Null)?,
 	required: boolean?,
 }
 export type CriteriaSimulationEstimate = {
@@ -128,42 +128,38 @@ export type CriteriaTypeInfo = {
 	type: CriteriaType,
 }
 export type CriteriaValidationError = {
-	actualValue: Core.Json?,
-	criteriaType: CriteriaType?,
-	expectedConstraint: string?,
-	fieldName: string?,
-	reason: string?,
+	actualValue: (Core.Json | Core.Null)?,
+	criteriaType: (CriteriaType | Core.Null)?,
+	expectedConstraint: (string | Core.Null)?,
+	fieldName: (string | Core.Null)?,
+	reason: (string | Core.Null)?,
 }
-export type DeleteApiKeyResponse = { message: string?, success: boolean, universeId: string }
-export type GameModeQueueInfo = {
-	gameModeName: string?,
-	playerCount: number?,
-	players: { PlayerInQueueInfo }?,
-}
+export type DeleteApiKeyResponse = { message: (string | Core.Null)?, success: boolean, universeId: string }
+export type GameModeQueueInfo = { gameModeName: string, playerCount: number, players: { PlayerInQueueInfo } }
 export type GameModeResponse = {
-	createdAt: string?,
-	id: string?,
-	isJail: boolean?,
-	matchmakingCriteria: { MatchmakingCriteriaDTO }?,
-	name: string?,
-	placeId: string?,
-	universeId: string?,
-	updatedAt: string?,
+	createdAt: (string | Core.Null)?,
+	id: (string | Core.Null)?,
+	isJail: (boolean | Core.Null)?,
+	matchmakingCriteria: ({ MatchmakingCriteriaDTORead } | Core.Null)?,
+	name: (string | Core.Null)?,
+	placeId: (string | Core.Null)?,
+	universeId: (string | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 }
-export type HealthResponse = { database: string?, status: string, timestamp: string? }
+export type HealthResponse = Core.HealthResponse
 export type LoginRequest = { password: string, username: string }
 export type LoginResponse = {
-	accessToken: string,
-	accountId: string,
-	accountType: AccountType,
-	createdTime: string,
-	email: string?,
+	accessToken: (string | Core.Null)?,
+	accountId: (string | Core.Null)?,
+	accountType: (AccountType | Core.Null)?,
+	createdTime: (string | Core.Null)?,
+	email: (string | Core.Null)?,
 	expiresIn: number,
-	metadata: { [string]: Core.Json },
-	refreshToken: string,
-	tokenType: string,
-	updatedTime: string,
-	username: string,
+	metadata: ({ [string]: Core.Json } | Core.Null)?,
+	refreshToken: (string | Core.Null)?,
+	tokenType: (string | Core.Null)?,
+	updatedTime: (string | Core.Null)?,
+	username: (string | Core.Null)?,
 }
 --- fieldName accepts any computed Fields ID, including namespaced IDs such as Stats.Elo (max 200 characters).
 export type MatchmakingCriteriaDTO = {
@@ -182,6 +178,22 @@ export type MatchmakingCriteriaDTO = {
 	type: CriteriaType?,
 	weight: number?,
 }
+export type MatchmakingCriteriaDTORead = {
+	allowCrossRegion: (boolean | Core.Null)?,
+	bracketSize: (number | Core.Null)?,
+	fieldName: (string | Core.Null)?,
+	groupCount: (number | Core.Null)?,
+	maxDifference: (number | Core.Null)?,
+	maxLatencyDiff: (number | Core.Null)?,
+	maxPlayers: (number | Core.Null)?,
+	maxValue: (number | Core.Null)?,
+	minValue: (number | Core.Null)?,
+	skillRange: (number | Core.Null)?,
+	targetValue: (number | Core.Null)?,
+	tolerance: (number | Core.Null)?,
+	type: (CriteriaType | Core.Null)?,
+	weight: (number | Core.Null)?,
+}
 export type MultiQueueRequest = {
 	gameModeNames: { string } | string,
 	partyId: string?,
@@ -197,43 +209,43 @@ export type MultiQueueResponse = {
 	userIds: { string },
 }
 export type PlaceResponse = {
-	createdAt: string?,
-	name: string?,
-	placeId: number?,
-	universeId: number?,
-	updatedAt: string?,
+	createdAt: (string | Core.Null)?,
+	name: (string | Core.Null)?,
+	placeId: (number | Core.Null)?,
+	universeId: (number | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 }
 export type PlayerInQueueInfo = {
-	gameModeName: string?,
-	partyId: string?,
-	robloxUserId: string?,
-	robloxUserIds: { string }?,
+	gameModeName: (string | Core.Null)?,
+	partyId: (string | Core.Null)?,
+	robloxUserId: (string | Core.Null)?,
+	robloxUserIds: ({ string } | Core.Null)?,
 }
 export type PlayerQueueStatusResponse = {
-	gameModeName: string?,
-	gameModeNames: { string }?,
-	inQueue: boolean?,
-	partyId: string?,
-	queuedAt: number?,
-	universeId: string?,
-	userId: string?,
+	gameModeName: string | Core.Null,
+	gameModeNames: { string } | Core.Null,
+	inQueue: boolean,
+	partyId: string | Core.Null,
+	queuedAt: number | Core.Null,
+	universeId: string,
+	userId: string,
 }
 export type QueueCountResponse = {
-	gameModeName: string?,
-	queuedPlayerCount: number?,
-	timestamp: number?,
-	universeId: string?,
+	gameModeName: string,
+	queuedPlayerCount: number,
+	timestamp: number,
+	universeId: string,
 }
 export type QueueFlushResponse = {
-	gameModeName: string?,
-	removedCount: number?,
-	success: boolean?,
-	universeId: string?,
+	gameModeName: string | Core.Null,
+	removedCount: number,
+	success: boolean,
+	universeId: string,
 }
 export type QueueMetricsResponse = {
-	timestamp: number?,
-	totalPlayersInQueue: number?,
-	universeBreakdown: { [string]: UniverseQueueInfo }?,
+	timestamp: number,
+	totalPlayersInQueue: number,
+	universeBreakdown: { [string]: UniverseQueueInfo },
 }
 export type QueueRequest = {
 	gameModeName: string,
@@ -251,10 +263,10 @@ export type QueueResponse = {
 }
 export type RefreshRequest = { refreshToken: string }
 export type RefreshResponse = {
-	accessToken: string,
+	accessToken: string | Core.Null,
 	expiresIn: number,
-	refreshToken: string,
-	tokenType: string,
+	refreshToken: string | Core.Null,
+	tokenType: string | Core.Null,
 }
 export type RemovePlayerQueueRequest = {
 	gameModeName: string?,
@@ -264,9 +276,18 @@ export type RemovePlayerQueueRequest = {
 	robloxUserIds: ({ string } | string)?,
 }
 export type RobloxApiKeyRequest = { robloxApiKey: string, universeId: string? }
-export type RobloxApiKeyResponse = { masked: boolean?, robloxApiKey: string?, universeId: string? }
-export type SuccessMessage = { message: string?, success: boolean }
-export type UnbanResponse = { message: string?, success: boolean, universeId: string, userId: string }
+export type RobloxApiKeyResponse = {
+	masked: boolean?,
+	robloxApiKey: (string | Core.Null)?,
+	universeId: (string | Core.Null)?,
+}
+export type SuccessMessage = { message: (string | Core.Null)?, success: boolean }
+export type UnbanResponse = {
+	message: (string | Core.Null)?,
+	success: boolean,
+	universeId: string,
+	userId: string,
+}
 export type UniverseBanListResponse = {
 	bans: { BannedPlayerResponse },
 	count: number,
@@ -278,19 +299,19 @@ export type UniverseInfoResponse = {
 	apiKeyConfigured: boolean?,
 	bannedPlayerCount: number?,
 	gameModeCount: number?,
-	universeId: string?,
+	universeId: (string | Core.Null)?,
 }
 export type UniverseQueueInfo = {
-	gameModes: { [string]: GameModeQueueInfo }?,
-	totalPlayers: number?,
-	universeId: string?,
+	gameModes: { [string]: GameModeQueueInfo },
+	totalPlayers: number,
+	universeId: string,
 }
 export type UniverseResponse = {
-	createdAt: string?,
-	name: string?,
-	places: { PlaceResponse }?,
-	universeId: number?,
-	updatedAt: string?,
+	createdAt: (string | Core.Null)?,
+	name: (string | Core.Null)?,
+	places: ({ PlaceResponse } | Core.Null)?,
+	universeId: (number | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 }
 export type UniversesEnvelope = { success: boolean, universe: { UniverseResponse } }
 export type UpdateBanRequest = {
@@ -305,15 +326,15 @@ export type UpdateGameModeRequest = {
 	placeId: string?,
 }
 export type UpdateRobloxApiKeyRequest = { robloxApiKey: string }
-export type ValidateQueueResponse = { errors: { CriteriaValidationError }?, valid: boolean? }
+export type ValidateQueueResponse = { errors: { CriteriaValidationError }, valid: boolean }
 export type WaitEstimateResponse = {
-	estimatedWaitSeconds: number?,
-	gameModeName: string?,
-	maxMatchSize: number?,
-	oldestEntryAgeSeconds: number?,
-	playersNeeded: number?,
-	queuedPlayerCount: number?,
-	universeId: string?,
+	estimatedWaitSeconds: number | Core.Null,
+	gameModeName: string,
+	maxMatchSize: number,
+	oldestEntryAgeSeconds: number | Core.Null,
+	playersNeeded: number,
+	queuedPlayerCount: number,
+	universeId: string,
 }
 export type LoginCall = LoginRequest
 export type LoginResultValue = LoginResponse

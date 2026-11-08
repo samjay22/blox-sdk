@@ -25,8 +25,12 @@ return function(client: SDK.Client, response: Fields.Preview)
  local delta: Types.LeaderboardBinding = {board="wins",submit="DELTA"}
  local _result = client.fields:previewBoard({body={id="Stats.Wins",type={kind="int"},binding=value}})
  local _bindings: Types.Bindings = {leaderboards={value,delta}}
- local _min: number = response.effectiveSettings.minScore
- if response.willWiden then local _max: number = response.willWiden.maxScore end
+ if response.effectiveSettings and response.effectiveSettings ~= SDK.null then
+   local _min: number = (response.effectiveSettings :: Fields.BoardSettings).minScore
+ end
+ if response.willWiden and response.willWiden ~= SDK.null then
+   local _max: number = (response.willWiden :: Fields.ScoreRange).maxScore
+ end
 '''
         with tempfile.TemporaryDirectory(prefix='board-types-', dir=ROOT/'.test-build') as temporary:
             path=ROOT/(Path(temporary).name+'.luau')
@@ -94,13 +98,16 @@ return function(client: SDK.Client, response: Fields.Preview)
 local SDK = require("./src/BloxSDK")
 local Fields = require("./src/Fields/Types")
 local Codes = require("./src/Types/Codes")
+local Core = require("./src/Types/Core")
 --- Compile only; no client is constructed or requests sent.
 return function(client: SDK.Client, receipt: Codes.RedeemCodeResponse)
  local operation: Fields.PlayerOperation = {field="Currency.Gems",op="ADD",delta=10}
- local award = client.codes:Award(123):Add("Currency.Gems",10):MapAdd("Inventory.Items","SWORD",1)
+ local award = client.codes:award(123):add("Currency.Gems",10):mapAdd("Inventory.Items","SWORD",1)
  local _built = award:build()
  local _result = client.codes:createCode({code="WELCOME",award={operation}})
- local _tx: string = receipt.transaction.txId
+ if receipt.transaction and receipt.transaction ~= SDK.null then
+   local _tx: (string | Core.Null)? = (receipt.transaction :: Codes.FieldsTransactionResult).txId
+ end
 '''
         with tempfile.TemporaryDirectory(prefix='consumer-types-', dir=ROOT/'.test-build') as temporary:
             path = ROOT/(Path(temporary).name+'.luau')
@@ -109,7 +116,7 @@ return function(client: SDK.Client, receipt: Codes.RedeemCodeResponse)
                     ('', True),
                     ('local bad: Fields.PlayerOperation = {field="Currency.Gems",op="ADD",delta="10"}', False),
                     ('local bad: Fields.PlayerOperation = {field="Currency.Gems",op="RESET",subject=7}', False),
-                    ('award:Add("Currency.Gems","10")', False),
+                    ('award:add("Currency.Gems","10")', False),
                     ('local bad: number = receipt.transaction.txId', False),
                 ):
                     path.write_text(prelude+extra+'\nend\n')

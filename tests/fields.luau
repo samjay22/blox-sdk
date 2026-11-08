@@ -203,19 +203,19 @@ return function(test: (string, () -> ()) -> ())
 				return { ok = true, value = value }
 			end)
 			s.run(function()
-				check(cache:Load().ok)
-				local first = cache:Validator("Currency.Gems")
+				check(cache:load().ok)
+				local first = cache:validator("Currency.Gems")
 				check(
-					not cache:Refresh().ok
-						and cache:Version() == 13
-						and cache:Validator("Currency.Gems") == first
+					not cache:refresh().ok
+						and cache:version() == 13
+						and cache:validator("Currency.Gems") == first
 				)
 				check(
-					not cache:Refresh().ok
-						and cache:Version() == 13
-						and cache:Validator("Currency.Gems") == first
+					not cache:refresh().ok
+						and cache:version() == 13
+						and cache:validator("Currency.Gems") == first
 				)
-				cache:Destroy()
+				cache:destroy()
 			end)
 		end
 	)
@@ -247,22 +247,22 @@ return function(test: (string, () -> ()) -> ())
 				return { ok = true, value = schema(if requests > 3 then 13 else 12) }
 			end, 0.1)
 			s.run(function()
-				local loaded = cache:Load()
+				local loaded = cache:load()
 				check(
-					loaded.ok and cache:Version() == 12,
+					loaded.ok and cache:version() == 12,
 					if loaded.ok then "schema version" else loaded.error.message
 				)
-				local validator = cache:Validator("Currency.Gems")
+				local validator = cache:validator("Currency.Gems")
 				check(validator ~= nil)
-				check((validator :: System.Validator).Validate(7).ok)
-				check(table.isfrozen(cache:Definitions()))
+				check((validator :: System.Validator).validate(7).ok)
+				check(table.isfrozen(cache:definitions()))
 				s.runtime.wait(0.11)
-				check(cache:Version() == 12 and cache.LastError ~= nil)
+				check(cache:version() == 12 and cache.lastError ~= nil)
 				s.runtime.wait(0.11)
-				check(cache:Version() == 12 and cache.LastError ~= nil)
+				check(cache:version() == 12 and cache.lastError ~= nil)
 				s.runtime.wait(0.11)
-				check(cache:Version() == 13 and cache.LastError == nil)
-				cache:Destroy()
+				check(cache:version() == 13 and cache.lastError == nil)
+				cache:destroy()
 			end)
 			check(requests == 4 and s.pending() == 0)
 		end
@@ -302,20 +302,20 @@ return function(test: (string, () -> ()) -> ())
 			local c, f = client(s, { { body = s.json(schema()) } })
 			s.run(function()
 				code(
-					c.fields:Transaction(123, 7):Add("Currency.Gems", 1):Reason("reward"):Commit(),
+					c.fields:transactionBuilder(123, 7):add("Currency.Gems", 1):reason("reward"):commit(),
 					"schema_unavailable"
 				)
 				check(f.count() == 0)
-				check(c.fields:Schema(123):Load().ok)
+				check(c.fields:schemaCache(123):load().ok)
 				local cases = {
-					c.fields:Transaction(123, 7):Add("Currency.Gems", 100001),
-					c.fields:Transaction(123, 7):Set("Currency.Gems", "wrong"),
-					c.fields:Transaction(123, 7):Add("Missing", 1),
-					c.fields:Transaction(123, 7):Add("Old", 1),
-					c.fields:Transaction(123, 7):Add("Shared", 1),
-					c.fields:Transaction(123, 7):Append("Currency.Gems", { 1 }),
-					c.fields:Transaction(123, 7):MapAdd("Inventory.Items", "BOW", 1),
-					c.fields:Transaction(123, 7):Set("Settings", { Wrong = true }),
+					c.fields:transactionBuilder(123, 7):add("Currency.Gems", 100001),
+					c.fields:transactionBuilder(123, 7):set("Currency.Gems", "wrong"),
+					c.fields:transactionBuilder(123, 7):add("Missing", 1),
+					c.fields:transactionBuilder(123, 7):add("Old", 1),
+					c.fields:transactionBuilder(123, 7):add("Shared", 1),
+					c.fields:transactionBuilder(123, 7):append("Currency.Gems", { 1 }),
+					c.fields:transactionBuilder(123, 7):mapAdd("Inventory.Items", "BOW", 1),
+					c.fields:transactionBuilder(123, 7):set("Settings", { Wrong = true }),
 				}
 				local expected = {
 					"max_delta_exceeded",
@@ -328,24 +328,24 @@ return function(test: (string, () -> ()) -> ())
 					"unknown_member",
 				}
 				for i, tx in cases do
-					local result = tx:Reason("reward"):Commit()
+					local result = tx:reason("reward"):commit()
 					code(result, expected[i])
 					check(not result.ok and result.error.opIndex == 0)
 				end
 				local late = c.fields
-					:Transaction(123, 7)
-					:Add("Currency.Gems", 1)
-					:Set("Currency.Gems", "wrong")
-					:Reason("reward")
-					:Commit()
+					:transactionBuilder(123, 7)
+					:add("Currency.Gems", 1)
+					:set("Currency.Gems", "wrong")
+					:reason("reward")
+					:commit()
 				check(not late.ok and late.error.opIndex == 1)
 				code(
 					c.fields
-						:Transaction(123, 7)
-						:Add("Currency.Gems", 1)
-						:Expect("Currency.Gems", { version = -1 })
-						:Reason("reward")
-						:Commit(),
+						:transactionBuilder(123, 7)
+						:add("Currency.Gems", 1)
+						:expect("Currency.Gems", { version = -1 })
+						:reason("reward")
+						:commit(),
 					"invalid_request"
 				)
 				check(f.count() == 1)
@@ -367,19 +367,19 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json(receipt(1, 1)), check = capture },
 			})
 			s.run(function()
-				check(c.fields:Schema(123):Load().ok)
+				check(c.fields:schemaCache(123):load().ok)
 				local tx = c.fields
-					:Transaction(123, 7)
-					:Set("Characters", {})
-					:Append("Characters", { { Id = 1 } })
-					:Set("Currency.Gems", 4)
-					:Reason("quest reward")
-					:Ref("quest", "q1")
-					:Expect("Currency.Gems", { version = 0 })
-				local key = tx:IdempotencyKey()
-				check(tx:Commit().ok)
-				check(tx:Commit().ok)
-				check(tx:IdempotencyKey() == key and f.count() == 3)
+					:transactionBuilder(123, 7)
+					:set("Characters", {})
+					:append("Characters", { { Id = 1 } })
+					:set("Currency.Gems", 4)
+					:reason("quest reward")
+					:ref("quest", "q1")
+					:expect("Currency.Gems", { version = 0 })
+				local key = tx:idempotencyKey()
+				check(tx:commit().ok)
+				check(tx:commit().ok)
+				check(tx:idempotencyKey() == key and f.count() == 3)
 				check(bodies[1] == bodies[2] and string.find(bodies[1], '"value":[]', 1, true))
 				check(
 					string.find(bodies[1], '"Level":1', 1, true)
@@ -404,10 +404,10 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
-			local tx = c.fields:Transaction(123, 7):Add("Currency.Gems", 1):Reason("reward")
-			check(not tx:Commit({ retry = 0 }).ok)
-			check(tx:Commit({ retry = 0 }).ok and bodies[1] == bodies[2])
+			check(c.fields:schemaCache(123):load().ok)
+			local tx = c.fields:transactionBuilder(123, 7):add("Currency.Gems", 1):reason("reward")
+			check(not tx:commit({ retry = 0 }).ok)
+			check(tx:commit({ retry = 0 }).ok and bodies[1] == bodies[2])
 			check(f.count() == 3)
 			c:destroy()
 		end)
@@ -425,23 +425,24 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
+			check(c.fields:schemaCache(123):load().ok)
 			check(
 				c.fields
-					:MultiTransaction(123)
-					:Subject(7)
-					:Add("Currency.Gems", 1)
-					:Subject(0)
-					:Add("Shared", 1)
-					:Reason("reward")
-					:Commit().ok
+					:multiTransactionBuilder(123)
+					:subject(7)
+					:add("Currency.Gems", 1)
+					:subject(0)
+					:add("Shared", 1)
+					:reason("reward")
+					:commit().ok
 			)
 			check(string.find(body, '"subject":0', 1, true) and string.find(body, '"subject":7', 1, true))
-			local tx = c.fields:MultiTransaction(123):Reason("reward"):Subject(1):Add("Currency.Gems", 1)
+			local tx =
+				c.fields:multiTransactionBuilder(123):reason("reward"):subject(1):add("Currency.Gems", 1)
 			for user = 2, 11 do
-				tx:Subject(user):Expect("Currency.Gems", { exists = true })
+				tx:subject(user):expect("Currency.Gems", { exists = true })
 			end
-			code(tx:Commit(), "invalid_request")
+			code(tx:commit(), "invalid_request")
 			check(f.count() == 2)
 			c:destroy()
 		end)
@@ -469,25 +470,25 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json(document(4, 20)) },
 			})
 			s.run(function()
-				local loaded = c.fields:LoadProfile(123, 7)
+				local loaded = c.fields:loadProfile(123, 7)
 				check(loaded.ok)
 				if not loaded.ok then
 					return
 				end
 				local profile = loaded.value
-				check(Typed.Currency.Gems:Get(profile) == 0)
-				code(profile:TryGet("Old"), "field_archived")
-				code(profile:TryGet("Missing"), "unknown_field")
-				local tx = profile:Transaction():Reason("quest reward")
-				Typed.Currency.Gems:Add(tx, 1)
+				check(Typed.Currency.Gems:get(profile) == 0)
+				code(profile:tryGet("Old"), "field_archived")
+				code(profile:tryGet("Missing"), "unknown_field")
+				local tx = profile:transaction():reason("quest reward")
+				Typed.Currency.Gems:add(tx, 1)
 				check(
-					tx:Commit().ok
-						and profile:Get("Currency.Gems") == 1
-						and profile.Seq == 1
-						and profile.Versions["Currency.Gems"] == 1
+					tx:commit().ok
+						and profile:get("Currency.Gems") == 1
+						and profile.seq == 1
+						and profile.versions["Currency.Gems"] == 1
 				)
-				check(tx:Commit().ok and profile:Get("Currency.Gems") == 1)
-				check(profile:PullChanges().ok and profile:Get("Currency.Gems") == 20 and profile.Seq == 4)
+				check(tx:commit().ok and profile:get("Currency.Gems") == 1)
+				check(profile:pullChanges().ok and profile:get("Currency.Gems") == 20 and profile.seq == 4)
 				check(
 					string.find(cursors[1], "sinceSeq=1", 1, true)
 						and string.find(cursors[2], "sinceSeq=2", 1, true)
@@ -513,17 +514,17 @@ return function(test: (string, () -> ()) -> ())
 		}
 		table.insert(contract.definitions, computed)
 		local doc = document(0, 0);
-		(doc.data :: any).Total = Json.null
-		doc.versions.Total = 0
+		(doc.data :: any).Total = Json.null;
+		(doc.versions :: { [string]: number }).Total = 0
 		local c, f = client(s, { { body = s.json(contract) }, { body = s.json(doc) } })
 		s.run(function()
-			local loaded = c.fields:LoadProfile(123, 7)
+			local loaded = c.fields:loadProfile(123, 7)
 			check(loaded.ok)
 			if not loaded.ok then
 				return
 			end
-			check(Typed.Total:Get(loaded.value) == Json.null)
-			code(loaded.value:Transaction():Set("Total", 1):Reason("reward"):Commit(), "field_computed")
+			check(Typed.Total:get(loaded.value) == Json.null)
+			code(loaded.value:transaction():set("Total", 1):reason("reward"):commit(), "field_computed")
 			check(f.count() == 2)
 			c:destroy()
 		end)
@@ -559,16 +560,16 @@ return function(test: (string, () -> ()) -> ())
 				},
 			})
 			s.run(function()
-				local loaded = c.fields:LoadProfile(123, 7)
+				local loaded = c.fields:loadProfile(123, 7)
 				check(loaded.ok)
 				if not loaded.ok then
 					return
 				end
 				local profile = loaded.value
-				local conflict = profile:StartPresence(1, "session-a", 1)
+				local conflict = profile:startPresence(1, "session-a", 1)
 				code(conflict, "session_conflict")
 				check(not conflict.ok and conflict.error.body == "[redacted]")
-				check(profile:StartPresence(1, "session-a", 1).ok)
+				check(profile:startPresence(1, "session-a", 1).ok)
 				s.runtime.wait(1.05)
 				check(c:flush(2))
 				c:destroy()
@@ -610,7 +611,7 @@ return function(test: (string, () -> ()) -> ())
 					body = { reason = "save", idempotencyKey = "save-1", data = { Currency = { Gems = 1 } } },
 				}).ok)
 				check(
-					c.fields:ProcessReceipt(
+					c.fields:processReceipt(
 						123,
 						{ purchaseId = "p1", userId = 7, productId = 1, robuxSpent = 25 }
 					).ok

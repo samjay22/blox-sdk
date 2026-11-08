@@ -36,7 +36,7 @@ return function(client: SDK.Client, universeId: number, lighting: Lighting): Rot
 	local scoped = client:withUniverse(universeId)
 	-- Reuses this facade's existing ETag poller; do not create a second loop for weather.
 	scoped:runtimeSnapshot(30)
-	return scoped.fields:Rotations(universeId):Watch("weather", function(instance)
+	return scoped.fields:rotations(universeId):watch("weather", function(instance)
 		apply(lighting, instance)
 	end)
 end

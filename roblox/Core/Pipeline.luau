@@ -182,6 +182,10 @@ local function execute(
 		end
 		local ticket = Gate.enter(host.gate, opts.priority == "critical")
 		if not ticket then
+			self.counters.rateLimited += 1
+			if hooks and hooks.onRateLimited then
+				emit(hooks.onRateLimited, { endpoint = spec.id, host = hostName, state = "queueFull" })
+			end
 			return Errors.make("RateLimited", spec.id, attempt, "Host queue is full")
 		end
 		while not ticket.granted do
@@ -363,7 +367,8 @@ function Pipeline.call(
 		return Errors.make("Cancelled", spec.id, 0, "Client is closing")
 	end
 	local runtime = self.config.runtime
-	local deadline = opts.deadline or runtime.now() + self.config.timeout
+	local deadline =
+		math.min(opts.deadline or math.huge, runtime.now() + (opts.timeout or self.config.timeout))
 	if universe ~= nil and not Universe.valid(universe) then
 		return Errors.make("Validation", spec.id, 0, "Invalid universeId")
 	end
@@ -387,7 +392,7 @@ function Pipeline.call(
 			return Errors.make("Validation", spec.id, 0, "Unknown request field")
 		end
 	end
-	local copied, prepared = pcall(Idempotency.prepare, spec, request, runtime)
+	local copied, prepared = pcall(Idempotency.prepare, spec, request, runtime, opts.idempotencyKey)
 	if not copied then
 		return Errors.make("Validation", spec.id, 0, "Invalid request structure")
 	end
@@ -506,7 +511,11 @@ function Pipeline.call(
 		return cached.result
 	end
 	-- Call-specific cancellation/deadlines must not cancel another caller's operation.
-	local share = spec.method == "GET" and spec.idempotent and opts.signal == nil and opts.deadline == nil
+	local share = spec.method == "GET"
+		and spec.idempotent
+		and opts.signal == nil
+		and opts.deadline == nil
+		and opts.timeout == nil
 	local flightKey = key
 		.. " "
 		.. tostring(opts.retry)

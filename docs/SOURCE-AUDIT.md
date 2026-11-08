@@ -43,7 +43,28 @@ New-service record extraction handles nested packages, generic/type-use annotati
 
 For backend changes: inspect controller, DTO, security filter/config, and authorization helpers; edit the authoritative spec; regenerate; review generated signatures and endpoint metadata; add independent contract tests; run `tools/verify`. Route coverage alone does not establish correct schema/access/safety.
 
-`statuses` lists controller success/explicit branch statuses. `errorStatuses` is common service/framework guidance, not an exhaustive endpoint-specific exception call graph. Business validation, ownership checks, catalog constraints, deployment policies and HTTP intermediaries remain backend-authoritative. Nullable Java response fields are optional unless requiredness is directly established. Offline synthetic fixtures test consistency; independent controller-specific assertions catch selected extraction mistakes. No live response-contract parity test was possible under the no-network constraint.
+`statuses` lists controller success/explicit branch statuses. `errorStatuses` is common service/framework guidance, not an exhaustive endpoint-specific exception call graph. Business validation, ownership checks, catalog constraints, deployment policies and HTTP intermediaries remain backend-authoritative.
+
+## Response nullability and live golden vectors
+
+`tools/response_contract.py` audits the transitive response graph during source refresh. Java reference
+and wrapper fields without non-null constraints accept explicit JSON null. Jackson `NON_NULL`
+application/class inclusion also permits omission; field-level `ALWAYS` retains explicit null.
+Application properties are included in provenance hashes. Optional curated reference fields tolerate
+both absent and null values. Map-built envelopes retain reviewed guarantees; queue identities and
+containers retain guarantees independently checked in `MatchmakingService`.
+
+Read-only metadata (`responseNullable` / `responseRequired`) does not relax write validation.
+Shared request/response DTOs export a separate `Read` alias when needed. DTO response objects ignore
+unknown members recursively; requests reject unknown members. Explicit Fields expression/operation/
+binding grammars and enum values remain validated rather than silently accepting invalid semantics.
+Higher-level schema/profile/snapshot helpers guard data they require before publishing a local view.
+
+All eight `healthProxy` methods use one shared `{ status: string }` contract. Actuator `groups`,
+`components`, nested details and service-specific additions are not validated. Exact supplied gateway
+health and queue-status JSON bodies are retained in `tests/golden/live-responses/` and projected by
+`tools/gen-vectors.py`; regressions exercise them through Transport offline, including explicit nulls
+and string queue IDs. These captures establish parity for those bodies only, not all deployed endpoints.
 
 ## Fields evidence and review boundary
 

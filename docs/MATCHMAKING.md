@@ -90,6 +90,15 @@ metadata with a sanitized warning and `matchmaking.fields.fetch.failed` metric. 
 errors are skipped. Enrichment does not propagate fetch failures; subsequent criteria validation can
 still reject the queue request. SDK success is not evidence of backend Fields reachability.
 
+## Queue status wire values
+
+Queue status uses **string** `userId` and `universeId`, a boolean `inQueue`, and nullable
+`gameModeName`, `gameModeNames`, `partyId`, and numeric epoch-millisecond `queuedAt`. Null is
+`SDK.null`, not Luau `nil`. Bulk status uses the same per-player shape. Empty wait estimates
+have nullable numeric `oldestEntryAgeSeconds`/`estimatedWaitSeconds`; universe-wide flush has
+nullable `gameModeName`. Metrics can have null `robloxUserId` for parties and null `partyId`
+for solo entries. Unknown response members are ignored; malformed known scalar types still fail.
+
 ## Test criteria without entering a queue
 
 `samplePlayers` requires FieldsService READ. `limit` defaults to 200 (1–500);

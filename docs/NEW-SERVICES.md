@@ -50,15 +50,15 @@ keyset views, not frozen multi-request snapshots. Do not change filters or scope
 
 `client:auditWriter({batchSize=100, interval=5, capacity=2000})` returns an owned writer:
 
-- `:Enqueue(event)` never yields or performs HTTP. False means invalid input, full queue or closed writer.
-- `:Flush()` starts one background worker and returns immediately; batches use POST `/events/batch`.
-- `:Pending()` includes unacknowledged/in-flight events. `LastError` exposes the last failed delivery.
+- `:enqueue(event)` never yields or performs HTTP. False means invalid input, full queue or closed writer.
+- `:flush()` starts one background worker and returns immediately; batches use POST `/events/batch`.
+- `:pending()` includes unacknowledged/in-flight events. `lastError` exposes the last failed delivery.
 - Each request has 1–500 events. Size/interval flushes serialize; no overlapping workers or unbounded queue.
 - Failures retain the batch and its original keys for the next interval/explicit flush. A partial receipt
   does not discard events. This is an in-memory, bounded queue, **not durable delivery**; permanent bad
   events can hold up the queue and require application handling.
-- `:Close(seconds)` stops admission and cooperatively waits within a finite budget, returning false if
-  undelivered. `:Destroy()` stops timers/cancels observers, without undoing native in-flight requests.
+- `:close(seconds)` stops admission and cooperatively waits within a finite budget, returning false if
+  undelivered. `:destroy()` stops timers/cancels observers, without undoing native in-flight requests.
 
 Native-runtime clients register **one BindToClose callback per shared client** when the first writer is
 created. It drains writers (20-second total budget), then closes the pipeline and destroys the client.
@@ -74,11 +74,11 @@ then serial polls after each completion. It requests Fields `/runtime/snapshot`,
 opaque response ETag in `If-None-Match`, never synthesizing one from a version. Raw calls accept
 `fields:runtimeSnapshot({etag='"opaque-validator"'})`; the Result exposes `etag`.
 A 304 has no body and retains the cached state. Errors, malformed responses and
-version regressions retain the last good snapshot; `LastError` is observable. No generic TTL cache is
+version regressions retain the last good snapshot; `lastError` is observable. No generic TTL cache is
 used for these requests.
 
-`:Get(key)` reads a literal UNIVERSE field ID from `gameValues` and returns an immutable value or nil;
-`:IsEnabled(flag)` returns the cached **master enabled
+`:get(key)` reads a literal UNIVERSE field ID from `gameValues` and returns an immutable value or nil;
+`:isEnabled(flag)` returns the cached **master enabled
 switch only**, false when missing/unloaded. It does **not** evaluate user-specific rollout percentage,
 attributes or rules. Use `client.fields:evaluateFlags({body={userId=7,keys={"double_xp"}}})` or
 `evaluateFlagsBatch({body={userIds={7,8}}})` for service-authoritative decisions. These read-only POSTs
@@ -90,9 +90,9 @@ Game configuration is stored in UNIVERSE-scoped Fields definitions at subject 0.
 for writes, `gameValueHistoryPages` to read changes, and ADMIN-only `rollbackGameValue` for an unkeyed
 compensation to a prior version. It is not safe to automatically retry that rollback.
 
-`:Version()` reports the last successful generation. `Changed:Connect(callback)` returns a connection
-with `:Disconnect()`; callbacks run asynchronously on first load and each changed generation, not on
-304/equal versions. Listener exceptions are isolated. `:Destroy()` stops polling and disconnects
+`:version()` reports the last successful generation. `Changed:connect(callback)` returns a connection
+with `:disconnect()`; callbacks run asynchronously on first load and each changed generation, not on
+304/equal versions. Listener exceptions are isolated. `:destroy()` stops polling and disconnects
 listeners. Shared client flush/destroy stops owned caches. No polling starts merely by requiring the SDK.
 
 `leaderboards:ratingScopesPages()` discovers persisted rating scopes without creating them;

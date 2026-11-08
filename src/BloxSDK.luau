@@ -1,5 +1,20 @@
 --!strict
+-- Reject LocalScript requires before resolving credentials or allocating any SDK state.
+if game ~= nil then
+	assert(game:GetService("RunService"):IsServer(), "BloxSDK is server-only")
+end
 local Types = require("./Types/Core")
+local AuthTypes = require("./Types/Auth")
+local Profile = require("./Fields/Profile")
+local Transaction = require("./Fields/Transaction")
+local Schema = require("./Fields/Schema")
+local Generators = require("./Fields/Generators")
+local Rotations = require("./Fields/Rotations")
+local Operations = require("./Fields/OpBuilder")
+local Jobs = require("./Fields/Jobs")
+local Schedules = require("./Fields/Schedules")
+local Bulk = require("./Fields/Bulk")
+local Health = require("./Fields/Health")
 local Config = require("./Core/Config")
 local Pipeline = require("./Core/Pipeline")
 local Roblox = require("./Core/Roblox")
@@ -12,7 +27,6 @@ local Pagination = require("./Core/Pagination")
 local ServiceAccount = require("./Auth/ServiceAccount")
 local UserSession = require("./Auth/UserSession")
 local ScopedTokens = require("./Auth/ScopedTokens")
-local FakeBackend = require("./Testing/FakeBackend")
 local Auth = require("./Services/Auth")
 local Matchmaking = require("./Services/Matchmaking")
 local Party = require("./Services/Party")
@@ -22,7 +36,7 @@ local Leaderboards = require("./Services/Leaderboards")
 local Fields = require("./Services/Fields")
 local Platform = require("./Services/Platform")
 local FieldsHelpers = require("./Fields/Client")
-local FieldTypeSystem = require("./Fields/TypeSystem")
+local Observers = require("./Core/Observers")
 local AuditWriter = require("./Core/AuditWriter")
 local SnapshotCache = require("./Core/SnapshotCache")
 local Universe = require("./Core/Universe")
@@ -32,6 +46,48 @@ Client.__index = Client
 export type Config = Config.Config
 export type CallOptions = Types.CallOptions
 export type Result<T> = Types.Result<T>
+export type BloxError = Types.BloxError
+export type ErrorKind = Types.ErrorKind
+export type Json = Types.Json
+export type Signal = Types.Signal
+export type Logger = Types.Logger
+export type Hooks = Types.Hooks
+export type Runtime = Types.Runtime
+export type Backend = Types.Backend
+export type AuthProvider = Types.AuthProvider
+export type AuthClient = Auth.Service
+export type FieldsClient = Fields.Service
+export type CodesClient = Codes.Service
+export type PartyClient = Party.Service
+export type MatchmakingClient = Matchmaking.Service
+export type LeaderboardsClient = Leaderboards.Service
+export type AuditClient = Audit.Service
+export type PlatformClient = Platform.Service
+export type Snapshot = SnapshotCache.Snapshot
+export type AuditWriter = AuditWriter.Writer
+export type Metrics = Pipeline.Counters
+export type HealthReport = { [string]: { result: Types.Result<Types.Json>, latency: number } }
+export type Profile = Profile.Profile
+export type Transaction = Transaction.Transaction
+export type SchemaCache = Schema.Schema
+export type GeneratorsClient = Generators.Client
+export type RotationsClient = Rotations.Client
+export type RotationWatch = Rotations.Watch
+export type OperationsBuilder = Operations.Builder
+export type JobsClient = Jobs.Client
+export type SchedulesClient = Schedules.Client
+export type BulkBuilder = Bulk.Builder
+export type FieldsHealthClient = Health.Client
+export type AuditWriterOptions = AuditWriter.Options
+export type GeneratorOptions = Generators.Options
+export type RotationClaimOptions = Rotations.ClaimOptions
+export type SnapshotConnection = SnapshotCache.Connection
+export type TokenStore = UserSession.TokenStore
+export type ManagedSession = UserSession.Session
+export type Secret = Types.Secret
+export type Headers = Types.Headers
+export type HttpRequest = Types.HttpRequest
+export type HttpResponse = Types.HttpResponse
 type ScopeBinding = {
 	provider: ScopedTokens.Provider,
 	invoke: Types.Invoke,
@@ -105,6 +161,9 @@ local function facade(
 end
 --- Create one server-side SDK client; invalid configuration fails before any network activity.
 function SDK.new(config: Config): Client
+	if game ~= nil then
+		assert(game:GetService("RunService"):IsServer(), "BloxSDK is server-only")
+	end
 	assert(type(config) == "table", "BloxSDK.new requires a config table")
 	Config.validate(config)
 	local origins, baseUrls = Config.resolve(config)
@@ -112,7 +171,7 @@ function SDK.new(config: Config): Client
 		+ (if config.secretName then 1 else 0)
 		+ (if config.authProvider then 1 else 0)
 		+ (if config.userSession then 1 else 0)
-	assert(choices <= 1, "Choose exactly one auth mechanism")
+	assert(choices <= 1, "Choose at most one auth mechanism")
 	local http: Roblox.HttpService? = nil
 	if not config.runtime or not config.backend or config.secretName then
 		http = Roblox.httpService()
@@ -140,7 +199,7 @@ function SDK.new(config: Config): Client
 			end,
 		}
 	end
-	local rpm = Config.number(config.requestsPerMinute, 450, 1, 500, "requestsPerMinute")
+	local rpm = Config.number(config.requestsPerMinute, 450, 1, 499, "requestsPerMinute", true)
 	local burst = Config.number(config.burst, 15, 1, 500, "burst")
 	local reserve =
 		Config.number(config.criticalReserve, math.min(3, burst - 1), 0, burst - 1, "criticalReserve")
@@ -163,7 +222,7 @@ function SDK.new(config: Config): Client
 		timeout = Config.number(config.timeout, 15, 0.01, 300, "timeout"),
 		cacheCapacity = Config.number(config.cacheCapacity, 128, 0, 10000, "cacheCapacity", true),
 		staleIfError = Config.number(config.staleIfError, 0, 0, 3600, "staleIfError"),
-		hooks = config.hooks,
+		hooks = Observers.new(config.hooks, config.logger),
 		sharedBucket = if not config.runtime then serverBucket else nil,
 	})
 	local invoke: Types.Invoke = function(
@@ -264,8 +323,8 @@ function Client.scoped(self: Client, id: string | number): Client
 	return facade(self._state, binding.invoke, id, self._session, helpers, binding.provider)
 end
 --- Check every service health route, returning individual status and monotonic latency.
-function Client.health(self: Client): { [string]: { result: Types.Result<any>, latency: number } }
-	local results: { [string]: { result: Types.Result<any>, latency: number } } = {}
+function Client.health(self: Client): HealthReport
+	local results: HealthReport = {}
 	local runtime = self._state.config.runtime
 	for _, service in
 		{ "auth", "matchmaking", "party", "codes", "audit", "leaderboards", "fields", "platform" }
@@ -277,7 +336,7 @@ function Client.health(self: Client): { [string]: { result: Types.Result<any>, l
 	return results
 end
 --- Log out with the latest rotated refresh token; clear local credentials even on server failure.
-function Client.logout(self: Client): Types.Result<any>
+function Client.logout(self: Client): Types.Result<AuthTypes.LogoutResultValue>
 	local session = self._session
 	if not session then
 		return Errors.make("Local", "auth.logout", 0, "Client has no managed user session")
@@ -285,7 +344,7 @@ function Client.logout(self: Client): Types.Result<any>
 	return session.logout()
 end
 --- Snapshot counters and non-cumulative latency buckets without exposing mutable internal state.
-function Client.metrics(self: Client): Pipeline.Counters
+function Client.metrics(self: Client): Metrics
 	local result = table.clone(self._state.counters)
 	result.latency = table.clone(result.latency)
 	return Cache.freeze(result)
@@ -299,10 +358,10 @@ function Client.flush(self: Client, timeout: number?): boolean
 		drained = FieldsHelpers.close(fields, deadline) and drained
 	end
 	for _, snapshot in self._helpers.snapshots do
-		snapshot:Destroy()
+		snapshot:destroy()
 	end
 	for _, writer in self._helpers.writers do
-		if not writer:Close(math.max(0, deadline - runtime.now())) then
+		if not writer:close(math.max(0, deadline - runtime.now())) then
 			drained = false
 		end
 	end
@@ -314,10 +373,10 @@ function Client.destroy(self: Client)
 		return
 	end
 	for _, writer in self._helpers.writers do
-		writer:Destroy()
+		writer:destroy()
 	end
 	for _, snapshot in self._helpers.snapshots do
-		snapshot:Destroy()
+		snapshot:destroy()
 	end
 	for _, fields in self._helpers.fieldStates do
 		FieldsHelpers.destroy(fields)
@@ -355,7 +414,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	local fields = assert(self._helpers.fields, "Fields helpers unavailable")
 	local universe = tostring(self.fields._universe)
 	local existing = fields.snapshots[universe]
-	if existing and not existing:IsDestroyed() then
+	if existing and not existing:isDestroyed() then
 		return existing
 	end
 	local snapshot = SnapshotCache.new(
@@ -372,14 +431,10 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.Auth = table.freeze({
-	serviceAccount = ServiceAccount.new,
-	userSession = UserSession.new,
-	memoryTokenStore = UserSession.memoryStore,
-})
-SDK.Testing = table.freeze({ fakeBackend = FakeBackend.new })
-SDK.endpoints = Endpoints
-SDK.Fields = table.freeze({ TypeSystem = FieldTypeSystem })
+SDK.version = "1.0.0"
+SDK.serviceAccount = ServiceAccount.new
+SDK.userSession = UserSession.new
+SDK.memoryTokenStore = UserSession.memoryStore
 SDK.null = Json.null
 SDK.array = Json.array
 SDK.object = Json.object

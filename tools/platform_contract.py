@@ -97,4 +97,6 @@ def apply(doc: dict) -> dict:
     endpoints, types = extract(SOURCES['platform'])
     doc['endpoints'] = sorted([e for e in doc['endpoints'] if e['service']!='platform']+endpoints,key=lambda e:(e['service'],e['path'],e['method']))
     doc['types']['platform'] = types
+    from response_contract import curate_reads
+    curate_reads(doc)
     return doc

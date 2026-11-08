@@ -17,8 +17,8 @@ def curate_service_keys(endpoints: list[dict], definitions: dict) -> None:
     }
     fields = definitions['ServiceAccountResponse']['fields']
     for name in ('rotatedAt', 'previousKeyExpiresAt'):
-        fields[name] = {'java': 'Instant', 'required': False, 'notBlank': False}
-    fields['status'] = {'java': 'ServiceAccountStatus', 'required': True, 'notBlank': False}
+        fields.setdefault(name, {}).update(java='Instant', required=False, notBlank=False)
+    fields.setdefault('status', {}).update(java='ServiceAccountStatus', required=True, notBlank=False)
     for endpoint in endpoints:
         if endpoint['id'] == 'auth.rotateServiceAccount':
             endpoint.update(path='/api/auth/orgs/{org}/service-accounts/{id}/rotate',

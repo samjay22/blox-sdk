@@ -82,8 +82,8 @@ return function(test: (string, () -> ()) -> ())
 		end
 		local unknown =
 			Errors.domain(400, "matchmaking.updateGameMode", 1, { errorCode = "untrusted backend text" })
-		check(not unknown.ok and unknown.error.code == nil)
+		check(not unknown.ok and unknown.error.code == "sdk_validation")
 		local otherService = Errors.domain(400, "fields.schema", 1, { errorCode = "criteria_field_invalid" })
-		check(not otherService.ok and otherService.error.code == nil)
+		check(not otherService.ok and otherService.error.code == "sdk_validation")
 	end)
 end

@@ -25,7 +25,7 @@ local function validOptions(options: Options?): boolean
 		and (raw.idempotencyKey == nil or Control.key(raw.idempotencyKey))
 end
 --- Atomically charge all packs, apply grants/pity and permanently replay the saved response.
-function Generators.Roll(
+function Generators.roll(
 	self: Client,
 	key: string,
 	playerId: number,
@@ -45,7 +45,7 @@ function Generators.Roll(
 	}, callOptions)
 end
 --- Generate read-only packs with optional player context; no costs, grants or pity are written.
-function Generators.Preview(
+function Generators.preview(
 	self: Client,
 	key: string,
 	playerId: number?,
@@ -67,7 +67,7 @@ function Generators.Preview(
 	)
 end
 --- Read exact eligible TABLE odds, not generator odds after uniqueness, guarantees or pity.
-function Generators.GetOdds(
+function Generators.getOdds(
 	self: Client,
 	tableKey: string,
 	playerId: number?,

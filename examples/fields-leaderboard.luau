@@ -25,7 +25,7 @@ return function(
 	end
 	-- MISSING_OR_ARCHIVED is not proof the board name is available. Creation remains authoritative.
 	-- Fields provisions the board from this definition. Do not create it or submit its score separately.
-	-- Gameplay: profile:Transaction():Add("Stats.Wins",1):Reason("Match victory"):Commit().
+	-- Gameplay: profile:transaction():add("Stats.Wins",1):reason("Match victory"):commit().
 	-- Inspect outboxPages for asynchronous delivery failures after committed field writes.
 	return client.fields:create({
 		path = { universeId = universeId },

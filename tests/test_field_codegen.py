@@ -34,8 +34,8 @@ class FieldCodegenTests(unittest.TestCase):
         self.assertNotIn('Accessor_Field_Old',files['Typed.luau'])
         self.assertNotIn('Accessor_Field_Shared',files['Typed.luau'])
         self.assertNotIn('function Accessor.Set',files['Accessors/Field_Total.luau'])
-        self.assertIn('function Accessor.MapAdd',files['Accessors/Field_Inventory_D_Items.luau'])
-        self.assertIn('function Accessor.Append',files['Accessors/Field_Characters.luau'])
+        self.assertIn('function Accessor.mapAdd',files['Accessors/Field_Inventory_D_Items.luau'])
+        self.assertIn('function Accessor.append',files['Accessors/Field_Characters.luau'])
 
     def test_bindings_do_not_change_field_value_types(self) -> None:
         """Binding DTO metadata does not alter schema-specialized value/accessor declarations."""
@@ -76,17 +76,17 @@ local Transaction = require("./src/Fields/Transaction")
 local Profile = require("./src/Fields/Profile")
 --- Exercise schema-specialized public APIs without executing any request.
 return function(tx: Transaction.Transaction, profile: Profile.Profile)
- local gems: number = Typed.Currency.Gems:Get(profile)
+ local gems: number = Typed.Currency.Gems:get(profile)
 '''
         with tempfile.TemporaryDirectory(prefix='field-types-',dir=ROOT/'.test-build') as temp:
             # Relative require resolution must originate at the repository root.
             path=ROOT/(Path(temp).name+'.luau')
             try:
-                valid=' Typed.Currency.Gems:Add(tx,gems)\n Typed.Inventory.Items:MapAdd(tx,"SWORD",1)\n Typed.Characters:Append(tx,{{Id=1,Level=2,Rarity="COMMON"}})\nend\n'
+                valid=' Typed.Currency.Gems:add(tx,gems)\n Typed.Inventory.Items:mapAdd(tx,"SWORD",1)\n Typed.Characters:append(tx,{{Id=1,Level=2,Rarity="COMMON"}})\nend\n'
                 path.write_text(prelude+valid)
                 result=subprocess.run(['luau-analyze','-j1',str(path)],capture_output=True,text=True)
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-                for bad in ('Typed.Currency.Gems:Add(tx,"bad")','Typed.Inventory.Items:MapAdd(tx,"BOW",1)','Typed.Characters:Append(tx,{{Id="bad"}})','local wrong: string = Typed.Currency.Gems:Get(profile)'):
+                for bad in ('Typed.Currency.Gems:add(tx,"bad")','Typed.Inventory.Items:mapAdd(tx,"BOW",1)','Typed.Characters:append(tx,{{Id="bad"}})','local wrong: string = Typed.Currency.Gems:get(profile)'):
                     path.write_text(prelude+' local _use=gems\n '+bad+'\nend\n')
                     result=subprocess.run(['luau-analyze','-j1',str(path)],capture_output=True,text=True)
                     self.assertNotEqual(result.returncode,0,bad)

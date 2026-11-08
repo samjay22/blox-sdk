@@ -1,6 +1,7 @@
 --!strict
 -- Shared boundary contracts; unknown is used for untrusted JSON, never credentials.
 export type Null = { __bloxNull: true }
+export type HealthResponse = { status: string }
 export type Json = Null | boolean | number | string | { Json } | { [string]: Json }
 export type ErrorKind =
 	"Unauthorized"
@@ -23,7 +24,7 @@ export type BloxError = {
 	endpoint: string,
 	attempts: number,
 	body: string?,
-	code: string?,
+	code: string,
 	path: { string | number }?,
 	field: string?,
 	opIndex: number?,
@@ -36,6 +37,8 @@ export type Result<T> =
 	| { ok: false, error: BloxError }
 export type Signal = { cancelled: boolean }
 export type CallOptions = {
+	timeout: number?,
+	idempotencyKey: string?,
 	deadline: number?,
 	priority: ("critical" | "bulk")?,
 	retry: number?,
@@ -135,12 +138,20 @@ export type Hooks = {
 	onBreakerChange: ((Event) -> ())?,
 	onRateLimited: ((Event) -> ())?,
 }
+export type Logger = (eventName: string, event: Event) -> ()
+export type SchemaField = {
+	schema: Schema,
+	required: boolean,
+	notBlank: boolean,
+	responseRequired: boolean?,
+	responseNullable: boolean?,
+}
 export type Schema = {
 	kind: string,
 	name: string?,
 	item: Schema?,
 	items: { Schema }?,
-	fields: { [string]: { schema: Schema, required: boolean, notBlank: boolean } }?,
+	fields: { [string]: SchemaField }?,
 	values: { string }?,
 }
 export type EndpointSchema = { service: string, body: Schema?, response: Schema }

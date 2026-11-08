@@ -23,7 +23,7 @@ export type Writer = typeof(setmetatable(
 		_destroyed: boolean,
 		_timer: thread?,
 		_signal: Core.Signal,
-		LastError: Core.BloxError?,
+		lastError: Core.BloxError?,
 	},
 	Writer
 ))
@@ -34,7 +34,7 @@ local function schedule(self: Writer)
 		if self._closed or self._destroyed then
 			return
 		end
-		self:Flush()
+		self:flush()
 		schedule(self)
 	end)
 end
@@ -59,18 +59,18 @@ function Writer.new(
 		_destroyed = false,
 		_signal = { cancelled = false },
 		_timer = nil,
-		LastError = nil,
+		lastError = nil,
 	}, Writer)
 	schedule(self)
 	return self
 end
 --- Count queued and in-flight events; unacknowledged events remain in the queue.
-function Writer.Pending(self: Writer): number
+function Writer.pending(self: Writer): number
 	return #self._queue - self._head + 1
 end
 --- Enqueue without yielding; return false on invalid input, closed admission or capacity exhaustion.
-function Writer.Enqueue(self: Writer, event: Types.EventInput): boolean
-	if self._closed or self._destroyed or self:Pending() >= self._capacity then
+function Writer.enqueue(self: Writer, event: Types.EventInput): boolean
+	if self._closed or self._destroyed or self:pending() >= self._capacity then
 		return false
 	end
 	local ok, item = pcall(Idempotency.copy, event)
@@ -84,20 +84,20 @@ function Writer.Enqueue(self: Writer, event: Types.EventInput): boolean
 		return false
 	end
 	table.insert(self._queue, item)
-	if self:Pending() >= self._size then
-		self:Flush()
+	if self:pending() >= self._size then
+		self:flush()
 	end
 	return true
 end
 --- Start a serialized nonblocking flush; retain a failed batch and its keys for the next flush.
-function Writer.Flush(self: Writer)
-	if self._busy or self._destroyed or self:Pending() == 0 then
+function Writer.flush(self: Writer)
+	if self._busy or self._destroyed or self:pending() == 0 then
 		return
 	end
 	self._busy = true
 	self._runtime.spawn(function()
-		while not self._destroyed and self:Pending() > 0 do
-			local count = math.min(self._size, self:Pending())
+		while not self._destroyed and self:pending() > 0 do
+			local count = math.min(self._size, self:pending())
 			local batch: { Types.EventInput } = table.create(count)
 			for i = 1, count do
 				batch[i] = self._queue[self._head + i - 1]
@@ -111,10 +111,10 @@ function Writer.Flush(self: Writer)
 				result = Errors.make("Validation", "audit.batch", 0, "Incomplete batch acknowledgement")
 			end
 			if not result.ok then
-				self.LastError = result.error
+				self.lastError = result.error
 				break
 			end
-			self.LastError = nil
+			self.lastError = nil
 			self._head += count
 			-- Compact only after acknowledgement, never lose a concurrent enqueue.
 			if self._head > #self._queue then
@@ -129,7 +129,7 @@ function Writer.Flush(self: Writer)
 	end)
 end
 --- Stop queue admission and cooperatively drain within the shutdown budget; failure remains observable.
-function Writer.Close(self: Writer, timeout: number?): boolean
+function Writer.close(self: Writer, timeout: number?): boolean
 	local budget = Config.number(timeout, 20, 0, 300, "writer timeout")
 	self._closed = true
 	if self._timer then
@@ -137,14 +137,14 @@ function Writer.Close(self: Writer, timeout: number?): boolean
 		self._timer = nil
 	end
 	local deadline = self._runtime.now() + budget
-	self:Flush()
+	self:flush()
 	while self._busy and self._runtime.now() < deadline do
 		self._runtime.wait(0.01)
 	end
-	return self:Pending() == 0
+	return self:pending() == 0
 end
 --- Cancel pending transport and timers; unsent queue data is not persisted by this in-memory helper.
-function Writer.Destroy(self: Writer)
+function Writer.destroy(self: Writer)
 	self._destroyed = true
 	self._closed = true
 	self._signal.cancelled = true

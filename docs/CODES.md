@@ -10,11 +10,11 @@ its operation constructor and TypeSystem are shared with Fields transactions. Ge
 facades delegate to it without duplicating operation semantics.
 
 ```luau
-local loaded = client.fields:Schema(123):Load()
+local loaded = client.fields:schemaCache(123):load()
 if not loaded.ok then return end
-local award = client.codes:Award(123)
-    :Add("Currency.Gems", 100)
-    :MapAdd("Inventory.Items", "SWORD", 1)
+local award = client.codes:award(123)
+    :add("Currency.Gems", 100)
+    :mapAdd("Inventory.Items", "SWORD", 1)
 local checked = award:validate() -- Local preflight, then Fields /ops/validate if locally valid.
 if not checked.ok or not checked.value.valid then return end
 local built = award:build() -- Canonical private snapshot; never commits a transaction.

@@ -97,14 +97,17 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, { { body = s.json(schema()) } })
 		s.run(function()
-			local unloaded =
-				c.fields:Bulk(123):Target({ kind = "ALL" }):Reason("Reward event"):IdempotencyKey("event-1")
-			unloaded.Ops:Add("Currency.Gems", 1)
+			local unloaded = c.fields
+				:bulkBuilder(123)
+				:target({ kind = "ALL" })
+				:reason("Reward event")
+				:idempotencyKey("event-1")
+			unloaded.ops:add("Currency.Gems", 1)
 			check(not unloaded:build().ok and f.count() == 0)
-			check(c.fields:Schema(123):Load().ok)
+			check(c.fields:schemaCache(123):load().ok)
 			local bulk = c.fields
-				:Bulk(123)
-				:Target({
+				:bulkBuilder(123)
+				:target({
 					kind = "WHERE",
 					where = {
 						op = "AND",
@@ -117,15 +120,15 @@ return function(test: (string, () -> ()) -> ())
 						},
 					},
 				})
-				:Reason("Reward event")
-				:IdempotencyKey("event-1")
-			bulk.Ops
-				:Add("Currency.Gems", 10)
-				:Set("Settings", false, { "Sound" })
-				:MapAdd("Inventory.Items", "SWORD", 1)
+				:reason("Reward event")
+				:idempotencyKey("event-1")
+			bulk.ops
+				:add("Currency.Gems", 10)
+				:set("Settings", false, { "Sound" })
+				:mapAdd("Inventory.Items", "SWORD", 1)
 			local built = bulk:build()
 			check(built.ok and #built.value.ops == 3)
-			bulk.Ops:Add("Currency.Gems", 1)
+			bulk.ops:add("Currency.Gems", 1)
 			check(built.ok and #built.value.ops == 3)
 			local malformed: { any } = {
 				{ kind = "SUBJECTS", subjects = { 0 } },
@@ -151,22 +154,26 @@ return function(test: (string, () -> ()) -> ())
 			cycle.clause = cycle
 			table.insert(malformed, { kind = "WHERE", where = cycle })
 			for _, target in malformed do
-				local bad = c.fields:Bulk(123):Target(target):Reason("Reward event"):IdempotencyKey("event-1")
-				bad.Ops:Add("Currency.Gems", 1)
+				local bad =
+					c.fields:bulkBuilder(123):target(target):reason("Reward event"):idempotencyKey("event-1")
+				bad.ops:add("Currency.Gems", 1)
 				check(not bad:preview().ok, "Malformed filter reached transport")
 			end
 			for _, field in { "Missing", "Old", "Shared", "Total" } do
 				local bad = c.fields
-					:Bulk(123)
-					:Target({ kind = "ALL" })
-					:Reason("Reward event")
-					:IdempotencyKey("event-1")
-				bad.Ops:Reset(field)
+					:bulkBuilder(123)
+					:target({ kind = "ALL" })
+					:reason("Reward event")
+					:idempotencyKey("event-1")
+				bad.ops:reset(field)
 				check(not bad:submit().ok)
 			end
-			local bad =
-				c.fields:Bulk(123):Target({ kind = "ALL" }):Reason("Reward event"):IdempotencyKey("event-1")
-			bad.Ops:Add("Currency.Gems", 100001)
+			local bad = c.fields
+				:bulkBuilder(123)
+				:target({ kind = "ALL" })
+				:reason("Reward event")
+				:idempotencyKey("event-1")
+			bad.ops:add("Currency.Gems", 100001)
 			check(not bad:saveDefinition().ok and f.count() == 1)
 			c:destroy()
 		end)
@@ -175,9 +182,9 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, { { body = s.json(schema()) } })
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
-			local bulk = c.fields:Bulk(123):Reason("Reward event"):IdempotencyKey("event-1")
-			bulk.Ops:Add("Currency.Gems", 1)
+			check(c.fields:schemaCache(123):load().ok)
+			local bulk = c.fields:bulkBuilder(123):reason("Reward event"):idempotencyKey("event-1")
+			bulk.ops:add("Currency.Gems", 1)
 			for _, leaf in
 				{
 					{ op = "EQ", field = "Enabled", value = false },
@@ -186,34 +193,34 @@ return function(test: (string, () -> ()) -> ())
 					{ op = "GE", field = "Ratio", value = 0.5 },
 				} :: { any }
 			do
-				bulk:Target({ kind = "WHERE", where = leaf })
+				bulk:target({ kind = "WHERE", where = leaf })
 				check(bulk:build().ok)
 			end
 			local values: { number } = {}
 			for i = 1, 100 do
 				table.insert(values, i)
 			end
-			bulk:Target({ kind = "WHERE", where = { op = "IN", field = "Currency.Gems", value = values } })
+			bulk:target({ kind = "WHERE", where = { op = "IN", field = "Currency.Gems", value = values } })
 			check(bulk:build().ok)
 			table.insert(values, 101)
-			bulk:Target({ kind = "WHERE", where = { op = "IN", field = "Currency.Gems", value = values } })
+			bulk:target({ kind = "WHERE", where = { op = "IN", field = "Currency.Gems", value = values } })
 			check(not bulk:build().ok)
 			local leaves: { any } = {}
 			for _ = 1, 16 do
 				table.insert(leaves, { op = "EQ", field = "Currency.Gems", value = 1 })
 			end
-			bulk:Target({ kind = "WHERE", where = { op = "AND", clauses = leaves } })
+			bulk:target({ kind = "WHERE", where = { op = "AND", clauses = leaves } })
 			check(bulk:build().ok)
 			table.insert(leaves, { op = "EQ", field = "Currency.Gems", value = 2 })
-			bulk:Target({ kind = "WHERE", where = { op = "AND", clauses = leaves } })
+			bulk:target({ kind = "WHERE", where = { op = "AND", clauses = leaves } })
 			check(not bulk:build().ok)
 			local tree: any = { op = "EQ", field = "Currency.Gems", value = 1 }
 			for _ = 1, 3 do
 				tree = { op = "NOT", clause = tree }
 			end
-			bulk:Target({ kind = "WHERE", where = tree })
+			bulk:target({ kind = "WHERE", where = tree })
 			check(bulk:build().ok)
-			bulk:Target({ kind = "WHERE", where = { op = "NOT", clause = tree } })
+			bulk:target({ kind = "WHERE", where = { op = "NOT", clause = tree } })
 			check(not bulk:build().ok and f.count() == 1)
 			c:destroy()
 		end)
@@ -221,7 +228,7 @@ return function(test: (string, () -> ()) -> ())
 	test("Schedules validate closed actions, UTC windows and restoration before transport", function()
 		local s = Scheduler.new()
 		local c, f = client(s, {})
-		local schedules = c.fields:Schedules(123)
+		local schedules = c.fields:scheduleClient(123)
 		local input = schedule()
 		local built = schedules:build(input)
 		check(built.ok)
@@ -289,13 +296,13 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			local jobs = c.fields:Jobs(123)
+			local jobs = c.fields:jobClient(123)
 			local records = {
 				{ subject = 7, field = "Currency.Gems", op = "ADD" :: "ADD", delta = 1 },
 				{ subject = 8, field = "Currency.Gems", op = "ADD" :: "ADD", delta = 2 },
 			}
 			check(not jobs:buildImport(records).ok and f.count() == 0)
-			check(c.fields:Schema(123):Load().ok)
+			check(c.fields:schemaCache(123):load().ok)
 			for _, bad in
 				{
 					{ subject = 0, field = "Currency.Gems", op = "SET", value = 1 },
@@ -336,8 +343,8 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, { { body = s.json(schema()) } })
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
-			local jobs = c.fields:Jobs(123)
+			check(c.fields:schemaCache(123):load().ok)
+			local jobs = c.fields:jobClient(123)
 			for _, fields in
 				{ { "Shared" }, { "Total" }, { "Missing" }, { "Currency.Gems", "Currency.Gems" }, {} }
 			do
@@ -371,7 +378,7 @@ return function(test: (string, () -> ()) -> ())
 				client(s, { { body = s.json(receipt("QUEUED")) }, { body = s.json(receipt(state)) } })
 			local progress = 0
 			s.run(function()
-				local result = c.fields:Jobs(123):waitFor(JOB, {
+				local result = c.fields:jobClient(123):waitFor(JOB, {
 					timeout = 2,
 					onProgress = function(_job)
 						progress += 1
@@ -403,7 +410,7 @@ return function(test: (string, () -> ()) -> ())
 		end
 		local c, f = client(s, steps)
 		s.run(function()
-			check(c.fields:Jobs(123):waitFor(JOB, { timeout = 30 }).ok)
+			check(c.fields:jobClient(123):waitFor(JOB, { timeout = 30 }).ok)
 			check(f.count() == 8)
 			for i, expected in { 0.25, 0.5, 1, 2, 4, 5, 5 } do
 				local elapsed = times[i + 1] - times[i]
@@ -416,7 +423,7 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, { { body = s.json(receipt("RUNNING")) } })
 		s.run(function()
-			local result = c.fields:Jobs(123):waitFor(JOB, {
+			local result = c.fields:jobClient(123):waitFor(JOB, {
 				onProgress = function(_job)
 					error("sensitive-callback-detail")
 				end,
@@ -445,7 +452,7 @@ return function(test: (string, () -> ()) -> ())
 						end
 					end)
 				end
-				local result = c.fields:Jobs(123):waitFor(JOB, { timeout = 0.1, signal = signal })
+				local result = c.fields:jobClient(123):waitFor(JOB, { timeout = 0.1, signal = signal })
 				returned = s.time()
 				check(
 					not result.ok
@@ -460,7 +467,7 @@ return function(test: (string, () -> ()) -> ())
 		local c, f = client(s, {})
 		s.run(function()
 			for _, timeout in { -1, 0, 3601, math.huge, 0 / 0 } do
-				check(not c.fields:Jobs(123):waitFor(JOB, { timeout = timeout }).ok)
+				check(not c.fields:jobClient(123):waitFor(JOB, { timeout = timeout }).ok)
 			end
 			check(f.count() == 0)
 			c:destroy()
@@ -484,10 +491,10 @@ return function(test: (string, () -> ()) -> ())
 			},
 		}, "READ")
 		s.run(function()
-			local summary = c.fields:Health(123):summary()
+			local summary = c.fields:healthClient(123):summary()
 			check(summary.ok and summary.value.runningJobs == 2 and summary.value.openAlerts.WARNING == 1)
-			check(not c.fields:Jobs(123):get(JOB).ok)
-			check(not c.fields:Schedules(123):get(JOB).ok)
+			check(not c.fields:jobClient(123):get(JOB).ok)
+			check(not c.fields:scheduleClient(123):get(JOB).ok)
 			check(f.count() == 1)
 			c:destroy()
 		end)
@@ -537,12 +544,15 @@ return function(test: (string, () -> ()) -> ())
 		route("POST", "/schedules/" .. JOB .. "/end-now", receipt("SUCCEEDED"))
 		local c, f = client(s, steps)
 		s.run(function()
-			check(c.fields:Schema(123):Load().ok)
-			local bulk =
-				c.fields:Bulk(123):Target({ kind = "ALL" }):Reason("Reviewed event"):IdempotencyKey("event-1")
-			bulk.Ops:Add("Currency.Gems", 1)
+			check(c.fields:schemaCache(123):load().ok)
+			local bulk = c.fields
+				:bulkBuilder(123)
+				:target({ kind = "ALL" })
+				:reason("Reviewed event")
+				:idempotencyKey("event-1")
+			bulk.ops:add("Currency.Gems", 1)
 			check(bulk:preview().ok and bulk:submit().ok and bulk:saveDefinition().ok)
-			local schedules = c.fields:Schedules(123)
+			local schedules = c.fields:scheduleClient(123)
 			check(
 				schedules:preview(input).ok and schedules:create(input).ok and schedules:edit(JOB, input).ok
 			)
@@ -583,7 +593,7 @@ return function(test: (string, () -> ()) -> ())
 		route("GET", "/jobs/" .. JOB .. "/download", "")
 		local c, f = client(s, steps)
 		s.run(function()
-			local jobs = c.fields:Jobs(123)
+			local jobs = c.fields:jobClient(123)
 			check(jobs:list({ limit = 3, offset = 2 }).ok)
 			check(jobs:events(JOB, 4).ok and jobs:failures(JOB, { after = -1, limit = 5 }).ok)
 			local exported, failed = jobs:download(JOB), jobs:downloadFailures(JOB)
@@ -591,7 +601,7 @@ return function(test: (string, () -> ()) -> ())
 			check(jobs:cancel(JOB, "Reviewed event").ok and jobs:retry(JOB, "Reviewed event").ok)
 			local empty = jobs:download(JOB)
 			check(empty.ok and empty.value == "")
-			check(not c.fields:Jobs(124):get(JOB).ok and not c.fields:Health(124):summary().ok)
+			check(not c.fields:jobClient(124):get(JOB).ok and not c.fields:healthClient(124):summary().ok)
 			check(f.count() == 8)
 			c:destroy()
 		end)
@@ -601,7 +611,7 @@ return function(test: (string, () -> ()) -> ())
 		local c, f = client(s, { { delay = 2, body = s.json(receipt("SUCCEEDED")) } })
 		local returned = 0
 		s.run(function()
-			local result = c.fields:Jobs(123):waitFor(JOB, { timeout = 0.05 })
+			local result = c.fields:jobClient(123):waitFor(JOB, { timeout = 0.05 })
 			returned = s.time()
 			check(not result.ok and result.error.kind == "Timeout")
 		end)

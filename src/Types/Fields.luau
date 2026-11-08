@@ -61,38 +61,38 @@ export type Batch = { fields: { string }, subjects: { number }?, universeId: num
 export type BatchItem = { field: FieldView, subject: number }
 export type BatchResponse = { items: { BatchItem } }
 export type BindingView = {
-	binding: FieldTypes.LeaderboardBinding,
-	field: string,
-	settings: BoardSettings,
-	status: Status,
+	binding: (FieldTypes.LeaderboardBinding | Core.Null)?,
+	field: (string | Core.Null)?,
+	settings: (BoardSettings | Core.Null)?,
+	status: (Status | Core.Null)?,
 }
 export type BoardActualSettings = {
-	aggregation: string?,
+	aggregation: (string | Core.Null)?,
 	maxDeltaPerSubmit: (number | Core.Null)?,
 	maxScore: number?,
 	minScore: number?,
-	resetSchedule: string?,
-	sortOrder: string?,
+	resetSchedule: (string | Core.Null)?,
+	sortOrder: (string | Core.Null)?,
 }
 export type BoardAggregation = "LAST" | "BEST" | "SUM"
 export type BoardConflict = {
-	actual: BoardActualSettings?,
+	actual: (BoardActualSettings | Core.Null)?,
 	board: string,
 	code: string,
-	expected: BoardSettings?,
-	field: string?,
-	source: string?,
+	expected: (BoardSettings | Core.Null)?,
+	field: (string | Core.Null)?,
+	source: (string | Core.Null)?,
 }
 export type BoardPreviewStatus = "COMPATIBLE" | "CONFLICT" | "ARCHIVED" | "MISSING_OR_ARCHIVED"
 export type BoardResetSchedule = "NONE" | "DAILY" | "WEEKLY" | "MONTHLY" | "SEASONAL"
 export type BoardSettings = {
-	aggregation: BoardAggregation,
-	displayName: string,
+	aggregation: (BoardAggregation | Core.Null)?,
+	displayName: (string | Core.Null)?,
 	maxScore: number,
 	minScore: number,
-	name: string,
-	resetSchedule: BoardResetSchedule,
-	sortOrder: BoardSortOrder,
+	name: (string | Core.Null)?,
+	resetSchedule: (BoardResetSchedule | Core.Null)?,
+	sortOrder: (BoardSortOrder | Core.Null)?,
 }
 export type BoardSortOrder = "DESC" | "ASC"
 export type BulkDefinitionCreated = { id: string }
@@ -102,6 +102,13 @@ export type BulkInput = {
 	reason: string,
 	target: FieldTypes.BulkTarget,
 	universeId: number?,
+}
+export type BulkInputRead = {
+	idempotencyKey: (string | Core.Null)?,
+	ops: { FieldTypes.PlayerOperation },
+	reason: string,
+	target: FieldTypes.BulkTarget,
+	universeId: (number | Core.Null)?,
 }
 export type BulkPreview = {
 	matchedCount: number,
@@ -118,37 +125,37 @@ export type BulkPreviewInput = {
 export type BulkPreviewSample = {
 	after: { [string]: Core.Json },
 	before: { [string]: Core.Json },
-	error: string?,
+	error: (string | Core.Null)?,
 	subject: number,
 }
 export type ChangesResponse = { items: { Entry }, latestSeq: number, nextSinceSeq: number }
 export type Counts = { definitions: number, ledger: number, values: number }
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
 export type Definition = {
-	bindings: FieldTypes.Bindings?,
-	computed: FieldTypes.Computed?,
-	createdAt: string,
-	default: Core.Json?,
+	bindings: (FieldTypes.Bindings | Core.Null)?,
+	computed: (FieldTypes.Computed | Core.Null)?,
+	createdAt: (string | Core.Null)?,
+	default: (Core.Json | Core.Null)?,
 	definitionVersion: number,
-	description: string,
-	history: History?,
-	id: string,
-	scope: Scope,
-	status: Status,
-	type: FieldTypes.TypeExpr?,
+	description: (string | Core.Null)?,
+	history: (History | Core.Null)?,
+	id: (string | Core.Null)?,
+	scope: (Scope | Core.Null)?,
+	status: (Status | Core.Null)?,
+	type: (FieldTypes.TypeExpr | Core.Null)?,
 	universeId: number,
-	updatedAt: string,
-	writeLevel: WriteLevel?,
+	updatedAt: (string | Core.Null)?,
+	writeLevel: (WriteLevel | Core.Null)?,
 }
 export type DefinitionChange = {
-	actor: string,
-	after: Definition?,
-	before: Definition?,
+	actor: (string | Core.Null)?,
+	after: (Definition | Core.Null)?,
+	before: (Definition | Core.Null)?,
 	counter: number,
-	createdAt: string,
-	field: string,
-	reason: string,
-	references: { FieldReference }?,
+	createdAt: (string | Core.Null)?,
+	field: (string | Core.Null)?,
+	reason: (string | Core.Null)?,
+	references: ({ FieldReference } | Core.Null)?,
 }
 export type DefinitionInput = {
 	bindings: FieldTypes.Bindings?,
@@ -166,12 +173,12 @@ export type DefinitionInput = {
 	writeLevel: WriteLevel?,
 }
 export type Document = {
-	computed: { [string]: boolean }?,
-	data: Core.Json,
-	errors: { [string]: string }?,
+	computed: ({ [string]: boolean } | Core.Null)?,
+	data: (Core.Json | Core.Null)?,
+	errors: ({ [string]: string } | Core.Null)?,
 	seq: number,
 	userId: number,
-	versions: { [string]: number },
+	versions: ({ [string]: number } | Core.Null)?,
 }
 export type DocumentInput = {
 	data: Core.Json,
@@ -181,31 +188,31 @@ export type DocumentInput = {
 	universeId: number?,
 }
 export type Entry = {
-	after: Core.Json,
+	after: (Core.Json | Core.Null)?,
 	afterExists: boolean,
-	afterHash: string?,
+	afterHash: (string | Core.Null)?,
 	afterSize: number,
-	args: Core.Json,
-	before: Core.Json,
+	args: (Core.Json | Core.Null)?,
+	before: (Core.Json | Core.Null)?,
 	beforeExists: boolean,
-	beforeHash: string?,
+	beforeHash: (string | Core.Null)?,
 	beforeSize: number,
-	createdAt: string,
-	createdBy: string,
-	entryId: string | Core.Null,
-	field: string,
-	idempotencyKey: string,
-	kind: string,
-	op: string,
+	createdAt: (string | Core.Null)?,
+	createdBy: (string | Core.Null)?,
+	entryId: (string | Core.Null)?,
+	field: (string | Core.Null)?,
+	idempotencyKey: (string | Core.Null)?,
+	kind: (string | Core.Null)?,
+	op: (string | Core.Null)?,
 	ordinal: number,
-	path: { FieldTypes.PathSegment },
-	reason: string,
-	refId: string?,
-	refType: string?,
-	reversesId: string?,
+	path: ({ FieldTypes.PathSegment } | Core.Null)?,
+	reason: (string | Core.Null)?,
+	refId: (string | Core.Null)?,
+	refType: (string | Core.Null)?,
+	reversesId: (string | Core.Null)?,
 	seq: number,
 	subject: number,
-	txId: string,
+	txId: (string | Core.Null)?,
 	universeId: number,
 	versionAfter: number,
 }
@@ -223,33 +230,33 @@ export type ExportInput = {
 	universeId: number?,
 }
 export type FailurePolicy = "FAIL" | "USE_DEFAULT" | "CLAMP"
-export type FieldPage = { items: { FieldView }, nextCursor: (string | Core.Null)?, seq: number }
+export type FieldPage = { items: ({ FieldView } | Core.Null)?, nextCursor: (string | Core.Null)?, seq: number }
 export type FieldReference = { consumerId: string, consumerType: ReferenceConsumerType, label: string }
 export type FieldReferenceInput = { fields: { string }, label: string }
 export type FieldReferences = { fieldId: string, references: { FieldReference } }
 export type FieldView = {
 	computed: boolean,
-	error: string?,
-	id: string,
+	error: (string | Core.Null)?,
+	id: (string | Core.Null)?,
 	isDefault: boolean,
-	updatedAt: string?,
-	value: Core.Json,
+	updatedAt: (string | Core.Null)?,
+	value: Core.Json | Core.Null,
 	version: number,
 }
 export type FlagBatchEvaluation = { items: { FlagBatchItem } }
 export type FlagBatchItem = { userId: number, values: { [string]: FlagEvaluationValue } }
 export type FlagDefinition = {
-	createdAt: string,
-	defaultValue: Core.Json,
-	displayName: string,
+	createdAt: (string | Core.Null)?,
+	defaultValue: (Core.Json | Core.Null)?,
+	displayName: (string | Core.Null)?,
 	enabled: boolean,
-	key: string,
+	key: (string | Core.Null)?,
 	rolloutPct: (number | Core.Null)?,
-	rules: { FlagRule },
+	rules: ({ FlagRuleRead } | Core.Null)?,
 	sticky: boolean,
-	type: string,
-	updatedAt: string,
-	variants: { FlagVariant },
+	type: (string | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
+	variants: ({ FlagVariantRead } | Core.Null)?,
 	version: number,
 }
 export type FlagEvaluateBatchInput = { universeId: number?, userIds: { number } }
@@ -260,7 +267,11 @@ export type FlagEvaluateInput = {
 	userId: number?,
 }
 export type FlagEvaluation = { values: { [string]: FlagEvaluationValue } }
-export type FlagEvaluationValue = { reason: string, value: Core.Json, variant: (string | Core.Null)? }
+export type FlagEvaluationValue = {
+	reason: (string | Core.Null)?,
+	value: (Core.Json | Core.Null)?,
+	variant: (string | Core.Null)?,
+}
 export type FlagInput = {
 	defaultValue: Core.Json,
 	displayName: string,
@@ -275,13 +286,16 @@ export type FlagInput = {
 	version: number?,
 }
 export type FlagMatch = { field: string, op: string, value: Core.Json }
+export type FlagMatchRead = { field: string, op: string, value: Core.Json }
 export type FlagRule = { match: (FlagMatch | Core.Null)?, rolloutPct: number, value: Core.Json }
+export type FlagRuleRead = { match: (FlagMatchRead | Core.Null)?, rolloutPct: number, value: Core.Json }
 export type FlagVariant = { name: string, value: Core.Json, weightPct: number }
+export type FlagVariantRead = { name: string, value: Core.Json, weightPct: number }
 export type GameValueChange = {
-	actor: string,
-	newValue: Core.Json,
-	previousValue: Core.Json | Core.Null,
-	time: string,
+	actor: (string | Core.Null)?,
+	newValue: (Core.Json | Core.Null)?,
+	previousValue: (Core.Json | Core.Null)?,
+	time: (string | Core.Null)?,
 	version: number,
 }
 export type GameValueRollbackInput = { version: number }
@@ -339,7 +353,7 @@ export type GeneratorSimulationResult = {
 	pityMode: string,
 }
 export type HealthComponent = { status: string }
-export type HealthResponse = { service: string, status: string, timestamp: string }
+export type HealthResponse = Core.HealthResponse
 export type HealthSummary = { openAlerts: OpenAlertCounts, runningJobs: number, upcomingSchedules: number }
 export type History = "LEDGER" | "NONE"
 export type ImportError = { code: string, line: number }
@@ -347,10 +361,10 @@ export type ImportValidation = { dryRun: boolean, errors: { ImportError }, recor
 export type Item = {
 	attempts: number,
 	createdAt: string,
-	doneAt: string?,
+	doneAt: (string | Core.Null)?,
 	id: string,
 	kind: string,
-	lastError: string?,
+	lastError: (string | Core.Null)?,
 	nextAttemptAt: string,
 	payload: Core.Json,
 	queueOrder: number,
@@ -379,14 +393,14 @@ export type JobKind =
 export type JobReceipt = {
 	attempts: number,
 	cancelRequested: boolean,
-	error: string?,
+	error: (string | Core.Null)?,
 	failed: number,
 	id: string,
 	kind: JobKind,
-	phase: string?,
+	phase: (string | Core.Null)?,
 	prepared: boolean,
-	recurrence: (ScheduleRecurrence | Core.Null)?,
-	snapshotId: string?,
+	recurrence: (ScheduleRecurrenceRead | Core.Null)?,
+	snapshotId: (string | Core.Null)?,
 	state: JobState,
 	succeeded: number,
 	total: number,
@@ -410,7 +424,11 @@ export type MaintenanceInput = {
 	message: string,
 	universeId: number?,
 }
-export type MaintenanceState = { allowlistUserIds: { number }, enabled: boolean, message: string }
+export type MaintenanceState = {
+	allowlistUserIds: ({ number } | Core.Null)?,
+	enabled: boolean,
+	message: (string | Core.Null)?,
+}
 export type MetricsResponse = { names: { string } }
 export type MigrationFailureSample = { code: string, subject: number }
 export type MigrationInput = {
@@ -444,23 +462,23 @@ export type MigrationPreviewInput = {
 export type MigrationSample = { after: Core.Json, before: Core.Json, subject: number }
 export type Mismatch = {
 	entryId: (string | Core.Null)?,
-	expected: Core.Json?,
-	field: string,
-	ledgerVersion: number?,
-	reason: string,
+	expected: (Core.Json | Core.Null)?,
+	field: (string | Core.Null)?,
+	ledgerVersion: (number | Core.Null)?,
+	reason: (string | Core.Null)?,
 	subject: number,
-	value: Core.Json,
+	value: (Core.Json | Core.Null)?,
 	version: number,
 }
 export type OpValidationError = {
-	code: string,
-	field: string,
+	code: (string | Core.Null)?,
+	field: (string | Core.Null)?,
 	opIndex: number,
-	path: { FieldTypes.PathSegment },
+	path: ({ FieldTypes.PathSegment } | Core.Null)?,
 }
 export type OpenAlertCounts = { CRITICAL: number, WARNING: number }
 export type OpsValidationInput = { ops: { FieldTypes.PlayerOperation }, universeId: number? }
-export type OpsValidationResult = { errors: { OpValidationError }, valid: boolean }
+export type OpsValidationResult = { errors: ({ OpValidationError } | Core.Null)?, valid: boolean }
 export type PlayerEraseInput = { confirmUserId: number, reason: string }
 export type PlayerEraseResult = { erased: boolean, tombstoneId: string }
 export type PlayerRevertInput = { ledgerEntryIds: { string }, reason: string }
@@ -471,21 +489,21 @@ export type Policy = { autoEnabled: boolean, retentionDays: number }
 export type PolicyInput = { autoEnabled: boolean, retentionDays: number, universeId: number? }
 export type Presence = {
 	online: boolean,
-	placeId: number?,
-	sessionId: string?,
-	updatedAt: string?,
+	placeId: (number | Core.Null)?,
+	sessionId: (string | Core.Null)?,
+	updatedAt: (string | Core.Null)?,
 	userId: number,
 }
 export type PresenceBatch = { universeId: number?, userIds: { number } }
 export type PresenceInput = { online: boolean, placeId: number?, sessionId: string, universeId: number? }
 export type PresenceResponse = { items: { Presence } }
 export type Preview = {
-	conflicts: { BoardConflict },
-	effectiveSettings: BoardSettings,
-	settings: BoardSettings,
-	status: BoardPreviewStatus,
+	conflicts: ({ BoardConflict } | Core.Null)?,
+	effectiveSettings: (BoardSettings | Core.Null)?,
+	settings: (BoardSettings | Core.Null)?,
+	status: (BoardPreviewStatus | Core.Null)?,
 	valid: boolean,
-	willWiden: ScoreRange?,
+	willWiden: (ScoreRange | Core.Null)?,
 }
 export type PreviewBoardInput = {
 	binding: FieldTypes.LeaderboardBinding,
@@ -496,11 +514,11 @@ export type PreviewBoardInput = {
 }
 export type Product = {
 	enabled: boolean,
-	ops: { FieldTypes.Operation },
+	ops: ({ FieldTypes.Operation } | Core.Null)?,
 	robloxProductId: number,
-	sku: string,
+	sku: (string | Core.Null)?,
 	universeId: number,
-	updatedAt: string,
+	updatedAt: (string | Core.Null)?,
 }
 export type ProductInput = {
 	enabled: boolean,
@@ -534,14 +552,14 @@ export type RandomOdds = {
 	resolvedConfig: { [string]: Core.Json },
 }
 export type Receipt = {
-	createdAt: string,
+	createdAt: (string | Core.Null)?,
 	productId: number,
-	purchaseId: string,
-	refund: Result?,
-	refundedAt: string?,
+	purchaseId: (string | Core.Null)?,
+	refund: (Result | Core.Null)?,
+	refundedAt: (string | Core.Null)?,
 	robuxSpent: number,
-	status: string,
-	transaction: Result,
+	status: (string | Core.Null)?,
+	transaction: (Result | Core.Null)?,
 	universeId: number,
 	userId: number,
 }
@@ -553,7 +571,12 @@ export type ReceiptInput = {
 	universeId: number?,
 	userId: number,
 }
-export type ReceiptResult = { purchaseId: string, replayed: boolean, status: string, transaction: Result }
+export type ReceiptResult = {
+	purchaseId: (string | Core.Null)?,
+	replayed: boolean,
+	status: (string | Core.Null)?,
+	transaction: (Result | Core.Null)?,
+}
 export type RecurrenceType = "NONE" | "DAILY" | "WEEKLY"
 export type Ref = { id: string, type: string }
 export type ReferenceConsumerType = "GAMEMODE" | "CODE"
@@ -566,8 +589,8 @@ export type RestoreInput = {
 	userId: number?,
 }
 export type RestoreReport = {
-	error: string?,
-	items: { RestoreReportItem }?,
+	error: (string | Core.Null)?,
+	items: ({ RestoreReportItem } | Core.Null)?,
 	restored: number?,
 	skipped: number?,
 	subject: number,
@@ -583,14 +606,19 @@ export type RestoreResponse = {
 	restoredSubjects: number,
 	skipped: number,
 }
-export type Result = { replayed: boolean, results: { ResultItem }, seq: { [string]: number }, txId: string }
+export type Result = {
+	replayed: boolean,
+	results: ({ ResultItem } | Core.Null)?,
+	seq: ({ [string]: number } | Core.Null)?,
+	txId: (string | Core.Null)?,
+}
 export type ResultItem = {
-	after: Core.Json,
-	before: Core.Json,
+	after: (Core.Json | Core.Null)?,
+	before: (Core.Json | Core.Null)?,
 	entryId: string | Core.Null,
-	field: string,
-	op: string,
-	path: { FieldTypes.PathSegment },
+	field: (string | Core.Null)?,
+	op: (string | Core.Null)?,
+	path: ({ FieldTypes.PathSegment } | Core.Null)?,
 	subject: number,
 	version: number,
 }
@@ -630,10 +658,10 @@ export type RotationInstance = {
 export type RotationKind = "TABLE" | "GENERATOR" | "ROTATION"
 export type RotationStock = { entryId: string, remaining: number, slot: string }
 export type RuntimeSnapshot = {
-	flags: { FlagDefinition },
-	gameValues: { [string]: Core.Json },
-	maintenance: MaintenanceState,
-	rotations: { RotationActive }?,
+	flags: ({ FlagDefinition } | Core.Null)?,
+	gameValues: ({ [string]: Core.Json } | Core.Null)?,
+	maintenance: (MaintenanceState | Core.Null)?,
+	rotations: ({ RotationActive } | Core.Null)?,
 	version: number,
 }
 export type ScheduleActionResult = {
@@ -653,7 +681,7 @@ export type ScheduleDefinition = {
 	idempotencyKey: (string | Core.Null)?,
 	name: string,
 	reason: string,
-	recurrence: (ScheduleRecurrence | Core.Null)?,
+	recurrence: (ScheduleRecurrenceRead | Core.Null)?,
 	restorePrevious: boolean,
 	start: string,
 	startActions: { FieldTypes.ScheduleAction },
@@ -680,6 +708,7 @@ export type SchedulePreview = {
 	startActions: { FieldTypes.ScheduleAction },
 }
 export type ScheduleRecurrence = { daysOfWeek: { DayOfWeek }, timezone: string, type: RecurrenceType }
+export type ScheduleRecurrenceRead = { daysOfWeek: { DayOfWeek }, timezone: string, type: RecurrenceType }
 export type ScheduleRun = {
 	actions: { ScheduleActionResult },
 	edge: ScheduleEdge,
@@ -696,7 +725,7 @@ export type ScheduleSummary = {
 	id: string,
 	name: string,
 	phase: string,
-	recurrence: (ScheduleRecurrence | Core.Null)?,
+	recurrence: (ScheduleRecurrenceRead | Core.Null)?,
 	start: string,
 	state: JobState,
 }
@@ -705,20 +734,29 @@ export type Scope = "PLAYER" | "UNIVERSE"
 export type ScoreRange = { maxScore: number, minScore: number }
 export type Snapshot = {
 	byteSize: number,
-	createdAt: string,
-	createdBy: string,
-	id: string,
+	createdAt: (string | Core.Null)?,
+	createdBy: (string | Core.Null)?,
+	id: (string | Core.Null)?,
 	itemCount: number,
-	kind: string,
-	reason: string,
-	scope: Scope,
-	subjectId: number?,
+	kind: (string | Core.Null)?,
+	reason: (string | Core.Null)?,
+	scope: (Scope | Core.Null)?,
+	subjectId: (number | Core.Null)?,
 	universeId: number,
 }
 export type SnapshotDeleted = { deleted: boolean, items: number }
-export type SnapshotDetail = { items: { SnapshotItem }, metadata: Snapshot, nextCursor: (string | Core.Null)? }
+export type SnapshotDetail = {
+	items: ({ SnapshotItem } | Core.Null)?,
+	metadata: (Snapshot | Core.Null)?,
+	nextCursor: (string | Core.Null)?,
+}
 export type SnapshotInput = { reason: string, scope: Scope, universeId: number?, userId: number? }
-export type SnapshotItem = { field: string, subject: number, value: Core.Json, version: number }
+export type SnapshotItem = {
+	field: (string | Core.Null)?,
+	subject: number,
+	value: (Core.Json | Core.Null)?,
+	version: number,
+}
 export type Status = "ACTIVE" | "ARCHIVED"
 export type TransactionInput = {
 	conditions: { FieldTypes.Condition }?,
@@ -750,7 +788,7 @@ export type BulkResultValue = JobReceipt
 export type CreateBulkDefinitionCall = { path: { universeId: (string | number)? }?, body: BulkInput }
 export type CreateBulkDefinitionResultValue = BulkDefinitionCreated
 export type BulkDefinitionCall = { path: { universeId: (string | number)?, id: string } }
-export type BulkDefinitionResultValue = BulkInput
+export type BulkDefinitionResultValue = BulkInputRead
 export type BulkPreviewCall = { path: { universeId: (string | number)? }?, body: BulkPreviewInput }
 export type BulkPreviewResultValue = BulkPreview
 export type ReverseBulkCall = {

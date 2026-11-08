@@ -19,7 +19,7 @@ export type Schema = typeof(setmetatable(
 		_busy: boolean,
 		_timer: thread?,
 		_interval: number,
-		LastError: Core.BloxError?,
+		lastError: Core.BloxError?,
 	},
 	Schema
 ))
@@ -28,7 +28,7 @@ local function schedule(self: Schema)
 	self._timer = self._runtime.delay(self._interval, function()
 		self._timer = nil
 		if not self._signal.cancelled then
-			self:Refresh()
+			self:refresh()
 		end
 	end)
 end
@@ -48,7 +48,7 @@ function Schema.new(
 		_busy = false,
 		_timer = nil,
 		_interval = Config.number(interval, 30, 0.01, 3600, "schema interval"),
-		LastError = nil,
+		lastError = nil,
 	}, Schema)
 end
 --- Enforce the server identifier grammar before constructing nested document namespaces.
@@ -68,7 +68,7 @@ local function validId(id: string): boolean
 	return true
 end
 --- Atomically publish a complete validated generation, keeping last-good on every failure.
-function Schema.Refresh(self: Schema): Core.Result<number>
+function Schema.refresh(self: Schema): Core.Result<number>
 	if self._signal.cancelled then
 		return TypeSystem.failure("schema_closed")
 	end
@@ -96,7 +96,8 @@ function Schema.Refresh(self: Schema): Core.Result<number>
 			local defs: { [string]: Types.Definition } = {}
 			local validators: { [string]: TypeSystem.Validator } = {}
 			for _, definition in value.definitions do
-				if defs[definition.id] or not validId(definition.id) then
+				local id = definition.id
+				if type(id) ~= "string" or defs[id] or not validId(id) then
 					response = TypeSystem.failure("invalid_schema")
 					break
 				end
@@ -116,19 +117,19 @@ function Schema.Refresh(self: Schema): Core.Result<number>
 					response = TypeSystem.failure("invalid_schema")
 					break
 				end
-				defs[definition.id] = definition
+				defs[id] = definition
 				if definition.type ~= nil and (definition.type :: any) ~= Json.null then
 					local compiled = TypeSystem.compile(definition.type)
 					if not compiled.ok then
 						response = compiled
 						break
 					end
-					local default = compiled.value.Default(definition.default)
+					local default = compiled.value.default(definition.default)
 					if not default.ok then
 						response = default
 						break
 					end
-					validators[definition.id] = compiled.value
+					validators[id] = compiled.value
 				elseif not definition.computed or (definition.computed :: any) == Json.null then
 					response = TypeSystem.failure("invalid_schema")
 					break
@@ -157,40 +158,40 @@ function Schema.Refresh(self: Schema): Core.Result<number>
 		schedule(self)
 	end
 	if not response.ok then
-		self.LastError = response.error
+		self.lastError = response.error
 		return response
 	end
 	if self._signal.cancelled then
 		return TypeSystem.failure("schema_closed")
 	end
-	self.LastError = nil
+	self.lastError = nil
 	return { ok = true, value = self._version :: number }
 end
 --- Return the cached generation, or synchronously load the first one (never discard last-good).
-function Schema.Load(self: Schema): Core.Result<number>
+function Schema.load(self: Schema): Core.Result<number>
 	if self._version ~= nil and not self._signal.cancelled then
 		return { ok = true, value = self._version }
 	end
-	return self:Refresh()
+	return self:refresh()
 end
 --- Expose immutable definitions, including archived/computed/shared metadata.
-function Schema.Definitions(self: Schema): { [string]: Types.Definition }
+function Schema.definitions(self: Schema): { [string]: Types.Definition }
 	return self._definitions
 end
 --- Resolve a definition without implicitly fetching or masking unknown ids.
-function Schema.Get(self: Schema, id: string): Types.Definition?
+function Schema.get(self: Schema, id: string): Types.Definition?
 	return self._definitions[id]
 end
 --- Return the compiled validator for a stored field only.
-function Schema.Validator(self: Schema, id: string): TypeSystem.Validator?
+function Schema.validator(self: Schema, id: string): TypeSystem.Validator?
 	return self._validators[id]
 end
 --- Report the last successfully applied schema watermark.
-function Schema.Version(self: Schema): number?
+function Schema.version(self: Schema): number?
 	return self._version
 end
 --- Stop timers and prevent late HTTP completions from publishing state.
-function Schema.Destroy(self: Schema)
+function Schema.destroy(self: Schema)
 	self._signal.cancelled = true
 	if self._timer then
 		self._runtime.cancel(self._timer)

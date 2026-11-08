@@ -18,9 +18,13 @@ return function(
 	if not member.ok then
 		return member
 	end
+	local memberId = member.value.userId
+	if type(memberId) ~= "string" then
+		return member
+	end
 	-- Explicit query selects a universe override; {} encodes [] and clears explicit overrides.
 	local updated = client.auth:patchMember({
-		path = { org = orgId, user = member.value.userId },
+		path = { org = orgId, user = memberId },
 		query = { universeId = universeId },
 		body = { overrides = {} },
 	})

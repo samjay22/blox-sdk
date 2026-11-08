@@ -59,8 +59,29 @@ function Idempotency.copy(value: any, depth: number?): any
 	return result
 end
 --- Fill omitted keys on a private request copy once, before any automatic retry.
-function Idempotency.prepare(spec: Core.Endpoint, request: Core.Request, runtime: Core.Runtime): Core.Request
+function Idempotency.prepare(
+	spec: Core.Endpoint,
+	request: Core.Request,
+	runtime: Core.Runtime,
+	key: string?
+): Core.Request
 	local result: Core.Request = Idempotency.copy(request)
+	if key ~= nil then
+		assert(Idempotency.header(key, spec.id == "codes.bulkCreateCodes"), "Invalid key")
+		if spec.idempotencyHeader then
+			assert(result.idempotencyKey == nil or result.idempotencyKey == key, "Conflicting key")
+			result.idempotencyKey = key
+		else
+			assert(
+				spec.idempotencyField ~= nil and spec.idempotencyItems == nil and type(result.body) == "table",
+				"Endpoint does not support a single key"
+			)
+			local body = result.body :: { [string]: any }
+			local field = spec.idempotencyField :: string
+			assert(body[field] == nil or body[field] == key, "Conflicting key")
+			body[field] = key
+		end
+	end
 	local field = spec.idempotencyField
 	if spec.optionalKey or not field or type(result.body) ~= "table" then
 		return result

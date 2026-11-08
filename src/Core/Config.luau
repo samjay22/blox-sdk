@@ -28,6 +28,7 @@ export type Config = {
 	cacheCapacity: number?,
 	staleIfError: number?,
 	hooks: Types.Hooks?,
+	logger: Types.Logger?,
 }
 local known = table.freeze({
 	backend = true,
@@ -51,11 +52,24 @@ local known = table.freeze({
 	cacheCapacity = true,
 	staleIfError = true,
 	hooks = true,
+	logger = true,
 })
 --- Validate structural configuration without rendering values or credentials in messages.
 function Config.validate(config: Config)
 	for name in config :: any do
 		assert(known[name], "Unknown config field")
+	end
+	assert(config.logger == nil or type(config.logger) == "function", "logger must be callable")
+	if config.hooks ~= nil then
+		assert(type(config.hooks) == "table", "hooks must be a table")
+		for name, hook in config.hooks :: any do
+			assert(
+				table.find({ "onRequest", "onResponse", "onRetry", "onBreakerChange", "onRateLimited" }, name)
+						~= nil
+					and type(hook) == "function",
+				"Invalid hook"
+			)
+		end
 	end
 	if config.key ~= nil then
 		assert(type(config.key) == "string", "key must be a string")

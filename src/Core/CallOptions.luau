@@ -1,7 +1,15 @@
 --!strict
 local Types = require("../Types/Core")
 local Options = {}
-local known = table.freeze({ deadline = true, priority = true, retry = true, cacheTtl = true, signal = true })
+local known = table.freeze({
+	deadline = true,
+	timeout = true,
+	idempotencyKey = true,
+	priority = true,
+	retry = true,
+	cacheTtl = true,
+	signal = true,
+})
 --- Validate user options before arithmetic or yielding; malformed values become Local results.
 function Options.valid(opts: Types.CallOptions): boolean
 	if type(opts) ~= "table" then
@@ -11,6 +19,23 @@ function Options.valid(opts: Types.CallOptions): boolean
 		if not known[name] then
 			return false
 		end
+	end
+	if
+		opts.timeout ~= nil
+		and (
+			type(opts.timeout) ~= "number"
+			or opts.timeout ~= opts.timeout
+			or opts.timeout < 0.01
+			or opts.timeout > 300
+		)
+	then
+		return false
+	end
+	if
+		opts.idempotencyKey ~= nil
+		and (type(opts.idempotencyKey) ~= "string" or #opts.idempotencyKey == 0 or #opts.idempotencyKey > 800)
+	then
+		return false
 	end
 	if opts.priority ~= nil and opts.priority ~= "critical" and opts.priority ~= "bulk" then
 		return false

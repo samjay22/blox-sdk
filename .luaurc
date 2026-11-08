@@ -2,7 +2,11 @@
   "languageMode": "strict",
   "globals": [
     "game",
-    "task"
+    "task",
+    "script",
+    "Instance",
+    "Enum",
+    "warn"
   ],
   "lint": {
     "LocalUnused": true,

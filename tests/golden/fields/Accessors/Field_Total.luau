@@ -6,7 +6,7 @@ local FieldTypes = require("../FieldTypes")
 local Profile = require("../../../../src/Fields/Profile")
 local Accessor = {}
 --- Read the validated Total client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Total
- return profile:Get("Total") :: any
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Total
+ return profile:get("Total") :: any
 end
 return table.freeze(Accessor)

@@ -1,4 +1,5 @@
 --!strict
+local Endpoints = require("../src/Core/Endpoints")
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Auth = require("../src/Types/Auth")
@@ -37,7 +38,7 @@ return function(test: (string, () -> ()) -> ())
 			check(Validation.body("auth.rotateServiceAccount", {}))
 			check(Validation.body("auth.rotateServiceAccount", nil))
 			check(not Validation.body("auth.rotateServiceAccount", { graceSeconds = 1 }))
-			local endpoint = SDK.endpoints["auth.rotateServiceAccount"]
+			local endpoint = Endpoints["auth.rotateServiceAccount"]
 			check(not endpoint.retryable and not endpoint.cacheable and not endpoint.idempotent)
 			check(not Path.build(endpoint, { path = { id = "key" } :: { [string]: unknown } }, nil))
 			local path =
@@ -258,7 +259,7 @@ return function(test: (string, () -> ()) -> ())
 		s.run(function()
 			check(not a.auth:listOrgs().ok and f.count() == 0)
 			check(not a.matchmaking:getAllUniverses().ok and f.count() == 0)
-			check(a.fields:Schema(42):Load().ok)
+			check(a.fields:schemaCache(42):load().ok)
 			check(not a.fields:schema({ path = { universeId = 43 } }).ok)
 			check(b.fields:schema().ok)
 			check(c.auth:getMyAccess().ok)
@@ -402,16 +403,16 @@ return function(test: (string, () -> ()) -> ())
 					{ maxUniverses = SDK.null, maxMembers = 10, maxServiceAccounts = SDK.null }
 				)
 			)
-			check(not Path.build(SDK.endpoints["auth.listServiceAccounts"], {}, nil))
+			check(not Path.build(Endpoints["auth.listServiceAccounts"], {}, nil))
 			local path = Path.build(
-				SDK.endpoints["auth.removeMember"],
+				Endpoints["auth.removeMember"],
 				{ path = { org = "o", user = "u" } :: { [string]: unknown } },
 				42
 			)
 			check(path == "/api/auth/orgs/o/members/u")
 			check(
 				not Path.build(
-					SDK.endpoints["auth.exchangeScopedToken"],
+					Endpoints["auth.exchangeScopedToken"],
 					{ path = { universe = 0 } :: { [string]: unknown } },
 					nil
 				)
@@ -424,7 +425,7 @@ return function(test: (string, () -> ()) -> ())
 			)
 			check(not err.ok and err.error.code == "last_owner" and err.error.body == "[redacted]")
 			local unknown = Errors.domain(400, "auth.patchMember", 1, { errorCode = "secret" })
-			check(not unknown.ok and unknown.error.code == nil)
+			check(not unknown.ok and unknown.error.code == "sdk_validation")
 		end
 	)
 end

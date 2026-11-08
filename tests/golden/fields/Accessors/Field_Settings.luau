@@ -11,15 +11,15 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["kind"]="object",["members"]={["Language"]={["default"]="EN",["type"]={["kind"]="enum",["values"]=Json.array({"EN","ES","JP"})}},["Sound"]={["default"]=true,["type"]={["kind"]="bool"}}}}
 local Accessor = {}
 --- Read the validated Settings client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Settings
- return Codec.decode(expression, profile:Get("Settings")) :: FieldTypes.Field_Settings
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Settings
+ return Codec.decode(expression, profile:get("Settings")) :: FieldTypes.Field_Settings
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Settings): Transaction.Transaction
- return tx:Set("Settings", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Settings): Transaction.Transaction
+ return tx:set("Settings", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Settings")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Settings")
 end
 return table.freeze(Accessor)

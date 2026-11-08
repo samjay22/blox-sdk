@@ -11,6 +11,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'tools'))
 from auth_contract import curate_service_keys
+from response_contract import curate_reads
 
 
 class AuthContractTests(unittest.TestCase):
@@ -29,8 +30,10 @@ class AuthContractTests(unittest.TestCase):
         for name in ('status', 'rotatedAt', 'previousKeyExpiresAt'):
             del definitions['ServiceAccountResponse']['fields'][name]
         curate_service_keys(doc['endpoints'], definitions)
+        curate_reads(doc)
         self.assertEqual(doc, expected)
         curate_service_keys(doc['endpoints'], definitions)
+        curate_reads(doc)
         self.assertEqual(doc, expected)
 
     def test_tenant_surface(self) -> None:

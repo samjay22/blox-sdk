@@ -14,17 +14,17 @@ server-authoritative semantic validation. Neither adds new backend authority.
 
 ## Bulk: typed operations and target filters
 
-Explicitly load `client.fields:Schema(universeId):Load()` and check its Result before building. No helper
+Explicitly load `client.fields:schemaCache(universeId):load()` and check its Result before building. No helper
 silently fetches schema to mask local validation failure. Helpers reject unknown DTO properties, invalid
 types, unsafe integers and unsupported filter grammar before sending. Current state, runtime limits,
 authority and schema changes remain server-authoritative; previews reserve nothing.
 
 ```luau
-local bulk = client.fields:Bulk(universeId)
-bulk.Ops:Add("Currency.Gems", 10) -- The shared subject-free typed operation builder.
-bulk:Target({kind="SUBJECTS", subjects={7, 8}})
-    :Reason("Grant event attendance bonus")
-    :IdempotencyKey("attendance-event-2026-11-05")
+local bulk = client.fields:bulkBuilder(universeId)
+bulk.ops:add("Currency.Gems", 10) -- The shared subject-free typed operation builder.
+bulk:target({kind="SUBJECTS", subjects={7, 8}})
+    :reason("Grant event attendance bonus")
+    :idempotencyKey("attendance-event-2026-11-05")
 local request = bulk:build() -- Result<BulkInput>; private canonical payload, no HTTP.
 local preview = bulk:preview() -- Explicit ADMIN read-only server preview.
 -- Inspect preview.ok, preview.value.validation and samples before deciding to submit.
@@ -58,7 +58,7 @@ QUEUED, RUNNING, SUCCEEDED, CANCELLED and FAILED. `prepared=false` means enumera
 `failed > 0`** for bulk/import/reverse. Inspect counters and failure reports before declaring success.
 
 ```luau
-local jobs = client.fields:Jobs(universeId)
+local jobs = client.fields:jobClient(universeId)
 local completed = jobs:waitFor(jobId, {
     timeout = 60,
     onProgress = function(receipt)
@@ -120,7 +120,7 @@ is a manifest ordinal (subject ID for bulk), not universally an import line numb
 
 ## UTC schedules
 
-`client.fields:Schedules(universeId)` provides `build(input)`, `preview`, `create`, `edit`, `get`,
+`client.fields:scheduleClient(universeId)` provides `build(input)`, `preview`, `create`, `edit`, `get`,
 `actions`, `cancel`, and `endNow`. Builds validate closed action grammar before HTTP. Input is a named
 UTC `start` and optional `end`, 1–32 startActions, at most 32 endActions, reason and idempotency key.
 Helpers accept the explicit UTC subset `YYYY-MM-DDTHH:mm:ss[.1-9 digits]Z`; the service's Instant parser
@@ -167,7 +167,7 @@ omitted thresholds to defaults. Webhooks are write-only: omission/null preserves
 Never log webhook URLs; the backend does not encrypt them at rest. Tests are limited to one per universe
 per 15-minute bucket. Monitoring/webhook delivery is best-effort, not transactional exactly-once delivery.
 
-`client.fields:Health(universeId):summary()` returns typed `{openAlerts={WARNING,CRITICAL},runningJobs,
+`client.fields:healthClient(universeId):summary()` returns typed `{openAlerts={WARNING,CRITICAL},runningJobs,
 upcomingSchedules}` with READ access. Open includes acknowledged-but-unresolved alerts; no captured
 values or webhook information is returned. This differs from `client:health()` process/service probes.
 

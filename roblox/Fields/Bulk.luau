@@ -15,7 +15,7 @@ Bulk.__index = Bulk
 export type Builder = typeof(setmetatable(
 	{} :: {
 		_scope: Scope.Scope,
-		Ops: OpBuilder.Builder,
+		ops: OpBuilder.Builder,
 		_target: Types.BulkTarget?,
 		_reason: string?,
 		_key: string,
@@ -27,7 +27,7 @@ export type Builder = typeof(setmetatable(
 function Bulk.new(state: Helpers.State, universe: string | number): Builder
 	return setmetatable({
 		_scope = Scope.new(state, universe),
-		Ops = Helpers.operations(state, universe),
+		ops = Helpers.operations(state, universe),
 		_target = nil,
 		_reason = nil,
 		_key = Copy.key(state.runtime),
@@ -35,7 +35,7 @@ function Bulk.new(state: Helpers.State, universe: string | number): Builder
 	}, Bulk)
 end
 --- Snapshot an explicit selection; never silently default a grant to all players.
-function Bulk.Target(self: Builder, target: Types.BulkTarget): Builder
+function Bulk.target(self: Builder, target: Types.BulkTarget): Builder
 	local ok, copied = pcall(Copy.copy, target)
 	if ok then
 		self._target = copied
@@ -45,12 +45,12 @@ function Bulk.Target(self: Builder, target: Types.BulkTarget): Builder
 	return self
 end
 --- Set the required administrative audit reason.
-function Bulk.Reason(self: Builder, reason: string): Builder
+function Bulk.reason(self: Builder, reason: string): Builder
 	self._reason = reason
 	return self
 end
 --- Supply a persisted key for deliberate retries across calls or server restarts.
-function Bulk.IdempotencyKey(self: Builder, key: string): Builder
+function Bulk.idempotencyKey(self: Builder, key: string): Builder
 	self._key = key
 	return self
 end
@@ -71,7 +71,7 @@ function Bulk.build(self: Builder): Core.Result<Wire.BulkInput>
 	if not target.ok then
 		return target
 	end
-	local ops = self.Ops:build()
+	local ops = self.ops:build()
 	if not ops.ok then
 		return ops
 	end

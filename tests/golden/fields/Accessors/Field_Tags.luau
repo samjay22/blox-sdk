@@ -10,25 +10,25 @@ local Types = require("../../../../src/Fields/Types")
 local expression: Types.TypeExpr = {["item"]={["kind"]="string"},["kind"]="set"}
 local Accessor = {}
 --- Read the validated Tags client-domain value.
-function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Tags
- return Codec.decode(expression, profile:Get("Tags")) :: FieldTypes.Field_Tags
+function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.Field_Tags
+ return Codec.decode(expression, profile:get("Tags")) :: FieldTypes.Field_Tags
 end
 --- Queue a schema-validated replacement.
-function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Tags): Transaction.Transaction
- return tx:Set("Tags", Codec.encode(expression,value))
+function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.Field_Tags): Transaction.Transaction
+ return tx:set("Tags", Codec.encode(expression,value))
 end
 --- Queue a schema-validated reset.
-function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
- return tx:Reset("Tags")
+function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction
+ return tx:reset("Tags")
 end
---- Queue typed SetAdd items.
-function Accessor.SetAdd(_self: unknown, tx: Transaction.Transaction, items: {string}): Transaction.Transaction
+--- Queue typed setAdd items.
+function Accessor.setAdd(_self: unknown, tx: Transaction.Transaction, items: {string}): Transaction.Transaction
  local wire = Codec.encode({["item"]={["kind"]="string"},["kind"]="list"},items)
- return tx:SetAdd("Tags",wire :: any)
+ return tx:setAdd("Tags",wire :: any)
 end
---- Queue typed SetRemove items.
-function Accessor.SetRemove(_self: unknown, tx: Transaction.Transaction, items: {string}): Transaction.Transaction
+--- Queue typed setRemove items.
+function Accessor.setRemove(_self: unknown, tx: Transaction.Transaction, items: {string}): Transaction.Transaction
  local wire = Codec.encode({["item"]={["kind"]="string"},["kind"]="list"},items)
- return tx:SetRemove("Tags",wire :: any)
+ return tx:setRemove("Tags",wire :: any)
 end
 return table.freeze(Accessor)

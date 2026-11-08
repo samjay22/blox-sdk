@@ -3,6 +3,24 @@
 base: luau
 name: sdk
 globals:
+  warn:
+    any: true
+  script:
+    any: true
+  Enum:
+    any: true
+  Instance.new:
+    args:
+      - type: string
+  game.GameId:
+    property: read-only
+  game.ServerStorage:
+    any: true
+  game.SetAttribute:
+    method: true
+    args:
+      - type: string
+      - type: any
   game.GetService:
     method: true
     args:

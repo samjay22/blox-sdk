@@ -76,7 +76,7 @@ function Control.uuid(value: any): boolean
 end
 --- Validate and snapshot the complete bounded predicate tree against the cached schema.
 function Control.target(schema: Schema.Schema, target: Types.BulkTarget): Core.Result<Types.BulkTarget>
-	if schema:Version() == nil then
+	if schema:version() == nil then
 		return System.failure("schema_unavailable")
 	end
 	local leaves = 0
@@ -107,14 +107,15 @@ function Control.target(schema: Schema.Schema, target: Types.BulkTarget): Core.R
 		then
 			return false
 		end
-		local d = schema:Get(node.field)
-		local validator = schema:Validator(node.field)
+		local d = schema:get(node.field)
+		local validator = schema:validator(node.field)
 		if
 			not d
 			or d.scope ~= "PLAYER"
 			or not d.type
+			or (d.type :: any) == Json.null
 			or not validator
-			or not table.find({ "int", "number", "bool", "string", "enum" }, d.type.kind)
+			or not table.find({ "int", "number", "bool", "string", "enum" }, (d.type :: Types.TypeExpr).kind)
 		then
 			return false
 		end
@@ -126,13 +127,13 @@ function Control.target(schema: Schema.Schema, target: Types.BulkTarget): Core.R
 				return false
 			end
 			for _, value in node.value do
-				if not validator.Validate(value).ok then
+				if not validator.validate(value).ok then
 					return false
 				end
 			end
 			return true
 		end
-		return validator.Validate(node.value).ok
+		return validator.validate(node.value).ok
 	end
 	local raw: any = target
 	if not Control.object(raw, { "kind", "subjects", "where" }) then

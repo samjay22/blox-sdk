@@ -2,6 +2,18 @@
 -- Generated validation schemas.
 local Core = require("../Types/Core")
 local Cache = require("./Cache")
+local healthResponse: Core.Schema = {
+	["fields"] = {
+		["status"] = {
+			["notBlank"] = false,
+			["required"] = true,
+			["schema"] = {
+				["kind"] = "string",
+			} :: Core.Schema,
+		},
+	},
+	["kind"] = "object",
+} :: Core.Schema
 local definitions: { [string]: { [string]: Core.Schema } } = {
 	["audit"] = {
 		["ActorType"] = {
@@ -31,6 +43,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["value"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -41,16 +55,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["action"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["actorId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["actorName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -59,16 +79,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["actorType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ActorType" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["idemKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -77,6 +103,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["ipHash"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -85,6 +113,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "json" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -93,21 +123,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["occurredAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["outcome"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Outcome" } :: Core.Schema,
 				},
 				["receivedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["requestId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -116,21 +154,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["resourceId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["resourceType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["sourceService"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["submittedBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Submission" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -156,6 +202,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["actorName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["actorType"] = {
@@ -166,16 +213,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idemKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["ipHash"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["occurredAt"] = {
@@ -191,6 +241,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["requestId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["resourceId"] = {
@@ -206,6 +257,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -215,26 +267,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		["HealthComponent"] = {
 			["fields"] = {
 				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["service"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
@@ -296,6 +328,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -306,16 +339,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["sourceService"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -326,11 +365,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["groupBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "GroupBy" } :: Core.Schema,
 				},
 				["items"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "Count" } :: Core.Schema,
 						["kind"] = "array",
@@ -339,6 +382,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["nextCursor"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = {
 							["item"] = { ["kind"] = "string" } :: Core.Schema,
@@ -367,6 +412,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["memberships"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
 						["kind"] = "array",
@@ -375,11 +421,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["organization"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Organization" } :: Core.Schema,
 				},
 				["universes"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "Scope" } :: Core.Schema,
 						["kind"] = "array",
@@ -393,11 +441,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["action"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["actor"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -406,6 +456,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["after"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -414,6 +465,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["before"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -422,6 +474,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
@@ -432,11 +485,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["requestId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -445,6 +500,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["target"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -458,11 +514,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["password"] = {
@@ -483,41 +541,57 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accountId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["enabled"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -529,11 +603,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 			},
@@ -554,6 +630,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["overrides"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -567,6 +644,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["username"] = {
@@ -582,16 +660,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accountId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -647,21 +728,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["key"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["serviceAccountId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -677,16 +762,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["account"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountResponse" } :: Core.Schema,
 				},
 				["member"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
 				},
 				["temporaryPassword"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -697,6 +785,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["acceptedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -705,31 +794,37 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["revokedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -738,11 +833,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["targetUserId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -751,6 +848,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -764,6 +862,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expiresInDays"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["role"] = {
@@ -774,11 +873,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["usernameOrEmail"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -789,16 +890,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["acceptPath"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["invitation"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Invitation" } :: Core.Schema,
 				},
 				["token"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -824,26 +928,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -854,26 +968,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -884,31 +1008,37 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "MemberStatus" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -917,6 +1047,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -927,16 +1058,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -945,11 +1079,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["overrides"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -958,16 +1094,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "MemberStatus" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -976,11 +1115,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1002,11 +1143,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["role"] = {
@@ -1027,21 +1170,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxMembers"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -1050,6 +1197,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["maxServiceAccounts"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -1058,6 +1206,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["maxUniverses"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -1066,16 +1215,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["slug"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
 				},
 			},
@@ -1126,6 +1278,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["overrides"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -1134,11 +1287,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "MemberStatus" } :: Core.Schema,
 				},
 			},
@@ -1149,16 +1304,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["slug"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
 				},
 			},
@@ -1169,11 +1327,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["enabled"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1199,26 +1359,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1268,6 +1438,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -1278,11 +1449,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1293,11 +1466,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["permissions"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -1306,6 +1481,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -1329,11 +1505,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
@@ -1362,6 +1540,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -1370,11 +1549,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["enabled"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -1388,16 +1569,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["enabled"] = {
@@ -1408,36 +1595,50 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["key"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["lastUsedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["permissions"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -1446,26 +1647,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["previousKeyExpiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["revokedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["rotatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ServiceAccountStatus" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -1476,6 +1687,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gracePeriodSeconds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -1500,6 +1712,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1515,26 +1728,31 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1575,11 +1793,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessLevel"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ServiceAccessLevel" } :: Core.Schema,
 				},
 				["serviceName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1591,6 +1811,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["permissions"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -1599,6 +1820,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 			},
@@ -1618,6 +1840,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -1628,6 +1851,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1648,36 +1872,50 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accountId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ValidationAccountType" } :: Core.Schema,
 				},
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["orgRole"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "array",
@@ -1691,16 +1929,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["role"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "TenantRole" } :: Core.Schema,
 				},
 				["serviceAccount"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["servicePermissions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ServicePermissionResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -1709,11 +1953,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["valid"] = {
@@ -1744,11 +1992,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["orgId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -1785,6 +2035,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["active"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["award"] = {
@@ -1803,26 +2054,31 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["length"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxGlobalRedemptions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["name"] = {
@@ -1833,11 +2089,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["prefix"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["startsAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -1876,11 +2134,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["active"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["award"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
 						["kind"] = "array",
@@ -1889,6 +2151,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["batchId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -1897,81 +2161,113 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["code"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxGlobalRedemptions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxRedemptionsPerUser"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["pendingRedemptions"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["redeemableNow"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["remainingGlobalRedemptions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["startsAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["timesRedeemed"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -1982,6 +2278,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["award"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
 						["kind"] = "array",
@@ -1990,51 +2288,71 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["code"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["codeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["redeemedByAccountId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["requestId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["transaction"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "FieldsTransactionResult" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2045,6 +2363,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["active"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["award"] = {
@@ -2063,41 +2382,49 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxGlobalRedemptions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxRedemptionsPerUser"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["startsAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2108,11 +2435,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["replayed"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["results"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
 						["kind"] = "array",
@@ -2121,6 +2452,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["seq"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "map",
@@ -2129,6 +2462,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["txId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -2139,26 +2474,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["database"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
-					["notBlank"] = false,
-					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -2206,6 +2521,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
@@ -2216,6 +2532,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2226,21 +2543,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["code"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["codeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["redeemedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["redemptionId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["replayed"] = {
@@ -2251,16 +2576,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["transaction"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "FieldsTransactionResult" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2271,16 +2602,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["after"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["before"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["entryId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -2289,16 +2626,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["op"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Op" } :: Core.Schema,
 				},
 				["path"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PathSegment" } :: Core.Schema,
 						["kind"] = "array",
@@ -2307,11 +2650,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["subject"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["version"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2322,11 +2669,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["active"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["award"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PlayerOperation" } :: Core.Schema,
 						["kind"] = "array",
@@ -2335,41 +2684,49 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["code"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxGlobalRedemptions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxRedemptionsPerUser"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["startsAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -2382,11 +2739,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["force"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -2397,6 +2756,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2462,6 +2822,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["configFailOpenRate"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["enabled"] = {
@@ -2472,31 +2833,37 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["pendingAgeSeconds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["pendingSize"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["stalledSeconds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["transaction5xxRate"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["webhook"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -2573,6 +2940,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["subjects"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "array",
@@ -2581,6 +2949,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2619,21 +2988,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["binding"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "fields", ["name"] = "LeaderboardBinding" } :: Core.Schema,
 				},
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["settings"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardSettings" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
 				},
 			},
@@ -2644,11 +3021,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["aggregation"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxDeltaPerSubmit"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -2667,11 +3046,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["resetSchedule"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["sortOrder"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -2683,6 +3064,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["actual"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardActualSettings" } :: Core.Schema,
 				},
 				["board"] = {
@@ -2698,16 +3080,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expected"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardSettings" } :: Core.Schema,
 				},
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["source"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -2726,11 +3111,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["aggregation"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardAggregation" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxScore"] = {
@@ -2746,16 +3135,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["resetSchedule"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardResetSchedule" } :: Core.Schema,
 				},
 				["sortOrder"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardSortOrder" } :: Core.Schema,
 				},
 			},
@@ -2777,6 +3172,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["ops"] = {
@@ -2800,6 +3196,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2833,6 +3230,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["ops"] = {
@@ -2846,6 +3244,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["target"] = {
@@ -2856,6 +3255,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -2876,6 +3276,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["subject"] = {
@@ -2938,21 +3339,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["bindings"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "fields", ["name"] = "Bindings" } :: Core.Schema,
 				},
 				["computed"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "fields", ["name"] = "Computed" } :: Core.Schema,
 				},
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["default"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["definitionVersion"] = {
@@ -2963,31 +3372,43 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["history"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "History" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["scope"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Scope" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
 				},
 				["type"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "fields", ["name"] = "TypeExpr" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -2998,11 +3419,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["writeLevel"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "WriteLevel" } :: Core.Schema,
 				},
 			},
@@ -3013,16 +3438,20 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["actor"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["after"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
 				},
 				["before"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Definition" } :: Core.Schema,
 				},
 				["counter"] = {
@@ -3033,21 +3462,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["references"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FieldReference" } :: Core.Schema,
 						["kind"] = "array",
@@ -3061,36 +3498,43 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["bindings"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "fields", ["name"] = "Bindings" } :: Core.Schema,
 				},
 				["computed"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "fields", ["name"] = "Computed" } :: Core.Schema,
 				},
 				["default"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expectedDefinitionVersion"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["history"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "History" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -3101,26 +3545,31 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["scope"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Scope" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Status" } :: Core.Schema,
 				},
 				["type"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "fields", ["name"] = "TypeExpr" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["writeLevel"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "WriteLevel" } :: Core.Schema,
 				},
 			},
@@ -3131,6 +3580,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["computed"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "boolean" } :: Core.Schema,
 						["kind"] = "map",
@@ -3139,11 +3590,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["data"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["errors"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "map",
@@ -3162,6 +3617,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["versions"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "map",
@@ -3180,11 +3637,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expectedSeq"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -3195,6 +3654,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -3205,6 +3665,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["after"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["afterExists"] = {
@@ -3215,6 +3677,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["afterHash"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["afterSize"] = {
@@ -3225,11 +3689,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["args"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["before"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["beforeExists"] = {
@@ -3240,6 +3708,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["beforeHash"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["beforeSize"] = {
@@ -3250,16 +3720,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["entryId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -3268,21 +3744,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["kind"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["op"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["ordinal"] = {
@@ -3293,6 +3777,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["path"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PathSegment" } :: Core.Schema,
 						["kind"] = "array",
@@ -3301,21 +3787,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["refId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["refType"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reversesId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["seq"] = {
@@ -3331,6 +3825,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["txId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -3382,6 +3878,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["fields"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "array",
@@ -3390,6 +3887,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -3400,11 +3898,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["target"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "fields", ["name"] = "BulkTarget" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -3416,6 +3916,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["items"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FieldView" } :: Core.Schema,
 						["kind"] = "array",
@@ -3424,6 +3926,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["nextCursor"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -3503,11 +4007,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["isDefault"] = {
@@ -3518,11 +4026,14 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["value"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["version"] = {
@@ -3569,16 +4080,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["defaultValue"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["enabled"] = {
@@ -3589,11 +4106,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["key"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["rolloutPct"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -3602,6 +4123,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["rules"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FlagRule" } :: Core.Schema,
 						["kind"] = "array",
@@ -3615,16 +4138,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["type"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["variants"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FlagVariant" } :: Core.Schema,
 						["kind"] = "array",
@@ -3643,6 +4172,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userIds"] = {
@@ -3661,11 +4191,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["context"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["keys"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "array",
@@ -3674,11 +4206,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -3702,16 +4236,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["value"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["variant"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -3740,11 +4280,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["key"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["rolloutPct"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["rules"] = {
@@ -3758,6 +4300,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["sticky"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["type"] = {
@@ -3768,11 +4311,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["variants"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FlagVariant" } :: Core.Schema,
 						["kind"] = "array",
@@ -3781,6 +4326,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["version"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -3811,6 +4357,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["match"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FlagMatch" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -3854,16 +4402,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["actor"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["newValue"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["previousValue"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "json" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -3872,6 +4426,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["time"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["version"] = {
@@ -4004,6 +4560,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["count"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["generator"] = {
@@ -4014,11 +4571,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["playerId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4029,6 +4588,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["count"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["generator"] = {
@@ -4039,6 +4599,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["playerId"] = {
@@ -4049,6 +4610,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4110,16 +4672,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["iterations"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["playerId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4164,26 +4729,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		["HealthComponent"] = {
 			["fields"] = {
 				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["service"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
@@ -4270,6 +4815,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["doneAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
@@ -4285,6 +4831,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["lastError"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["nextAttemptAt"] = {
@@ -4325,6 +4872,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4409,6 +4957,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["failed"] = {
@@ -4429,6 +4978,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["phase"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["prepared"] = {
@@ -4439,6 +4989,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["recurrence"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ScheduleRecurrence" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -4447,6 +4998,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["snapshotId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["state"] = {
@@ -4481,6 +5033,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -4529,6 +5082,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -4539,6 +5093,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4567,6 +5122,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4577,6 +5133,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["allowlistUserIds"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "array",
@@ -4590,6 +5148,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -4628,11 +5188,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["converter"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "fields", ["name"] = "Converter" } :: Core.Schema,
 				},
 				["default"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["expectedDefinitionVersion"] = {
@@ -4643,11 +5205,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["onFailure"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "FailurePolicy" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -4663,6 +5227,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4717,11 +5282,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["converter"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "fields", ["name"] = "Converter" } :: Core.Schema,
 				},
 				["default"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["expectedDefinitionVersion"] = {
@@ -4732,16 +5299,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["onFailure"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "FailurePolicy" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["type"] = {
@@ -4752,6 +5322,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4782,6 +5353,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["entryId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -4790,21 +5362,27 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expected"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["ledgerVersion"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["subject"] = {
@@ -4815,6 +5393,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["value"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["version"] = {
@@ -4830,11 +5410,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["code"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["opIndex"] = {
@@ -4845,6 +5429,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["path"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PathSegment" } :: Core.Schema,
 						["kind"] = "array",
@@ -4881,6 +5467,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -4891,6 +5478,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["errors"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "OpValidationError" } :: Core.Schema,
 						["kind"] = "array",
@@ -5006,6 +5595,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["nextCursor"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -5044,6 +5634,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5059,16 +5650,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["sessionId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["userId"] = {
@@ -5084,6 +5681,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userIds"] = {
@@ -5107,6 +5705,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["sessionId"] = {
@@ -5117,6 +5716,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5140,6 +5740,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["conflicts"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "BoardConflict" } :: Core.Schema,
 						["kind"] = "array",
@@ -5148,16 +5750,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["effectiveSettings"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardSettings" } :: Core.Schema,
 				},
 				["settings"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardSettings" } :: Core.Schema,
 				},
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "BoardPreviewStatus" } :: Core.Schema,
 				},
 				["valid"] = {
@@ -5168,6 +5776,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["willWiden"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ScoreRange" } :: Core.Schema,
 				},
 			},
@@ -5188,6 +5798,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["scope"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Scope" } :: Core.Schema,
 				},
 				["type"] = {
@@ -5198,6 +5809,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5213,6 +5825,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["ops"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "Operation" } :: Core.Schema,
 						["kind"] = "array",
@@ -5226,6 +5840,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["sku"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -5236,6 +5852,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -5264,6 +5882,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5279,6 +5898,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5314,6 +5934,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["applyNow"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["definition"] = {
@@ -5324,11 +5945,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expectedVersion"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["key"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -5339,6 +5962,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5397,6 +6021,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5448,6 +6073,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["productId"] = {
@@ -5458,16 +6085,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["purchaseId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["refund"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
 				},
 				["refundedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robuxSpent"] = {
@@ -5478,11 +6111,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["transaction"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -5503,6 +6140,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["productId"] = {
@@ -5523,6 +6161,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userId"] = {
@@ -5538,6 +6177,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["purchaseId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["replayed"] = {
@@ -5548,11 +6189,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["status"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["transaction"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Result" } :: Core.Schema,
 				},
 			},
@@ -5580,6 +6225,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -5590,6 +6236,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5600,11 +6247,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["prefix"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
@@ -5615,11 +6264,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5630,11 +6281,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["items"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "RestoreReportItem" } :: Core.Schema,
 						["kind"] = "array",
@@ -5731,6 +6384,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["results"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ResultItem" } :: Core.Schema,
 						["kind"] = "array",
@@ -5739,6 +6394,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["seq"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "map",
@@ -5747,6 +6404,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["txId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -5757,16 +6416,21 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["after"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["before"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["entryId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -5775,16 +6439,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["op"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["path"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "PathSegment" } :: Core.Schema,
 						["kind"] = "array",
@@ -5839,6 +6509,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["instanceId"] = {
@@ -5864,6 +6535,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -5983,6 +6655,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["flags"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "FlagDefinition" } :: Core.Schema,
 						["kind"] = "array",
@@ -5991,16 +6665,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameValues"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["maintenance"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "MaintenanceState" } :: Core.Schema,
 				},
 				["rotations"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "RotationActive" } :: Core.Schema,
 						["kind"] = "array",
@@ -6024,6 +6704,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6032,6 +6713,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["jobId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6040,6 +6722,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["key"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6058,6 +6741,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["skipReason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6074,6 +6758,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["version"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6087,6 +6772,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["end"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6095,6 +6781,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["endActions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = {
 							["item"] = { ["kind"] = "fields", ["name"] = "ScheduleAction" } :: Core.Schema,
@@ -6106,6 +6793,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6124,6 +6812,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["recurrence"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ScheduleRecurrence" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6150,6 +6839,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6164,11 +6854,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["end"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["endActions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "ScheduleAction" } :: Core.Schema,
 						["kind"] = "array",
@@ -6177,6 +6869,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
@@ -6192,6 +6885,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["recurrence"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ScheduleRecurrence" } :: Core.Schema,
 				},
 				["restorePrevious"] = {
@@ -6215,6 +6909,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -6297,6 +6992,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["error"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6305,6 +7001,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["finishedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6342,6 +7039,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["end"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6365,6 +7063,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["recurrence"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "ScheduleRecurrence" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6432,16 +7131,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["createdBy"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["itemCount"] = {
@@ -6452,21 +7157,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["kind"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["scope"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Scope" } :: Core.Schema,
 				},
 				["subjectId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -6497,6 +7210,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["items"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "SnapshotItem" } :: Core.Schema,
 						["kind"] = "array",
@@ -6505,11 +7220,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Snapshot" } :: Core.Schema,
 				},
 				["nextCursor"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6533,11 +7252,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -6548,6 +7269,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["field"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["subject"] = {
@@ -6558,6 +7281,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["value"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["version"] = {
@@ -6574,6 +7299,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["conditions"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "fields", ["name"] = "Condition" } :: Core.Schema,
 						["kind"] = "array",
@@ -6582,6 +7308,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["idempotencyKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["ops"] = {
@@ -6600,11 +7327,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["ref"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Ref" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -6619,6 +7348,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["aggregation"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Aggregation" } :: Core.Schema,
 				},
 				["archived"] = {
@@ -6629,26 +7360,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["currentPeriodId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxDeltaPerSubmit"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "number" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6667,21 +7408,29 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["periodStartedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["resetSchedule"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ResetSchedule" } :: Core.Schema,
 				},
 				["sortOrder"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "SortOrder" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -6697,6 +7446,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["aggregation"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Aggregation" } :: Core.Schema,
 				},
 				["displayName"] = {
@@ -6707,36 +7457,43 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["maxDeltaPerSubmit"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxScore"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["minScore"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["resetSchedule"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ResetSchedule" } :: Core.Schema,
 				},
 				["sortOrder"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "SortOrder" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -6752,31 +7509,12 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["service"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
 		["MatchInput"] = {
 			["fields"] = {
 				["matchId"] = {
 					["notBlank"] = true,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["scope"] = {
@@ -6795,6 +7533,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -6805,11 +7544,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["matchId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["players"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "RatingChange" } :: Core.Schema,
 						["kind"] = "array",
@@ -6836,46 +7579,55 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["aggregation"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "Aggregation" } :: Core.Schema,
 				},
 				["clearMaxDeltaPerSubmit"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxDeltaPerSubmit"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxScore"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["minScore"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["resetSchedule"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "ResetSchedule" } :: Core.Schema,
 				},
 				["sortOrder"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "SortOrder" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -6886,6 +7638,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["closedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "nullable",
@@ -6894,11 +7648,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["periodId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["startedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["total"] = {
@@ -6929,6 +7687,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["ratingScope"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -6939,6 +7699,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["userId"] = {
@@ -6999,6 +7761,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -7009,11 +7773,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["scope"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7029,6 +7797,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -7051,6 +7820,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -7061,6 +7831,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["displayName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["score"] = {
@@ -7071,11 +7842,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["submissionId"] = {
 					["notBlank"] = true,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userId"] = {
@@ -7096,6 +7869,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["periodId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["score"] = {
@@ -7106,6 +7881,8 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["submissionId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["userId"] = {
@@ -7170,6 +7947,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["userIds"] = {
@@ -7196,6 +7974,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -7282,31 +8061,37 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expiresInHours"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["isPermanent"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["notes"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUniverseId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7322,6 +8107,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -7337,46 +8123,55 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["bannedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["bannedBy"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["isExpired"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["isPermanent"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["notes"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUniverseId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7387,6 +8182,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["robloxUserIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["items"] = {
 							{ ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
@@ -7416,6 +8212,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -7436,11 +8233,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["robloxUniverseId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "array",
@@ -7454,6 +8253,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["results"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "PlayerQueueStatusResponse" } :: Core.Schema,
 						["kind"] = "map",
@@ -7467,6 +8267,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -7492,6 +8293,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["removedCount"] = {
@@ -7512,6 +8314,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["matchmakingCriteria"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "MatchmakingCriteriaDTO" } :: Core.Schema,
 						["kind"] = "array",
@@ -7520,16 +8323,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7541,16 +8347,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["optionalMetadataFields"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "CriteriaFieldInfo" } :: Core.Schema,
 						["kind"] = "array",
@@ -7559,6 +8368,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["requiredMetadataFields"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "CriteriaFieldInfo" } :: Core.Schema,
 						["kind"] = "array",
@@ -7627,21 +8437,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["constraint"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["criteriaType"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["description"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["fieldName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["required"] = {
@@ -7690,6 +8504,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["sampleSize"] = {
@@ -7790,26 +8605,31 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["actualValue"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "json" } :: Core.Schema,
 				},
 				["criteriaType"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "CriteriaType" } :: Core.Schema,
 				},
 				["expectedConstraint"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["fieldName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7820,6 +8640,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -7840,16 +8661,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["playerCount"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["players"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "PlayerInQueueInfo" } :: Core.Schema,
 						["kind"] = "array",
@@ -7863,21 +8687,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["isJail"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["matchmakingCriteria"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "MatchmakingCriteriaDTO" } :: Core.Schema,
 						["kind"] = "array",
@@ -7886,41 +8714,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["database"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
-					["notBlank"] = false,
-					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -7946,26 +8758,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -7976,26 +8798,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8006,71 +8838,85 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["allowCrossRegion"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["bracketSize"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["fieldName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["groupCount"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxDifference"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxLatencyDiff"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxPlayers"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["maxValue"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["minValue"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["skillRange"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["targetValue"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["tolerance"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["type"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "ref", ["name"] = "CriteriaType" } :: Core.Schema,
 				},
 				["weight"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -8092,6 +8938,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUniverseId"] = {
@@ -8102,11 +8949,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["items"] = {
 							{ ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
@@ -8162,26 +9011,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8192,21 +9051,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "array",
@@ -8220,11 +9083,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["gameModeNames"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "string" } :: Core.Schema,
 						["kind"] = "array",
@@ -8233,26 +9100,33 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["inQueue"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["queuedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8263,21 +9137,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["queuedPlayerCount"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8288,21 +9166,26 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["removedCount"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["success"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8313,16 +9196,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["totalPlayersInQueue"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeBreakdown"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "UniverseQueueInfo" } :: Core.Schema,
 						["kind"] = "map",
@@ -8341,6 +9227,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUniverseId"] = {
@@ -8351,11 +9238,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["items"] = {
 							{ ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
@@ -8418,6 +9307,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -8428,11 +9318,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8443,26 +9335,31 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUniverseId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserIds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["items"] = {
 							{ ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "array" } :: Core.Schema,
@@ -8484,6 +9381,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8499,11 +9397,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["robloxApiKey"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8514,6 +9414,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -8529,6 +9430,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["message"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["success"] = {
@@ -8612,6 +9514,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8622,6 +9525,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["gameModes"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "GameModeQueueInfo" } :: Core.Schema,
 						["kind"] = "map",
@@ -8630,11 +9534,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["totalPlayers"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8645,16 +9551,22 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["places"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "PlaceResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -8663,11 +9575,15 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8696,21 +9612,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["expiresInHours"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["isPermanent"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["notes"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["reason"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8721,6 +9641,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["matchmakingCriteria"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "MatchmakingCriteriaDTO" } :: Core.Schema,
 						["kind"] = "array",
@@ -8729,11 +9650,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["placeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8754,6 +9677,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["errors"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "CriteriaValidationError" } :: Core.Schema,
 						["kind"] = "array",
@@ -8762,6 +9686,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["valid"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 			},
@@ -8772,36 +9697,45 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["estimatedWaitSeconds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["gameModeName"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxMatchSize"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["oldestEntryAgeSeconds"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["playersNeeded"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["queuedPlayerCount"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseRequired"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8855,26 +9789,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["database"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
-					["notBlank"] = false,
-					["required"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8935,26 +9849,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountId"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["accountType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "ref", ["name"] = "AccountType" } :: Core.Schema,
 				},
 				["createdTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["email"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -8965,26 +9889,36 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["metadata"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 				},
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updatedTime"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["username"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -8995,11 +9929,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["joinedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["robloxUserId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -9010,21 +9946,25 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["createdAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["id"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["maxSize"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["members"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "PartyMemberResponse" } :: Core.Schema,
 						["kind"] = "array",
@@ -9033,16 +9973,19 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["ownerId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["updatedAt"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -9053,26 +9996,31 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["ownerId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["partyId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updateType"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["userId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -9093,6 +10041,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["accessToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["expiresIn"] = {
@@ -9103,11 +10052,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["refreshToken"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["tokenType"] = {
 					["notBlank"] = false,
 					["required"] = true,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 			},
@@ -9138,11 +10089,13 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["updates"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = {
 						["item"] = { ["kind"] = "ref", ["name"] = "PartyUpdate" } :: Core.Schema,
 						["kind"] = "array",
@@ -9191,26 +10144,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		["HealthComponent"] = {
 			["fields"] = {
 				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["HealthResponse"] = {
-			["fields"] = {
-				["service"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["status"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["timestamp"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
@@ -9399,6 +10332,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["universeId"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
@@ -9409,6 +10343,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["enabled"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
 				},
 				["events"] = {
@@ -9422,6 +10357,7 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["secret"] = {
 					["notBlank"] = false,
 					["required"] = false,
+					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["url"] = {
@@ -9434,6 +10370,9 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 		} :: Core.Schema,
 	},
 }
+for _, service in definitions do
+	service.HealthResponse = healthResponse
+end
 local endpoints: { [string]: Core.EndpointSchema } = {
 	["audit.actions"] = {
 		["response"] = { ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "cursorPage" } :: Core.Schema,
@@ -9615,7 +10554,7 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["service"] = "auth",
 	},
 	["auth.healthProxy"] = {
-		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "HealthResponse" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.leaveOrg"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },

@@ -151,7 +151,7 @@ function Helpers.loadProfile(
 		return System.failure("invalid_request")
 	end
 	local schema = Helpers.schema(state, universeId)
-	local loaded = schema:Load()
+	local loaded = schema:load()
 	if not loaded.ok then
 		return loaded
 	end
@@ -184,9 +184,9 @@ function Helpers.loadProfile(
 			return Helpers.transaction(state, universeId, userId, callback)
 		end,
 	})
-	local result = profile:Refresh()
+	local result = profile:refresh()
 	if not result.ok then
-		profile:Destroy()
+		profile:destroy()
 		return result
 	end
 	-- Closed profiles no longer own background work; do not retain reconnect history indefinitely.
@@ -205,11 +205,11 @@ function Helpers.close(state: State, deadline: number): boolean
 		cleanup()
 	end
 	for _, schema in state.schemas do
-		schema:Destroy()
+		schema:destroy()
 	end
 	local drained = true
 	for _, profile in state.profiles do
-		if not profile:Close(deadline) then
+		if not profile:close(deadline) then
 			drained = false
 		end
 	end
@@ -222,10 +222,10 @@ function Helpers.destroy(state: State)
 		cleanup()
 	end
 	for _, schema in state.schemas do
-		schema:Destroy()
+		schema:destroy()
 	end
 	for _, profile in state.profiles do
-		profile:Destroy()
+		profile:destroy()
 	end
 end
 return table.freeze(Helpers)

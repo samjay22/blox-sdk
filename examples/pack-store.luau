@@ -15,18 +15,18 @@ export type UI = {
 	purchaseError: (string?) -> (),
 }
 export type Store = {
-	Tick: () -> (),
-	Purchase: (number, Listing, string) -> Core.Result<Wire.RotationClaimResult>,
-	Destroy: () -> (),
+	tick: () -> (),
+	purchase: (number, Listing, string) -> Core.Result<Wire.RotationClaimResult>,
+	destroy: () -> (),
 }
---- Show the configured store; the game's existing UI heartbeat calls Tick, which never performs HTTP.
+--- Show the configured store; the game's existing UI heartbeat calls tick, which never performs HTTP.
 return function(client: SDK.Client, universeId: number, ui: UI): Store
 	local scoped = client:withUniverse(universeId)
 	scoped:runtimeSnapshot(30)
-	local rotations = scoped.fields:Rotations(universeId)
+	local rotations = scoped.fields:rotations(universeId)
 	local current: Wire.RotationInstance? = nil
 	local listings: { Listing } = {}
-	local watch = rotations:Watch("pack_store", function(instance)
+	local watch = rotations:watch("pack_store", function(instance)
 		current = instance
 		local nextListings: { Listing } = {}
 		for _, pick in instance.result.picks do
@@ -43,10 +43,10 @@ return function(client: SDK.Client, universeId: number, ui: UI): Store
 		ui.showSale(listings, nil)
 	end)
 	return {
-		Tick = function()
-			ui.countdown(if current then rotations:TimeRemaining(current) else 0)
+		tick = function()
+			ui.countdown(if current then rotations:timeRemaining(current) else 0)
 		end,
-		Purchase = function(
+		purchase = function(
 			playerId: number,
 			listing: Listing,
 			purchaseId: string
@@ -59,13 +59,14 @@ return function(client: SDK.Client, universeId: number, ui: UI): Store
 					ok = false,
 					error = {
 						kind = "Local",
+						code = "sdk_local",
 						endpoint = "fields.claimRotation",
 						attempts = 0,
 						message = "Store not loaded",
 					},
 				}
 			end
-			local result = rotations:Claim(
+			local result = rotations:claim(
 				listing.instanceId,
 				listing.slot,
 				listing.entryId,
@@ -79,20 +80,20 @@ return function(client: SDK.Client, universeId: number, ui: UI): Store
 				end
 				-- Claim already debits Gems and grants the configured pack. Never charge/grant again.
 				-- Read live stock explicitly; replay.remaining may describe an old purchase.
-				local stock = rotations:GetStock(listing.instanceId)
+				local stock = rotations:getStock(listing.instanceId)
 				if current and current.id == listing.instanceId then
 					ui.showSale(listings, if stock.ok then stock.value else nil)
 				end
 			else
 				ui.purchaseError(result.error.code)
 				if result.error.code == "rotation_expired" then
-					watch:Refresh()
+					watch:refresh()
 				end
 			end
 			return result
 		end,
-		Destroy = function()
-			watch:Disconnect()
+		destroy = function()
+			watch:disconnect()
 		end,
 	}
 end

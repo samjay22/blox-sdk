@@ -160,7 +160,7 @@ non-yielding, atomic and non-throwing. Do not mutate them behind a live client's
 replacement so the epoch invalidates scoped credentials. Do not share one store across independently refreshing
 clients. `userSession.role` is only a preflight hint, never proof of privilege.
 
-Advanced integrations may use `BloxSDK.Auth.userSession`, `.memoryTokenStore`, `.serviceAccount`, or a custom
+Advanced integrations may use `BloxSDK.userSession`, `BloxSDK.memoryTokenStore`, `BloxSDK.serviceAccount`, or a custom
 AuthProvider. Custom callbacks are trusted code and must not log credentials. `apply` is synchronous;
 `onUnauthorized` returns whether replay is appropriate. A custom provider must use `kind="scoped"` when it holds
 only a scoped JWT; `kind="custom"` cannot establish authority and the backend still rejects misuse.
@@ -209,3 +209,5 @@ These routes are not machine-key gameplay operations.
 lookup for platform integrations; it never returns a key, digest or permission list. Backend machine/org
 checks remain authoritative. Existing sandbox provision/finalize/cancel APIs are internal machine controls,
 not ordinary game-server account administration.
+
+In 1.0, SDK `error.code` is lowercase snake_case even when Auth wire errorCode is uppercase. For example, INVALID_TOKEN becomes `invalid_token`. Unknown wire codes use the stable SDK fallback.

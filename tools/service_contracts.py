@@ -156,6 +156,7 @@ def refresh(doc: dict) -> dict:
         evidence = sorted(root.glob('src/main/java/**/*.java'))
         evidence += [p for p in (root/'API_CONTRACT.md', root/'README.md', root/'FRONTEND_INTEGRATION_GUIDE.md') if p.is_file()]
         evidence += sorted(root.glob('postman/*.json'))
+        evidence += sorted(root.glob('src/main/resources/application.properties'))
         if service == 'auth':
             evidence += sorted((root.parent/'global-auth-client').glob('src/main/java/**/*.java'))
             evidence += [root.parent/'API_CONTRACT.md', root.parent/'README.md']
@@ -198,4 +199,6 @@ def refresh(doc: dict) -> dict:
             if endpoint['bodyType']: visit(schema(endpoint['bodyType']))
         doc['types'][service] = {name:definitions[name] for name in sorted(needed)}
     doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))
+    from response_contract import curate_reads
+    curate_reads(doc)
     return doc

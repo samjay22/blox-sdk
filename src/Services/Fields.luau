@@ -27,39 +27,39 @@ function Service.new(invoke: Core.Invoke, universe: (string | number)?, helpers:
 	return setmetatable({ _invoke = invoke, _universe = universe, _fields = helpers }, Service)
 end
 --- Bind Bulk helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.Bulk(self: Service, universeId: string | number): Bulk.Builder
+function Service.bulkBuilder(self: Service, universeId: string | number): Bulk.Builder
 	return Bulk.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Bind Schedules helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.Schedules(self: Service, universeId: string | number): Schedules.Client
+function Service.scheduleClient(self: Service, universeId: string | number): Schedules.Client
 	return Schedules.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Bind Jobs helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.Jobs(self: Service, universeId: string | number): Jobs.Client
+function Service.jobClient(self: Service, universeId: string | number): Jobs.Client
 	return Jobs.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Bind Health helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.Health(self: Service, universeId: string | number): Health.Client
+function Service.healthClient(self: Service, universeId: string | number): Health.Client
 	return Health.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Bind Rotations helpers to an explicit universe; server authorization remains authoritative.
-function Service.Rotations(self: Service, universeId: string | number): Rotations.Client
+function Service.rotations(self: Service, universeId: string | number): Rotations.Client
 	return Rotations.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Bind Generators helpers to an explicit universe; server authorization remains authoritative.
-function Service.Generators(self: Service, universeId: string | number): Generators.Client
+function Service.generators(self: Service, universeId: string | number): Generators.Client
 	return Generators.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Build a subject-free list for read-only static validation.
-function Service.Operations(self: Service, universeId: string | number): OpBuilder.Builder
+function Service.operations(self: Service, universeId: string | number): OpBuilder.Builder
 	return Helpers.operations(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Resolve the lazy schema cache for an explicit universe.
-function Service.Schema(self: Service, universeId: string | number): Schema.Schema
+function Service.schemaCache(self: Service, universeId: string | number): Schema.Schema
 	return Helpers.schema(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- Create a validated player transaction; load Schema first or use LoadProfile.
-function Service.Transaction(
+function Service.transactionBuilder(
 	self: Service,
 	universeId: string | number,
 	userId: number
@@ -67,11 +67,11 @@ function Service.Transaction(
 	return Helpers.transaction(assert(self._fields, "Fields helpers unavailable"), universeId, userId)
 end
 --- Create an atomic multi-subject builder; select subjects with Subject(id).
-function Service.MultiTransaction(self: Service, universeId: string | number): Transaction.Transaction
+function Service.multiTransactionBuilder(self: Service, universeId: string | number): Transaction.Transaction
 	return Helpers.transaction(assert(self._fields, "Fields helpers unavailable"), universeId, nil)
 end
 --- Fetch a typed player document with owned presence/refresh lifecycle.
-function Service.LoadProfile(
+function Service.loadProfile(
 	self: Service,
 	universeId: string | number,
 	userId: number
@@ -79,7 +79,7 @@ function Service.LoadProfile(
 	return Helpers.loadProfile(assert(self._fields, "Fields helpers unavailable"), universeId, userId)
 end
 --- Submit a trusted receipt; the server deduplicates purchaseId across calls and restarts.
-function Service.ProcessReceipt(
+function Service.processReceipt(
 	self: Service,
 	universeId: string | number,
 	receipt: Types.ReceiptInput,

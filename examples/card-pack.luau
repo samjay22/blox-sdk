@@ -14,9 +14,9 @@ return function(
 	openingId: string,
 	ui: UI
 ): Core.Result<Wire.GeneratorRollResult>
-	local generators = client.fields:Generators(universeId)
+	local generators = client.fields:generators(universeId)
 	-- This is the example's root table, not a fabricated generator-odds endpoint.
-	local odds = generators:GetOdds("rarity", playerId)
+	local odds = generators:getOdds("rarity", playerId)
 	if not odds.ok then
 		return odds
 	end -- Fail closed if this experience requires odds disclosure.
@@ -25,7 +25,7 @@ return function(
 		"Base single-table odds; pack guarantees, uniqueness and pity change final outcomes"
 	)
 	-- openingId belongs to one authenticated player's persisted opening intent, not the animation.
-	local rolled = generators:Roll("card_pack", playerId, { count = 1, idempotencyKey = openingId })
+	local rolled = generators:roll("card_pack", playerId, { count = 1, idempotencyKey = openingId })
 	if not rolled.ok then
 		return rolled
 	end

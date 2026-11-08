@@ -4,10 +4,11 @@ local Types = require("../Types/Fields")
 local Config = require("./Config")
 local Cache = require("./Cache")
 local Errors = require("./Errors")
+local Json = require("./Json")
 local Snapshot = {}
 Snapshot.__index = Snapshot
-export type Connection = { Disconnect: (Connection) -> () }
-export type Changed = { Connect: (Changed, (Types.RuntimeSnapshot) -> ()) -> Connection }
+export type Connection = { disconnect: (Connection) -> () }
+export type Changed = { connect: (Changed, (Types.RuntimeSnapshot) -> ()) -> Connection }
 export type Snapshot = typeof(setmetatable(
 	{} :: {
 		_runtime: Core.Runtime,
@@ -21,8 +22,8 @@ export type Snapshot = typeof(setmetatable(
 		_timer: thread?,
 		_busy: boolean,
 		_onDestroy: (() -> ())?,
-		Changed: Changed,
-		LastError: Core.BloxError?,
+		changed: Changed,
+		lastError: Core.BloxError?,
 	},
 	Snapshot
 ))
@@ -33,7 +34,7 @@ local function schedule(self: Snapshot, seconds: number)
 		if self._signal.cancelled then
 			return
 		end
-		self:Refresh()
+		self:refresh()
 		if not self._signal.cancelled then
 			schedule(self, self._interval)
 		end
@@ -48,10 +49,10 @@ function Snapshot.new(
 ): Snapshot
 	local listeners: { [(Types.RuntimeSnapshot) -> ()]: boolean } = {}
 	local changed: Changed = {
-		Connect = function(_self: Changed, callback: (Types.RuntimeSnapshot) -> ()): Connection
+		connect = function(_self: Changed, callback: (Types.RuntimeSnapshot) -> ()): Connection
 			listeners[callback] = true
 			return {
-				Disconnect = function(_connection: Connection)
+				disconnect = function(_connection: Connection)
 					listeners[callback] = nil
 				end,
 			}
@@ -69,14 +70,14 @@ function Snapshot.new(
 		_timer = nil,
 		_busy = false,
 		_onDestroy = onDestroy,
-		Changed = changed,
-		LastError = nil,
+		changed = changed,
+		lastError = nil,
 	}, Snapshot)
 	schedule(self, 0)
 	return self
 end
 --- Fetch conditionally; errors, 304s and version regressions never discard a good snapshot.
-function Snapshot.Refresh(self: Snapshot): boolean
+function Snapshot.refresh(self: Snapshot): boolean
 	if self._busy or self._signal.cancelled then
 		return false
 	end
@@ -91,22 +92,31 @@ function Snapshot.Refresh(self: Snapshot): boolean
 		return false
 	end
 	if not result.ok then
-		self.LastError = result.error
+		self.lastError = result.error
 		return false
 	end
 	if result.status == 304 and old then
-		self.LastError = nil
+		self.lastError = nil
 		return true
 	end
 	local value = result.value
-	if not value or value.version < 0 or value.version % 1 ~= 0 or (old and value.version < old.version) then
+	if
+		not value
+		or value.version < 0
+		or value.version % 1 ~= 0
+		or (old and value.version < old.version)
+		or not value.flags
+		or (value.flags :: any) == Json.null
+		or not value.gameValues
+		or (value.gameValues :: any) == Json.null
+	then
 		local failure = Errors.make("Validation", "fields.runtimeSnapshot", 0, "Invalid snapshot version")
 		if not failure.ok then
-			self.LastError = failure.error
+			self.lastError = failure.error
 		end
 		return false
 	end
-	self.LastError = nil
+	self.lastError = nil
 	local oldEtag = self._etag
 	self._etag = result.etag
 	if old and old.version == value.version and result.etag ~= nil and result.etag == oldEtag then
@@ -114,8 +124,10 @@ function Snapshot.Refresh(self: Snapshot): boolean
 	end
 	self._value = Cache.freeze(value)
 	local flags: { [string]: Types.FlagDefinition } = {}
-	for _, flag in value.flags do
-		flags[flag.key] = flag
+	for _, flag in value.flags :: { Types.FlagDefinition } do
+		if type(flag.key) == "string" then
+			flags[flag.key] = flag
+		end
 	end
 	self._flags = flags
 	for listener in self._listeners do
@@ -128,28 +140,29 @@ function Snapshot.Refresh(self: Snapshot): boolean
 	return true
 end
 --- Read active heads from the last good snapshot; nil means the server has not supplied rotations.
-function Snapshot.GetRotations(self: Snapshot): { Types.RotationActive }?
+function Snapshot.getRotations(self: Snapshot): { Types.RotationActive }?
 	return if not self._signal.cancelled and self._value then self._value.rotations else nil
 end
 --- Expose lifecycle state without requiring a polling task.
-function Snapshot.IsDestroyed(self: Snapshot): boolean
+function Snapshot.isDestroyed(self: Snapshot): boolean
 	return self._signal.cancelled
 end
 --- Return an immutable config value, or nil before initial success / for an unknown key.
-function Snapshot.Get(self: Snapshot, key: string): Core.Json?
-	return if self._value then self._value.gameValues[key] else nil
+function Snapshot.get(self: Snapshot, key: string): Core.Json?
+	local values = if self._value then self._value.gameValues else nil
+	return if values and (values :: any) ~= Json.null then (values :: { [string]: Core.Json })[key] else nil
 end
 --- Return the cached master switch, not per-user rollout/rules evaluation; use fields:evaluateFlags for that.
-function Snapshot.IsEnabled(self: Snapshot, flag: string): boolean
+function Snapshot.isEnabled(self: Snapshot, flag: string): boolean
 	local value = self._flags[flag]
 	return value ~= nil and value.enabled
 end
 --- Read the last successfully applied universe generation.
-function Snapshot.Version(self: Snapshot): number?
+function Snapshot.version(self: Snapshot): number?
 	return if self._value then self._value.version else nil
 end
 --- Stop polling, cancel in-flight work and disconnect all listeners.
-function Snapshot.Destroy(self: Snapshot)
+function Snapshot.destroy(self: Snapshot)
 	if self._signal.cancelled then
 		return
 	end

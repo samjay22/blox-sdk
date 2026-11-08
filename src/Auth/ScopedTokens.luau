@@ -155,10 +155,14 @@ function ScopedTokens.new(
 			synchronize()
 			local current = token
 			assert(
-				current and not closed and session.active() and runtime.now() < expiresAt,
+				current
+					and type(current.accessToken) == "string"
+					and not closed
+					and session.active()
+					and runtime.now() < expiresAt,
 				"Scoped credential unavailable"
 			)
-			headers.Authorization = "Bearer " .. (current :: Auth.Token).accessToken
+			headers.Authorization = "Bearer " .. (current.accessToken :: string)
 		end,
 		onUnauthorized = function(observed: number?, deadline: number?, signal: Core.Signal?): boolean
 			synchronize()

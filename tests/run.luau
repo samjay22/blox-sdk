@@ -1,4 +1,5 @@
 --!strict
+local Endpoints = require("../src/Core/Endpoints")
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Scheduler = require("./Scheduler")
@@ -118,10 +119,8 @@ local function fixture(schema: Core.Schema, defs: { [string]: Core.Schema }): an
 		}
 	end
 	local value: { [string]: any } = {}
-	for name, field in
-		schema.fields :: { [string]: { schema: Core.Schema, required: boolean, notBlank: boolean } }
-	do
-		if field.required then
+	for name, field in schema.fields :: { [string]: Core.SchemaField } do
+		if field.required or field.responseRequired then
 			value[name] = if (name == "universeId" or name == "robloxUniverseId")
 					and field.schema.kind == "string"
 				then "1"
@@ -163,11 +162,11 @@ test("key validation, fixed offsets, redaction and opaque Secret AddPrefix", fun
 end)
 
 test("precompiled paths encode delimiters UTF8 and false query values", function()
-	local p = SDK.endpoints["auth.getOrg"]
+	local p = Endpoints["auth.getOrg"]
 	local path = Path.build(p, { path = { org = "a/b ?#é" } :: { [string]: unknown } }, nil)
 	check(path == "/api/auth/orgs/a%2Fb%20%3F%23%C3%A9")
 	local codes = Path.build(
-		SDK.endpoints["codes.searchCodes"],
+		Endpoints["codes.searchCodes"],
 		{ query = { active = false, page = 0 } :: { [string]: unknown } },
 		123
 	)
@@ -271,7 +270,7 @@ test("GET success auth headers and immutable metadata", function()
 	s.run(function()
 		check(c.fields:schema().ok)
 	end)
-	check(header and f.count() == 1 and table.isfrozen(SDK.endpoints))
+	check(header and f.count() == 1 and table.isfrozen(Endpoints))
 end)
 
 test("POST not retried and HTTP failure payload is fully redacted", function()
@@ -524,7 +523,7 @@ end)
 test("all generated endpoints use default, custom gateway and direct-host URLs offline", function()
 	local count = 0
 	local endpointCount = 0
-	for id, spec in SDK.endpoints do
+	for id, spec in Endpoints do
 		endpointCount += 1
 		local s = Scheduler.new()
 		local schema = Schemas.endpoints[id]
@@ -610,7 +609,7 @@ test("all generated endpoints use default, custom gateway and direct-host URLs o
 			})
 			-- Route fixtures seed a local schema; dedicated tests exercise the real Load path.
 			if id == "fields.validateOps" or id == "codes.createCode" or id == "codes.bulkCreateCodes" then
-				local cached = c.fields:Schema(1)
+				local cached = c.fields:schemaCache(1)
 				cached._version = 1
 				cached._definitions["Currency.Gems"] = {
 					universeId = 1,
@@ -806,7 +805,7 @@ test("query typo and invalid options fail before transport", function()
 	local c, f = client(s, {})
 	s.run(function()
 		failure(
-			c._invoke(SDK.endpoints["codes.searchCodes"], { query = { univrseId = 123 } }, nil, nil),
+			c._invoke(Endpoints["codes.searchCodes"], { query = { univrseId = 123 } }, nil, nil),
 			"Validation"
 		)
 		failure(c.fields:schema(nil, { retry = -1 }), "Local")
@@ -877,7 +876,12 @@ test("universe facade fills string matchmaking identifiers", function()
 	local url = false
 	local c = client(s, {
 		{
-			body = s.json({}),
+			body = s.json({
+				universeId = "123",
+				gameModeName = "ranked",
+				queuedPlayerCount = 0,
+				timestamp = 1,
+			}),
 			check = function(req: Core.HttpRequest)
 				url = req.Url
 					== "https://lb1.blox-api.com/matchmaking-service/api/matchmaking/123/gamemodes/ranked/queue/count"
@@ -1008,6 +1012,7 @@ require("./fields")(test)
 require("./field_bindings")(test)
 require("./operations")(test)
 require("./matchmaking")(test)
+require("./live_responses")(test)
 require("./codes_bulk")(test)
 require("./jobs")(test)
 require("./references")(test)
@@ -1016,4 +1021,5 @@ require("./platform")(test)
 require("./service_contracts")(test)
 require("./rotations")(test)
 GatewayTests.register(test)
+require("./release")(test)
 print("PASS " .. tostring(passed) .. " test groups")

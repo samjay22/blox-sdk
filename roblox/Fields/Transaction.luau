@@ -73,7 +73,7 @@ local function reject(self: Transaction, code: string)
 	end
 end
 --- Select a subject for subsequent multi-subject operations and conditions; zero means shared fields.
-function Transaction.Subject(self: Transaction, subject: number): Transaction
+function Transaction.subject(self: Transaction, subject: number): Transaction
 	if self._sealed or not self._multi or subject ~= 0 and not Universe.valid(subject) then
 		reject(self, "invalid_request")
 	else
@@ -106,27 +106,27 @@ local function push(
 	return self
 end
 --- Set a whole field or declared nested target.
-function Transaction.Set(self: Transaction, id: string, value: Core.Json, path: Types.Path?): Transaction
+function Transaction.set(self: Transaction, id: string, value: Core.Json, path: Types.Path?): Transaction
 	return push(self, id, "SET", { value = value }, path)
 end
 --- Add a nonzero numeric delta.
-function Transaction.Add(self: Transaction, id: string, delta: number, path: Types.Path?): Transaction
+function Transaction.add(self: Transaction, id: string, delta: number, path: Types.Path?): Transaction
 	return push(self, id, "ADD", { delta = delta }, path)
 end
 --- Clamp a numeric target downward.
-function Transaction.Min(self: Transaction, id: string, value: number, path: Types.Path?): Transaction
+function Transaction.min(self: Transaction, id: string, value: number, path: Types.Path?): Transaction
 	return push(self, id, "MIN", { value = value }, path)
 end
 --- Clamp a numeric target upward.
-function Transaction.Max(self: Transaction, id: string, value: number, path: Types.Path?): Transaction
+function Transaction.max(self: Transaction, id: string, value: number, path: Types.Path?): Transaction
 	return push(self, id, "MAX", { value = value }, path)
 end
 --- Reset to the field/member/natural default.
-function Transaction.Reset(self: Transaction, id: string, path: Types.Path?): Transaction
+function Transaction.reset(self: Transaction, id: string, path: Types.Path?): Transaction
 	return push(self, id, "RESET", {}, path)
 end
 --- Append validated list items.
-function Transaction.Append(
+function Transaction.append(
 	self: Transaction,
 	id: string,
 	items: { Core.Json },
@@ -135,7 +135,7 @@ function Transaction.Append(
 	return push(self, id, "APPEND", { items = items }, path)
 end
 --- Insert items at a zero-based list index.
-function Transaction.Insert(
+function Transaction.insert(
 	self: Transaction,
 	id: string,
 	index: number,
@@ -145,7 +145,7 @@ function Transaction.Insert(
 	return push(self, id, "INSERT", { index = index, items = items }, path)
 end
 --- Remove a complete zero-based range (count defaults to one).
-function Transaction.RemoveAt(
+function Transaction.removeAt(
 	self: Transaction,
 	id: string,
 	index: number,
@@ -155,7 +155,7 @@ function Transaction.RemoveAt(
 	return push(self, id, "REMOVE_AT", { index = index, count = count }, path)
 end
 --- Remove the first canonical list match.
-function Transaction.RemoveValue(
+function Transaction.removeValue(
 	self: Transaction,
 	id: string,
 	value: Core.Json,
@@ -164,7 +164,7 @@ function Transaction.RemoveValue(
 	return push(self, id, "REMOVE_VALUE", { value = value }, path)
 end
 --- Union validated set members.
-function Transaction.SetAdd(
+function Transaction.setAdd(
 	self: Transaction,
 	id: string,
 	items: { Core.Json },
@@ -173,7 +173,7 @@ function Transaction.SetAdd(
 	return push(self, id, "SET_ADD", { items = items }, path)
 end
 --- Remove matching set members, ignoring absent values.
-function Transaction.SetRemove(
+function Transaction.setRemove(
 	self: Transaction,
 	id: string,
 	items: { Core.Json },
@@ -182,7 +182,7 @@ function Transaction.SetRemove(
 	return push(self, id, "SET_REMOVE", { items = items }, path)
 end
 --- Merge/replace validated map entries.
-function Transaction.MapPut(
+function Transaction.mapPut(
 	self: Transaction,
 	id: string,
 	entries: { [string]: Core.Json },
@@ -191,7 +191,7 @@ function Transaction.MapPut(
 	return push(self, id, "MAP_PUT", { entries = entries }, path)
 end
 --- Remove validated wire-string map keys.
-function Transaction.MapRemove(
+function Transaction.mapRemove(
 	self: Transaction,
 	id: string,
 	keys: { string },
@@ -200,7 +200,7 @@ function Transaction.MapRemove(
 	return push(self, id, "MAP_REMOVE", { keys = keys }, path)
 end
 --- Add to a numeric map value (missing values start at zero).
-function Transaction.MapAdd(
+function Transaction.mapAdd(
 	self: Transaction,
 	id: string,
 	key: string,
@@ -210,7 +210,7 @@ function Transaction.MapAdd(
 	return push(self, id, "MAP_ADD", { key = key, delta = delta }, path)
 end
 --- Add exactly one initial-state precondition, preserving explicit null equality.
-function Transaction.Expect(
+function Transaction.expect(
 	self: Transaction,
 	id: string,
 	expectation: Types.Expectation,
@@ -242,7 +242,7 @@ function Transaction.Expect(
 	return self
 end
 --- Attach the required audit reason.
-function Transaction.Reason(self: Transaction, text: string): Transaction
+function Transaction.reason(self: Transaction, text: string): Transaction
 	if self._sealed then
 		reject(self, "transaction_sealed")
 	else
@@ -251,7 +251,7 @@ function Transaction.Reason(self: Transaction, text: string): Transaction
 	return self
 end
 --- Attach an optional trusted business reference.
-function Transaction.Ref(self: Transaction, kind: string, id: string): Transaction
+function Transaction.ref(self: Transaction, kind: string, id: string): Transaction
 	if self._sealed then
 		reject(self, "transaction_sealed")
 	else
@@ -260,7 +260,7 @@ function Transaction.Ref(self: Transaction, kind: string, id: string): Transacti
 	return self
 end
 --- Set a caller-persisted identity before commit for restart-safe workflows.
-function Transaction.Key(self: Transaction, key: string): Transaction
+function Transaction.key(self: Transaction, key: string): Transaction
 	if self._sealed then
 		reject(self, "transaction_sealed")
 	else
@@ -269,12 +269,12 @@ function Transaction.Key(self: Transaction, key: string): Transaction
 	return self
 end
 --- Expose the once-generated identity so callers can persist/reconcile an uncertain outcome.
-function Transaction.IdempotencyKey(self: Transaction): string
+function Transaction.idempotencyKey(self: Transaction): string
 	return self._key
 end
 --- Check field existence/lifecycle/scope without any HTTP call.
 local function definition(self: Transaction, id: string, subject: number?): Core.Result<Wire.Definition>
-	local def = self._schema:Get(id)
+	local def = self._schema:get(id)
 	if not def then
 		return System.failure("unknown_field")
 	end
@@ -301,11 +301,11 @@ local function text(value: string, minimum: number, maximum: number): boolean
 		and (utf8.len(value) or math.huge) <= maximum
 end
 --- Validate the entire sealed transaction locally; no implicit schema fetch on invalid/unloaded builders.
-function Transaction.Validate(self: Transaction): Core.Result<boolean>
+function Transaction.validateLocal(self: Transaction): Core.Result<boolean>
 	if self._error then
 		return { ok = false, error = self._error }
 	end
-	if self._schema:Version() == nil then
+	if self._schema:version() == nil then
 		return System.failure("schema_unavailable")
 	end
 	if #self._ops < 1 or #self._ops > 100 or #self._conditions > 100 or not text(self._reason, 1, 500) then
@@ -419,21 +419,21 @@ function Transaction.validate(
 	return self._validateOps(Copy.copy(self._ops), options)
 end
 --- Seal once, validate before sending, and reuse the same key/payload after uncertain failures.
-function Transaction.Commit(self: Transaction, options: Core.CallOptions?): Core.Result<Wire.Result>
+function Transaction.commit(self: Transaction, options: Core.CallOptions?): Core.Result<Wire.Result>
 	if self._busy then
 		return System.failure("transaction_busy")
 	end
 	if self._result and self._result.ok then
 		return self._result
 	end
-	local valid = self:Validate()
+	local valid = self:validateLocal()
 	if not valid.ok then
 		return valid
 	end
 	if not self._sealed then
 		local canonical: { Types.Operation } = {}
 		for _, op in self._ops do
-			local def = self._schema:Get(op.field) :: Wire.Definition
+			local def = self._schema:get(op.field) :: Wire.Definition
 			local args: any = Copy.copy(op)
 			args.field = nil
 			args.path = nil
@@ -455,7 +455,7 @@ function Transaction.Commit(self: Transaction, options: Core.CallOptions?): Core
 		for _, condition in conditions do
 			local c = condition :: any
 			if c.equals ~= nil then
-				local d = self._schema:Get(c.field) :: Wire.Definition
+				local d = self._schema:get(c.field) :: Wire.Definition
 				local sub = System.targetType(d.type :: Types.TypeExpr, c.path)
 				if not sub.ok then
 					return sub

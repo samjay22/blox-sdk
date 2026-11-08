@@ -97,35 +97,35 @@ def generate(schema: dict[str, Any], sdk: str, roblox_root: str | None = None) -
         if not computed:
             a += [f'local Transaction = require({quote(local_sdk+"/Fields/Transaction")})',f'local Codec = require({quote(local_sdk+"/Fields/WireCodec")})',f'local Json = require({quote(local_sdk+"/Core/Json")})',f'local Types = require({quote(local_sdk+"/Fields/Types")})']
             a.append('local expression: Types.TypeExpr = '+literal(expression))
-        a += ['local Accessor = {}',f'--- Read the validated {identifier} client-domain value.',f'function Accessor.Get(_self: unknown, profile: Profile.Profile): FieldTypes.{name}']
-        if computed:a.append(f' return profile:Get({quote(identifier)}) :: any')
-        else:a.append(f' return Codec.decode(expression, profile:Get({quote(identifier)})) :: FieldTypes.{name}')
+        a += ['local Accessor = {}',f'--- Read the validated {identifier} client-domain value.',f'function Accessor.get(_self: unknown, profile: Profile.Profile): FieldTypes.{name}']
+        if computed:a.append(f' return profile:get({quote(identifier)}) :: any')
+        else:a.append(f' return Codec.decode(expression, profile:get({quote(identifier)})) :: FieldTypes.{name}')
         a.append('end')
         if not computed:
-            a+=['--- Queue a schema-validated replacement.',f'function Accessor.Set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.{name}): Transaction.Transaction',f' return tx:Set({quote(identifier)}, Codec.encode(expression,value))','end',
-                '--- Queue a schema-validated reset.',f'function Accessor.Reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction return tx:Reset({quote(identifier)}) end']
+            a+=['--- Queue a schema-validated replacement.',f'function Accessor.set(_self: unknown, tx: Transaction.Transaction, value: FieldTypes.{name}): Transaction.Transaction',f' return tx:set({quote(identifier)}, Codec.encode(expression,value))','end',
+                '--- Queue a schema-validated reset.',f'function Accessor.reset(_self: unknown, tx: Transaction.Transaction): Transaction.Transaction return tx:reset({quote(identifier)}) end']
             kind=expression['kind']
             if kind in ('int','number'):
-                for method in ('Add','Min','Max'):
+                for method in ('add','min','max'):
                     a += [f'--- Queue a numeric {method.lower()} operation.',f'function Accessor.{method}(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction return tx:{method}({quote(identifier)},value) end']
             if kind in ('list','set'):
                 item=expression['item']; item_type=typ(item)
-                methods=('Append','Insert','SetAdd','SetRemove') if kind=='list' else ('SetAdd','SetRemove')
-                methods=('Append','Insert') if kind=='list' else methods
+                methods=('append','insert','setAdd','setRemove') if kind=='list' else ('setAdd','setRemove')
+                methods=('append','insert') if kind=='list' else methods
                 for method in methods:
-                    index='index: number, ' if method=='Insert' else ''
-                    arg='index, ' if method=='Insert' else ''
+                    index='index: number, ' if method=='insert' else ''
+                    arg='index, ' if method=='insert' else ''
                     a += [f'--- Queue typed {method} items.',f'function Accessor.{method}(_self: unknown, tx: Transaction.Transaction, {index}items: {{{item_type}}}): Transaction.Transaction',f' local wire = Codec.encode({literal({"kind":"list","item":item})},items)',f' return tx:{method}({quote(identifier)},{arg}wire :: any)','end']
                 if kind=='list':
-                    a += ['--- Remove a zero-based list range.',f'function Accessor.RemoveAt(_self: unknown, tx: Transaction.Transaction, index: number, count: number?): Transaction.Transaction return tx:RemoveAt({quote(identifier)},index,count) end',
-                          '--- Remove the first typed canonical match.',f'function Accessor.RemoveValue(_self: unknown, tx: Transaction.Transaction, value: {item_type}): Transaction.Transaction return tx:RemoveValue({quote(identifier)},Codec.encode({literal(item)},value)) end']
+                    a += ['--- Remove a zero-based list range.',f'function Accessor.removeAt(_self: unknown, tx: Transaction.Transaction, index: number, count: number?): Transaction.Transaction return tx:removeAt({quote(identifier)},index,count) end',
+                          '--- Remove the first typed canonical match.',f'function Accessor.removeValue(_self: unknown, tx: Transaction.Transaction, value: {item_type}): Transaction.Transaction return tx:removeValue({quote(identifier)},Codec.encode({literal(item)},value)) end']
             if kind=='map':
                 key_type=typ(expression['key'])
                 key='Codec.key(key)' if expression['key']['kind']=='int' else 'key'
-                a += ['--- Merge typed map entries.',f'function Accessor.MapPut(_self: unknown, tx: Transaction.Transaction, entries: FieldTypes.{name}): Transaction.Transaction return tx:MapPut({quote(identifier)},Codec.encode(expression,entries) :: any) end',
-                      '--- Remove typed keys using canonical wire strings.',f'function Accessor.MapRemove(_self: unknown, tx: Transaction.Transaction, keys: {{{key_type}}}): Transaction.Transaction',f' local wire = {{}}\n for _,key in keys do\n  table.insert(wire,{key})\n end',f' return tx:MapRemove({quote(identifier)},wire)','end']
+                a += ['--- Merge typed map entries.',f'function Accessor.mapPut(_self: unknown, tx: Transaction.Transaction, entries: FieldTypes.{name}): Transaction.Transaction return tx:mapPut({quote(identifier)},Codec.encode(expression,entries) :: any) end',
+                      '--- Remove typed keys using canonical wire strings.',f'function Accessor.mapRemove(_self: unknown, tx: Transaction.Transaction, keys: {{{key_type}}}): Transaction.Transaction',f' local wire = {{}}\n for _,key in keys do\n  table.insert(wire,{key})\n end',f' return tx:mapRemove({quote(identifier)},wire)','end']
                 if expression['value']['kind'] in ('int','number'):
-                    a += ['--- Queue a numeric delta on one typed map key.',f'function Accessor.MapAdd(_self: unknown, tx: Transaction.Transaction, key: {key_type}, delta: number): Transaction.Transaction return tx:MapAdd({quote(identifier)},{key},delta) end']
+                    a += ['--- Queue a numeric delta on one typed map key.',f'function Accessor.mapAdd(_self: unknown, tx: Transaction.Transaction, key: {key_type}, delta: number): Transaction.Transaction return tx:mapAdd({quote(identifier)},{key},delta) end']
         # Metadata can be scalar and not need Json; avoid unused imports without hiding warnings.
         if not any('Json.' in line for line in a): a=[line for line in a if not line.startswith('local Json =')]
         if any('Core.' in line for line in a): a.insert(3, f'local Core = require({quote(local_sdk+"/Types/Core")})')

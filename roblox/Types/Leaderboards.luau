@@ -18,19 +18,19 @@ export type Page<T> = {
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 export type Aggregation = "BEST" | "SUM" | "LAST" | "MIN" | "MAX"
 export type Board = {
-	aggregation: Aggregation,
+	aggregation: (Aggregation | Core.Null)?,
 	archived: boolean,
-	createdAt: string,
-	currentPeriodId: string,
-	displayName: string,
-	id: string,
+	createdAt: (string | Core.Null)?,
+	currentPeriodId: (string | Core.Null)?,
+	displayName: (string | Core.Null)?,
+	id: (string | Core.Null)?,
 	maxDeltaPerSubmit: (number | Core.Null)?,
 	maxScore: number,
 	minScore: number,
-	name: string,
-	periodStartedAt: string,
-	resetSchedule: ResetSchedule,
-	sortOrder: SortOrder,
+	name: (string | Core.Null)?,
+	periodStartedAt: (string | Core.Null)?,
+	resetSchedule: (ResetSchedule | Core.Null)?,
+	sortOrder: (SortOrder | Core.Null)?,
 	universeId: number,
 }
 export type CreateBoard = {
@@ -45,9 +45,9 @@ export type CreateBoard = {
 	universeId: number?,
 }
 export type HealthComponent = { status: string }
-export type HealthResponse = { service: string, status: string, timestamp: string }
+export type HealthResponse = Core.HealthResponse
 export type MatchInput = { matchId: string?, scope: string, teams: { Team }, universeId: number? }
-export type MatchResult = { matchId: string, players: { RatingChange } }
+export type MatchResult = { matchId: (string | Core.Null)?, players: ({ RatingChange } | Core.Null)? }
 export type MetricsResponse = { names: { string } }
 export type PatchBoard = {
 	aggregation: Aggregation?,
@@ -60,19 +60,30 @@ export type PatchBoard = {
 	sortOrder: SortOrder?,
 	universeId: number?,
 }
-export type Period = { closedAt: (string | Core.Null)?, periodId: string, startedAt: string, total: number }
+export type Period = {
+	closedAt: (string | Core.Null)?,
+	periodId: (string | Core.Null)?,
+	startedAt: (string | Core.Null)?,
+	total: number,
+}
 export type Rating = {
 	deviation: number,
 	games: number,
 	rating: number,
-	ratingScope: string,
+	ratingScope: (string | Core.Null)?,
 	universeId: number,
-	updatedAt: string,
+	updatedAt: (string | Core.Null)?,
 	userId: number,
 }
 export type RatingChange = { after: number, before: number, deviation: number, games: number, userId: number }
 export type RatingConfig = { floor: number, initialRating: number, kFactor: number, universeId: number? }
-export type RatingScope = { displayName: string, scope: string }
+export type RatingConfigRead = {
+	floor: number,
+	initialRating: number,
+	kFactor: number,
+	universeId: (number | Core.Null)?,
+}
+export type RatingScope = { displayName: (string | Core.Null)?, scope: (string | Core.Null)? }
 export type RatingScopeLabel = { displayName: string, universeId: number? }
 export type ResetSchedule = "NONE" | "DAILY" | "WEEKLY" | "MONTHLY" | "SEASONAL"
 export type ScoreBatch = { scores: { ScoreInput }, universeId: number? }
@@ -85,9 +96,9 @@ export type ScoreInput = {
 }
 export type ScoreResult = {
 	applied: boolean,
-	periodId: string,
+	periodId: (string | Core.Null)?,
 	score: number,
-	submissionId: string,
+	submissionId: (string | Core.Null)?,
 	userId: number,
 }
 export type SortOrder = "ASC" | "DESC"
@@ -106,12 +117,12 @@ export type RatingScopesCall = {
 }
 export type RatingScopesResultValue = CursorPage<RatingScope>
 export type RatingConfigCall = { path: { universeId: (string | number)?, scope: string } }
-export type RatingConfigResultValue = RatingConfig
+export type RatingConfigResultValue = RatingConfigRead
 export type RatingConfigureCall = {
 	path: { universeId: (string | number)?, scope: string },
 	body: RatingConfig,
 }
-export type RatingConfigureResultValue = RatingConfig
+export type RatingConfigureResultValue = RatingConfigRead
 export type RatingLabelCall = {
 	path: { universeId: (string | number)?, scope: string },
 	body: RatingScopeLabel,

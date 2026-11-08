@@ -17,7 +17,7 @@ function Service.new(invoke: Core.Invoke, universe: (string | number)?, helpers:
 	return setmetatable({ _invoke = invoke, _universe = universe, _fields = helpers }, Service)
 end
 --- Create a typed subject-free award builder over the loaded universe schema.
-function Service.Award(self: Service, universeId: string | number): Award.Builder
+function Service.award(self: Service, universeId: string | number): Award.Builder
 	return Award.new(assert(self._fields, "Fields helpers unavailable"), universeId)
 end
 --- GET /code-service/actuator/health/liveness via gateway; access: public/authenticated.

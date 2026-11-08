@@ -1,4 +1,4 @@
-# Fields Rotations & Generators (0.3.0, unpublished)
+# Fields Rotations & Generators (1.0.0)
 
 Use a universe-bound `bsa_` server key (Fields READ for active heads, stock, preview and odds;
 READ_WRITE for rolls/claims). Never expose credentials or these server modules to game clients.
@@ -6,24 +6,24 @@ Definitions are server-authoritative Tables, Generators and Rotations—not sepa
 The Fields service `API_CONTRACT.md` and `RotationsController` are the wire source of truth.
 
 ```luau
-local rotations = client.fields:Rotations(game.GameId)
-local generators = client.fields:Generators(game.GameId)
-local active = rotations:Get("weather") -- Result<RotationActive>: enabled, current, next
-local all = rotations:GetAll() -- Result<{RotationActive}>
+local rotations = client.fields:rotations(game.GameId)
+local generators = client.fields:generators(game.GameId)
+local active = rotations:get("weather") -- Result<RotationActive>: enabled, current, next
+local all = rotations:getAll() -- Result<{RotationActive}>
 local snapshot = client:runtimeSnapshot(30) -- start/reuse the universe's ETag poller
-local watch = rotations:Watch("weather", function(instance, activeHeads)
-    print(instance.id, instance.result.picks, rotations:TimeRemaining(instance))
+local watch = rotations:watch("weather", function(instance, activeHeads)
+    print(instance.id, instance.result.picks, rotations:timeRemaining(instance))
 end)
--- Later: watch:Disconnect(); client:destroy() disconnects all watches too.
+-- Later: watch:disconnect(); client:destroy() disconnects all watches too.
 ```
 
 ## Watch and time
 
-`Watch(key, callback)` returns immediately and delivers the current instance asynchronously, then
+`watch(key, callback)` returns immediately and delivers the current instance asynchronously, then
 **once per previously unseen authoritative current instance ID**, even if snapshot config changes.
 Callback arguments are `(RotationInstance, RotationActive)`. Callback errors are isolated. Multiple
 watches are independent subscriptions. No callback fires for a predicted next, disabled/null current,
-or an omitted/inactive head. `Refresh()` manually resumes/rechecks a watch; `LastError` holds a
+or an omitted/inactive head. `refresh()` manually resumes/rechecks a watch; `lastError` holds a
 fallback fetch error. `Disconnect()` is idempotent and cancels its timer, in-flight signal and listeners.
 Client flush/destroy also owns this lifecycle.
 
@@ -40,15 +40,15 @@ Without a snapshot rotations member (or without a snapshot), Watch reads `/rotat
 once, then schedules **one** refresh at current `endsAt` plus 50–250ms jitter using injected Unix time.
 It does not poll definitions or stock, nor repeatedly refresh for unrelated legacy snapshot changes.
 No current/future end, a disabled resource, or a failed fallback read stops the timer rather than
-busy-polling: call `Refresh()` explicitly to resume after recovery/re-enabling. Existing pipeline
+busy-polling: call `refresh()` explicitly to resume after recovery/re-enabling. Existing pipeline
 bounded transient retries still apply inside one refresh. A pending initial snapshot is awaited;
-its own LastError reports failures until it supplies data. Clocks must be synchronized: countdowns
+its own lastError reports failures until it supplies data. Clocks must be synchronized: countdowns
 are display hints; DB time and the current head decide claim validity.
 
-`TimeRemaining(instance)` returns clamped seconds (including fractions), using the injected Unix
+`timeRemaining(instance)` returns clamped seconds (including fractions), using the injected Unix
 clock; it sends no HTTP. Never locally promote `next` into a claimable head.
 
-`GetAll()` uses cached snapshot rotations if supplied (fully inactive heads are omitted by the
+`getAll()` uses cached snapshot rotations if supplied (fully inactive heads are omitted by the
 service); otherwise it lists the bounded rotation definition catalog and fetches each active head,
 including disabled envelopes. There is no invented “all active” HTTP route. A fallback partial
 failure returns that failure rather than an incomplete success. Cache reads retain last-good state.
@@ -56,8 +56,8 @@ failure returns that failure rather than an incomplete success. Cache reads reta
 ## Claims, purchases and stock
 
 ```luau
-local stock = rotations:GetStock(instanceId) -- Result<{slot,entryId,remaining}>
-local claimed = rotations:Claim(instanceId, "packs:0", "starter_pack", 1, {
+local stock = rotations:getStock(instanceId) -- Result<{slot,entryId,remaining}>
+local claimed = rotations:claim(instanceId, "packs:0", "starter_pack", 1, {
     playerId = player.UserId,
     idempotencyKey = persistedPurchaseId, -- optional; auto-generated once if omitted
 })
@@ -83,11 +83,11 @@ Player; enforce game-side intent authorization/rate limits before server calls.
 ## Rolls, previews and odds
 
 ```luau
-local opened = generators:Roll("card_pack", player.UserId, {
+local opened = generators:roll("card_pack", player.UserId, {
     count = 1, idempotencyKey = persistedOpeningId,
 })
-local dryRun = generators:Preview("card_pack", player.UserId, 1)
-local odds = generators:GetOdds("rarity", player.UserId)
+local dryRun = generators:preview("card_pack", player.UserId, 1)
+local odds = generators:getOdds("rarity", player.UserId)
 ```
 
 Count is **packs**, 1–10 (default 1), not card count. All packs succeed together: `GeneratorRollResult`

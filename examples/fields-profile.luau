@@ -9,20 +9,20 @@ return function(
 	userId: number,
 	placeId: number
 ): Core.Result<Profile.Profile>
-	local loaded = client.fields:LoadProfile(universeId, userId)
+	local loaded = client.fields:loadProfile(universeId, userId)
 	if not loaded.ok then
 		return loaded
 	end
 	local profile = loaded.value
-	local presence = profile:StartPresence(placeId)
+	local presence = profile:startPresence(placeId)
 	if not presence.ok then
-		profile:Destroy()
+		profile:destroy()
 		return presence
 	end
-	local result = profile:Transaction():Add("Currency.Gems", 10):Reason("Quest completion"):Commit()
+	local result = profile:transaction():add("Currency.Gems", 10):reason("Quest completion"):commit()
 	if not result.ok then
 		return result
 	end
-	-- Generated Typed.Currency.Gems:Get(profile) gives number; plain Get is wire-shaped Core.Json.
+	-- Generated Typed.Currency.Gems:get(profile) gives number; plain Get is wire-shaped Core.Json.
 	return loaded
 end
