@@ -7,10 +7,10 @@ local Errors = require(script.Parent.Parent.Core.Errors)
 local Path = require(script.Parent.Parent.Core.Path)
 local Access = require(script.Parent.Parent.Core.Access)
 local Bucket = require(script.Parent.Parent.Core.TokenBucket)
-local Gate = require(script.Parent.Parent.Core.Gate)
 local Breaker = require(script.Parent.Parent.Core.Breaker)
 local Retry = require(script.Parent.Parent.Core.Retry)
 local Transport = require(script.Parent.Parent.Core.Transport)
+local Batcher = require(script.Parent.Parent.Core.Batcher)
 local Cache = require(script.Parent.Parent.Core.Cache)
 local Validation = require(script.Parent.Parent.Core.Validation)
 local Options = require(script.Parent.Parent.Core.CallOptions)
@@ -19,12 +19,12 @@ local Universe = require(script.Parent.Parent.Core.Universe)
 local Pipeline = {}
 local latencyBounds = table.freeze({ 0.05, 0.1, 0.25, 0.5, 1 })
 export type Config = {
+	batchInterval: number,
+	batchUrl: string,
 	runtime: Types.Runtime,
 	backend: Types.Backend,
 	auth: Types.AuthProvider,
 	origins: { [string]: string },
-	baseUrls: { [string]: string },
-	concurrency: number,
 	queueCapacity: number,
 	requestsPerMinute: number,
 	burst: number,
@@ -36,9 +36,8 @@ export type Config = {
 	staleIfError: number,
 	hooks: Types.Hooks?,
 	sharedBucket: Bucket.Bucket?,
-	lowPriorityThreshold: number?,
 }
-export type Host = { gate: Gate.State, breaker: Breaker.State }
+export type Host = { breaker: Breaker.State }
 export type Flight = { result: Types.Result<any>?, done: boolean }
 export type Counters = {
 	requests: number,
@@ -51,7 +50,11 @@ export type Counters = {
 	latency: { number },
 	latencySum: number,
 }
+export type OrderTicket = { previous: OrderTicket?, next: OrderTicket? }
+export type OrderLane = { head: OrderTicket?, tail: OrderTicket? }
 export type State = {
+	batcher: Batcher.State,
+	orders: { [string]: OrderLane },
 	config: Config,
 	hosts: { [string]: Host },
 	bucket: Bucket.Bucket,
@@ -70,19 +73,29 @@ function Pipeline.new(config: Config): State
 	local hosts: { [string]: Host } = {}
 	for _, host in config.origins do
 		if not hosts[host] then
-			hosts[host] =
-				{ gate = Gate.new(config.concurrency, config.queueCapacity), breaker = Breaker.new() }
+			hosts[host] = { breaker = Breaker.new() }
 		end
 	end
-	return {
-		config = config,
-		hosts = hosts,
-		bucket = config.sharedBucket or Bucket.new(
+	local bucket = config.sharedBucket
+		or Bucket.new(
 			config.burst,
 			config.requestsPerMinute / 60,
 			config.criticalReserve,
 			config.runtime.now()
+		)
+	return {
+		batcher = Batcher.new(
+			config.runtime,
+			config.backend,
+			config.batchUrl,
+			config.batchInterval,
+			config.queueCapacity,
+			bucket
 		),
+		orders = {},
+		config = config,
+		hosts = hosts,
+		bucket = bucket,
 		budget = 0,
 		cache = Cache.new(config.cacheCapacity),
 		flights = {},
@@ -154,7 +167,8 @@ local function execute(
 	opts: Types.CallOptions,
 	url: string,
 	deadline: number,
-	auth: Types.AuthProvider
+	auth: Types.AuthProvider,
+	sequence: string?
 ): Types.Result<any>
 	local config, runtime = self.config, self.config.runtime
 	local hostName = config.origins[spec.service]
@@ -181,61 +195,9 @@ local function execute(
 		if stop then
 			return stop
 		end
-		local ticket = Gate.enter(host.gate, opts.priority == "critical", opts.priority == "low")
-		if not ticket then
-			self.counters.rateLimited += 1
-			if hooks and hooks.onRateLimited then
-				emit(hooks.onRateLimited, { endpoint = spec.id, host = hostName, state = "queueFull" })
-			end
-			return Errors.make("RateLimited", spec.id, attempt, "Host queue is full")
-		end
-		while not ticket.granted do
-			stop = stopped(self, spec, opts, deadline, attempt)
-			if stop then
-				Gate.remove(host.gate, ticket)
-				return stop
-			end
-			runtime.wait(0.01)
-		end
-		-- Recheck after queue handoff, before consuming rate or breaker admission.
-		stop = stopped(self, spec, opts, deadline, attempt)
-		if stop then
-			Gate.release(host.gate)
-			return stop
-		end
-		if Breaker.blocked(host.breaker, runtime.now()) then
-			Gate.release(host.gate)
-			return Errors.make("CircuitOpen", spec.id, attempt, "Host circuit is open")
-		end
-		if
-			opts.priority == "low"
-			and Bucket.used(self.bucket, runtime.now())
-				>= self.bucket.limit * (config.lowPriorityThreshold or 0.8)
-		then
-			Gate.release(host.gate)
-			return Errors.make("RateLimited", spec.id, attempt, "Background budget deferred")
-		end
-		local waitFor = Bucket.take(self.bucket, runtime.now(), opts.priority == "critical")
-		if waitFor > 0 and opts.priority == "low" then
-			Gate.release(host.gate)
-			return Errors.make("RateLimited", spec.id, attempt, "Background admission deferred")
-		end
-		while waitFor > 0 do
-			self.counters.rateLimited += 1
-			if hooks and hooks.onRateLimited then
-				emit(hooks.onRateLimited, { endpoint = spec.id, host = hostName })
-			end
-			stop = pause(self, waitFor, spec, opts, deadline, attempt)
-			if stop then
-				Gate.release(host.gate)
-				return stop
-			end
-			waitFor = Bucket.take(self.bucket, runtime.now(), opts.priority == "critical")
-		end
 		local previous = host.breaker.state
 		local allowed, breakerGeneration = Breaker.allow(host.breaker, runtime.now())
 		if not allowed then
-			Gate.release(host.gate)
 			return Errors.make("CircuitOpen", spec.id, attempt, "Host circuit is open")
 		end
 		if previous ~= host.breaker.state and hooks and hooks.onBreakerChange then
@@ -267,17 +229,18 @@ local function execute(
 		end
 		local start = runtime.now()
 		local result, responseHeaders = Transport.send(
-			runtime,
-			config.backend,
-			host.gate,
-			{ Url = url, Method = spec.method, Headers = headers },
+			self.batcher,
+			url,
+			headers,
 			request.body,
 			spec,
 			attempt,
 			deadline,
 			opts.signal,
 			self.lifecycle,
-			if public then nil else auth
+			if public then config.auth else auth,
+			opts.priority,
+			sequence
 		)
 		local duration = runtime.now() - start
 		self.counters.latencySum += duration
@@ -367,6 +330,53 @@ local function execute(
 			return stop
 		end
 	end
+end
+--- Derive player locks across single- and multi-subject writes without global serialization.
+local function sequenceKeys(
+	spec: Types.Endpoint,
+	request: Types.Request,
+	path: string,
+	universe: (string | number)?
+): { string }
+	local scope = string.match(path, "/universes/([^/?:]+)") or tostring(universe)
+	local users: { [number]: boolean } = {}
+	--- Admit exact positive player identifiers only; global/string subjects are not player locks.
+	local function add(value: unknown)
+		local id = if type(value) == "number"
+			then value
+			elseif type(value) == "string" then tonumber(value)
+			else nil
+		if id and id > 0 and id % 1 == 0 and id <= 9007199254740991 then
+			users[id] = true
+		end
+	end
+	add(string.match(path, "/players/([^/?:]+)"))
+	if spec.method ~= "GET" and spec.method ~= "HEAD" and type(request.body) == "table" then
+		local body = request.body :: any
+		for _, name in { "userId", "robloxUserId", "playerId", "ownerId", "subject" } do
+			add(body[name])
+		end
+		for _, name in { "subjects", "robloxUserIds" } do
+			if type(body[name]) == "table" then
+				for _, user in body[name] do
+					add(user)
+				end
+			end
+		end
+		if type(body.ops) == "table" then
+			for _, op in body.ops do
+				if type(op) == "table" then
+					add(op.subject)
+				end
+			end
+		end
+	end
+	local keys: { string } = {}
+	for user in users do
+		table.insert(keys, "universe:" .. scope .. ":player:" .. tostring(user))
+	end
+	table.sort(keys)
+	return keys
 end
 --- Dispatch a validated logical call, coalescing only safe identical GETs with matching policies.
 function Pipeline.call(
@@ -492,17 +502,7 @@ function Pipeline.call(
 	if stop then
 		return stop
 	end
-	local base = self.config.baseUrls[spec.service]
-	-- Platform domain controllers preserve /platform-service even on direct hosts;
-	-- operational /health, /metrics, /info and actuator routes remain root-relative.
-	if
-		spec.service == "platform"
-		and self.config.origins.platform == base
-		and (string.sub(path, 1, 5) == "/api/" or string.sub(path, 1, 10) == "/internal/")
-	then
-		base ..= "/platform-service"
-	end
-	local url = base .. path
+	local url = path
 	-- Scoped authorization must refresh before cache reads, not only before HTTP.
 	if auth.ready and not table.find(spec.authKinds, "none") then
 		local ready = auth.ready(deadline, opts.signal)
@@ -555,6 +555,10 @@ function Pipeline.call(
 		end
 		return flight.result :: Types.Result<any>
 	end
+	if self.active >= self.config.queueCapacity then
+		self.counters.rateLimited += 1
+		return Errors.make("RateLimited", spec.id, 0, "Batch admission is full")
+	end
 	local owned: Flight = { done = false }
 	if share then
 		self.flights[flightKey] = owned
@@ -562,7 +566,61 @@ function Pipeline.call(
 	self.active += 1
 	self.counters.requests += 1
 	-- Retries accrue only from original logical traffic, never retries or cache hits.
-	local result = execute(self, spec, request, opts, url, deadline, auth)
+	-- Hold logical ordering through retries, not merely one physical batch execution.
+	local keys = sequenceKeys(spec, request, path, universe)
+	local sequence = if #keys == 0 then nil else table.concat(keys, "|")
+	local tickets: { OrderTicket } = {}
+	for _, orderKey in keys do
+		local lane: OrderLane = self.orders[orderKey] or {}
+		self.orders[orderKey] = lane
+		local ticket: OrderTicket = { previous = lane.tail }
+		if lane.tail then
+			lane.tail.next = ticket
+		else
+			lane.head = ticket
+		end
+		lane.tail = ticket
+		table.insert(tickets, ticket)
+	end
+	local result: Types.Result<any>? = nil
+	while true do
+		local ready = true
+		for i, orderKey in keys do
+			if self.orders[orderKey].head ~= tickets[i] then
+				ready = false
+				break
+			end
+		end
+		if ready then
+			break
+		end
+		result = stopped(self, spec, opts, deadline, 0)
+		if result then
+			break
+		end
+		runtime.wait(0.01)
+	end
+	if not result then
+		result = execute(self, spec, request, opts, url, deadline, auth, sequence)
+	end
+	-- Intrusive lanes unlink cancelled interior waiters in O(1), without shifting a hot player's queue.
+	for i, orderKey in keys do
+		local lane, ticket = self.orders[orderKey], tickets[i]
+		if ticket.previous then
+			ticket.previous.next = ticket.next
+		else
+			lane.head = ticket.next
+		end
+		if ticket.next then
+			ticket.next.previous = ticket.previous
+		else
+			lane.tail = ticket.previous
+		end
+		if not lane.head then
+			self.orders[orderKey] = nil
+		end
+	end
+	assert(result ~= nil, "Missing operation result")
 	self.active -= 1
 	if not result.ok then
 		self.counters.failures += 1
@@ -593,10 +651,7 @@ function Pipeline.flush(self: State, timeout: number): boolean
 	self.closing = true
 	local untilTime = self.config.runtime.now() + timeout
 	while self.config.runtime.now() < untilTime do
-		local active = self.active
-		for _, host in self.hosts do
-			active += host.gate.active + host.gate.queued
-		end
+		local active = self.active + (if self.batcher.inFlight then 1 else 0)
 		if active == 0 then
 			return true
 		end
@@ -609,6 +664,7 @@ function Pipeline.destroy(self: State)
 	self.closing = true
 	self.destroyed = true
 	self.lifecycle.cancelled = true
+	Batcher.destroy(self.batcher)
 	Cache.clear(self.cache)
 end
 return table.freeze(Pipeline)

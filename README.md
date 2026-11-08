@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**373 typed endpoints, version 1.2.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**373 typed endpoints, version 2.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@1.2.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@2.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@1.2.0"
+BloxSDK = "blox-api/blox-sdk@2.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -72,7 +72,7 @@ The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit
 - Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
 - Optional requests can be omitted: `client.codes:searchCodes()`.
 - `client:withUniverse(id)` shares the original client's auth, queue, rate budget, breakers, cache, and lifetime. It fills **declared path/query universe parameters** and implied Audit event universes, not arbitrary body fields. Supply other required body universe fields explicitly. Universe IDs must be positive exact integers. A service key cannot switch universes.
-- `client:health()` checks `<service-prefix>/health` on the gateway for all eight services (or `/health` on an explicit direct host) and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
+- `client:health()` queues `/health` for all eight services in one batch and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
 
 ```luau
@@ -99,7 +99,7 @@ Current Platform methods and Fields-owned player administration are documented i
 - `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `get`/`isEnabled`, `Changed` signal, last-good-state retention. `get` reads literal `gameValues` field IDs; `isEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
 - Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
-- Loaded profiles automatically share low-priority batch sync (up to 200 players/request) and expose `Profile.Changed` / `client.ProfileChanged` for admin edits. Configure `profileSync` or disable it; see [Admin edits & live sync](docs/FIELDS.md#admin-edits--live-sync).
+- Loaded profiles automatically share low-priority batch sync (up to 200 players/op) and expose `Profile.Changed` / `client.ProfileChanged` for admin edits. Configure `profileSync` or disable it; see [Admin edits & live sync](docs/FIELDS.md#admin-edits--live-sync).
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
 - Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; health summary and schedule run history need READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
 
@@ -160,9 +160,10 @@ Identity refresh and per-universe scoped exchange are separate, versioned and si
 
 | Policy | Default |
 |---|---|
-| Gateway | `https://lb1.blox-api.com` + per-service prefix below |
+| Gateway | `https://lb1.blox-api.com/batch-service/api/batch` |
 | Timeout | 15 seconds, end-to-end |
-| Concurrency / pending queue | 6 / 64 per origin |
+| Batch cadence / native requests in flight | 0.5 seconds / 1 per client |
+| Envelope / op body / logical queue | 100 ops, 1 MiB / 256 KiB / 10,000 calls |
 | Rate / burst / critical reserve | 450 per rolling minute / 15 / 3 |
 | Transient retries | At most 3; 20% earned retry budget, initially empty |
 | Backoff | Full jitter, 0.25-second base, 8-second cap |
@@ -172,45 +173,31 @@ Identity refresh and per-universe scoped exchange are separate, versioned and si
 
 Every physical attempt (including retries) consumes a token and a rolling-window admission. `requestsPerMinute` is an integer 1–499; bursts never bypass that window. Default-runtime clients from the same required ModuleScript share this limiter; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
 
-## Gateway routing
+## Batch-only gateway transport
 
-All services default to **`https://lb1.blox-api.com`**. The gateway strips the following prefix before forwarding the unchanged backend route:
-
-| Service facade / override key | Prefix |
-|---|---|
-| `auth` | `/auth-service` |
-| `matchmaking` | `/matchmaking-service` |
-| `party` | `/party-service` |
-| `codes` | `/code-service` |
-| `audit` | `/audit-service` |
-| `leaderboards` | `/leaderboard-service` |
-| `fields` | `/fields-service` |
-| `platform` | `/platform-service` |
-
-There is no Config gateway target. Platform domain controllers retain `/platform-service` on direct hosts too; its operational `/health`, `/metrics`, `/info` and probes remain root-relative.
+All network operations queue for `POST {gatewayUrl}/batch-service/api/batch`; none call a service
+URL directly. This includes health, managed auth, helper operations and loaded-profile sync. Calls
+still yield and return the same Result shapes. Empty ticks send nothing; overflow waits for a later
+tick. There is no direct fallback or service-host override.
 
 ```luau
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
     universeId = game.GameId,
-    gatewayUrl = "https://gateway.example", -- Optional: replaces the gateway for all services.
-    services = {
-        fields = { baseUrl = "https://fields.blox-api.com" }, -- Optional: bypasses gateway AND prefix.
-    },
+    gatewayUrl = "https://gateway.example", -- Optional HTTPS origin, no path/credentials/query.
+    batch = { intervalSeconds = 0.5 },      -- Minimum 0.25 seconds.
 })
 ```
 
-Both `gatewayUrl` and each `baseUrl` must be HTTPS origins without paths, userinfo, fragments, or queries; one trailing slash is accepted and removed. Hostnames and ports are canonicalized. A `baseUrl` overrides only its named service; other services still use the gateway. Unknown service keys/options are rejected. The old `hosts` option and per-host defaults are removed, with no automatic fallback. Roblox secrets must permit every configured destination.
+The batcher carries internal service paths without gateway prefixes; `leaderboards` maps to service
+`leaderboard`. At default cadence, ≤120 physical requests/minute include gameplay, auth, retries and
+sync, guarded by the shared rolling limiter. Independent calls issued concurrently can coalesce;
+dependent player calls remain ordered through retries. Timeouts start with the logical call, so a
+short deadline can expire before dispatch. `services` direct-host overrides are rejected in 2.0.
 
-Default wire examples:
-
-- Audit events: `GET https://lb1.blox-api.com/audit-service/api/audit/events` (a scoped client adds `?universeId=...`).
-- Runtime snapshot: `GET https://lb1.blox-api.com/fields-service/api/fields/universes/{id}/runtime/snapshot`.
-- Fields transaction: `POST https://lb1.blox-api.com/fields-service/api/fields/universes/{id}/players/{uid}/transactions`.
-
-Admission queues and circuit breakers remain **per origin**, so all gateway services share them; direct hosts have separate state unless they resolve to the same canonical origin. URL prefixes remain in cache/single-flight keys. `withUniverse`, authentication refresh/logout, health checks, pagination and helper requests all retain the same routing configuration.
-
-`tools/gen.py` declares the gateway and prefix table once and generates `src/Core/Routing.luau`, service route comments and the [endpoint reference](docs/ENDPOINTS.md). `sdk.yml` is the Selene standard-library definition, not client routing configuration. See [configuration example](examples/routing.luau).
+See the [transport/batching guide](docs/BATCHING.md), [performance and limits](docs/PERFORMANCE.md),
+and [migration notes](MIGRATION.md). The theoretical 200 independent ops/s/client is not a measured
+10k/s Roblox benchmark; platform-wide capacity is discussed in the performance guide.
 
 ## Development / verification (offline)
 

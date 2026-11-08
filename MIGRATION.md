@@ -1,5 +1,31 @@
 # Migrating BloxSDK
 
+## 1.2.0 to 2.0.0 — batch-only transport, public calls unchanged
+
+All SDK network traffic now uses `POST {gatewayUrl}/batch-service/api/batch`. Deploy a compatible
+BatchService before upgrading. There is no compatibility shim, direct-call fallback or automatic retry
+to a service host. Existing yielding method signatures and Result shapes are unchanged.
+
+- Configure `batch = { intervalSeconds = 0.5 }` (minimum 0.25). Queued calls add up to a tick of latency,
+  plus overflow/in-flight/backoff waits. Concurrent independent calls coalesce; sequential loops do not.
+- Every envelope is limited to 100 ops / 1 MiB, each encoded op body to 256 KiB. Larger payloads now fail
+  locally, including previously allowed large NDJSON imports; partition them explicitly. NDJSON is carried
+  as an exact string in `op.body`; text responses must be JSON strings in the batch result.
+- Replace direct `services.*.baseUrl` overrides with a BatchService gateway. Direct overrides are rejected.
+  Custom backends must accept only the batch endpoint and return the new results envelope, not raw
+  endpoint responses. Test fixtures must model per-operation IDs/status/headers/body.
+- Profile polls piggyback every available tick in chunks ≤200 players/op. Batch cadence replaces the old
+  `profileSync.intervalSeconds` (now rejected) / server `pollAfterMs` schedule. Use `batch.intervalSeconds`; sync apply, signals and recovery stay intact.
+- Budgets count physical envelopes, not logical operations: default ≤120/min/client, minimum interval
+  ≤240/min; rolling safety cap remains 450/min. All facades share one native in-flight slot; `concurrency`
+  cannot increase it. Default logical queue capacity is now 10,000 instead of 64.
+- Timeouts include tick/queue waits. Cancellation before dispatch sends nothing; in-flight cancellation
+  cannot abort the shared native HTTP request. Player ordering remains held across retry backoff.
+- Health queues eight ops together. Authorization is applied on the outer envelope, including public ops;
+  distinct credential scopes use different envelopes with no serialized credentials in op bodies.
+
+See the batching and performance guides for detailed limits, ordering and the platform sizing target.
+
 ## 1.0.0 to 1.1.0 — behavior change, no API break
 
 Fields locks are now per `(player, field)`. `subject_seq` is removed; mutation `seq` values are sparse

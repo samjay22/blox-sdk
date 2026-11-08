@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "1.2.0"
+SDK.version = "2.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -334,10 +334,10 @@ Config.number(
 
 ### `Config.resolve`
 
-Resolve immutable wire bases separately from origins so gateway services share admission state.
+Resolve one immutable gateway origin for all operations; direct-service destinations are forbidden.
 
 ```luau
-Config.resolve(config: Config): ({ [string]: string }, { [string]: string })
+Config.resolve(config: Config): { [string]: string }
 ```
 
 ### Exported types
@@ -347,12 +347,12 @@ export type ServiceConfig = { baseUrl: string? }
 
 export type ProfileSyncConfig = {
 	enabled: boolean?,
-	intervalSeconds: number?,
 	budgetThreshold: number?,
 	maxConcurrentReloads: number?,
 }
 
 export type Config = {
+	batch: { intervalSeconds: number? }?,
 	profileSync: ProfileSyncConfig?,
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,

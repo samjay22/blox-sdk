@@ -66,6 +66,7 @@ loadModule("tests/run")
 -- Exercise the default Roblox adapter without making any network calls.
 local scheduler=loadModule("tests/Scheduler").new()
 local wireJson=loadModule("src/Core/Json")
+local wireDecode=loadModule("src/Core/JsonDecode")
 local prefixed={AddPrefix=function() error("Prefix must be applied once") end}
 local rawSecret={AddPrefix=function(_,prefix) assert(prefix=="Bearer ","Incorrect Secret prefix");return prefixed end}
 local requests=0
@@ -86,6 +87,12 @@ local http={
    assert(string.find(request.Body,'"idemKey":"offline-guid-1"',1,true),"Missing native GUID")
    return {StatusCode=202,Body=scheduler.json({accepted=1,duplicate=0}),Headers={}}
   end
+  if string.find(request.Url,"/players/changes/batch",1,true) then
+   local players=wireDecode.decode(request.Body).players
+   local items={}
+   for _,player in players do table.insert(items,{userId=player.userId,entries=wireJson.array({}),latestSeq=player.sinceSeq,nextSinceSeq=player.sinceSeq,hasMore=false,needsSnapshot=false}) end
+   return {StatusCode=200,Headers={},Body=scheduler.json({items=items,pollAfterMs=5000})}
+  end
   if fieldsMode then
    local path="https://lb1.blox-api.com/fields-service/api/fields/universes/123"
    if request.Url==path.."/schema" then
@@ -102,6 +109,10 @@ local http={
   return {StatusCode=200,Body=scheduler.json({universeId=123,schemaVersion=0,definitions=wireJson.array({})}),Headers={}}
  end,
 }
+-- Native RequestAsync is strictly BatchService-only; endpoint fixtures model its downstream results.
+local nativeOperation=http.RequestAsync
+local batchBackend=loadModule("src/Testing/FakeBackend").batch(scheduler.runtime,function(request) return nativeOperation(http,request) end)
+http.RequestAsync=function(_,request) return batchBackend(request) end
 local removingListeners = {}
 local removalConnections = 0
 local players = {PlayerRemoving={Connect=function(_,callback)

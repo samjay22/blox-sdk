@@ -387,24 +387,25 @@ It polls `POST /api/fields/universes/{u}/players/changes/batch`, using Fields RE
 Profiles for the same universe/credential scope and player share one request item (minimum applied
 watermark); distinct handles still receive their own updates/signals. Universe facades share the
 registry and only one batch request may be physically in flight. Different universes/credential scopes
-require separate serial batches. No profile poll runs without loaded profiles.
+are grouped into separate operations; incompatible credentials use separate ticks. No profile poll runs without loaded profiles.
 
 ```luau
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
     universeId = game.GameId,
+    batch = { intervalSeconds = 0.5 },
     profileSync = {
         enabled = true,              -- default; false disables automatic polls/recovery
-        intervalSeconds = 15,        -- initial/fallback interval; minimum 5
         budgetThreshold = 0.8,       -- fraction of configured rolling-minute SDK limit
         maxConcurrentReloads = 2,    -- 1..16, default 2
     },
 })
 ```
 
-After a successful poll, the server's `pollAfterMs` controls the next interval (maximum hint across
-chunks). Normal intervals have ±20% jitter, clamped to at least 5 seconds. Any `hasMore` schedules
-another serial poll after 200–300 ms, applying only complete sequence groups and `nextSinceSeq`.
+Changes polls are appended to each available transport tick in chunks of at most 200 players/op.
+The 2.0 tick cadence supersedes the old independent poll interval and `pollAfterMs` hint; `hasMore`
+continues from the safe cursor on the next available tick. Overflow, in-flight work, credential
+partitioning and retry backoff can defer polls. See [batch transport](BATCHING.md).
 Local transaction allocation tokens **never** advance the feed watermark. Whole-field snapshots can
 skip field versions; partial-path snapshots require contiguous versions or recovery. Older/duplicate
 versions do not overwrite or double-apply; same-version operations within one group apply in ordinal
@@ -455,25 +456,20 @@ Already-dispatched native HttpService requests cannot be aborted, but no follow-
 
 ### Rate-limit budget
 
-Polls/reloads use a dedicated `low` lane, behind both gameplay `critical` and `bulk` traffic; they cannot
-spend critical reserve or hold a slot waiting for rate tokens. At the configured threshold (default
-80% of the SDK's default 450/min = 360 admissions), polls are skipped/delayed and reloads deferred.
-Admission rechecks the threshold after queue waits. This uses **SDK-observed** traffic only; leave
-headroom for unrelated HttpService users. 429/5xx use bounded exponential backoff (5–300s base,
-±20% jitter) honoring parsed Retry-After seconds or HTTP dates as a floor. Successful polling resets
-backoff. Polls disable in-call retries: recovery is scheduled, not stacked on pipeline retries.
+Poll operations share the transport's LOW lane behind critical/bulk gameplay calls. They do not
+consume separate HTTP admissions. Reloads still defer at the configured budget threshold (default
+80%); poll failures use bounded backoff honoring Retry-After without stacking in-call retries.
 
-| Work | Request cost | Default nominal rate |
+| Work | Operation cost | Physical HTTP cost |
 |---|---|---|
-| Empty registry | 0 profile polls | 0/min |
-| 1–200 loaded distinct players, one universe/scope | **1 batch request per interval per server**, not per player | 4/min at 15s; fastest normal jitter 12s ≈ 5/min |
-| More than 200 | `ceil(players / 200)` serial requests per poll, summed across universes/scopes | E.g. 201–400 players: 8/min nominal |
-| `hasMore` catch-up | Additional batch every 200–300ms until drained or deferred | Not a fixed 4/min ceiling; LOW admission/rolling budget still applies |
-| Snapshot recovery | 1 document GET per affected handle, plus shared schema refresh | Staggered, ≤N concurrent; retries add requests |
-| Initial load / presence / schema polling | Existing schema+document reads / optional heartbeat writes / schema refresh | Separate from the batch poll cost |
+| Empty registry and no calls | 0 | 0 |
+| 1–200 loaded players, one universe/scope | 1 poll op per available tick | Piggybacks the single envelope |
+| More than 200 | `ceil(players / 200)` poll ops | Same envelope if limits/credentials permit; otherwise later ticks |
+| `hasMore` catch-up | Safe cursor in the next poll op | No immediate extra request |
+| Snapshot recovery | Document op per affected handle + shared schema op | LOW-priority ops in later batches |
+| Load / presence / schema polling | Existing logical reads/writes | Batched with all other traffic |
 
-Thus “one request regardless of player count” applies only up to the contract's 200-player chunk
-limit, not arbitrarily many loaded players or recovery bursts. The hard bound remains the configured
-rolling-minute limiter (<500/min), with background admission cut off at the lower threshold.
-See [performance and budgets](PERFORMANCE.md). This checkout verifies SDK behavior offline; backend
-set-based query cost, deployed batch support and native Roblox runtime behavior are not certified.
+At default cadence the entire SDK uses at most 120 physical requests/minute/client (240 at the
+minimum interval), guarded by the rolling-minute limiter. Poll chunks are not duplicated while
+pending. More than 100 ops or 1 MiB must carry over; there is no guarantee that arbitrary player counts
+fit one tick. Unrelated HttpService usage is outside SDK measurements. See [performance](PERFORMANCE.md).

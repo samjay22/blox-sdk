@@ -38,6 +38,7 @@ local function client(
 	local c = SDK.new({
 		runtime = s.runtime,
 		backend = fake.backend,
+		profileSync = { enabled = false },
 		key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 		universeId = 123,
 		levels = if level then { CodeService = level } else nil,

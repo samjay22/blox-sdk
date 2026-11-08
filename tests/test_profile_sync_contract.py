@@ -40,7 +40,7 @@ class ProfileSyncContractTests(unittest.TestCase):
         fields = fresh['types']['fields']
         self.assertEqual(set(fields['Batch']['fields']), {'universeId', 'subjects', 'fields'})
         self.assertIn('BULK', fields['Kind']['enum'])
-        self.assertTrue({'ChangeHead', 'ChangeGroup', 'ChangeRange'}.isdisjoint(fields))
+        self.assertTrue({'ChangeHead', 'ChangeGroup', 'ChangeRange', 'IndexedBatch', 'Lookup'}.isdisjoint(fields))
 
 
 if __name__ == '__main__':

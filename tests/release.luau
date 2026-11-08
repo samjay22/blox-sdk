@@ -29,7 +29,7 @@ return function(test: (string, () -> ()) -> ())
 	test("1.0 root surface excludes internal modules and has stable error codes", function()
 		local root: any = SDK
 		check(
-			SDK.version == "1.2.0"
+			SDK.version == "2.0.0"
 				and root.endpoints == nil
 				and root.Testing == nil
 				and root.Fields == nil
@@ -88,7 +88,7 @@ return function(test: (string, () -> ()) -> ())
 				check(not c.fields:schema(nil, options :: any).ok)
 			end
 		end)
-		check(f.count() == 1)
+		check(f.count() == 0)
 	end)
 	test("common idempotency option maps service key, snapshots inputs and rejects conflicts", function()
 		local s = Scheduler.new()
@@ -142,7 +142,7 @@ return function(test: (string, () -> ()) -> ())
 	end)
 	test("bounded admission surfaces backpressure as a Result, never an unbounded queue", function()
 		local s = Scheduler.new()
-		local c, f = client(s, { { delay = 0.2, status = 204 } }, { concurrency = 1, queueCapacity = 0 })
+		local c, f = client(s, { { delay = 0.2, status = 204 } }, { concurrency = 1, queueCapacity = 1 })
 		local rejected = false
 		s.run(function()
 			s.runtime.spawn(function()

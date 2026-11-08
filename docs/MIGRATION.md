@@ -9,6 +9,32 @@ watermarks until refresh, and resync only for actual missing state/schema change
 # Migrating to organization-tenant authentication
 
 
+## 1.2.0 to 2.0.0 — batch-only transport, public calls unchanged
+
+All SDK network traffic now uses `POST {gatewayUrl}/batch-service/api/batch`. Deploy a compatible
+BatchService before upgrading. There is no compatibility shim, direct-call fallback or automatic retry
+to a service host. Existing yielding method signatures and Result shapes are unchanged.
+
+- Configure `batch = { intervalSeconds = 0.5 }` (minimum 0.25). Queued calls add up to a tick of latency,
+  plus overflow/in-flight/backoff waits. Concurrent independent calls coalesce; sequential loops do not.
+- Every envelope is limited to 100 ops / 1 MiB, each encoded op body to 256 KiB. Larger payloads now fail
+  locally, including previously allowed large NDJSON imports; partition them explicitly. NDJSON is carried
+  as an exact string in `op.body`; text responses must be JSON strings in the batch result.
+- Replace direct `services.*.baseUrl` overrides with a BatchService gateway. Direct overrides are rejected.
+  Custom backends must accept only the batch endpoint and return the new results envelope, not raw
+  endpoint responses. Test fixtures must model per-operation IDs/status/headers/body.
+- Profile polls piggyback every available tick in chunks ≤200 players/op. Batch cadence replaces the old
+  `profileSync.intervalSeconds` (now rejected) / server `pollAfterMs` schedule. Use `batch.intervalSeconds`; sync apply, signals and recovery stay intact.
+- Budgets count physical envelopes, not logical operations: default ≤120/min/client, minimum interval
+  ≤240/min; rolling safety cap remains 450/min. All facades share one native in-flight slot; `concurrency`
+  cannot increase it. Default logical queue capacity is now 10,000 instead of 64.
+- Timeouts include tick/queue waits. Cancellation before dispatch sends nothing; in-flight cancellation
+  cannot abort the shared native HTTP request. Player ordering remains held across retry backoff.
+- Health queues eight ops together. Authorization is applied on the outer envelope, including public ops;
+  distinct credential scopes use different envelopes with no serialized credentials in op bodies.
+
+See the batching and performance guides for detailed limits, ordering and the platform sizing target.
+
 ## Breaking Auth migration
 
 The source of truth is `~/work/srv/src-gas/API_CONTRACT.md` and its README. Refresh with
@@ -38,19 +64,11 @@ Inventory Fields internal-login identities before cutover: an integration still 
 silently migrate to USER. This SDK does not upgrade downstream Java DTO artifacts, promote credentials, migrate
 production data, or certify live deployments.
 
-## Gateway routing change
+## Gateway routing
 
-All eight services now default to `https://lb1.blox-api.com` plus their [service prefix](../README.md#gateway-routing).
-Permit `lb1.blox-api.com` in Roblox Secret destination restrictions. Change the gateway once with
-`gatewayUrl = "https://gateway.example"`; do not append a service prefix to that option.
-For an intentional direct host, replace `hosts = { fields = "https://direct.example" }` with
-`services = { fields = { baseUrl = "https://direct.example" } }`. Fields' prefix is omitted.
-Platform domain routes retain their prefix even on direct hosts; its operational routes do not.
-The old `hosts` field is rejected; there are no per-host defaults, aliases or fallback shims.
-Config is retired. Remove the Config facade/override from SDK callers; store game configuration
-in Fields UNIVERSE fields (subject 0). Replace snapshot polling with `client:runtimeSnapshot()`;
-it uses Fields runtime snapshots and opaque ETags. There is no compatibility alias or fallback.
-Gateway-routed services now share the same per-origin queue and circuit breaker.
+In 2.0 all eight services use `POST {gatewayUrl}/batch-service/api/batch`. Permit the gateway host in
+Roblox Secret restrictions, and configure an HTTPS origin without a service prefix. Previous `hosts`
+and `services.*.baseUrl` direct-host configurations are rejected; see the 2.0 section above.
 
 ## Service-account keys
 

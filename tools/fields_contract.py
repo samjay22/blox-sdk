@@ -13,7 +13,8 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
     del root
     # Lock identities/barriers are database implementation records, not public DTOs.
     for name in ('Lock', 'LockScope', 'CursorBarrier', 'ChangeHead', 'ChangeGroup', 'ChangeRange',
-                 'PlayerChangeCursor', 'ChangesBatchInput', 'PlayerChanges', 'ChangesBatchResult'):
+                 'PlayerChangeCursor', 'ChangesBatchInput', 'PlayerChanges', 'ChangesBatchResult',
+                 'IndexedBatch', 'Lookup'):
         definitions.pop(name, None)
     rotations = [e for e in endpoints if e["source"].endswith("/RotationsController.java")]
     endpoints = [e for e in endpoints if e not in rotations]

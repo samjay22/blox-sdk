@@ -71,6 +71,7 @@ local function client(
 	return SDK.new({
 		runtime = s.runtime,
 		backend = fake.backend,
+		profileSync = { enabled = false },
 		key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 		universeId = 123,
 		levels = { FieldsService = level or "ADMIN" },
@@ -414,7 +415,7 @@ return function(test: (string, () -> ()) -> ())
 			check(f.count() == 8)
 			for i, expected in { 0.25, 0.5, 1, 2, 4, 5, 5 } do
 				local elapsed = times[i + 1] - times[i]
-				check(elapsed >= expected and elapsed < expected + 0.1, "Unbounded polling interval")
+				check(elapsed >= expected and elapsed < expected + 0.6, "Unbounded polling interval")
 			end
 			c:destroy()
 		end)
@@ -458,7 +459,7 @@ return function(test: (string, () -> ()) -> ())
 					not result.ok
 						and result.error.kind == (if mode == "timeout" then "Timeout" else "Cancelled")
 				)
-				check(f.count() == 1)
+				check(f.count() == 0)
 				c:destroy()
 			end)
 			check(returned < 0.2)
@@ -615,7 +616,7 @@ return function(test: (string, () -> ()) -> ())
 			returned = s.time()
 			check(not result.ok and result.error.kind == "Timeout")
 		end)
-		check(returned < 0.1 and f.count() == 1)
+		check(returned < 0.1 and f.count() == 0)
 		c:destroy()
 	end)
 	test(

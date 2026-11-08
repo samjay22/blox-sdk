@@ -1,19 +1,12 @@
 --!strict
--- lb1 requires Gateway AND target-service grants; bsa_ keys are bound to one universe.
+-- Gateway and target-service grants are required; bsa_ keys are bound to one universe.
 local SDK = require("../src/BloxSDK")
---- Create a server client with optional gateway and direct-fields overrides; omitted values use gateway defaults.
-return function(
-	secretName: string,
-	universeId: number,
-	gatewayUrl: string?,
-	directFieldsUrl: string?
-): SDK.Client
+--- Create a batch-only server client; omitted gateway and cadence use SDK defaults.
+return function(secretName: string, universeId: number, gatewayUrl: string?): SDK.Client
 	return SDK.new({
 		secretName = secretName,
 		universeId = universeId,
-		gatewayUrl = gatewayUrl, -- Default: https://lb1.blox-api.com; never include a service prefix here.
-		services = if directFieldsUrl then { fields = { baseUrl = directFieldsUrl } } else nil,
+		gatewayUrl = gatewayUrl, -- HTTPS origin only; no service prefix or direct-service override.
+		batch = { intervalSeconds = 0.5 },
 	})
-	-- E.g. gatewayUrl="https://gateway.example", directFieldsUrl="https://direct-fields.example".
-	-- Fields uses only its backend path on a direct host; Platform retains its domain prefix.
 end

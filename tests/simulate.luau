@@ -24,7 +24,7 @@ return function(test: (string, () -> ()) -> ())
 					check(r.Method == "GET")
 					check(
 						r.Url
-							== "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/sample?limit=200&fields=Stats.Rating%2CElo"
+							== "https://lb1.blox-api.com/fields-service/api/fields/universes/123/players/sample?fields=Stats.Rating%2CElo&limit=200"
 					)
 				end,
 			},
@@ -61,6 +61,7 @@ return function(test: (string, () -> ()) -> ())
 		local c = SDK.new({
 			runtime = s.runtime,
 			backend = fake.backend,
+			profileSync = { enabled = false },
 			key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 			universeId = 123,
 		})
@@ -93,6 +94,7 @@ return function(test: (string, () -> ()) -> ())
 		local c = SDK.new({
 			runtime = s.runtime,
 			backend = fake.backend,
+			profileSync = { enabled = false },
 			key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 			universeId = 123,
 		})
@@ -131,6 +133,7 @@ return function(test: (string, () -> ()) -> ())
 		local c = SDK.new({
 			runtime = s.runtime,
 			backend = fake.backend,
+			profileSync = { enabled = false },
 			key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 			universeId = 123,
 			retries = 3,

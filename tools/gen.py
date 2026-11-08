@@ -266,10 +266,9 @@ def generate(doc: dict) -> dict[Path,str]:
         '**lb1 requires `Gateway` permission in addition to the target service permission. `bsa_` service-account keys are universe-bound.**', '',
         '| Service | Gateway stripPrefix |', '|---|---|',
         *[f'| `{svc}` | `{prefix}` |' for svc, prefix in SERVICE_PREFIXES.items()], '',
-        'Paths below are backend-relative: wire URL = gateway + service prefix + path. '
-        'Game configuration lives in Fields. Platform preserves its domain prefix on direct hosts. '
-        'An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway '
-        'and prefix for that service only. See [routing configuration](../README.md#gateway-routing).', '',
+        'Paths below are backend-relative operation paths: all wire HTTP uses '
+        '`POST {gatewayUrl}/batch-service/api/batch`. Service prefixes shown above are gateway inventory, '
+        'not prefixes on op paths. Direct-host overrides are rejected. See [batch transport](BATCHING.md).', '',
     ]
     rows.extend(['', '**ADMIN endpoints are server/admin-key usage only.** Keep credentials in trusted server storage; never expose control-plane requests to untrusted game clients. Fields durable jobs, migrations, bulk/import/export, schedule controls, and alerts require FieldsService ADMIN, including previews and downloads. Fields health summary and schedule run history require READ.', '', 'Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` and top-level `idempotencyKey` for apply. Downloads return raw NDJSON strings, not decoded JSON.'])
     rows.extend(['', '**Auth IDENTITY means identity authentication, not an automatic capability grant.** Org ADMIN/OWNER gates, delegation caps, quotas and last-owner checks remain server-enforced. Scoped JWTs and machine keys cannot manage orgs/keys. Humans/tools use identity login then `client:scoped(id)` for downstream access; game servers should use `bsa_` keys. See [Auth role templates and error codes](AUTH.md).'])

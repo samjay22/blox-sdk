@@ -30,6 +30,7 @@ return function(test: (string, () -> ()) -> ())
 				local client = SDK.new({
 					runtime = s.runtime,
 					backend = fake.backend,
+					profileSync = { enabled = false },
 					key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 					universeId = 123,
 				})
@@ -61,6 +62,7 @@ return function(test: (string, () -> ()) -> ())
 		local client = SDK.new({
 			runtime = s.runtime,
 			backend = fake.backend,
+			profileSync = { enabled = false },
 			key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 			universeId = 999999800,
 		})

@@ -1,5 +1,19 @@
 # BloxSDK changelog
 
+## 2.0.0 (local, not published)
+
+- **Breaking transport behavior; public method/Result API unchanged:** all requests use BatchService;
+  no direct-call fallback or service-host overrides. Configurable 0.5s ticks (minimum 0.25), max 100 ops,
+  1 MiB envelopes / 256 KiB bodies, bounded priority FIFO queue, one native batch in flight per client.
+- Profile change polls piggyback loaded profiles in ≤200-player ops. Existing cursor/version application,
+  notifications and snapshot recovery are retained, including fencing polls covered by a newer snapshot.
+- Preserve endpoint validation, idempotency, ETags, per-op errors/retries, enqueue deadlines and cancellation.
+  Player and multi-subject logical ordering spans retries; whole-batch 429 pauses dispatch with jitter.
+- Charge the rolling limiter per physical envelope; default cadence costs at most 120/min/client.
+  Health coalesces all services; the live-smoke runner uses batch transport and keeps Lune header normalization.
+- Add fake-clock batch protocol, limit, routing, priority, auth, retry, in-flight and lifecycle regressions;
+  document batching, migration, performance limits and platform-wide 10k/s sizing without benchmark claims.
+
 ## 1.2.0 — 2026-11-08 (unpublished)
 
 - Add automatic per-client loaded-profile batch synchronization, chunked at 200 distinct players.

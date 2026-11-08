@@ -37,87 +37,138 @@ local function run(
 			error("MOCK_EXIT", 0)
 		end,
 	}
+	local function operationRequest(request: any): any
+		requests += 1
+		assert(request.url:sub(1, 22) == "https://smoke.invalid/", "Wrong mock origin")
+		assert(
+			request.headers.Authorization == nil or request.headers.Authorization == "Bearer " .. key,
+			"Missing explicit auth"
+		)
+		if failNet then
+			error("PRIVATE_WIRE_EXCEPTION")
+		end
+		local url = request.url
+		if
+			healthStatus
+			and string.find(url, "/health", 1, true)
+			and string.find(url, "/" .. (healthService or "party") .. "-service/", 1, true)
+		then
+			return {
+				statusCode = healthStatus,
+				body = '{"message":"PRIVATE_SCOPE_DETAIL"}',
+				headers = { ["set-cookie"] = { "PRIVATE_COOKIE" } },
+			}
+		end
+		local payload: any = nil
+		if string.find(url, "/changes/batch", 1, true) then
+			local body = Decode.decode(request.body) :: any
+			local items = {}
+			for _, player in body.players do
+				table.insert(items, {
+					userId = player.userId,
+					entries = Json.array({}),
+					latestSeq = player.sinceSeq,
+					nextSinceSeq = player.sinceSeq,
+					hasMore = false,
+					needsSnapshot = false,
+				})
+			end
+			payload = { items = items, pollAfterMs = 5000 }
+		elseif string.find(url, "/schema", 1, true) then
+			payload = {
+				universeId = 123,
+				schemaVersion = 1,
+				definitions = {
+					{
+						universeId = 123,
+						id = "Smoke.Counter",
+						type = { kind = "int", min = 0 },
+						scope = "PLAYER",
+						status = "ACTIVE",
+						history = "LEDGER",
+						writeLevel = "READ_WRITE",
+						definitionVersion = 1,
+						description = "",
+						createdAt = "now",
+						updatedAt = "now",
+					},
+				},
+			}
+		elseif string.find(url, "/document", 1, true) then
+			payload = {
+				userId = 7,
+				seq = 0,
+				data = { Smoke = { Counter = 0 } },
+				versions = {
+					["Smoke.Counter"] = 0,
+				},
+			}
+		elseif string.find(url, "/transactions", 1, true) then
+			local body = Decode.decode(request.body) :: any
+			assert(
+				body.ops[1].value == 0 and body.conditions[1].expectedVersion == 0,
+				"Smoke must preserve value with optimistic concurrency"
+			)
+			payload = {
+				txId = "smoke-transaction",
+				replayed = false,
+				results = Json.array({}),
+				seq = { ["7"] = 1 },
+			}
+		elseif string.find(url, "/active", 1, true) then
+			payload = V.active
+		elseif string.find(url, "/preview", 1, true) then
+			payload = { V.roll.results[1] }
+		elseif string.find(url, "/redeem", 1, true) then
+			redeems += 1
+		end
+		assert(
+			not string.find(url, "/roll", 1, true)
+				and not string.find(url, "/claim", 1, true)
+				and request.method ~= "DELETE",
+			"Unsafe smoke mutation"
+		)
+		return {
+			statusCode = if payload then 200 else 204,
+			body = if payload then Json.encode(payload) else "",
+			headers = { ["set-cookie"] = { "PRIVATE_COOKIE", "PRIVATE_COOKIE_TWO" } },
+		}
+	end
 	local net = {
 		request = function(request: any): any
-			requests += 1
-			assert(request.url:sub(1, 22) == "https://smoke.invalid/", "Wrong mock origin")
 			assert(
-				request.headers.Authorization == nil or request.headers.Authorization == "Bearer " .. key,
-				"Missing explicit auth"
+				request.url == "https://smoke.invalid/batch-service/api/batch" and request.method == "POST",
+				"Smoke bypassed BatchService"
 			)
-			if failNet then
-				error("PRIVATE_WIRE_EXCEPTION")
+			local batch = Decode.decode(request.body) :: any
+			assert(#batch.ops >= 1 and #batch.ops <= 100, "Invalid smoke batch")
+			local results = {}
+			for _, op in batch.ops do
+				local prefix = if op.service == "codes" then "code" else op.service
+				local headers = table.clone(request.headers)
+				for name, value in op.headers do
+					headers[name] = value
+				end
+				local returned = operationRequest({
+					url = "https://smoke.invalid/" .. prefix .. "-service" .. op.path,
+					method = op.method,
+					headers = headers,
+					body = if op.body == nil then nil else Json.encode(op.body),
+				})
+				local normalized = {}
+				for name, value in returned.headers do
+					normalized[name] = if type(value) == "table" then table.concat(value, ", ") else value
+				end
+				table.insert(results, {
+					id = op.id,
+					status = returned.statusCode,
+					headers = normalized,
+					body = if returned.body == "" then Json.null else Decode.decode(returned.body),
+				})
 			end
-			local url = request.url
-			if
-				healthStatus
-				and string.find(url, "/health", 1, true)
-				and string.find(url, "/" .. (healthService or "party") .. "-service/", 1, true)
-			then
-				return {
-					statusCode = healthStatus,
-					body = '{"message":"PRIVATE_SCOPE_DETAIL"}',
-					headers = { ["set-cookie"] = { "PRIVATE_COOKIE" } },
-				}
-			end
-			local payload: any = nil
-			if string.find(url, "/schema", 1, true) then
-				payload = {
-					universeId = 123,
-					schemaVersion = 1,
-					definitions = {
-						{
-							universeId = 123,
-							id = "Smoke.Counter",
-							type = { kind = "int", min = 0 },
-							scope = "PLAYER",
-							status = "ACTIVE",
-							history = "LEDGER",
-							writeLevel = "READ_WRITE",
-							definitionVersion = 1,
-							description = "",
-							createdAt = "now",
-							updatedAt = "now",
-						},
-					},
-				}
-			elseif string.find(url, "/document", 1, true) then
-				payload = {
-					userId = 7,
-					seq = 0,
-					data = { Smoke = { Counter = 0 } },
-					versions = {
-						["Smoke.Counter"] = 0,
-					},
-				}
-			elseif string.find(url, "/transactions", 1, true) then
-				local body = Decode.decode(request.body) :: any
-				assert(
-					body.ops[1].value == 0 and body.conditions[1].expectedVersion == 0,
-					"Smoke must preserve value with optimistic concurrency"
-				)
-				payload = {
-					txId = "smoke-transaction",
-					replayed = false,
-					results = Json.array({}),
-					seq = { ["7"] = 1 },
-				}
-			elseif string.find(url, "/active", 1, true) then
-				payload = V.active
-			elseif string.find(url, "/preview", 1, true) then
-				payload = { V.roll.results[1] }
-			elseif string.find(url, "/redeem", 1, true) then
-				redeems += 1
-			end
-			assert(
-				not string.find(url, "/roll", 1, true)
-					and not string.find(url, "/claim", 1, true)
-					and request.method ~= "DELETE",
-				"Unsafe smoke mutation"
-			)
 			return {
-				statusCode = if payload then 200 else 204,
-				body = if payload then Json.encode(payload) else "",
+				statusCode = 200,
+				body = Json.encode({ results = results, serverTimeMs = 1 }),
 				headers = { ["set-cookie"] = { "PRIVATE_COOKIE", "PRIVATE_COOKIE_TWO" } },
 			}
 		end,

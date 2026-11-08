@@ -44,6 +44,7 @@ local function client(
 	local cfg: SDK.Config = options or {}
 	cfg.runtime = s.runtime
 	cfg.backend = fake.backend
+	cfg.profileSync = { enabled = false }
 	if cfg.userSession then
 		cfg.universeId = cfg.universeId or 123
 	end
@@ -302,20 +303,20 @@ test("safe GET retry honors Retry-After and caps retry budget", function()
 	check(f2.count() == 1)
 end)
 
-test("deadline drops late response and releases native slot only on completion", function()
+test("deadline drops late response and retains physical batch until completion", function()
 	local s = Scheduler.new()
 	local c, f = client(s, {
 		{
 			delay = 2,
 			body = s.json({ universeId = 123, schemaVersion = 0, definitions = Json.array({}) }),
 		},
-	}, { timeout = 0.1, concurrency = 1, queueCapacity = 0 })
+	}, { timeout = 0.6, queueCapacity = 1 })
 	s.run(function()
 		failure(c.fields:schema(), "Timeout")
-		failure(c.fields:definitions(), "RateLimited")
+		check(c._state.batcher.inFlight)
+		failure(c.fields:definitions(), "Timeout")
 	end)
-	check(f.count() == 1 and s.pending() == 0 and s.time() >= 2)
-	check(c._state.hosts["https://lb1.blox-api.com"].gate.active == 0)
+	check(f.count() == 1 and not c._state.batcher.inFlight and s.time() >= 2)
 end)
 
 test("concurrent identical GETs single-flight; cache snapshots immutable", function()
@@ -383,7 +384,7 @@ test("cancellation removes waiting ticket without consuming another slot", funct
 		s.runtime.wait(0.02)
 		signal.cancelled = true
 	end)
-	check(cancelled and f.count() == 1 and c._state.hosts["https://lb1.blox-api.com"].gate.queued == 0)
+	check(cancelled and f.count() == 1 and #c._state.batcher.queue <= 1)
 end)
 
 test("concurrent 401s refresh once, replay once with rotated tokens", function()
@@ -405,7 +406,7 @@ test("concurrent 401s refresh once, replay once with rotated tokens", function()
 			check = function(req: Core.HttpRequest)
 				check(
 					req.Url == "https://lb1.blox-api.com/auth-service/api/auth/refresh"
-						and req.Headers.Authorization == nil
+						and req.Headers.Authorization == "Bearer old"
 				)
 			end,
 		},
@@ -520,130 +521,126 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
-test("all generated endpoints use default, custom gateway and direct-host URLs offline", function()
-	local count = 0
-	local endpointCount = 0
-	for id, spec in Endpoints do
-		endpointCount += 1
-		local s = Scheduler.new()
-		local schema = Schemas.endpoints[id]
-		local value = fixture(schema.response, Schemas.definitions[schema.service])
-		local status = if value == nil then 204 else 200
-		local body = if value == nil then "" elseif spec.responseFormat == "text" then value else s.json(value)
-		local request: Core.Request = { path = {}, query = {} }
-		for _, p in spec.pathParams do
-			(request.path :: { [string]: unknown })[p.name] = if p.type == "number" or p.type == "id"
-				then 1
-				elseif p.type == "boolean" then true
-				elseif p.name == "universeId" or p.name == "robloxUniverseId" then "1"
-				else "value"
-		end
-		for _, p in spec.queryParams do
-			if p.required then
-				(request.query :: { [string]: unknown })[p.name] = if p.type == "number"
+test(
+	"all generated endpoints use internal operations through default and custom batch gateways offline",
+	function()
+		local count = 0
+		local endpointCount = 0
+		for id, spec in Endpoints do
+			endpointCount += 1
+			local s = Scheduler.new()
+			local schema = Schemas.endpoints[id]
+			local value = fixture(schema.response, Schemas.definitions[schema.service])
+			local status = if value == nil then 204 else 200
+			local body = if value == nil
+				then ""
+				elseif spec.responseFormat == "text" then value
+				else s.json(value)
+			local request: Core.Request = { path = {}, query = {} }
+			for _, p in spec.pathParams do
+				(request.path :: { [string]: unknown })[p.name] = if p.type == "number"
 						or p.type == "id"
 					then 1
 					elseif p.type == "boolean" then true
 					elseif p.name == "universeId" or p.name == "robloxUniverseId" then "1"
 					else "value"
 			end
-		end
-		if schema.body then
-			request.body = fixture(schema.body, Schemas.definitions[schema.service])
-			if spec.idempotencyItems then
-				local dto = if spec.service == "audit" then "EventInput" else "ScoreInput"
-				(request.body :: any)[spec.idempotencyItems] =
-					{ fixture(Schemas.definitions[spec.service][dto], Schemas.definitions[spec.service]) }
-			end
-		end
-		if id == "fields.changesBatch" then
-			request.body = { players = { { userId = 1, sinceSeq = 0 } } }
-		elseif id == "fields.validateOps" then
-			request.body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 1 } } }
-		elseif id == "codes.createCode" or id == "codes.bulkCreateCodes" then
-			(request.body :: any).award = { { field = "Currency.Gems", op = "ADD", delta = 1 } }
-			(request.body :: any).universeId = 1
-			if id == "codes.bulkCreateCodes" then
-				(request.body :: any).length = 10
-			end
-		end
-		for _, mode in { "default", "gateway", "direct" } do
-			local base = if mode == "default"
-				then "https://lb1.blox-api.com"
-				else "https://gateway.example:8443"
-			base ..= GatewayTests.prefixes[spec.service]
-			if mode == "direct" then
-				base = "https://direct.example"
-				if
-					spec.service == "platform"
-					and (
-						string.sub(spec.path, 1, 5) == "/api/"
-						or string.sub(spec.path, 1, 10) == "/internal/"
-					)
-				then
-					base ..= "/platform-service"
+			for _, p in spec.queryParams do
+				if p.required then
+					(request.query :: { [string]: unknown })[p.name] = if p.type == "number"
+							or p.type == "id"
+						then 1
+						elseif p.type == "boolean" then true
+						elseif p.name == "universeId" or p.name == "robloxUniverseId" then "1"
+						else "value"
 				end
 			end
-			local expectedUrl = base .. (Path.build(spec, request, nil) :: string)
-			local c, f = client(s, {
-				{
-					status = status,
-					body = body,
-					check = function(wire: Core.HttpRequest)
-						check(
-							wire.Url == expectedUrl and wire.Method == spec.method,
-							"Incorrect gateway route " .. id
-						)
-					end,
-				},
-			}, {
-				gatewayUrl = if mode == "default" then nil else "https://GATEWAY.example:8443/",
-				services = if mode == "direct"
-					then { [spec.service] = { baseUrl = "https://DIRECT.example:443/" } }
-					else nil,
-				authProvider = {
-					kind = if table.find(spec.authKinds, "custom") then "custom" else spec.authKinds[1],
-					apply = function(_h: Core.Headers) end,
-					onUnauthorized = function(_v: number?): boolean
-						return false
-					end,
-				},
-			})
-			-- Route fixtures seed a local schema; dedicated tests exercise the real Load path.
-			if id == "fields.validateOps" or id == "codes.createCode" or id == "codes.bulkCreateCodes" then
-				local cached = c.fields:schemaCache(1)
-				cached._version = 1
-				cached._definitions["Currency.Gems"] = {
-					universeId = 1,
-					id = "Currency.Gems",
-					description = "",
-					scope = "PLAYER",
-					status = "ACTIVE",
-					type = { kind = "int" },
-					definitionVersion = 1,
-					createdAt = "now",
-					updatedAt = "now",
-				}
+			if schema.body then
+				request.body = fixture(schema.body, Schemas.definitions[schema.service])
+				if spec.idempotencyItems then
+					local dto = if spec.service == "audit" then "EventInput" else "ScoreInput"
+					(request.body :: any)[spec.idempotencyItems] =
+						{ fixture(Schemas.definitions[spec.service][dto], Schemas.definitions[spec.service]) }
+				end
 			end
-			s.run(function()
-				local facade = (c :: any)[spec.service]
-				local name = string.match(id, "%.(.+)$") :: string
-				local argument = if spec.bodyType
-						and #spec.pathParams == 0
-						and #spec.queryParams == 0
-						and not spec.idempotencyHeader
-					then request.body
-					else request
-				local r = facade[name](facade, argument)
-				check(r.ok, "Endpoint failed " .. id)
-			end)
-			check(f.count() == 1)
-			c:destroy()
-			count += 1
+			if id == "fields.changesBatch" then
+				request.body = { players = { { userId = 1, sinceSeq = 0 } } }
+			elseif id == "fields.validateOps" then
+				request.body = { ops = { { field = "Currency.Gems", op = "ADD", delta = 1 } } }
+			elseif id == "codes.createCode" or id == "codes.bulkCreateCodes" then
+				(request.body :: any).award = { { field = "Currency.Gems", op = "ADD", delta = 1 } }
+				(request.body :: any).universeId = 1
+				if id == "codes.bulkCreateCodes" then
+					(request.body :: any).length = 10
+				end
+			end
+			for _, mode in { "default", "gateway" } do
+				local base = if mode == "default"
+					then "https://lb1.blox-api.com"
+					else "https://gateway.example:8443"
+				base ..= GatewayTests.prefixes[spec.service]
+				local expectedUrl = base .. (Path.build(spec, request, nil) :: string)
+				local c, f = client(s, {
+					{
+						status = status,
+						body = body,
+						check = function(wire: Core.HttpRequest)
+							check(
+								wire.Url == expectedUrl and wire.Method == spec.method,
+								"Incorrect gateway route " .. id
+							)
+						end,
+					},
+				}, {
+					gatewayUrl = if mode == "default" then nil else "https://GATEWAY.example:8443/",
+					authProvider = {
+						kind = if table.find(spec.authKinds, "custom") then "custom" else spec.authKinds[1],
+						apply = function(_h: Core.Headers) end,
+						onUnauthorized = function(_v: number?): boolean
+							return false
+						end,
+					},
+				})
+				-- Route fixtures seed a local schema; dedicated tests exercise the real Load path.
+				if
+					id == "fields.validateOps"
+					or id == "codes.createCode"
+					or id == "codes.bulkCreateCodes"
+				then
+					local cached = c.fields:schemaCache(1)
+					cached._version = 1
+					cached._definitions["Currency.Gems"] = {
+						universeId = 1,
+						id = "Currency.Gems",
+						description = "",
+						scope = "PLAYER",
+						status = "ACTIVE",
+						type = { kind = "int" },
+						definitionVersion = 1,
+						createdAt = "now",
+						updatedAt = "now",
+					}
+				end
+				s.run(function()
+					local facade = (c :: any)[spec.service]
+					local name = string.match(id, "%.(.+)$") :: string
+					local argument = if spec.bodyType
+							and #spec.pathParams == 0
+							and #spec.queryParams == 0
+							and not spec.idempotencyHeader
+						then request.body
+						else request
+					local r = facade[name](facade, argument)
+					check(r.ok, "Endpoint failed " .. id)
+				end)
+				check(f.count() == 1)
+				c:destroy()
+				count += 1
+			end
 		end
+		check(endpointCount >= 285 and count == endpointCount * 2)
 	end
-	check(endpointCount >= 285 and count == endpointCount * 3)
-end)
+)
 
 test("short caller deadline does not wait for or cancel shared refresh", function()
 	local s = Scheduler.new()
@@ -687,7 +684,7 @@ test("destroy interrupts active callers and refresh cannot resurrect credentials
 		s.runtime.wait(0.05)
 		c:destroy()
 	end)
-	check(returned < 0.1 and store.get() == nil and f.count() == 1 and s.pending() == 0)
+	check(returned < 0.1 and store.get() == nil and f.count() == 0 and s.pending() == 0)
 end)
 
 test("replayed 401 terminates after one refresh", function()
@@ -785,8 +782,8 @@ test("token-starved work remains bounded by host queue capacity", function()
 			criticalReserve = 0,
 			requestsPerMinute = 1,
 			concurrency = 1,
-			queueCapacity = 0,
-			timeout = 0.2,
+			queueCapacity = 1,
+			timeout = 0.6,
 		}
 	)
 	local full = false
@@ -1023,6 +1020,7 @@ require("./simulate")(test)
 require("./platform")(test)
 require("./service_contracts")(test)
 require("./rotations")(test)
+require("./batching")(test)
 GatewayTests.register(test)
 require("./release")(test)
 print("PASS " .. tostring(passed) .. " test groups")

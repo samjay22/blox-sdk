@@ -13,9 +13,10 @@ type Reload = { at: number, busy: boolean, attempts: number }
 type Group = { universe: string, invoke: Core.Invoke, users: { [number]: { Profile.Profile } } }
 export type Sync = typeof(setmetatable(
 	{} :: {
+		wake: (() -> ())?,
 		_runtime: Core.Runtime,
 		_enabled: boolean,
-		_interval: number,
+		_pollAt: number,
 		_concurrency: number,
 		_canPoll: () -> boolean,
 		_profiles: { [Profile.Profile]: Registration },
@@ -24,7 +25,6 @@ export type Sync = typeof(setmetatable(
 		_schemaPoll: { [Schema.Schema]: number },
 		_generation: number,
 		_active: number,
-		_timer: thread?,
 		_reloadTimer: thread?,
 		_busy: boolean,
 		_closed: boolean,
@@ -50,7 +50,7 @@ function Sync.new(runtime: Core.Runtime, options: Config.ProfileSyncConfig?, can
 	return setmetatable({
 		_runtime = runtime,
 		_enabled = config.enabled ~= false,
-		_interval = Config.number(config.intervalSeconds, 15, 5, 3600, "profileSync.intervalSeconds"),
+		_pollAt = 0,
 		_concurrency = Config.number(
 			config.maxConcurrentReloads,
 			2,
@@ -66,7 +66,6 @@ function Sync.new(runtime: Core.Runtime, options: Config.ProfileSyncConfig?, can
 		_schemaPoll = {},
 		_generation = 0,
 		_active = 0,
-		_timer = nil,
 		_reloadTimer = nil,
 		_busy = false,
 		_closed = false,
@@ -77,15 +76,15 @@ function Sync.new(runtime: Core.Runtime, options: Config.ProfileSyncConfig?, can
 		lastError = nil,
 	}, Sync)
 end
---- Keep a single serial poll chain; registration during an in-flight request cannot fork it.
-function Sync._schedule(self: Sync, seconds: number)
-	if self._closed or not self._enabled or self._timer or self._busy or next(self._profiles) == nil then
-		return
-	end
-	self._timer = self._runtime.delay(seconds, function()
-		self._timer = nil
+--- Report whether ticks must stay armed; disabled sync never keeps an idle client alive.
+function Sync.hasProfiles(self: Sync): boolean
+	return not self._closed and self._enabled and next(self._profiles) ~= nil
+end
+--- Enqueue all profile chunks before the batch tick dispatches; no separate polling clock.
+function Sync.tick(self: Sync)
+	if self:hasProfiles() then
 		self:_poll()
-	end)
+	end
 end
 --- Run staggered, deduplicated reloads with bounded concurrency and retry admission.
 function Sync._pump(self: Sync)
@@ -120,7 +119,7 @@ function Sync._pump(self: Sync)
 		self._active += 1
 		self:_pump()
 		local options: Core.CallOptions = { priority = "low", retry = 0, signal = profile._signal }
-		-- A migration requires fresh type definitions, shared once per schema per poll generation.
+		-- A migration requires fresh definitions, shared once per schema per recovery wave.
 		local loaded: Core.Result<any> = { ok = true, value = true }
 		while profile._schema._busy and not profile._closed and not self._closed do
 			self._runtime.wait(0.01)
@@ -166,17 +165,9 @@ function Sync._reload(self: Sync, profile: Profile.Profile)
 	end
 	self:_pump()
 end
---- Poll all credential/universe groups serially, deduplicating players before chunking at 200.
+--- Snapshot deduplicated credential/universe groups and enqueue all chunks on this tick.
 function Sync._poll(self: Sync)
-	if self._closed or self._busy or next(self._profiles) == nil then
-		return
-	end
-	if (self._signal.inFlight or 0) > 0 then
-		self:_schedule(5)
-		return
-	end
-	if not self._canPoll() then
-		self:_schedule(jitter(self, self._interval))
+	if self._closed or self._busy or self._runtime.now() < self._pollAt or not self:hasProfiles() then
 		return
 	end
 	self._busy = true
@@ -191,13 +182,13 @@ function Sync._poll(self: Sync)
 			universes = {}
 			byInvoke[registration.invoke] = universes
 		end
-		local group: Group? = universes[registration.universe]
+		local group = universes[registration.universe]
 		if not group then
 			local created: Group =
 				{ universe = registration.universe, invoke = registration.invoke, users = {} }
+			group = created
 			universes[registration.universe] = created
 			table.insert(groups, created)
-			group = created
 		end
 		assert(group ~= nil, "Missing sync group")
 		local profiles = group.users[profile._user]
@@ -207,9 +198,8 @@ function Sync._poll(self: Sync)
 		end
 		table.insert(profiles, profile)
 	end
-	local interval = 5
-	local more = false
-	local failed: Core.BloxError? = nil
+	local pending = 0
+	local failed = false
 	for _, group in groups do
 		local users: { number } = {}
 		for user in group.users do
@@ -217,82 +207,80 @@ function Sync._poll(self: Sync)
 		end
 		table.sort(users)
 		for first = 1, #users, 200 do
-			if self._closed or signal.cancelled or not self._canPoll() then
-				break
-			end
 			local players: { Wire.PlayerChangesInput } = {}
 			for i = first, math.min(first + 199, #users) do
 				local user = users[i]
 				local since = math.huge
 				for _, profile in group.users[user] do
-					if self._profiles[profile] then
-						since = math.min(since, profile.seq)
+					since = math.min(since, profile.seq)
+				end
+				table.insert(players, { userId = user, sinceSeq = since })
+			end
+			pending += 1
+			self._runtime.spawn(function()
+				local result = group.invoke(Endpoints["fields.changesBatch"], {
+					path = { universeId = group.universe },
+					body = { players = players, maxEntries = 500 },
+				}, { priority = "low", retry = 0, signal = signal }, group.universe)
+				if not self._closed and not signal.cancelled then
+					if result.ok then
+						local response: Wire.BatchChangesResponse = result.value
+						local valid = #response.items == #players
+						for i, item in response.items do
+							if not players[i] or item.userId ~= players[i].userId then
+								valid = false
+							end
+						end
+						if valid then
+							for i, item in response.items do
+								for _, profile in group.users[item.userId] do
+									if
+										self._profiles[profile]
+										and not self._reloads[profile]
+										-- A snapshot that completed during this poll already covers this response.
+										and not (profile.seq > players[i].sinceSeq and profile.seq >= item.nextSinceSeq)
+										and not profile:applyChanges(item, players[i].sinceSeq)
+									then
+										self:_reload(profile)
+									end
+								end
+							end
+						else
+							failed = true
+							self.lastError = {
+								kind = "Validation",
+								code = "invalid_changes_batch",
+								endpoint = "fields.changesBatch",
+								attempts = 1,
+								message = "Invalid batch response",
+							}
+						end
+					else
+						failed = true
+						self.lastError = result.error
 					end
 				end
-				if since < math.huge then
-					table.insert(players, { userId = user, sinceSeq = since })
-				end
-			end
-			if #players == 0 then
-				continue
-			end
-			local result = group.invoke(Endpoints["fields.changesBatch"], {
-				path = { universeId = group.universe },
-				body = { players = players, maxEntries = 500 },
-			}, { priority = "low", retry = 0, signal = signal }, group.universe)
-			if self._closed or signal.cancelled then
-				break
-			end
-			if not result.ok then
-				failed = result.error
-				break
-			end
-			local response: Wire.BatchChangesResponse = result.value
-			-- Reject mismatched responses before touching any profile; the contract preserves order.
-			local valid = #response.items == #players and response.pollAfterMs >= 5000
-			for i, item in response.items do
-				if not players[i] or item.userId ~= players[i].userId then
-					valid = false
-				end
-			end
-			if not valid then
-				failed = {
-					kind = "Validation",
-					code = "invalid_changes_batch",
-					endpoint = "fields.changesBatch",
-					attempts = 1,
-					message = "Invalid batch response",
-				}
-				break
-			end
-			interval = math.max(interval, response.pollAfterMs / 1000)
-			for i, item in response.items do
-				more = more or item.hasMore
-				for _, profile in group.users[item.userId] do
-					if
-						self._profiles[profile]
-						and not self._reloads[profile]
-						and not profile:applyChanges(item, players[i].sinceSeq)
-					then
-						self:_reload(profile)
+				pending -= 1
+				if pending == 0 then
+					self._busy = false
+					if not failed then
+						self.lastError = nil
+						self._failures = 0
+					else
+						self._failures += 1
+						self._pollAt = self._runtime.now()
+							+ backoff(
+								self,
+								self._failures,
+								if self.lastError then self.lastError.retryAfterSeconds else nil
+							)
 					end
 				end
-			end
-		end
-		if failed then
-			break
+			end)
 		end
 	end
-	self._busy = false
-	if failed then
-		self.lastError = failed
-		self._failures += 1
-		self:_schedule(backoff(self, self._failures, failed.retryAfterSeconds))
-	else
-		self.lastError = nil
-		self._failures = 0
-		-- hasMore is the explicit exception to the normal five-second interval floor.
-		self:_schedule(if more then 0.2 + 0.1 * self._runtime.random() else jitter(self, interval))
+	if pending == 0 then
+		self._busy = false
 	end
 end
 --- Fence asynchronous loads against player departure without retaining departed-user history.
@@ -317,7 +305,9 @@ function Sync.register(self: Sync, universe: string, profile: Profile.Profile, i
 	profile._onChange = function(change)
 		self.Changed:fire(change)
 	end
-	self:_schedule(jitter(self, self._interval))
+	if self.wake and self._enabled then
+		self.wake()
+	end
 end
 --- Remove handles and pending recovery immediately, cancelling idle polling without retaining history.
 function Sync.unregister(self: Sync, profile: Profile.Profile)
@@ -325,10 +315,6 @@ function Sync.unregister(self: Sync, profile: Profile.Profile)
 	self._reloads[profile] = nil
 	if next(self._profiles) == nil then
 		self._signal.cancelled = true
-		if self._timer then
-			self._runtime.cancel(self._timer)
-			self._timer = nil
-		end
 		if self._reloadTimer then
 			self._runtime.cancel(self._reloadTimer)
 			self._reloadTimer = nil
@@ -357,10 +343,6 @@ function Sync.destroy(self: Sync)
 	end
 	self._closed = true
 	self._signal.cancelled = true
-	if self._timer then
-		self._runtime.cancel(self._timer)
-		self._timer = nil
-	end
 	if self._reloadTimer then
 		self._runtime.cancel(self._reloadTimer)
 		self._reloadTimer = nil

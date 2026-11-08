@@ -7,7 +7,7 @@ return function(runtime: Core.Runtime, backend: Core.Backend): SDK.Client
 		runtime = runtime,
 		backend = backend,
 		gatewayUrl = "https://gateway.example",
-		services = { data = { baseUrl = "https://direct.example" } },
+		batch = { intervalSeconds = 0.5 },
 		levels = { PartyService = "READ", MatchmakingService = "READ_WRITE" },
 	})
 end

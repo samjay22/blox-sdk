@@ -8,7 +8,7 @@ NDJSON import is an explicit exception to automatic key generation: apply (`dryR
 caller-supplied `Idempotency-Key`, binding the exact UTF-8 bytes and reason across retries. Missing keys
 fail locally; the SDK never generates a replacement. Import dry runs (including omitted `dryRun`, which
 defaults true) are read-only and retry-eligible without a key. Both remain subject to retry budgets and
-deadlines. Generated wrappers send raw NDJSON rather than encoding it as a JSON string.
+deadlines. The batch op carries NDJSON as a JSON string; its decoded bytes are unchanged. The 256 KiB encoded-body limit applies.
 
 Eligible transient failures are Network, Server (5xx), and RateLimited. Eligible safe/idempotent calls receiving Unauthorized get one strategy-mediated replay, separately from transient retry accounting. Forbidden/validation/conflict/not-found/cancellation/deadline errors do not retry. A successful mutation with a lost response may already have executed; never interpret a Network/Timeout result as proof that it did not.
 
@@ -18,21 +18,28 @@ Each actually dispatched original logical request earns `retryRatio` credits (de
 
 ## Admission and circuits
 
-The per-origin concurrency gate has two O(1) doubly-linked FIFO lanes. Critical work is selected first, with one bulk grant after three critical grants when both lanes are populated. The queue is bounded; overflow returns `RateLimited` with a local message and zero wire attempts. Cancellation unlinks an interior ticket in O(1).
+The batcher has stable critical/bulk/low FIFO lanes and bounded logical admission. It sends at most
+100 operations / 1 MiB per tick, with one native envelope in flight; overflow waits for another tick.
+Logical player-order locks span retries; multi-subject writes share all affected lanes. Priority never
+overtakes a dependent predecessor. The rolling limiter charges one physical envelope. Whole-batch
+429 pauses every operation's dispatch with Retry-After/backoff plus jitter. Batch 401/403 fail every
+selected op; endpoint-specific schemas and retries remain per op. See [batching](BATCHING.md).
 
-Rate-waiting calls retain their admission ticket, so token starvation cannot create an unbounded external wait queue. The shared token bucket reserves tokens for critical traffic. Defaults are deliberately below the approximate Roblox shared limit, but other scripts and duplicated SDK modules are not observable. All retries, auth refreshes, and health requests consume tokens. Use one required ModuleScript instance and one client per credential.
-
-Breakers are per origin, including shared custom origins. They inspect the last 20 outcomes within 30 seconds; five Network/Timeout/Server failures open the circuit for 10 seconds. Only one half-open probe is admitted. A successful probe closes/reset samples; failure reopens. Admission generations prevent a late pre-open request from closing a newer half-open circuit. Auth/validation/rate errors are not outage samples.
-
-All services now default to one load-balancer origin, so both the gate and breaker are shared across service prefixes.
-A gateway outage can open the circuit for every gateway-routed service. Explicit direct-host `baseUrl` overrides use
-their own origin state; the client-wide rate/retry budgets remain shared.
+Breakers share the gateway origin. They inspect the last 20 logical outcomes within 30 seconds; five
+Network/Timeout/Server failures open for 10 seconds. Half-open probes and generation fencing retain
+the existing behavior. Auth/validation/rate errors are not outage samples. There are no direct-host
+exceptions or fallback requests. Default-runtime clients share the first client's rolling limiter;
+unrelated scripts and duplicated ModuleScripts remain outside its measurements.
 
 ## Deadlines and native HTTP
 
 `deadline` is an **absolute `runtime.now()`/`os.clock()` timestamp**, covering queue wait, rate wait, refresh wait, transport, retry sleep, and replay. `timeout` sets the default relative budget. Set `signal.cancelled=true` to stop a caller.
 
-Roblox `RequestAsync` does not expose a cancellable native HTTP request or timeout parameter. The SDK uses an owned worker and a cancellable timer; deadline/cancellation returns promptly, drops late results, and never prematurely recycles request headers. The worker keeps its concurrency slot until physical completion. Thus there are no abandoned timer tasks or unbounded spawned requests, but a native HTTP operation cannot be killed by `destroy()`. At most the configured number per host can remain physically outstanding. This is intentional backpressure, not a claim of native network cancellation.
+Roblox `RequestAsync` cannot abort native HTTP. Cancellation/expiry returns to the individual caller
+and drops its late result, while the batcher retains the single physical slot and signal native counts
+until completion. Other operations in the same envelope are not cancelled. Before dispatch, cancelled
+or expired entries are ineligible. There are no per-call native workers or timeout-triggered fallback
+requests. At most one native request per client can remain outstanding, even through destroy.
 
 `Jobs:waitFor` requires a positive timeout (default 60 seconds, maximum 3600), covering HTTP and bounded
 poll sleeps with one deadline. It disables caching, never retries a mutation, and returns FAILED/CANCELLED

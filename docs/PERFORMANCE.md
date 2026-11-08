@@ -1,57 +1,58 @@
-# Performance and capacity
+# Performance and limits
 
-Hot-path scheduling/path/backoff modules use `--!strict`, `--!native`, and `--!optimize 2`. This enables Roblox optimization; it is **not** a claim of measured native throughput.
+BloxSDK 2.0 uses a single [batch-only transport](BATCHING.md). No deployed BatchService throughput or
+Roblox load benchmark is claimed; verification uses mock HTTP and an injected fake clock.
 
-- Path templates are pre-split by the generator. Runtime joins encoded segments once with `table.concat`; byte escapes are precomputed. No per-call path `gsub`/`string.format` template parsing.
-- Queue enqueue/dequeue/interior cancellation is O(1), never `table.remove(t,1)`. The deterministic *test scheduler* intentionally uses a simpler array, not the production queue.
-- Middleware state is constructed once. Generated methods contain no reflection or route lookup by URL.
-- Each attempt has a fresh header table. Pooling secrets while native requests can complete late is not worth the cross-request contamination risk.
-- Encoding occurs once per body-bearing attempt; no body is encoded for empty requests. Successful JSON is decoded once; HEAD/204/empty responses bypass decode. Legacy metrics/polling-health formats are preserved; the four new Boot metrics endpoints are JSON.
-- Response schemas validate once at the transport boundary. Recursive JSON work is bounded to depth 64; nonfinite and unsafe typed numeric values are rejected.
-- Body/schema validation, JSON serialization and shared-result freezing are O(payload size). This deliberate integrity cost is not advertised as zero-allocation.
-- Async HTTP and deadline workers necessarily allocate a small fixed number of closures per attempt. There is no per-call middleware-chain construction. No claims of literally zero per-call allocations.
-- Breaker storage is fixed at 20 samples per origin. Cache capacity is configurable (default 128), with O(1) FIFO eviction. Flights exist only while calls are active.
-- Optional hooks allocate no event tables when absent. Counters and six latency buckets are always maintained; metrics are not claimed to be free. Bounds are 50ms, 100ms, 250ms, 500ms, 1s, and above 1s; buckets are disjoint, not cumulative. `latencySum` is attempt time, not total logical latency.
-- Timings use `os.clock`; Unix time is used for JWT scheduling, HTTP-date Retry-After and injected-runtime key generation. Clock, random, and scheduling are injectable for deterministic tests.
+| Limit / policy | Default / bound | Effect |
+|---|---|---|
+| Tick interval | 0.5s; configurable 0.25–300s | One physical request at most per tick |
+| Native batches in flight | 1 per client | Busy ticks skip; no completion-triggered burst |
+| Operations per envelope | 1–100 | Overflow carries FIFO within priority lanes |
+| Encoded envelope bytes | ≤1 MiB | Includes JSON metadata and delimiters |
+| Encoded operation body | ≤256 KiB | Oversize fails locally; no direct upload fallback |
+| Logical admission | 10,000 calls; configurable 0–10,000 | Includes player-order waiters; full returns RateLimited |
+| Profile poll chunk | ≤200 distinct players per universe/provider/op | Piggybacks, adding no separate HTTP request |
+| Default physical budget | ≤120 batches/min/client | At minimum interval: ≤240/min |
+| Roblox server budget supplied for this design | 500 external HTTP requests/min | Shared with unrelated scripts |
+| Rolling safety limiter | 450/min; configurable integer 1–499 | Counts physical batches, including retries/polls/auth |
+| Burst / reserve configuration | 15 / 3 | Batch admission uses critical capacity; priority is per op |
+| End-to-end call timeout | 15s, maximum 300s | Queue/tick/auth/backoff/response wait included |
+| Per-op retries | At most 3; 20% earned credits, initially empty | Only eligible idempotent operations; cap 10 credits |
+| Response cache | Disabled per call; 128 entries maximum by default | Frozen shared values; mutation invalidation |
+| Circuit history | 20 logical outcomes, 5 failures in 30s | Gateway-wide breaker; 10s cooldown |
 
-Default-runtime clients from one module share a token bucket; its configuration is set by the first default-runtime client. Prefer one client with universe facades and configure it deliberately. Injected-runtime clients intentionally own isolated budgets for tests/advanced integration. Auth credentials and cache entries never cross distinct clients.
+The `concurrency` configuration cannot raise the one-native-batch cap. At 0.5s with full 100-op envelopes,
+the theoretical ceiling is **200 independent operations/second/client**, not 10,000. Sequential dependent
+calls are slower because they need result and retry ordering. Profile chunks, body bytes, latency,
+credential partitioning and server throttling reduce the usable ceiling.
 
-No Roblox load benchmark was run. Before deployment, measure heap, frame time, p50/p95/p99 latency, quota consumption, and queue rejection rates under realistic payload sizes and concurrency. Increase concurrency only with evidence; higher concurrency cannot increase the server's HTTP quota. Batch endpoints reduce request count; only keyed/idempotent writes are retry eligible. Audit queues and cursor history are bounded; snapshot reads use constant-time key/flag maps.
+## Platform target: 10k requests/second
 
-## HTTP budget, back-pressure and connection reuse
+Do not increase per-server HTTP traffic to meet a platform-wide target. If “10k req/s” denotes logical
+service calls, at least 50 saturated clients at the default cadence are needed theoretically (100 at
+50% utilization); practical capacity must be measured. If it denotes physical BatchService requests,
+10k/s corresponds to 5,000 active clients at 2 envelopes/s and up to 1 million contained ops/s. These are
+sizing arithmetic, **not** achieved benchmark results or a server-side capacity guarantee. BatchService
+must independently bound concurrency, ordered sequences, downstream database work and tenant quotas.
 
-Roblox documents a [500 external HTTP requests/minute/server limit](https://create.roblox.com/docs/reference/engine/classes/HttpService).
-The SDK defaults to **450 admissions in every rolling 60 seconds** (integer configurable 1–499), with
-15 burst tokens and 3 critical-reserve tokens. Both constraints must admit a request. Retries, token
-refreshes, health reads and polling count too. A bounded timestamp ring uses O(1) amortized admission
-and at most 499 entries; a burst can never bypass the rolling-minute cap.
+## Complexity and operation
 
-Budget waits consume the caller's timeout/deadline and emit onRateLimited metadata. Per-origin queues
-are bounded (64 pending, 6 physical requests by default); a full queue returns RateLimited /
-sdk_rate_limited immediately, not an unbounded task backlog. Bulk traffic cannot spend critical reserve.
-The default-runtime shared limiter is scoped to one required ModuleScript and its first client's policy.
-Do not duplicate the package, create isolated custom runtimes, or increase limits to evade this boundary.
-Reserve additional headroom for unrelated scripts: the SDK cannot observe or budget their HTTP traffic.
+- Queue insertion is amortized O(1); stable priority selection, expiry compaction and splitting are O(n)
+  per tick, bounded by queue capacity. No sorting of the saturated op queue or per-call HTTP workers.
+- Player-lane admission is client-local and held through retries; multi-subject lane keys are sorted
+  once for deterministic wire identity. Independent players are not globally serialized.
+- Endpoint validation, schema-aware body encoding and freezing are O(payload size); bodies are encoded
+  once per attempt, then assembled as raw JSON fragments. No repeated whole-envelope encoding to fit bytes.
+- The whole envelope is decoded once; exact JSON-number validation and endpoint schemas remain enforced.
+  Responses and request operations necessarily allocate bounded tables. There is no zero-allocation claim.
+- One timestamp ring (at most 499 slots) gives amortized O(1) rolling-minute admission. Default-runtime
+  clients from one required ModuleScript share the first client's limiter; injected test runtimes do not.
+- Existing metrics count logical requests/attempts/retries, not physical envelopes. Attempt latency includes
+  queued tick time. Six disjoint histogram buckets are 50/100/250/500/1000ms and above 1s.
+- Native HTTP connection/TLS pooling belongs to Roblox or the injected adapter. Reuse one client,
+  HttpService adapter and gateway. Unrelated scripts and duplicated ModuleScripts are not observable.
 
-Reuse a long-lived client, its universe facades, the same HttpService adapter, and a common gateway
-origin. Batch operations and use one ETag snapshot poller per universe instead of per-player polling.
-Roblox owns native connection pooling/TLS; the SDK cannot set a socket pool or promise keep-alive reuse.
-Do not force Connection: close or spawn per-call HTTP clients in a custom backend. Lune smoke uses
-one @lune/net module/transport. No connection-level benchmark or real-gateway throughput is claimed.
-
-`timeout` is relative seconds per call or client default (15); the earlier of a supplied deadline and
-relative timeout wins. Native RequestAsync cannot be cancelled: a late physical operation retains its
-concurrency slot until completion, even after the caller receives Timeout. Never blindly retry an
-uncertain non-idempotent mutation. See [fault tolerance](FAULT-TOLERANCE.md) and [errors](ERRORS.md).
-
-### Profile live-sync budget (1.2.0)
-
-Automatic profile sync adds a LOW lane behind both gameplay lanes. Polls and staggered snapshot
-reloads defer at `profileSync.budgetThreshold` (default 0.8 of the configured SDK rolling-minute
-limit), and never wait for rate tokens while holding a physical slot. For 1–200 players in one
-universe/scope, normal polling costs **one request per interval per server**, nominally 4/min at 15s.
-Over 200 players requires `ceil(players/200)` serial chunks, not one unbounded request. `hasMore`
-catch-up and snapshot/schema recovery add requests; [the budget table](FIELDS.md#rate-limit-budget)
-separates these costs. Native requests outliving their logical timeout retain sync's physical-poll
-exclusion until completion. Polls/reloads yield to game traffic; already-dispatched HTTP cannot be
-preempted. Unrelated scripts' HTTP is outside the SDK's usage measurements.
+Before deployment measure queue rejection, envelope fill, encoded bytes, p50/p95/p99 end-to-end latency,
+Lua heap/frame cost, physical quota consumption and downstream contention. Keep headroom for unrelated
+HTTP. Timeouts/cancellation cannot abort native HTTP; one hung request deliberately stalls that client's
+next batch rather than starting overlapping requests.

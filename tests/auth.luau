@@ -88,7 +88,12 @@ return function(test: (string, () -> ()) -> ())
 			},
 			{ status = 503 },
 		})
-		local client = SDK.new({ runtime = s.runtime, backend = f.backend, userSession = { store = store } })
+		local client = SDK.new({
+			runtime = s.runtime,
+			backend = f.backend,
+			profileSync = { enabled = false },
+			userSession = { store = store },
+		})
 		s.run(function()
 			local result = client.auth:rotateServiceAccount({
 				path = { org = "org", id = "key" },
@@ -221,7 +226,7 @@ return function(test: (string, () -> ()) -> ())
 				body = s.json({ accessToken = "scope42", tokenType = "Bearer", expiresIn = 600 }),
 				check = function(req)
 					check(
-						req.Url == "https://auth.example/api/auth/universes/42/token"
+						req.Url == "https://auth.example/auth-service/api/auth/universes/42/token"
 							and req.Headers.Authorization == "Bearer identity"
 					)
 				end,
@@ -252,8 +257,9 @@ return function(test: (string, () -> ()) -> ())
 		local c = SDK.new({
 			runtime = s.runtime,
 			backend = f.backend,
+			profileSync = { enabled = false },
 			userSession = { store = store },
-			services = { auth = { baseUrl = "https://auth.example" } },
+			gatewayUrl = "https://auth.example",
 		})
 		local a, b = c:scoped(42), c:scoped(43)
 		s.run(function()
@@ -289,7 +295,12 @@ return function(test: (string, () -> ()) -> ())
 			},
 			{ status = 401 },
 		})
-		local c = SDK.new({ runtime = s.runtime, backend = f.backend, userSession = { store = store } })
+		local c = SDK.new({
+			runtime = s.runtime,
+			backend = f.backend,
+			profileSync = { enabled = false },
+			userSession = { store = store },
+		})
 		s.run(function()
 			local result = c:scoped(42).fields:schema()
 			check(not result.ok and result.error.kind == "Unauthorized")
@@ -370,13 +381,18 @@ return function(test: (string, () -> ()) -> ())
 			{
 				body = s.json({ status = "ok" }),
 				check = function(req)
-					check(req.Headers.Authorization == nil)
+					check(req.Headers.Authorization == "Bearer identity")
 				end,
 			},
 			{ body = s.json({ accessToken = "scope", tokenType = "Bearer", expiresIn = 600 }) },
 			{ status = 401 },
 		})
-		local client = SDK.new({ runtime = s.runtime, backend = f.backend, userSession = { store = store } })
+		local client = SDK.new({
+			runtime = s.runtime,
+			backend = f.backend,
+			profileSync = { enabled = false },
+			userSession = { store = store },
+		})
 		local scoped = client:scoped(42)
 		check(scoped._helpers.fields == client:scoped("42")._helpers.fields)
 		s.run(function()

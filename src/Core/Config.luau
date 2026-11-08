@@ -8,11 +8,11 @@ local Config = {}
 export type ServiceConfig = { baseUrl: string? }
 export type ProfileSyncConfig = {
 	enabled: boolean?,
-	intervalSeconds: number?,
 	budgetThreshold: number?,
 	maxConcurrentReloads: number?,
 }
 export type Config = {
+	batch: { intervalSeconds: number? }?,
 	profileSync: ProfileSyncConfig?,
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,
@@ -38,6 +38,7 @@ export type Config = {
 	logger: Types.Logger?,
 }
 local known = table.freeze({
+	batch = true,
 	profileSync = true,
 	backend = true,
 	runtime = true,
@@ -79,11 +80,17 @@ function Config.validate(config: Config)
 			)
 		end
 	end
+	if config.batch ~= nil then
+		assert(type(config.batch) == "table", "batch must be a table")
+		for name in config.batch :: any do
+			assert(name == "intervalSeconds", "Unknown batch field")
+		end
+	end
 	if config.profileSync ~= nil then
 		assert(type(config.profileSync) == "table", "profileSync must be a table")
 		for name in config.profileSync :: any do
 			assert(
-				table.find({ "enabled", "intervalSeconds", "budgetThreshold", "maxConcurrentReloads" }, name),
+				table.find({ "enabled", "budgetThreshold", "maxConcurrentReloads" }, name),
 				"Unknown profileSync field"
 			)
 		end
@@ -172,30 +179,14 @@ local function origin(value: string): string
 	end
 	return "https://" .. string.lower(hostname) .. (if port then ":" .. port else "")
 end
---- Resolve immutable wire bases separately from origins so gateway services share admission state.
-function Config.resolve(config: Config): ({ [string]: string }, { [string]: string })
+--- Resolve one immutable gateway origin for all operations; direct-service destinations are forbidden.
+function Config.resolve(config: Config): { [string]: string }
 	local gateway = origin(if config.gatewayUrl == nil then Routing.gatewayUrl else config.gatewayUrl)
 	local origins: { [string]: string } = {}
-	local bases: { [string]: string } = {}
-	for service, prefix in Routing.prefixes do
+	for service in Routing.prefixes do
 		origins[service] = gateway
-		bases[service] = gateway .. prefix
 	end
-	if config.services ~= nil then
-		assert(type(config.services) == "table", "services must be a table")
-		for service, options in config.services do
-			assert(Routing.prefixes[service] ~= nil, "Unknown service override")
-			assert(type(options) == "table", "Service override must be a table")
-			for name in options :: any do
-				assert(name == "baseUrl", "Unknown service override field")
-			end
-			if options.baseUrl ~= nil then
-				local direct = origin(options.baseUrl)
-				origins[service] = direct
-				bases[service] = direct
-			end
-		end
-	end
-	return table.freeze(origins), table.freeze(bases)
+	assert(config.services == nil, "services overrides removed; configure gatewayUrl for BatchService")
+	return table.freeze(origins)
 end
 return table.freeze(Config)

@@ -56,6 +56,7 @@ local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client
 	return SDK.new({
 		runtime = s.runtime,
 		backend = fake.backend,
+		profileSync = { enabled = false },
 		key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43),
 		universeId = 123,
 		retryRatio = 1,
@@ -594,7 +595,7 @@ return function(test: (string, () -> ()) -> ())
 		end
 	end)
 
-	test("Fields concurrent profile transactions on disjoint fields converge in response order", function()
+	test("Fields concurrent profile transactions retain player order across ticks", function()
 		local s = Scheduler.new()
 		local coins = receipt(9000, 20)
 		local coinItems = coins.results :: { Wire.ResultItem }
@@ -621,8 +622,8 @@ return function(test: (string, () -> ()) -> ())
 				check(profile:transaction():add("Currency.Coins", 20):reason("quest"):commit().ok)
 				table.insert(completed, "coins")
 			end)
-			s.runtime.wait(0.2)
-			check(completed[1] == "coins" and completed[2] == "gems")
+			s.runtime.wait(1.2)
+			check(completed[1] == "gems" and completed[2] == "coins")
 			check(profile:get("Currency.Gems") == 10 and profile:get("Currency.Coins") == 20)
 			check(profile.versions["Currency.Gems"] == 1 and profile.versions["Currency.Coins"] == 1)
 			check(profile.seq == 10 and f.count() == 4)

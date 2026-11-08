@@ -17,7 +17,7 @@ Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 | `fields` | `/fields-service` |
 | `platform` | `/platform-service` |
 
-Paths below are backend-relative: wire URL = gateway + service prefix + path. Game configuration lives in Fields. Platform preserves its domain prefix on direct hosts. An explicit `services = { fields = { baseUrl = "https://direct.example" } }` bypasses the gateway and prefix for that service only. See [routing configuration](../README.md#gateway-routing).
+Paths below are backend-relative operation paths: all wire HTTP uses `POST {gatewayUrl}/batch-service/api/batch`. Service prefixes shown above are gateway inventory, not prefixes on op paths. Direct-host overrides are rejected. See [batch transport](BATCHING.md).
 
 Request shapes are exported in `src/Types`. Body-only endpoints accept the DTO directly; mixed endpoints use `{path=..., query=..., body=...}`. Statuses below are controller success/branch statuses, not exhaustive domain errors.
 

@@ -1,5 +1,4 @@
 --!strict
-local Endpoints = require("../src/Core/Endpoints")
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Json = require("../src/Core/Json")
@@ -25,6 +24,7 @@ local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client
 	return SDK.new({
 		runtime = s.runtime,
 		backend = fake.backend,
+		profileSync = { enabled = false },
 		key = key(),
 		universeId = 123,
 		retryRatio = 1,
@@ -43,13 +43,11 @@ return function(test: (string, () -> ()) -> ())
 					body = if vector.empty then "" else Json.encode(vector.response),
 					check = function(wire)
 						check(wire.Method == vector.method and wire.Url == vector.url, "Wire route drift")
-						local public = table.find(Endpoints[vector.endpoint].authKinds, "none") ~= nil
 						check(
 							wire.Headers.Authorization
 								== (
-									if public
-										then nil
-										elseif vector.identity then "Bearer synthetic-identity"
+									if vector.identity
+										then "Bearer synthetic-identity"
 										else "Bearer " .. key()
 								),
 							"Auth header drift"
@@ -63,7 +61,12 @@ return function(test: (string, () -> ()) -> ())
 					end,
 				},
 			})
-			local config: SDK.Config = { runtime = s.runtime, backend = fake.backend, universeId = 123 }
+			local config: SDK.Config = {
+				runtime = s.runtime,
+				backend = fake.backend,
+				profileSync = { enabled = false },
+				universeId = 123,
+			}
 			if vector.identity then
 				config.authProvider = {
 					kind = "custom",
@@ -110,7 +113,7 @@ return function(test: (string, () -> ()) -> ())
 			s.run(function()
 				check(c.fields:schema().ok)
 			end)
-			check(f.count() == 2 and s.time() >= 2 and s.time() < 2.2)
+			check(f.count() == 2 and s.time() >= 2 and s.time() < 3.6)
 			c:destroy()
 		end
 		local s = Scheduler.new()
@@ -119,7 +122,7 @@ return function(test: (string, () -> ()) -> ())
 			local result = c.fields:schema(nil, { deadline = s.time() + 0.2 })
 			check(not result.ok and result.error.kind == "Timeout")
 		end)
-		check(f.count() == 1 and s.time() < 0.3)
+		check(f.count() == 0 and s.time() <= 1)
 		c:destroy()
 	end)
 

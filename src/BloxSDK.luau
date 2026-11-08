@@ -17,6 +17,7 @@ local Bulk = require("./Fields/Bulk")
 local Health = require("./Fields/Health")
 local Config = require("./Core/Config")
 local Pipeline = require("./Core/Pipeline")
+local Batcher = require("./Core/Batcher")
 local Roblox = require("./Core/Roblox")
 local Bucket = require("./Core/TokenBucket")
 local Errors = require("./Core/Errors")
@@ -174,7 +175,7 @@ function SDK.new(config: Config): Client
 	end
 	assert(type(config) == "table", "BloxSDK.new requires a config table")
 	Config.validate(config)
-	local origins, baseUrls = Config.resolve(config)
+	local origins = Config.resolve(config)
 	local choices = (if config.key then 1 else 0)
 		+ (if config.secretName then 1 else 0)
 		+ (if config.authProvider then 1 else 0)
@@ -216,14 +217,21 @@ function SDK.new(config: Config): Client
 	end
 	local syncOptions: Config.ProfileSyncConfig = config.profileSync or {}
 	local threshold = Config.number(syncOptions.budgetThreshold, 0.8, 0.01, 1, "profileSync.budgetThreshold")
+	Config.number(config.concurrency, 1, 1, 100, "concurrency", true)
 	local state = Pipeline.new({
+		batchInterval = Config.number(
+			if config.batch then config.batch.intervalSeconds else nil,
+			0.5,
+			0.25,
+			300,
+			"batch.intervalSeconds"
+		),
+		batchUrl = origins.fields .. "/batch-service/api/batch",
 		runtime = runtime,
 		backend = backend,
 		auth = auth,
 		origins = origins,
-		baseUrls = baseUrls,
-		concurrency = Config.number(config.concurrency, 6, 1, 100, "concurrency", true),
-		queueCapacity = Config.number(config.queueCapacity, 64, 0, 10000, "queueCapacity", true),
+		queueCapacity = Config.number(config.queueCapacity, 10000, 0, 10000, "queueCapacity", true),
 		requestsPerMinute = rpm,
 		burst = burst,
 		criticalReserve = reserve,
@@ -234,7 +242,6 @@ function SDK.new(config: Config): Client
 		staleIfError = Config.number(config.staleIfError, 0, 0, 3600, "staleIfError"),
 		hooks = Observers.new(config.hooks, config.logger),
 		sharedBucket = if not config.runtime then serverBucket else nil,
-		lowPriorityThreshold = threshold,
 	})
 	local invoke: Types.Invoke = function(
 		spec: Types.Endpoint,
@@ -264,6 +271,15 @@ function SDK.new(config: Config): Client
 	local sync = ProfileSync.new(runtime, config.profileSync, function()
 		return Bucket.used(state.bucket, runtime.now()) < state.bucket.limit * threshold and not state.closing
 	end)
+	state.batcher.beforeTick = function()
+		sync:tick()
+	end
+	state.batcher.hasPoll = function()
+		return sync:hasProfiles()
+	end
+	sync.wake = function()
+		Batcher.wake(state.batcher)
+	end
 	local helpers: Helpers = {
 		sync = sync,
 		writers = {},
@@ -354,9 +370,26 @@ function Client.health(self: Client): HealthReport
 	for _, service in
 		{ "auth", "matchmaking", "party", "codes", "audit", "leaderboards", "fields", "platform" }
 	do
-		local start = runtime.now()
-		local result = self._invoke(Endpoints[service .. ".healthProxy"], {}, { priority = "critical" }, nil)
-		results[service] = { result = result, latency = runtime.now() - start }
+		runtime.spawn(function()
+			local start = runtime.now()
+			local result = self._invoke(
+				Endpoints[service .. ".healthProxy"],
+				{},
+				{ priority = "critical" },
+				nil
+			)
+			results[service] = { result = result, latency = runtime.now() - start }
+		end)
+	end
+	while true do
+		local count = 0
+		for _ in results do
+			count += 1
+		end
+		if count == 8 then
+			break
+		end
+		runtime.wait(0.01)
 	end
 	return results
 end
@@ -458,7 +491,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "1.2.0"
+SDK.version = "2.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
