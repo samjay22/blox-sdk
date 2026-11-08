@@ -101,7 +101,7 @@ do not log them or expose the ADMIN credential. There is no separate batch-list 
 local result = client.codes:redeem({universeId=123, code="WELCOME100", robloxUserId=7})
 if result.ok then
     local transaction = result.value.transaction
-    -- transaction.txId, .results (ordered touched subvalues), .seq, .replayed
+    -- transaction.txId, .results (ordered touched subvalues), .seq (allocation tokens, NOT cursors), .replayed
     -- result.value.replayed and .redeemedAt describe the CodeService redemption.
 end
 ```

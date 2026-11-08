@@ -11,6 +11,9 @@ def record(**fields: str) -> dict:
 def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[dict], dict]:
     """Resolve overloads, JsonProperty, dynamic map responses, nulls and operation wire types."""
     del root
+    # Lock identities/barriers are database implementation records, not public DTOs.
+    for name in ('Lock', 'LockScope', 'CursorBarrier'):
+        definitions.pop(name, None)
     rotations = [e for e in endpoints if e["source"].endswith("/RotationsController.java")]
     endpoints = [e for e in endpoints if e not in rotations]
     from jobs_contract import definitions_into, curate as curate_jobs
@@ -111,7 +114,7 @@ def curate(endpoints: list[dict], definitions: dict, root: Path) -> tuple[list[d
         if name in ('create',): e['statuses']=[201]
         if name in ('transaction','multiTransaction','reverseEntry','reverseTransaction','restoreSnapshot','purchase','refund'):
             e.update(idempotencyField='idempotencyKey',idempotent=True,retryable=True)
-        # Document saves advance seq even when repeat values are identical; only explicit keys permit retry.
+        # Document saves allocate tokens even for identical values; only explicit keys permit retry.
         if name=='putDocument':e.update(idempotencyField='idempotencyKey',optionalKey=True,idempotent=True,retryable=True)
     health=next(e for e in endpoints if e['path']=='/health')
     for name in ('metrics','info'):

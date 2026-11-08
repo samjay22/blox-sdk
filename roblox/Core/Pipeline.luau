@@ -505,7 +505,8 @@ function Pipeline.call(
 		.. auth.kind
 		.. " "
 		.. tostring(auth.universeId)
-	local cached = if spec.cacheable then self.cache.entries[key] else nil
+	-- Explicit zero is an authoritative read, including bypassing stale-if-error.
+	local cached = if spec.cacheable and opts.cacheTtl ~= 0 then self.cache.entries[key] else nil
 	if cached and cached.expires > runtime.now() then
 		self.counters.cacheHits += 1
 		return cached.result

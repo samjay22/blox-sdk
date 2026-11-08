@@ -65,7 +65,9 @@ Single-flight is client-local, keyed by endpoint, canonical URL, auth generation
 Generated `Services/Fields` delegates helpers to `Fields/Client`; no generated HTTP wrapper is hand-edited.
 TypeExpr is a closed exported recursive union. Schema compilation is atomic per generation. Transaction
 builders validate all ops before calling Invoke, seal private payloads and keep one identity across retries.
-Profiles apply acknowledged after-subvalues and refresh snapshot state across sequence gaps/NONE history.
+Profiles reconcile acknowledged after-subvalues by per-field version, never by sparse mutation tokens.
+Only coherent documents advance profile watermarks; feeds drain via nextSinceSeq before snapshot recovery
+for real version/schema gaps, NONE history and hash-only values. Sync reads bypass stale caches/coalescing.
 Shared helper state owns caches, presence timers and bounded close work. See [Fields](FIELDS.md).
 
 ## Shared operation templates

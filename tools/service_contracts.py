@@ -155,6 +155,8 @@ def refresh(doc: dict) -> dict:
             doc['types'][service] = definitions
         evidence = sorted(root.glob('src/main/java/**/*.java'))
         evidence += [p for p in (root/'API_CONTRACT.md', root/'README.md', root/'FRONTEND_INTEGRATION_GUIDE.md') if p.is_file()]
+        if service == 'fields' and (root/'LOCKING.md').is_file():
+            evidence.append(root/'LOCKING.md')
         evidence += sorted(root.glob('postman/*.json'))
         evidence += sorted(root.glob('src/main/resources/application.properties'))
         if service == 'auth':

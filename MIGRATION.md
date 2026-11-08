@@ -1,4 +1,22 @@
-# Migrating BloxSDK 0.x to 1.0.0
+# Migrating BloxSDK
+
+## 1.0.0 to 1.1.0 — behavior change, no API break
+
+Fields locks are now per `(player, field)`. `subject_seq` is removed; mutation `seq` values are sparse
+database-wide allocation tokens, not complete player watermarks. Different fields may commit/arrive
+out of order. Profile acknowledgement application now uses per-field versions and never advances
+`profile.seq`; older or duplicate field results never regress the cache. No API names, aliases or shims
+are added or removed in 1.1.0.
+
+Keep `sinceSeq` only from complete snapshots/documents or feeds, and paginate with `nextSinceSeq`, not
+`latestSeq` on partial pages. Use the complete snapshot's watermark for `expectedSeq`, never a purchase,
+refund, transaction, reversal, roll or claim token. Refresh before a document save incorporating local
+acknowledgements. Existing persisted snapshot/feed cursors remain valid. Sparse token gaps alone no
+longer make profiles stale; missing versions, schema changes and incomplete path state still require
+`pullChanges()` (feed drain then snapshot). Profile sync reads bypass older cached/coalesced responses.
+See [Fields guide](docs/FIELDS.md#allocation-tokens-versus-sync-watermarks-110).
+
+## 0.x to 1.0.0
 
 This is a breaking cleanup with **no aliases or compatibility shims**. Update code and generated accessors together.
 

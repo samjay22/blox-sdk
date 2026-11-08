@@ -107,6 +107,8 @@ class ContractTests(unittest.TestCase):
         from service_contracts import refresh, SOURCES
         fresh = refresh(copy.deepcopy(self.doc))
         self.assertEqual(fresh, self.doc)
+        self.assertTrue({'Lock', 'LockScope', 'CursorBarrier'}.isdisjoint(self.doc['types']['fields']))
+        self.assertIn('svc/fields-service/LOCKING.md', self.doc['sourceHashes'])
         self.assertEqual(set(SOURCES), {'audit','leaderboards','fields','codes','matchmaking','auth','platform'})
 
     def test_coverage_detects_omission_without_inventory_help(self) -> None:

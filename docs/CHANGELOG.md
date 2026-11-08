@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — 2026-11-08 (unpublished)
+
+- Behavior change, no API break: Fields profiles apply only newer per-field versions, allowing
+  out-of-order concurrent writes to different fields. Sparse mutation tokens never advance sync cursors.
+- Keep real version/schema-gap recovery via feed `nextSinceSeq` then complete snapshots, bypass older
+  cached/coalesced sync reads, and cover ordering, gaps and snapshot races with golden vectors/tests.
+- See [release changelog](../CHANGELOG.md) and [migration](../MIGRATION.md).
+
 ## 1.0.0 — 2026-11-08 (unpublished)
 
 - Stabilize all 372 typed routes and lowerCamelCase gameplay helpers; remove internal root exports with no shims.

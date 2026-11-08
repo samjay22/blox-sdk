@@ -97,6 +97,11 @@ Picks expose slot/index/table/entryId/path/tags/payload/rolls/durationSeconds/gr
 records the applied costs/grants and final pity writes. Custom payloads/config remain `Core.Json`;
 inspect their structure before using game properties. Results follow existing immutable Result conventions.
 
+Roll/claim `transaction.seq` values are sparse database-wide allocation tokens, **not sync cursors**.
+Apply `transaction` to a loaded profile explicitly to reconcile newer per-field versions; never copy its
+tokens into `sinceSeq`, `expectedSeq` or a profile watermark. See [Fields sync semantics](FIELDS.md#allocation-tokens-versus-sync-watermarks-110).
+Rotation instance `sequence` and runtime snapshot versions are unrelated and unchanged.
+
 Preview is available to servers with READ, accepts an optional player ID/count, returns `{Generated}`,
 and performs **no** debits, grants, stored-pack consumption or pity writes. Playerless previews of
 pity-dependent generators may fail; supply the player context. No key is needed for a dry run.

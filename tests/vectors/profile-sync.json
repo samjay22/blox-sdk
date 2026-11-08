@@ -1,0 +1,519 @@
+[
+  {
+    "name": "disjoint fields reverse allocation order",
+    "results": [
+      {
+        "txId": "tx-8001",
+        "replayed": false,
+        "seq": {
+          "7": 8001
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Coins",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 20,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      },
+      {
+        "txId": "tx-91",
+        "replayed": false,
+        "seq": {
+          "7": 91
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 10,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true,
+      true
+    ],
+    "values": {
+      "Currency.Gems": 10,
+      "Currency.Coins": 20
+    },
+    "versions": {
+      "Currency.Gems": 1,
+      "Currency.Coins": 1
+    }
+  },
+  {
+    "name": "disjoint fields allocation order",
+    "results": [
+      {
+        "txId": "tx-91",
+        "replayed": false,
+        "seq": {
+          "7": 91
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 10,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      },
+      {
+        "txId": "tx-8001",
+        "replayed": false,
+        "seq": {
+          "7": 8001
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Coins",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 20,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true,
+      true
+    ],
+    "values": {
+      "Currency.Gems": 10,
+      "Currency.Coins": 20
+    },
+    "versions": {
+      "Currency.Gems": 1,
+      "Currency.Coins": 1
+    }
+  },
+  {
+    "name": "same field newer then older and duplicate",
+    "results": [
+      {
+        "txId": "tx-900",
+        "replayed": false,
+        "seq": {
+          "7": 900
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 30,
+            "version": 3,
+            "entryId": null
+          }
+        ]
+      },
+      {
+        "txId": "tx-81",
+        "replayed": false,
+        "seq": {
+          "7": 81
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 10,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      },
+      {
+        "txId": "tx-900",
+        "replayed": false,
+        "seq": {
+          "7": 900
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 30,
+            "version": 3,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true,
+      true,
+      true
+    ],
+    "values": {
+      "Currency.Gems": 30
+    },
+    "versions": {
+      "Currency.Gems": 3
+    }
+  },
+  {
+    "name": "same field forward ordering with sparse tokens",
+    "results": [
+      {
+        "txId": "tx-999",
+        "replayed": false,
+        "seq": {
+          "7": 999
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 10,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      },
+      {
+        "txId": "tx-999999",
+        "replayed": false,
+        "seq": {
+          "7": 999999
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 20,
+            "version": 2,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true,
+      true
+    ],
+    "values": {
+      "Currency.Gems": 20
+    },
+    "versions": {
+      "Currency.Gems": 2
+    }
+  },
+  {
+    "name": "all ordered subvalues share one final version",
+    "results": [
+      {
+        "txId": "tx-300",
+        "replayed": false,
+        "seq": {
+          "7": 300
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [
+              "Sound"
+            ],
+            "op": "SET",
+            "before": null,
+            "after": false,
+            "version": 1,
+            "entryId": null
+          },
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [
+              "Language"
+            ],
+            "op": "SET",
+            "before": null,
+            "after": "ES",
+            "version": 1,
+            "entryId": null
+          },
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [
+              "Sound"
+            ],
+            "op": "SET",
+            "before": null,
+            "after": true,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true
+    ],
+    "values": {
+      "Settings": {
+        "Sound": true,
+        "Language": "ES"
+      }
+    },
+    "versions": {
+      "Settings": 1
+    }
+  },
+  {
+    "name": "root jump followed by subvalue in same version",
+    "results": [
+      {
+        "txId": "tx-300",
+        "replayed": false,
+        "seq": {
+          "7": 300
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": {
+              "Sound": false,
+              "Language": "EN"
+            },
+            "version": 3,
+            "entryId": null
+          },
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [
+              "Language"
+            ],
+            "op": "SET",
+            "before": null,
+            "after": "ES",
+            "version": 3,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true
+    ],
+    "values": {
+      "Settings": {
+        "Sound": false,
+        "Language": "ES"
+      }
+    },
+    "versions": {
+      "Settings": 3
+    }
+  },
+  {
+    "name": "older same-field subvalues cannot regress",
+    "results": [
+      {
+        "txId": "tx-300",
+        "replayed": false,
+        "seq": {
+          "7": 300
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": {
+              "Sound": false,
+              "Language": "ES"
+            },
+            "version": 2,
+            "entryId": null
+          }
+        ]
+      },
+      {
+        "txId": "tx-150",
+        "replayed": false,
+        "seq": {
+          "7": 150
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Settings",
+            "path": [
+              "Language"
+            ],
+            "op": "SET",
+            "before": null,
+            "after": "EN",
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true,
+      true
+    ],
+    "values": {
+      "Settings": {
+        "Sound": false,
+        "Language": "ES"
+      }
+    },
+    "versions": {
+      "Settings": 2
+    }
+  },
+  {
+    "name": "other subjects do not invalidate this player",
+    "results": [
+      {
+        "txId": "tx-700",
+        "replayed": false,
+        "seq": {
+          "7": 700
+        },
+        "results": [
+          {
+            "subject": 8,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 900,
+            "version": 1,
+            "entryId": null
+          },
+          {
+            "subject": 7,
+            "field": "Currency.Coins",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 20,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true
+    ],
+    "values": {
+      "Currency.Gems": 0,
+      "Currency.Coins": 20
+    },
+    "versions": {
+      "Currency.Gems": 0,
+      "Currency.Coins": 1
+    }
+  },
+  {
+    "name": "mutation tokens below snapshot watermark are not filters",
+    "results": [
+      {
+        "txId": "tx-2",
+        "replayed": false,
+        "seq": {
+          "7": 2
+        },
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 10,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true
+    ],
+    "values": {
+      "Currency.Gems": 10
+    },
+    "versions": {
+      "Currency.Gems": 1
+    }
+  },
+  {
+    "name": "no mutation token needed for per-field reconciliation",
+    "results": [
+      {
+        "txId": "tx-no-token",
+        "results": [
+          {
+            "subject": 7,
+            "field": "Currency.Gems",
+            "path": [],
+            "op": "SET",
+            "before": null,
+            "after": 10,
+            "version": 1,
+            "entryId": null
+          }
+        ]
+      }
+    ],
+    "accepted": [
+      true
+    ],
+    "values": {
+      "Currency.Gems": 10
+    },
+    "versions": {
+      "Currency.Gems": 1
+    }
+  }
+]

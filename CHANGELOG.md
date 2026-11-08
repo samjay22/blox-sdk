@@ -1,5 +1,16 @@
 # BloxSDK changelog
 
+## 1.1.0 — 2026-11-08 (unpublished)
+
+- Behavior change, no API break: reconcile Fields acknowledgements by per-field version; concurrent
+  disjoint-field results converge out of order without regressing cached values or versions.
+- Treat mutation `seq` values (including purchase/refund/reversal/roll/claim) as sparse database-wide
+  allocation tokens, never sync cursors. Profile watermarks advance only from complete documents.
+- Retain feed drain via `nextSinceSeq` then snapshot recovery for real version/schema gaps, partial-path
+  state, NONE history and computed/hash-only changes. Bypass cached/coalesced older sync reads.
+- Add portable golden vectors and regressions for sparse tokens, same-field ordering, repeated paths,
+  snapshot races, actual gap recovery and cache isolation. Update Fields and migration guidance.
+
 ## 1.0.0 — 2026-11-08 (unpublished)
 
 - Stabilize all 372 typed routes and lowerCamelCase gameplay helpers; remove internal root exports with no shims.

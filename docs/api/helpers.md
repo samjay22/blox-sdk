@@ -36,7 +36,7 @@ Profile.get(self: Profile, id: string): Core.Json
 
 ### `Profile.apply`
 
-Apply returned subvalues, not deltas, exactly once after a successful transaction acknowledgement.
+Apply newer per-field versions; mutation allocation tokens never advance the snapshot watermark.
 
 ```luau
 Profile.apply(self: Profile, result: Wire.Result): boolean

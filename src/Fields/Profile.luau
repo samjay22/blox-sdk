@@ -21,6 +21,7 @@ export type Profile = typeof(setmetatable(
 	{} :: {
 		_runtime: Core.Runtime,
 		_schema: Schema.Schema,
+		_schemaVersion: number?,
 		_io: IO,
 		_user: number,
 		_data: { [string]: Core.Json },
@@ -66,6 +67,7 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 	return setmetatable({
 		_runtime = runtime,
 		_schema = schema,
+		_schemaVersion = nil,
 		_user = user,
 		_io = io,
 		_data = {},
@@ -84,12 +86,17 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		lastError = nil,
 	}, Profile)
 end
+--- Accept only exact nonnegative counters representable by Luau numbers.
+local function counter(value: unknown): boolean
+	return type(value) == "number" and value >= 0 and value <= 9007199254740991 and value % 1 == 0
+end
 --- Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
 function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
 	if self._closed then
 		return System.failure("profile_closed")
 	end
 	local epoch = self._epoch
+	local schemaVersion = self._schema:version()
 	local result = self._io.document(opts)
 	if not result.ok then
 		self.lastError = result.error
@@ -105,9 +112,10 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 	local documentVersions = document.versions :: { [string]: number }
 	if
 		document.userId ~= self._user
-		or document.seq % 1 ~= 0
+		or not counter(document.seq)
 		or document.seq < self.seq
 		or epoch ~= self._epoch
+		or schemaVersion ~= self._schema:version()
 	then
 		return System.failure("snapshot_race")
 	end
@@ -134,7 +142,7 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 			else
 				return System.failure("missing_value")
 			end
-			if documentVersions[id] == nil or documentVersions[id] < 0 or documentVersions[id] % 1 ~= 0 then
+			if not counter(documentVersions[id]) then
 				return System.failure("invalid_version")
 			end
 			put(data, id, value)
@@ -143,6 +151,7 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 	self._data = Cache.freeze(data)
 	self.versions = Cache.freeze(Copy.copy(documentVersions))
 	self.seq = document.seq
+	self._schemaVersion = schemaVersion
 	self._stale = false
 	self._epoch += 1
 	self.lastError = nil
@@ -152,6 +161,9 @@ end
 function Profile.tryGet(self: Profile, id: string): Core.Result<Core.Json>
 	if self._closed then
 		return System.failure("profile_closed")
+	end
+	if self._schemaVersion ~= self._schema:version() then
+		self._stale = true
 	end
 	local definition = self._schema:get(id)
 	if not definition then
@@ -180,28 +192,24 @@ function Profile.get(self: Profile, id: string): Core.Json
 	end
 	return result.value
 end
---- Apply returned subvalues, not deltas, exactly once after a successful transaction acknowledgement.
+--- Apply newer per-field versions; mutation allocation tokens never advance the snapshot watermark.
 function Profile.apply(self: Profile, result: Wire.Result): boolean
-	if
-		not result.seq
-		or (result.seq :: any) == Json.null
-		or not result.results
-		or (result.results :: any) == Json.null
-	then
+	if self._closed then
+		return false
+	end
+	-- Even an unusable acknowledgement must invalidate an in-flight older snapshot.
+	self._epoch += 1
+	if type(result.results) ~= "table" or (result.results :: any) == Json.null then
 		self._stale = true
 		return false
 	end
-	local seq = (result.seq :: { [string]: number })[tostring(self._user)]
-	if not seq or seq <= self.seq then
-		return true
-	end
-	self._epoch += 1
-	if self._stale or seq ~= self.seq + 1 then
+	if self._stale or self._schemaVersion ~= self._schema:version() then
 		self._stale = true
 		return false
 	end
 	local data = Copy.copy(self._data)
 	local versions = Copy.copy(self.versions)
+	local changed = false
 	for _, item in result.results :: { Wire.ResultItem } do
 		if item.subject == self._user then
 			local definition = if type(item.field) == "string" then self._schema:get(item.field) else nil
@@ -210,7 +218,31 @@ function Profile.apply(self: Profile, result: Wire.Result): boolean
 				or not definition.type
 				or (definition.type :: any) == Json.null
 				or type(item.field) ~= "string"
+				or definition.status ~= "ACTIVE"
+				or definition.scope ~= "PLAYER"
+				or not counter(item.version)
+				or item.version == 0
+				or not counter(self.versions[item.field])
+				or (
+					versions[item.field] ~= self.versions[item.field]
+					and versions[item.field] ~= item.version
+				)
 			then
+				self._stale = true
+				return false
+			end
+			-- Compare with the pre-transaction version, not earlier ops in this response:
+			-- every op on one field carries the same final version and must run in order.
+			if item.version <= self.versions[item.field] then
+				continue
+			end
+			if
+				item.path
+				and (item.path :: any) ~= Json.null
+				and #item.path > 0
+				and item.version > versions[item.field] + 1
+			then
+				-- A touched subvalue cannot reconstruct unseen writes to sibling paths.
 				self._stale = true
 				return false
 			end
@@ -229,12 +261,17 @@ function Profile.apply(self: Profile, result: Wire.Result): boolean
 			end
 			put(data, item.field, replacement.value)
 			versions[item.field] = item.version
+			changed = true
 		end
+	end
+	if not changed then
+		return true
 	end
 	-- Computed results require a fresh coherent server snapshot, never client-side arithmetic authority.
 	for _, definition in self._schema:definitions() do
 		if
 			definition.status == "ACTIVE"
+			and definition.scope == "PLAYER"
 			and definition.computed
 			and (definition.computed :: any) ~= Json.null
 		then
@@ -243,7 +280,6 @@ function Profile.apply(self: Profile, result: Wire.Result): boolean
 	end
 	self._data = Cache.freeze(data)
 	self.versions = Cache.freeze(versions)
-	self.seq = seq
 	return not self._stale
 end
 --- Build an owned transaction that updates this profile after acknowledgement, not before commit.
@@ -267,7 +303,15 @@ function Profile.pullChanges(self: Profile, opts: Core.CallOptions?): Core.Resul
 			return result
 		end
 		local page = result.value
-		if page.nextSinceSeq < cursor or page.nextSinceSeq > page.latestSeq then
+		if self._schemaVersion ~= self._schema:version() then
+			self._stale = true
+		end
+		if
+			not counter(page.nextSinceSeq)
+			or not counter(page.latestSeq)
+			or page.nextSinceSeq < cursor
+			or page.nextSinceSeq > page.latestSeq
+		then
 			return System.failure("invalid_changes_cursor")
 		end
 		if page.nextSinceSeq >= page.latestSeq then

@@ -64,7 +64,7 @@ local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client
 		fake
 end
 --- Supply a complete document with virtual defaults and independent version/seq metadata.
-local function document(seq: number, gems: number): Wire.Document
+local function document(seq: number, gems: number, version: number?): Wire.Document
 	return {
 		userId = 7,
 		seq = seq,
@@ -79,7 +79,7 @@ local function document(seq: number, gems: number): Wire.Document
 			Optional = Json.null,
 		},
 		versions = {
-			["Currency.Gems"] = seq,
+			["Currency.Gems"] = version or 0,
 			["Currency.Coins"] = 0,
 			["Inventory.Items"] = 0,
 			Characters = 0,
@@ -91,8 +91,8 @@ local function document(seq: number, gems: number): Wire.Document
 		},
 	}
 end
---- Supply a real transaction acknowledgement with a touched subvalue and final subject watermark.
-local function receipt(seq: number, after: number): Wire.Result
+--- Supply an acknowledgement with independent field version and sparse allocation token.
+local function receipt(seq: number, after: number, version: number?): Wire.Result
 	return {
 		txId = "tx-" .. seq,
 		replayed = false,
@@ -104,7 +104,7 @@ local function receipt(seq: number, after: number): Wire.Result
 				op = "ADD",
 				before = after - 1,
 				after = after,
-				version = seq,
+				version = version or 1,
 				entryId = "entry",
 			},
 		},
@@ -458,16 +458,16 @@ return function(test: (string, () -> ()) -> ())
 			local c, f = client(s, {
 				{ body = s.json(schema()) },
 				{ body = s.json(document(0, 0)) },
-				{ body = s.json(receipt(1, 1)) },
+				{ body = s.json(receipt(1001, 1)) },
 				{
-					body = s.json({ items = Json.array({}), latestSeq = 4, nextSinceSeq = 2 }),
+					body = s.json({ items = Json.array({}), latestSeq = 4000, nextSinceSeq = 2000 }),
 					check = capture,
 				},
 				{
-					body = s.json({ items = Json.array({}), latestSeq = 4, nextSinceSeq = 4 }),
+					body = s.json({ items = Json.array({}), latestSeq = 4000, nextSinceSeq = 4000 }),
 					check = capture,
 				},
-				{ body = s.json(document(4, 20)) },
+				{ body = s.json(document(4000, 20, 2)) },
 			})
 			s.run(function()
 				local loaded = c.fields:loadProfile(123, 7)
@@ -484,20 +484,205 @@ return function(test: (string, () -> ()) -> ())
 				check(
 					tx:commit().ok
 						and profile:get("Currency.Gems") == 1
-						and profile.seq == 1
+						and profile.seq == 0
 						and profile.versions["Currency.Gems"] == 1
 				)
 				check(tx:commit().ok and profile:get("Currency.Gems") == 1)
-				check(profile:pullChanges().ok and profile:get("Currency.Gems") == 20 and profile.seq == 4)
+				check(profile:pullChanges().ok and profile:get("Currency.Gems") == 20 and profile.seq == 4000)
 				check(
-					string.find(cursors[1], "sinceSeq=1", 1, true)
-						and string.find(cursors[2], "sinceSeq=2", 1, true)
+					string.find(cursors[1], "sinceSeq=0", 1, true)
+						and string.find(cursors[2], "sinceSeq=2000", 1, true)
 				)
 				check(f.count() == 6)
 				c:destroy()
 			end)
 		end
 	)
+	for _, vector in Vectors["profile-sync"] do
+		test("Fields profile golden: " .. vector.name, function()
+			local s = Scheduler.new()
+			local c, f = client(s, {
+				{ body = s.json(schema()) },
+				{ body = s.json(document(10, 0)) },
+			})
+			s.run(function()
+				local loaded = c.fields:loadProfile(123, 7)
+				check(loaded.ok)
+				if not loaded.ok then
+					return
+				end
+				local profile = loaded.value
+				for i, result in vector.results do
+					check(profile:apply(result) == vector.accepted[i], vector.name)
+					check(profile.seq == 10, "Mutation token advanced the cursor")
+				end
+				for id, expected in vector.values do
+					check(Json.encode(profile:get(id)) == Json.encode(expected), vector.name .. " value")
+					check(profile.versions[id] == vector.versions[id], vector.name .. " version")
+				end
+				check(f.count() == 2, "Sparse/out-of-order tokens must not resync")
+				c:destroy()
+			end)
+		end)
+	end
+
+	test("Fields real version and schema gaps drain feeds then recover a complete snapshot", function()
+		for _, gap in
+			{
+				"missing_version",
+				"invalid_version",
+				"partial_version_gap",
+				"schema_change",
+				"unknown_field",
+				"missing_results",
+			}
+		do
+			local s = Scheduler.new()
+			local cursors: { string } = {}
+			local steps: { Fake.Step } = {
+				{ body = s.json(schema()) },
+				{ body = s.json(document(10, 0)) },
+			}
+			if gap == "schema_change" then
+				table.insert(steps, { body = s.json(schema(13)) })
+			end
+			for _, cursor in { 500, 9000 } do
+				table.insert(steps, {
+					body = s.json({ items = Json.array({}), latestSeq = 9000, nextSinceSeq = cursor }),
+					check = function(request)
+						table.insert(cursors, request.Url)
+					end,
+				})
+			end
+			local recovered = document(9000, 25, 2)
+			table.insert(steps, { body = s.json(recovered) })
+			local c, f = client(s, steps)
+			s.run(function()
+				local loaded = c.fields:loadProfile(123, 7)
+				check(loaded.ok)
+				if not loaded.ok then
+					return
+				end
+				local profile = loaded.value
+				local broken: any = receipt(4000, 1)
+				if gap == "missing_version" then
+					broken.results[1].version = nil
+				elseif gap == "invalid_version" then
+					broken.results[1].version = 1.5
+				elseif gap == "partial_version_gap" then
+					broken.results[1].field = "Settings"
+					broken.results[1].path = { "Sound" }
+					broken.results[1].after = false
+					broken.results[1].version = 2
+				elseif gap == "unknown_field" then
+					broken.results[1].field = "New.Field"
+				elseif gap == "missing_results" then
+					broken.results = nil
+				else
+					check(c.fields:schemaCache(123):refresh().ok)
+				end
+				check(not profile:apply(broken), gap)
+				code(profile:tryGet("Currency.Gems"), "profile_stale")
+				check(profile.seq == 10 and profile.versions["Currency.Gems"] == 0)
+				check(profile:pullChanges().ok, gap .. " recovery")
+				check(profile:get("Currency.Gems") == 25 and profile.seq == 9000)
+				check(string.find(cursors[1], "sinceSeq=10", 1, true) ~= nil)
+				check(string.find(cursors[2], "sinceSeq=500", 1, true) ~= nil)
+				check(f.count() == #steps)
+				c:destroy()
+			end)
+		end
+	end)
+
+	test("Fields concurrent profile transactions on disjoint fields converge in response order", function()
+		local s = Scheduler.new()
+		local coins = receipt(9000, 20)
+		local coinItems = coins.results :: { Wire.ResultItem }
+		coinItems[1].field = "Currency.Coins"
+		local c, f = client(s, {
+			{ body = s.json(schema()) },
+			{ body = s.json(document(10, 0)) },
+			{ body = s.json(receipt(100, 10)), delay = 0.1 },
+			{ body = s.json(coins), delay = 0.01 },
+		})
+		s.run(function()
+			local loaded = c.fields:loadProfile(123, 7)
+			check(loaded.ok)
+			if not loaded.ok then
+				return
+			end
+			local profile = loaded.value
+			local completed: { string } = {}
+			s.runtime.spawn(function()
+				check(profile:transaction():add("Currency.Gems", 10):reason("quest"):commit().ok)
+				table.insert(completed, "gems")
+			end)
+			s.runtime.spawn(function()
+				check(profile:transaction():add("Currency.Coins", 20):reason("quest"):commit().ok)
+				table.insert(completed, "coins")
+			end)
+			s.runtime.wait(0.2)
+			check(completed[1] == "coins" and completed[2] == "gems")
+			check(profile:get("Currency.Gems") == 10 and profile:get("Currency.Coins") == 20)
+			check(profile.versions["Currency.Gems"] == 1 and profile.versions["Currency.Coins"] == 1)
+			check(profile.seq == 10 and f.count() == 4)
+			c:destroy()
+		end)
+	end)
+
+	test("Fields snapshot racing an acknowledgement cannot overwrite the newer field version", function()
+		local s = Scheduler.new()
+		local c, f = client(s, {
+			{ body = s.json(schema()) },
+			{ body = s.json(document(10, 0)) },
+			{ body = s.json(document(10, 0)), delay = 0.1 },
+		})
+		s.run(function()
+			local loaded = c.fields:loadProfile(123, 7)
+			check(loaded.ok)
+			if not loaded.ok then
+				return
+			end
+			local profile = loaded.value
+			s.runtime.delay(0.01, function()
+				check(profile:apply(receipt(7000, 10)))
+			end)
+			code(profile:refresh(), "snapshot_race")
+			check(profile:get("Currency.Gems") == 10 and profile.versions["Currency.Gems"] == 1)
+			check(profile.seq == 10 and f.count() == 3)
+			c:destroy()
+		end)
+	end)
+
+	test("Fields profile sync bypasses raw cached documents and older coalesced reads", function()
+		local s = Scheduler.new()
+		local c, f = client(s, {
+			{ body = s.json(document(10, 0)) }, -- Raw cache seed.
+			{ body = s.json(schema()) },
+			{ body = s.json(document(500, 10, 1)) },
+			{ body = s.json(document(500, 10, 1)), delay = 0.1 }, -- Raw in-flight GET.
+			{ body = s.json(document(9000, 20, 2)) },
+		})
+		s.run(function()
+			check(c.fields:document({ path = { userId = 7 } }, { cacheTtl = 60 }).ok)
+			local loaded = c.fields:loadProfile(123, 7)
+			check(loaded.ok)
+			if not loaded.ok then
+				return
+			end
+			local profile = loaded.value
+			check(profile.seq == 500 and profile:get("Currency.Gems") == 10)
+			s.runtime.spawn(function()
+				check(c.fields:document({ path = { userId = 7 } }, { cacheTtl = 0 }).ok)
+			end)
+			s.runtime.wait(0.01)
+			check(profile:refresh().ok and profile.seq == 9000)
+			s.runtime.wait(0.2)
+			check(f.count() == 5 and c:metrics().coalesced == 0)
+			c:destroy()
+		end)
+	end)
+
 	test("Fields computed profile values are nullable numeric and never writable", function()
 		local s = Scheduler.new()
 		local contract = schema()

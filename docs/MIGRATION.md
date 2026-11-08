@@ -1,3 +1,9 @@
+# 1.1.0 Fields synchronization
+
+See [1.0 to 1.1 migration](../MIGRATION.md): no API break. Mutation `seq` values are sparse allocation
+tokens, not feed cursors or `expectedSeq`. Profiles reconcile by per-field version, retain snapshot
+watermarks until refresh, and resync only for actual missing state/schema changes, not token gaps.
+
 [1.0 breaking migration](../MIGRATION.md) supersedes helper names below; this file retains tenant-auth migration context.
 
 # Migrating to organization-tenant authentication

@@ -140,6 +140,14 @@ function Helpers.operations(state: State, universeId: string | number): OpBuilde
 		return Helpers.validateOps(state, universeId, { ops = ops }, options)
 	end)
 end
+--- Read sync barriers afresh, never reusing cached or already in-flight snapshots.
+local function snapshotOptions(options: Core.CallOptions?): Core.CallOptions
+	local fresh = table.clone(options or {})
+	fresh.cacheTtl = 0
+	-- A request-specific signal also disables GET coalescing with an older read.
+	fresh.signal = fresh.signal or { cancelled = false }
+	return fresh
+end
 --- Load schema plus a coherent player document and register profile lifecycle ownership.
 function Helpers.loadProfile(
 	state: State,
@@ -159,7 +167,7 @@ function Helpers.loadProfile(
 			return state.invoke(
 				Endpoints["fields.document"],
 				{ path = { universeId = universeId, userId = userId } },
-				options,
+				snapshotOptions(options),
 				universeId
 			)
 		end,
@@ -167,7 +175,7 @@ function Helpers.loadProfile(
 			return state.invoke(
 				Endpoints["fields.changes"],
 				{ path = { universeId = universeId, userId = userId }, query = { sinceSeq = since } },
-				options,
+				snapshotOptions(options),
 				universeId
 			)
 		end,

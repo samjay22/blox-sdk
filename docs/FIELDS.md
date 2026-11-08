@@ -144,19 +144,46 @@ transactions reject UNIVERSE fields. Multi-subject defaults to subject zero unti
 
 `fields:loadProfile(universeId,userId)` returns `Result<Profile>` after schema + complete document loads.
 `profile:get(id)` returns an immutable wire-shaped value and throws a value-free code for unknown,
-archived, shared, stale or missing ids; `TryGet(id)` returns a Result instead. `Versions` and `Seq` expose
-immutable field versions and subject watermark. Use generated accessors for compile-time field/value types.
+archived, shared, stale or missing ids; `tryGet(id)` returns a Result instead. `versions` exposes immutable
+field versions; `seq` is the last complete document watermark, not the latest local write token.
+Use generated accessors for compile-time field/value types.
 
 `profile:transaction()` owns a commit callback. After success it applies returned authoritative **after
-subvalues**, not a second arithmetic delta. Duplicate/replayed acknowledgements never double-apply.
-Sequence gaps or missing local containers mark the profile stale rather than fabricate a coherent snapshot.
+subvalues**, not a second arithmetic delta. Each field applies only versions newer than its cached version;
+all ordered operations sharing that final version are applied together. Older/duplicate/replayed results
+never regress values or versions. Different fields of one player can commit and arrive out of order.
+Sparse transaction `seq` tokens are normal and never cause resync or advance `profile.seq`.
+Missing/invalid versions, schema changes, or partial-path results missing earlier field versions mark the
+profile stale rather than fabricate a coherent snapshot. Complete root results can safely skip versions.
 Computed fields are refreshed from the server, never evaluated locally as write authority. A raw
 `fields:transactionBuilder` can be applied explicitly with `profile:apply(result.value)`.
 
 `refresh()` validates a whole snapshot and rejects old/concurrently overtaken reads. `pullChanges()`
 follows `nextSinceSeq`, not `latestSeq`, through complete sequence groups, then refreshes the document
 when state advanced. This intentionally covers NONE-history writes, privacy deletions, hash-only ledger
-values and computed fields; a feed-only replay cannot reconstruct these. Cursor failures are visible.
+values and computed fields; a feed-only replay cannot reconstruct these. Call `pullChanges()` after an
+`apply()` returning false to drain the feed then recover a complete snapshot. Cursor failures are visible;
+failed recovery never advances `profile.seq`. Profile sync bypasses cached/coalesced older reads.
+
+### Allocation tokens versus sync watermarks (1.1.0)
+
+`subject_seq` was removed by the service. `TransactionResult.seq`, including nested purchase, refund,
+reversal, generator roll and rotation claim transactions, contains **database-wide allocation tokens**.
+They are sparse and are not commit timestamps, per-player write counts or safe sync cursors. Never
+increment them, wait for missing integers, compare cross-field commit order, or copy them into `sinceSeq`
+or `expectedSeq`. Apply a nested result explicitly with `profile:apply(response.transaction)` when needed;
+raw mutation/roll/claim calls do not silently update loaded profiles.
+
+Documents (`seq`), field pages (`seq`, even with a prefix/page), and feeds (`latestSeq`) publish safe
+watermarks under the service's all-field read barrier. A partial field page is **not** a complete local
+snapshot: do not advance a whole-profile cursor from just its selected values. For feed pagination use
+`nextSinceSeq`, never jump to `latestSeq` on a partial page; allocation-ordered ledger groups are not a
+cross-field commit timeline. Persist cursors only from complete document/snapshot reads or drained feeds.
+Use the watermark of the complete snapshot being saved as `expectedSeq` for `putDocument`; the server
+checks it under whole-player exclusion. An acknowledged local write leaves the previous watermark in
+place, so refresh before saving a full document that incorporates that write. Old snapshot/feed cursors
+remain valid across the service migration. Runtime-config ETags/versions and rotation instance `sequence`
+are separate from player synchronization and are unchanged.
 
 `startPresence(placeId,sessionId?,heartbeatSeconds?)` acquires a session before scheduling heartbeats
 (default 30s, range 1–60s). An omitted ID is generated once. `heartbeat` and `stopPresence` retain it.

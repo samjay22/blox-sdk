@@ -1798,6 +1798,404 @@ local data: any = Json.object({
 			} :: { any }),
 		} :: any),
 	} :: { any }),
+	["profile-sync"] = Json.array({
+		Json.object({
+			["accepted"] = Json.array({ true, true } :: { any }),
+			["name"] = "disjoint fields reverse allocation order",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 20,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Coins",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 8001 } :: any),
+					["txId"] = "tx-8001",
+				} :: any),
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 10,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 91 } :: any),
+					["txId"] = "tx-91",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Coins"] = 20, ["Currency.Gems"] = 10 } :: any),
+			["versions"] = Json.object({ ["Currency.Coins"] = 1, ["Currency.Gems"] = 1 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true, true } :: { any }),
+			["name"] = "disjoint fields allocation order",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 10,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 91 } :: any),
+					["txId"] = "tx-91",
+				} :: any),
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 20,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Coins",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 8001 } :: any),
+					["txId"] = "tx-8001",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Coins"] = 20, ["Currency.Gems"] = 10 } :: any),
+			["versions"] = Json.object({ ["Currency.Coins"] = 1, ["Currency.Gems"] = 1 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true, true, true } :: { any }),
+			["name"] = "same field newer then older and duplicate",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 30,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 3,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 900 } :: any),
+					["txId"] = "tx-900",
+				} :: any),
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 10,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 81 } :: any),
+					["txId"] = "tx-81",
+				} :: any),
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 30,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 3,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 900 } :: any),
+					["txId"] = "tx-900",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Gems"] = 30 } :: any),
+			["versions"] = Json.object({ ["Currency.Gems"] = 3 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true, true } :: { any }),
+			["name"] = "same field forward ordering with sparse tokens",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 10,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 999 } :: any),
+					["txId"] = "tx-999",
+				} :: any),
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 20,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 2,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 999999 } :: any),
+					["txId"] = "tx-999999",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Gems"] = 20 } :: any),
+			["versions"] = Json.object({ ["Currency.Gems"] = 2 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true } :: { any }),
+			["name"] = "all ordered subvalues share one final version",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = false,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({ "Sound" } :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+						Json.object({
+							["after"] = "ES",
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({ "Language" } :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+						Json.object({
+							["after"] = true,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({ "Sound" } :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 300 } :: any),
+					["txId"] = "tx-300",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object(
+				{ ["Settings"] = Json.object({ ["Language"] = "ES", ["Sound"] = true } :: any) } :: any
+			),
+			["versions"] = Json.object({ ["Settings"] = 1 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true } :: { any }),
+			["name"] = "root jump followed by subvalue in same version",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = Json.object({ ["Language"] = "EN", ["Sound"] = false } :: any),
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 3,
+						} :: any),
+						Json.object({
+							["after"] = "ES",
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({ "Language" } :: { any }),
+							["subject"] = 7,
+							["version"] = 3,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 300 } :: any),
+					["txId"] = "tx-300",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object(
+				{ ["Settings"] = Json.object({ ["Language"] = "ES", ["Sound"] = false } :: any) } :: any
+			),
+			["versions"] = Json.object({ ["Settings"] = 3 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true, true } :: { any }),
+			["name"] = "older same-field subvalues cannot regress",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = Json.object({ ["Language"] = "ES", ["Sound"] = false } :: any),
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 2,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 300 } :: any),
+					["txId"] = "tx-300",
+				} :: any),
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = "EN",
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Settings",
+							["op"] = "SET",
+							["path"] = Json.array({ "Language" } :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 150 } :: any),
+					["txId"] = "tx-150",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object(
+				{ ["Settings"] = Json.object({ ["Language"] = "ES", ["Sound"] = false } :: any) } :: any
+			),
+			["versions"] = Json.object({ ["Settings"] = 2 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true } :: { any }),
+			["name"] = "other subjects do not invalidate this player",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 900,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 8,
+							["version"] = 1,
+						} :: any),
+						Json.object({
+							["after"] = 20,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Coins",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 700 } :: any),
+					["txId"] = "tx-700",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Coins"] = 20, ["Currency.Gems"] = 0 } :: any),
+			["versions"] = Json.object({ ["Currency.Coins"] = 1, ["Currency.Gems"] = 0 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true } :: { any }),
+			["name"] = "mutation tokens below snapshot watermark are not filters",
+			["results"] = Json.array({
+				Json.object({
+					["replayed"] = false,
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 10,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["seq"] = Json.object({ ["7"] = 2 } :: any),
+					["txId"] = "tx-2",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Gems"] = 10 } :: any),
+			["versions"] = Json.object({ ["Currency.Gems"] = 1 } :: any),
+		} :: any),
+		Json.object({
+			["accepted"] = Json.array({ true } :: { any }),
+			["name"] = "no mutation token needed for per-field reconciliation",
+			["results"] = Json.array({
+				Json.object({
+					["results"] = Json.array({
+						Json.object({
+							["after"] = 10,
+							["before"] = Json.null,
+							["entryId"] = Json.null,
+							["field"] = "Currency.Gems",
+							["op"] = "SET",
+							["path"] = Json.array({} :: { any }),
+							["subject"] = 7,
+							["version"] = 1,
+						} :: any),
+					} :: { any }),
+					["txId"] = "tx-no-token",
+				} :: any),
+			} :: { any }),
+			["values"] = Json.object({ ["Currency.Gems"] = 10 } :: any),
+			["versions"] = Json.object({ ["Currency.Gems"] = 1 } :: any),
+		} :: any),
+	} :: { any }),
 	["rotations"] = Json.object({
 		["active"] = Json.object({
 			["current"] = Json.object({
