@@ -168,7 +168,7 @@ function Operations.make(
 	return if ok then { ok = true, value = value } else System.failure("invalid_request")
 end
 --- Extract only operands for the TypeSystem; never let envelope properties bypass its closed grammar.
-local function operands(op: Types.PlayerOperation): { [string]: any }
+function Operations.operands(op: Types.PlayerOperation): { [string]: any }
 	local args: any = Copy.copy(op)
 	args.field = nil
 	args.op = nil
@@ -208,7 +208,8 @@ function Operations.validate(
 		elseif d.status == "ARCHIVED" then
 			code = "field_archived"
 		else
-			local result = System.checkOperation(d.type :: Types.TypeExpr, op.op, operands(op), op.path)
+			local result =
+				System.checkOperation(d.type :: Types.TypeExpr, op.op, Operations.operands(op), op.path)
 			if not result.ok then
 				code = result.error.code or "invalid_request"
 			end
@@ -249,7 +250,8 @@ function Operations.prepare(
 	local result: { Types.PlayerOperation } = Json.array({})
 	for _, op in ops do
 		local d = schema:get(op.field) :: Wire.Definition
-		local prepared = System.prepareOperation(d.type :: Types.TypeExpr, op.op, operands(op), op.path)
+		local prepared =
+			System.prepareOperation(d.type :: Types.TypeExpr, op.op, Operations.operands(op), op.path)
 		if not prepared.ok then
 			return prepared
 		end

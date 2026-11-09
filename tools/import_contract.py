@@ -115,6 +115,8 @@ def endpoints_for(service: str, root: Path) -> list[dict]:
                 method = mm[1]
             pm = re.search(r'"([^"\n]*)"', args)
             path = base + (pm[1] if pm else '')
+            # Downstream service batching is an internal transport, never a gameplay facade.
+            if path in ('/internal/batch', '/api/fields/internal/batch'): continue
             sig = re.search(r'public\s+([\w<>?, .]+?)\s+(\w+)\s*\(', text[end:])
             if not sig: raise ValueError((file, path))
             response, name = sig.groups()

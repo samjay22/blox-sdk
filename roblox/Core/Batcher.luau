@@ -168,7 +168,7 @@ local function dispatch(self: State)
 	if #selected == 0 then
 		return
 	end
-	local waitFor = Bucket.take(self.bucket, self.runtime.now(), true)
+	local waitFor = Bucket.http(self.bucket, self.runtime.now())
 	if waitFor > 0 then
 		self.pausedUntil = self.runtime.now() + waitFor
 		return

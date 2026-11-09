@@ -94,6 +94,45 @@ local function run(
 					},
 				},
 			}
+		elseif string.find(url, "/sessions/acquire", 1, true) then
+			payload = {
+				items = {
+					{
+						userId = 7,
+						status = "granted",
+						epoch = 1,
+						expiresAt = "2030-01-01T00:00:00Z",
+						snapshot = {
+							seq = 0,
+							fields = { Smoke = { Counter = 0 } },
+							versions = { ["Smoke.Counter"] = 0 },
+						},
+					},
+				},
+			}
+		elseif string.find(url, "/sessions/release", 1, true) then
+			payload = { items = { { userId = 7, status = "released" } } }
+		elseif string.find(url, "/commits", 1, true) then
+			local body = Decode.decode(request.body) :: any
+			assert(
+				#body.players == 1
+					and #body.players[1].ops == 2
+					and body.players[1].ops[1].delta == 1
+					and body.players[1].ops[2].delta == -1,
+				"Smoke commit must be atomic net-zero deltas"
+			)
+			payload = {
+				commitId = body.commitId,
+				items = {
+					{
+						userId = 7,
+						status = "committed",
+						seq = 0,
+						versions = { ["Smoke.Counter"] = 0 },
+						expiresAt = "2030-01-01T00:00:00Z",
+					},
+				},
+			}
 		elseif string.find(url, "/document", 1, true) then
 			payload = {
 				userId = 7,
@@ -250,6 +289,9 @@ for _, line in lines do
 	end
 end
 assert(code2 == 0 and requests2 >= 20 and redeemed == 0, "Configured mock smoke must pass all checks")
+for _, label in { "session acquire snapshot", "session buffered commit", "session flush and release" } do
+	assert(table.find(lines, "PASS " .. label), "Missing session smoke check")
+end
 local withCode = table.clone(baseEnv)
 withCode.BLOX_CODE = "DISPOSABLE"
 local code3, _, _, redeemed3 = run({ "--yes-live" }, withCode)

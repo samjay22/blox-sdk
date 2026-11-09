@@ -591,6 +591,11 @@
   },
   {
     "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/commits"
+  },
+  {
+    "svc": "fields",
     "method": "GET",
     "path": "/api/fields/universes/{universeId}/definitions"
   },
@@ -856,6 +861,11 @@
   },
   {
     "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/players/changes/batch"
+  },
+  {
+    "svc": "fields",
     "method": "GET",
     "path": "/api/fields/universes/{universeId}/players/sample"
   },
@@ -1046,6 +1056,11 @@
   },
   {
     "svc": "fields",
+    "method": "PUT",
+    "path": "/api/fields/universes/{universeId}/references/{consumerType}"
+  },
+  {
+    "svc": "fields",
     "method": "DELETE",
     "path": "/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}"
   },
@@ -1178,6 +1193,21 @@
     "svc": "fields",
     "method": "GET",
     "path": "/api/fields/universes/{universeId}/schema/typescript"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/sessions/acquire"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/sessions/release"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/sessions/renew"
   },
   {
     "svc": "fields",
@@ -1858,10 +1888,5 @@
     "svc": "platform",
     "method": "GET",
     "path": "/metrics"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/players/changes/batch"
   }
 ]

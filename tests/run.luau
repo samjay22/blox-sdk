@@ -563,6 +563,22 @@ test(
 						{ fixture(Schemas.definitions[spec.service][dto], Schemas.definitions[spec.service]) }
 				end
 			end
+			if id == "fields.acquireSessions" then
+				request.body =
+					{ serverId = "job", ttlMs = 60000, players = { { userId = 1, steal = false } } }
+			elseif id == "fields.renewSessions" then
+				request.body = { serverId = "job", ttlMs = 60000, leases = { { userId = 1, epoch = 1 } } }
+			elseif id == "fields.releaseSessions" then
+				request.body = { serverId = "job", leases = { { userId = 1, epoch = 1 } } }
+			elseif id == "fields.commitSession" then
+				request.body = {
+					serverId = "job",
+					commitId = "job:1",
+					players = {
+						{ userId = 1, epoch = 1, ops = { { field = "Score", op = "ADD", delta = 1 } } },
+					},
+				}
+			end
 			if id == "fields.changesBatch" then
 				request.body = { players = { { userId = 1, sinceSeq = 0 } } }
 			elseif id == "fields.validateOps" then
@@ -1009,6 +1025,7 @@ require("./new_services")(test)
 require("./auth")(test)
 require("./fields")(test)
 require("./profile_sync")(test)
+require("./sessions")(test)
 require("./field_bindings")(test)
 require("./operations")(test)
 require("./matchmaking")(test)

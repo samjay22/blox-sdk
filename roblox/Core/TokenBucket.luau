@@ -13,6 +13,7 @@ export type Bucket = {
 	history: { number },
 	head: number,
 	count: number,
+	requests: { number },
 }
 --- Construct a monotonic token bucket with a critical-traffic reserve.
 function Bucket.new(capacity: number, rate: number, reserve: number, now: number): Bucket
@@ -26,6 +27,7 @@ function Bucket.new(capacity: number, rate: number, reserve: number, now: number
 		history = {},
 		head = 1,
 		count = 0,
+		requests = {},
 	}
 end
 --- Read the rolling-minute usage without consuming a token; expire old ring entries.
@@ -53,5 +55,19 @@ function Bucket.take(self: Bucket, now: number, critical: boolean): number
 		return 0
 	end
 	return (floor + 1 - self.tokens) / self.rate
+end
+--- Admit physical HTTP only when both the rolling-second and rolling-minute budgets allow it.
+function Bucket.http(self: Bucket, now: number): number
+	while #self.requests > 0 and now - self.requests[1] >= 1 do
+		table.remove(self.requests, 1)
+	end
+	if #self.requests >= 8 then
+		return math.max(0.000001, self.requests[1] + 1 - now)
+	end
+	local waitFor = Bucket.take(self, now, true)
+	if waitFor == 0 then
+		table.insert(self.requests, now)
+	end
+	return waitFor
 end
 return table.freeze(Bucket)

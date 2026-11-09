@@ -17,6 +17,7 @@ export type Page<T> = {
 	sort: Core.Json?,
 }
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
+export type AcquireInput = { players: { SessionPlayer }, serverId: string, ttlMs: number }
 export type Action = { force: boolean?, idempotencyKey: string?, reason: string, universeId: number? }
 export type Alert = {
 	count: number,
@@ -132,6 +133,19 @@ export type BulkPreviewSample = {
 	subject: number,
 }
 export type ChangesResponse = { items: { Entry }, latestSeq: number, nextSinceSeq: number }
+export type CommitError = { code: string, field: string? }
+export type CommitInput = { commitId: string, players: { CommitPlayer }, serverId: string }
+export type CommitItem = {
+	error: CommitError?,
+	expiresAt: string?,
+	seq: number?,
+	status: string,
+	userId: number,
+	versions: { [string]: number }?,
+}
+export type CommitPlayer = { epoch: number, ops: { FieldTypes.PlayerOperation }, userId: number }
+export type CommitResponse = { commitId: string, items: { CommitItem } }
+export type ConsumerReferenceInput = { consumerId: string, fields: { string }, label: string }
 export type Counts = { definitions: number, ledger: number, values: number }
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
 export type Definition = {
@@ -591,8 +605,11 @@ export type ReceiptResult = {
 }
 export type RecurrenceType = "NONE" | "DAILY" | "WEEKLY"
 export type Ref = { id: string, type: string }
+export type ReferenceBatchInput = { consumers: { ConsumerReferenceInput }, universeId: number? }
 export type ReferenceConsumerType = "GAMEMODE" | "CODE"
 export type RefundInput = { idempotencyKey: string?, reason: string, universeId: number? }
+export type ReleaseInput = { leases: { SessionLease }, serverId: string }
+export type RenewInput = { leases: { SessionLease }, serverId: string, ttlMs: number }
 export type RestoreInput = {
 	idempotencyKey: string?,
 	prefix: string?,
@@ -744,6 +761,19 @@ export type ScheduleSummary = {
 export type SchemaResponse = { definitions: { Definition }, schemaVersion: number, universeId: number }
 export type Scope = "PLAYER" | "UNIVERSE"
 export type ScoreRange = { maxScore: number, minScore: number }
+export type SessionItem = {
+	epoch: number?,
+	expiresAt: string?,
+	owner: string?,
+	retryAfterMs: number?,
+	snapshot: SessionSnapshot?,
+	status: string,
+	userId: number,
+}
+export type SessionLease = { epoch: number, userId: number }
+export type SessionPlayer = { steal: boolean, userId: number }
+export type SessionResponse = { items: { SessionItem } }
+export type SessionSnapshot = { fields: Core.Json, seq: number, versions: { [string]: number } }
 export type Snapshot = {
 	byteSize: number,
 	createdAt: (string | Core.Null)?,
@@ -808,6 +838,8 @@ export type ReverseBulkCall = {
 	body: KeyedJobActionInput,
 }
 export type ReverseBulkResultValue = JobReceipt
+export type CommitSessionCall = { path: { universeId: (string | number)? }?, body: CommitInput }
+export type CommitSessionResultValue = CommitResponse
 export type DefinitionsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { cursor: string?, limit: number?, prefix: string?, scope: string?, status: string? }?,
@@ -1118,6 +1150,11 @@ export type ReconcileCall = {
 	query: { cursor: string?, field: string?, limit: number? }?,
 }
 export type ReconcileResultValue = CursorPage<Mismatch>
+export type ReplaceReferencesBatchCall = {
+	path: { universeId: (string | number)?, consumerType: string },
+	body: ReferenceBatchInput,
+}
+export type ReplaceReferencesBatchResultValue = nil
 export type DeleteReferencesCall = {
 	path: { universeId: (string | number)?, consumerType: ReferenceConsumerType, consumerId: string },
 }
@@ -1189,6 +1226,12 @@ export type LuauCall = { path: { universeId: (string | number)? }? }
 export type LuauResultValue = string
 export type TypescriptCall = { path: { universeId: (string | number)? }? }
 export type TypescriptResultValue = string
+export type AcquireSessionsCall = { path: { universeId: (string | number)? }?, body: AcquireInput }
+export type AcquireSessionsResultValue = SessionResponse
+export type ReleaseSessionsCall = { path: { universeId: (string | number)? }?, body: ReleaseInput }
+export type ReleaseSessionsResultValue = SessionResponse
+export type RenewSessionsCall = { path: { universeId: (string | number)? }?, body: RenewInput }
+export type RenewSessionsResultValue = SessionResponse
 export type SnapshotsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { cursor: string?, limit: number?, scope: string?, userId: (string | number)? }?,

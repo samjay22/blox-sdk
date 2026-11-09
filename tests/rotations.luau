@@ -23,7 +23,7 @@ local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client
 		backend = f.backend,
 		profileSync = { enabled = false },
 		levels = { FieldsService = "ADMIN" },
-		requestsPerMinute = 499,
+		requestsPerMinute = 480,
 		burst = 100,
 		retries = 1,
 		retryRatio = 1,

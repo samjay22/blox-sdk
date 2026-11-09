@@ -192,6 +192,14 @@ function Service.reverseBulk(
 ): Core.Result<Types.ReverseBulkResultValue>
 	return self._invoke(Endpoints["fields.reverseBulk"], req, opts, self._universe)
 end
+--- POST /fields-service/api/fields/universes/{universeId}/commits via gateway; access: READ_WRITE.
+function Service.commitSession(
+	self: Service,
+	req: Types.CommitSessionCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CommitSessionResultValue>
+	return self._invoke(Endpoints["fields.commitSession"], req, opts, self._universe)
+end
 --- GET /fields-service/api/fields/universes/{universeId}/definitions via gateway; access: READ.
 function Service.definitions(
 	self: Service,
@@ -1155,6 +1163,14 @@ function Service.reconcilePages(
 		return page.nextCursor
 	end, maximum, query.cursor)
 end
+--- PUT /fields-service/api/fields/universes/{universeId}/references/{consumerType} via gateway; access: READ_WRITE.
+function Service.replaceReferencesBatch(
+	self: Service,
+	req: Types.ReplaceReferencesBatchCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReplaceReferencesBatchResultValue>
+	return self._invoke(Endpoints["fields.replaceReferencesBatch"], req, opts, self._universe)
+end
 --- DELETE /fields-service/api/fields/universes/{universeId}/references/{consumerType}/{consumerId} via gateway; access: READ_WRITE.
 function Service.deleteReferences(
 	self: Service,
@@ -1387,6 +1403,30 @@ function Service.typescript(
 	opts: Core.CallOptions?
 ): Core.Result<Types.TypescriptResultValue>
 	return self._invoke(Endpoints["fields.typescript"], (req or {}), opts, self._universe)
+end
+--- POST /fields-service/api/fields/universes/{universeId}/sessions/acquire via gateway; access: READ_WRITE.
+function Service.acquireSessions(
+	self: Service,
+	req: Types.AcquireSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.AcquireSessionsResultValue>
+	return self._invoke(Endpoints["fields.acquireSessions"], req, opts, self._universe)
+end
+--- POST /fields-service/api/fields/universes/{universeId}/sessions/release via gateway; access: READ_WRITE.
+function Service.releaseSessions(
+	self: Service,
+	req: Types.ReleaseSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReleaseSessionsResultValue>
+	return self._invoke(Endpoints["fields.releaseSessions"], req, opts, self._universe)
+end
+--- POST /fields-service/api/fields/universes/{universeId}/sessions/renew via gateway; access: READ_WRITE.
+function Service.renewSessions(
+	self: Service,
+	req: Types.RenewSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RenewSessionsResultValue>
+	return self._invoke(Endpoints["fields.renewSessions"], req, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/snapshots via gateway; access: ADMIN.
 function Service.snapshots(

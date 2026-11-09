@@ -10,6 +10,7 @@ local Json = require("../Core/Json")
 local Errors = require("../Core/Errors")
 local FieldTypes = require("./Types")
 local ChangeSignal = require("../Core/ChangeSignal")
+local Operations = require("./Operations")
 local Profile = {}
 Profile.__index = Profile
 export type IO = {
@@ -21,6 +22,14 @@ export type IO = {
 export type Profile = typeof(setmetatable(
 	{} :: {
 		Changed: ChangeSignal.Signal,
+		_base: { [string]: Core.Json },
+		_buffer: { FieldTypes.PlayerOperation },
+		_sent: { FieldTypes.PlayerOperation },
+		_leaseReady: boolean,
+		_recovering: boolean,
+		_optimisticRecovery: boolean,
+		_admit: (({ FieldTypes.PlayerOperation }) -> boolean)?,
+		_releaseLease: ((number) -> boolean)?,
 		_universe: string?,
 		_onChange: ((ChangeSignal.Change) -> ())?,
 		_onRelease: (() -> ())?,
@@ -31,6 +40,7 @@ export type Profile = typeof(setmetatable(
 		_user: number,
 		_data: { [string]: Core.Json },
 		versions: { [string]: number },
+		_versionFloor: { [string]: number },
 		seq: number,
 		_snapshotFloor: number,
 		_stale: boolean,
@@ -72,6 +82,13 @@ end
 function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number, io: IO): Profile
 	return setmetatable({
 		Changed = ChangeSignal.new(runtime),
+		_base = {},
+		_buffer = {},
+		_sent = {},
+		_leaseReady = false,
+		_recovering = false,
+		_optimisticRecovery = false,
+		_admit = nil,
 		_universe = nil,
 		_onChange = nil,
 		_onRelease = nil,
@@ -82,6 +99,7 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		_io = io,
 		_data = {},
 		versions = {},
+		_versionFloor = {},
 		seq = 0,
 		_snapshotFloor = 0,
 		_stale = true,
@@ -129,6 +147,85 @@ end
 --- Accept only exact nonnegative counters representable by Luau numbers.
 local function counter(value: unknown): boolean
 	return type(value) == "number" and value >= 0 and value <= 9007199254740991 and value % 1 == 0
+end
+--- Replay pending writes over authoritative state; versions always describe only the server base.
+function Profile._overlay(self: Profile, base: { [string]: Core.Json }): { [string]: Core.Json }
+	local data = Copy.copy(base)
+	for _, list in { self._sent, self._buffer } do
+		for _, op in list do
+			local definition = self._schema:get(op.field)
+			if definition and definition.type then
+				local result = System.apply(
+					definition.type :: FieldTypes.TypeExpr,
+					read(data, op.field),
+					definition.default,
+					op.op,
+					Operations.operands(op),
+					op.path
+				)
+				if result.ok then
+					put(data, op.field, result.value)
+				else
+					self._stale = true
+				end
+			end
+		end
+	end
+	return Cache.freeze(data)
+end
+--- Apply a validated operation list atomically and optimistically, without yielding or HTTP.
+function Profile.mutate(self: Profile, ops: { FieldTypes.PlayerOperation }): Core.Result<boolean>
+	if self._closed or not self._leaseReady then
+		return System.failure("lease_lost")
+	end
+	if (self._stale or self._recovering) and not self._optimisticRecovery then
+		return System.failure("profile_stale")
+	end
+	local prepared = Operations.prepare(self._schema, ops)
+	if not prepared.ok then
+		return prepared
+	end
+	local data = Copy.copy(self._data)
+	for _, op in prepared.value do
+		local definition = self._schema:get(op.field) :: Wire.Definition
+		local result = System.apply(
+			definition.type :: FieldTypes.TypeExpr,
+			read(data, op.field),
+			definition.default,
+			op.op,
+			Operations.operands(op),
+			op.path
+		)
+		if not result.ok then
+			return result
+		end
+		put(data, op.field, result.value)
+	end
+	if not self._admit or not self._admit(prepared.value) then
+		return System.failure("buffer_full")
+	end
+	local old = self._data
+	self._data = Cache.freeze(data)
+	self:_notify(old, "local")
+	return { ok = true, value = true }
+end
+--- Buffer a numeric delta and make its optimistic value visible immediately.
+function Profile.add(
+	self: Profile,
+	field: string,
+	delta: number,
+	path: FieldTypes.Path?
+): Core.Result<boolean>
+	return self:mutate({ { field = field, op = "ADD", delta = delta, path = path } })
+end
+--- Buffer a last-writer-wins replacement and make it visible immediately.
+function Profile.set(
+	self: Profile,
+	field: string,
+	value: Core.Json,
+	path: FieldTypes.Path?
+): Core.Result<boolean>
+	return self:mutate({ { field = field, op = "SET", value = value, path = path } })
 end
 --- Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
 function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>
@@ -182,7 +279,10 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 			else
 				return System.failure("missing_value")
 			end
-			if not counter(documentVersions[id]) then
+			if
+				not counter(documentVersions[id])
+				or documentVersions[id] < math.max(self.versions[id] or 0, self._versionFloor[id] or 0)
+			then
 				return System.failure("invalid_version")
 			end
 			put(data, id, value)
@@ -190,12 +290,14 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 	end
 	local old = self._data
 	local wasLoaded = self._schemaVersion ~= nil
-	self._data = Cache.freeze(data)
+	self._base = Cache.freeze(data)
+	self._stale = false
+	self._data = self:_overlay(self._base)
 	self.versions = Cache.freeze(Copy.copy(documentVersions))
 	self.seq = document.seq
 	self._snapshotFloor = 0
+	table.clear(self._versionFloor)
 	self._schemaVersion = schemaVersion
-	self._stale = false
 	self._epoch += 1
 	self.lastError = nil
 	if wasLoaded then
@@ -209,6 +311,7 @@ function Profile.tryGet(self: Profile, id: string): Core.Result<Core.Json>
 		return System.failure("profile_closed")
 	end
 	if self._schemaVersion ~= self._schema:version() then
+		self._optimisticRecovery = false
 		self._stale = true
 	end
 	local definition = self._schema:get(id)
@@ -221,7 +324,7 @@ function Profile.tryGet(self: Profile, id: string): Core.Result<Core.Json>
 	if definition.scope ~= "PLAYER" then
 		return System.failure("field_scope_mismatch", nil, id)
 	end
-	if self._stale then
+	if self._stale and not self._optimisticRecovery then
 		return System.failure("profile_stale", nil, id)
 	end
 	local value = read(self._data, id)
@@ -253,7 +356,7 @@ function Profile.apply(self: Profile, result: Wire.Result, source: ("external" |
 		self._stale = true
 		return false
 	end
-	local data = Copy.copy(self._data)
+	local data = Copy.copy(self._base)
 	local versions = Copy.copy(self.versions)
 	local changed = false
 	for _, item in result.results :: { Wire.ResultItem } do
@@ -325,7 +428,8 @@ function Profile.apply(self: Profile, result: Wire.Result, source: ("external" |
 		end
 	end
 	local old = self._data
-	self._data = Cache.freeze(data)
+	self._base = Cache.freeze(data)
+	self._data = self:_overlay(self._base)
 	self.versions = Cache.freeze(versions)
 	self:_notify(old, source or "local")
 	return not self._stale
@@ -340,6 +444,9 @@ function Profile._invalidate(self: Profile, floor: number?)
 end
 --- Apply only complete server-visible ledger groups; acknowledgements never become watermarks.
 function Profile.applyChanges(self: Profile, page: Wire.PlayerChangesItem, since: number): boolean
+	if #self._sent > 0 or self._recovering then
+		return true -- Do not advance the cursor until the own-commit snapshot barrier completes.
+	end
 	if self._closed then
 		return false
 	end
@@ -418,9 +525,14 @@ function Profile.applyChanges(self: Profile, page: Wire.PlayerChangesItem, since
 	return true
 end
 --- Build an owned transaction that updates this profile after acknowledgement, not before commit.
-function Profile.transaction(self: Profile): Transaction.Transaction
+function Profile.immediate(self: Profile): Transaction.Transaction
 	return self._io.transaction(function(result)
 		if not self._closed then
+			if #self._sent > 0 or self._recovering then
+				self._epoch += 1
+				self._stale = true
+				return
+			end
 			self:apply(result)
 		end
 	end)
@@ -546,6 +658,9 @@ function Profile.stopPresence(self: Profile, opts: Core.CallOptions?): Core.Resu
 end
 --- Release presence within the owning client's remaining shutdown deadline.
 function Profile.close(self: Profile, deadline: number): boolean
+	if self._releaseLease then
+		return self._releaseLease(deadline)
+	end
 	local result = self:stopPresence({ deadline = deadline, priority = "critical" })
 	self:destroy()
 	return result.ok

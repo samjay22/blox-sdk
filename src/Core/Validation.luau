@@ -216,6 +216,53 @@ function Validation.body(endpoint: string, value: unknown): boolean
 	if not matches(value, schema.body, Schemas.definitions[schema.service], 0, false) then
 		return false
 	end
+	if
+		table.find({
+			"fields.acquireSessions",
+			"fields.renewSessions",
+			"fields.releaseSessions",
+			"fields.commitSession",
+		}, endpoint)
+	then
+		local body = value :: any
+		if #body.serverId < 1 or #body.serverId > 64 or not string.find(body.serverId, "%S") then
+			return false
+		end
+		if body.ttlMs ~= nil and (body.ttlMs % 1 ~= 0 or body.ttlMs < 10000 or body.ttlMs > 300000) then
+			return false
+		end
+		local players = body.players or body.leases
+		if #players < 1 or #players > 200 then
+			return false
+		end
+		local seen: { [number]: boolean } = {}
+		local count = 0
+		for _, player in players do
+			if not Universe.valid(player.userId) or seen[player.userId] then
+				return false
+			end
+			seen[player.userId] = true
+			if player.epoch ~= nil and not Universe.valid(player.epoch) then
+				return false
+			end
+			if player.ops then
+				if #player.ops == 0 then
+					return false
+				end
+				count += #player.ops
+			end
+		end
+		if
+			endpoint == "fields.commitSession"
+			and (
+				not string.match(body.commitId, "^" .. string.gsub(body.serverId, "(%W)", "%%%1") .. ":%d+$")
+				or count > 4000
+			)
+		then
+			return false
+		end
+		return #Json.encode(body) <= 1024 * 1024
+	end
 	if endpoint == "fields.changesBatch" then
 		local body = value :: any
 		if #body.players < 1 or #body.players > 200 then

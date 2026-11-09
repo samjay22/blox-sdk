@@ -172,6 +172,9 @@ function Schema.refresh(self: Schema, opts: Core.CallOptions?): Core.Result<numb
 end
 --- Return the cached generation, or synchronously load the first one (never discard last-good).
 function Schema.load(self: Schema): Core.Result<number>
+	while self._busy and not self._signal.cancelled do
+		self._runtime.wait(0.01)
+	end
 	if self._version ~= nil and not self._signal.cancelled then
 		return { ok = true, value = self._version }
 	end

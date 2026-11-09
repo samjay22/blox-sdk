@@ -101,6 +101,8 @@ def curate_reads(doc: dict) -> None:
             r'spring\.jackson\.default-property-inclusion\s*=\s*non_null', properties.read_text(), re.I))
         for name in sorted(response_names(doc, service)):
             definition = definitions[name]
+            # The binding scale DTOs define exact container/optional semantics, not Jackson inference.
+            if definition.get('source') == 'API_CONTRACT.md': continue
             source = SOURCE_ROOT / definition.get('source', '')
             source_fields = {}
             class_inclusion = 'NON_NULL' if omit_nulls else 'ALWAYS'

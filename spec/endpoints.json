@@ -5134,6 +5134,58 @@
         "custom",
         "scoped"
       ],
+      "bodyRequired": true,
+      "bodyType": "CommitInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.commitSession",
+      "idempotent": true,
+      "javaResponse": "Mono<ChangesBatchResult>",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "commitSession",
+      "path": "/api/fields/universes/{universeId}/commits",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "CommitResponse",
+      "responseType": "CommitSessionResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "API_CONTRACT.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": true,
@@ -10686,6 +10738,64 @@
         "custom",
         "scoped"
       ],
+      "bodyRequired": true,
+      "bodyType": "ReferenceBatchInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_WRITE')",
+      "id": "fields.replaceReferencesBatch",
+      "idempotent": false,
+      "javaResponse": "Mono<ResponseEntity<Void>>",
+      "method": "PUT",
+      "minimumLevel": "READ_WRITE",
+      "name": "replaceReferencesBatch",
+      "path": "/api/fields/universes/{universeId}/references/{consumerType}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "ConsumerType",
+          "name": "consumerType",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "ReplaceReferencesBatchResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
@@ -12243,6 +12353,162 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "AcquireInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.acquireSessions",
+      "idempotent": true,
+      "javaResponse": "Mono<ChangesBatchResult>",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "acquireSessions",
+      "path": "/api/fields/universes/{universeId}/sessions/acquire",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "SessionResponse",
+      "responseType": "AcquireSessionsResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "API_CONTRACT.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ReleaseInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.releaseSessions",
+      "idempotent": true,
+      "javaResponse": "Mono<ChangesBatchResult>",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "releaseSessions",
+      "path": "/api/fields/universes/{universeId}/sessions/release",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "SessionResponse",
+      "responseType": "ReleaseSessionsResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "API_CONTRACT.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "RenewInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.renewSessions",
+      "idempotent": true,
+      "javaResponse": "Mono<ChangesBatchResult>",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "renewSessions",
+      "path": "/api/fields/universes/{universeId}/sessions/renew",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "SessionResponse",
+      "responseType": "RenewSessionsResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "API_CONTRACT.md",
       "statuses": [
         200
       ]
@@ -20282,12 +20548,12 @@
     "srv/src-mm/src/main/java/sam/tech/services/UniverseAuthorizationService.java": "b3ad4914b3e09bf725808908407510541ea6ff51fb2016c7b583623d03cf1b90",
     "srv/src-mm/src/main/java/sam/tech/services/UniverseInfoService.java": "6baa99f13b6c27bfccf69bdbafc93c69390531809eb2d36eb9b31dfec3b8f66b",
     "srv/src-mm/src/main/resources/application.properties": "7d8c6db5c2c313db56413c4b80cfc62770e01def84eb85a6f55fd37b94fb5919",
-    "srv/src-roblox-code-service/API_CONTRACT.md": "ff6ff9e9c01ba3caca3380d5f695ef569f029e9fbf462537f636f509668bf724",
-    "srv/src-roblox-code-service/README.md": "0fea5a143c90d7e8c24edc3953848633151e9b9fc037fde52be2fa8b0136e9b3",
+    "srv/src-roblox-code-service/API_CONTRACT.md": "32c8c20cfcd5fe0240c845e458b59b578f996129ae14e00c0b68cbe4f543de86",
+    "srv/src-roblox-code-service/README.md": "96735323035b62786f229e579abc1ade1e4d5aa100a074de3625c8e78f004442",
     "srv/src-roblox-code-service/postman/roblox-code-service.postman_collection.json": "2d43f8766c534c065801a79e24ab9d11e00fd6d8ef9c6a0a390cd9ec987d619e",
     "srv/src-roblox-code-service/src/main/java/sam/tech/Main.java": "697545b2430a22c8429f51d044e41aa9adddbf534570590dd6507b1b502f4ead",
     "srv/src-roblox-code-service/src/main/java/sam/tech/client/CachedTokenClient.java": "6537408f811e175892a471142e36a2201b23f4c1d6de5ea9190ae8f357d6587f",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/client/FieldsClient.java": "63f54a46f894d66f98655bfa3ef2eb6a2b877a617b2951930f3989594e3f7f2e",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/client/FieldsClient.java": "97eafcb2a28e4463317ea04d293b507e550711d15dbd3b498a36b2f0ada3a2e0",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/ApiDatabaseInitializationConfiguration.java": "462279bc75cf711f7fef5e513dc059ce60d7892a31b26920b38cef27fc62db52",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/FieldsProperties.java": "aec50fdc50124f34dc808998a696c8fa6b89a508275b8b704231688059ab5c55",
     "srv/src-roblox-code-service/src/main/java/sam/tech/config/GlobalExceptionHandler.java": "4ca21b14b7ac3db1bdb6fb59daa0b71964ef18a276b25f533c252f109149d810",
@@ -20331,19 +20597,19 @@
     "srv/src-roblox-code-service/src/main/java/sam/tech/filter/RequestCorrelationFilter.java": "27447813aa64b118ebad928863addd18a86494049dfcb1f2425635e3d5b3a399",
     "srv/src-roblox-code-service/src/main/java/sam/tech/filter/RequestLoggingFilter.java": "ac345850ffff8e21339b47d6b0c585fbf98c78480b455c3d5d2e9a4568c3a926",
     "srv/src-roblox-code-service/src/main/java/sam/tech/logging/OpenObserveAppender.java": "5bd51e4b71a41c160141d9a2ad682383fa5ad799bbbc61090da85430c8bc26e2",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeBatchRepository.java": "c23dd5a3f81137b294e661542f3bd20c67b3c1b37e150d4186b9274583431801",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeBatchRepository.java": "ec6703f49e8e9a7e0f9d57a2b021aa9968ba54079257ab5752631b44a6b82755",
     "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeGrantIntentRepository.java": "99592df55e86e97b8093a8b0a013018634e312321e16d5d0b3636ce59f90b362",
     "srv/src-roblox-code-service/src/main/java/sam/tech/repository/CodeRedemptionRepository.java": "6d0760b39f187bbd8b1d715fd553e8af595e5868452a5c86fdd0622ce3bf2493",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/RedeemableCodeRepository.java": "6a7e4b5702d7e4450ec2e803929d181bbdb0462227b08264df700a0f88969b0c",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/repository/RedeemableCodeRepository.java": "4715ef05f9e1e26bde0532f5a729f619401d558a202cd355d5eb43697645bde3",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/AwardValidationService.java": "19271fc19e4ea3384e78abd4f2cc707d680166b66fd0ec00e4bc5cc8067c3adb",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/BulkCodeService.java": "d998de12931c40d5be9c83d65799ba04d0feb5b3786befcf9868cd69cfc30c28",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeFieldReferences.java": "790643ad9e168776e8f94894eb650272943a50fb3dab71e5a4d0c23f090f85de",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/BulkCodeService.java": "df82664b61ccaaf179003f52e218bf74ae959a34e25a548c2547803f4524cc20",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeFieldReferences.java": "82469a303b3b2e35a0e959ea831841f47445a5790e726612a9de5a35e79a5db7",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeManagementService.java": "35040c9b039f7d6ede81e7160448bac0ed42c42ca0cb219c0e40902ba906a814",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeMapper.java": "d9d5ada3946f09c09974bc1ceda52c7d9b5d0bea465883e82ca7c34848205f9e",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeRedemptionService.java": "55ad865cc18f13e2b435edd0683535506efcf5ad7cd3a357874693cb9258f530",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeRedemptionService.java": "cf493184d83627f6eb6a7f6df299242cd7695f5218f575dd9783e61401e85e59",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeReferenceBackfill.java": "a7695d1ac99cc39c623a6b9ca436a46e93e5a806a3e98cd46989c16c1311ee6e",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeReferenceReconciler.java": "a93464e89d9292f7c763da323d5828200a3ae18a4f2995cd991aa0125b53e1f2",
-    "srv/src-roblox-code-service/src/main/java/sam/tech/service/FieldReferenceMutation.java": "dde22caf381e42d2bb896c98ed7c4f86088751b137e39aad336daf6fe2b23898",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/CodeReferenceReconciler.java": "b7ad7e7274064f3d46cdc318a791474bed65dc74fa9bde1012d01a6dc22627f6",
+    "srv/src-roblox-code-service/src/main/java/sam/tech/service/FieldReferenceMutation.java": "c886febea7174c88983a7551497cfaefe1516af14262a882e71b0182150649a2",
     "srv/src-roblox-code-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "d80fcfed1bb43ee0789a5b62aac0f5fec19b19160e84dce35892a8fa769dccc9",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/BulkCodeGenerator.java": "38ba1a346c66f1de131e78cb59f9372bcb89e60e2549022113e0f26107648518",
     "srv/src-roblox-code-service/src/main/java/sam/tech/util/CodeBatchCsv.java": "140ae577e27c93988946f82aaad4e628ca90e9905e92ff587bc7af307c761083",
@@ -20388,16 +20654,16 @@
     "svc/audit-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "cfbff2d0f8e9057e249e84c80ac0f0131eb538cc27ef1d0539cebf98cb3a547a",
     "svc/audit-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
     "svc/audit-service/src/main/resources/application.properties": "d4c650a2b0da198782d7bcc4f023b8c1587813d6feee7e457084a12042e2e91d",
-    "svc/fields-service/API_CONTRACT.md": "ae7486f66ddcce9186aaad727b1e010b3c5ec8acd02e656c2eed0a48c363a13f",
-    "svc/fields-service/LOCKING.md": "bd06f58b763d4a06ecc8a88266006afe2f1e157a92aa9d98f9e30a279bff5336",
-    "svc/fields-service/README.md": "f68879b151c27dea378fce5502b0f4f8588e62f951aec30735905744efbc933f",
+    "svc/fields-service/API_CONTRACT.md": "2a172a2bcf7ad8781c9064bb22bfad77de31d44d814cef1374c67ac449c7c80a",
+    "svc/fields-service/LOCKING.md": "71976a575d01731a19e1755fdf351e9a40aa58808e3744a84f20aaeb0d43ca4c",
+    "svc/fields-service/README.md": "6ba15d917ea7de273fb6e83008c93c54f3cf715105bbfe3425ef08239b7c5d82",
     "svc/fields-service/src/main/java/sam/tech/Main.java": "039a14098a9d6d1a64322d60835d63d6b868f7420be11dcda24cda55b33cb5cf",
     "svc/fields-service/src/main/java/sam/tech/client/CachedTokenClient.java": "6537408f811e175892a471142e36a2201b23f4c1d6de5ea9190ae8f357d6587f",
     "svc/fields-service/src/main/java/sam/tech/config/ApiDatabaseInitializationConfiguration.java": "462279bc75cf711f7fef5e513dc059ce60d7892a31b26920b38cef27fc62db52",
     "svc/fields-service/src/main/java/sam/tech/config/GlobalExceptionHandler.java": "b9b5478ee120670fba428e229bc1d97e3d4b6dc7e568bb9052613d7eee4ea752",
     "svc/fields-service/src/main/java/sam/tech/config/MetricsConfig.java": "466fb192dd52abdda0c61bcf3f63bf19318862986bf586f27d1bcf301c9d6b2b",
     "svc/fields-service/src/main/java/sam/tech/config/R2dbcConfig.java": "aacb1bfe4fac2652ffb6caf8a0e434be59470b2e460e4fef4dc5bacd7273b5c5",
-    "svc/fields-service/src/main/java/sam/tech/config/SecurityConfig.java": "5a1131949795a72faa553dde8a573de063b76eb7151c4f5872d58328f79d1927",
+    "svc/fields-service/src/main/java/sam/tech/config/SecurityConfig.java": "c217f696e6f668af280904a89b10fcbc121c119742f45e554d63622756a5bea7",
     "svc/fields-service/src/main/java/sam/tech/config/SecurityErrorResponse.java": "27c73d66b8bc6fc4d3971067266a30235db3125c7964666213a19be255ea414a",
     "svc/fields-service/src/main/java/sam/tech/config/SecurityProperties.java": "a87d66449a5ee35c2b2b6f3239d6d91aec59901517b1c26371647de8920fc722",
     "svc/fields-service/src/main/java/sam/tech/config/TokenCacheConfiguration.java": "db5f4ca72ca3f72f0b98df34114b32fb96bf0c1205bdb0d54c922797eaef5904",
@@ -20406,7 +20672,7 @@
     "svc/fields-service/src/main/java/sam/tech/config/WorkerConfiguration.java": "e9fcece4095b2c09a18473529b751a669231a7eac90caf989b3280dc28dd78a8",
     "svc/fields-service/src/main/java/sam/tech/controller/CommerceController.java": "5b334b92baa809ebace4ee57b980cf8da006893d91284d5eb64f27fc8cf6ad58",
     "svc/fields-service/src/main/java/sam/tech/controller/EnvironmentDefinitionsController.java": "f54c8f807d0731b79dea8af27e5ed91ae58343303ca708b5ad58ba9d8fbdc18c",
-    "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "e2b537967e41ccc7b8d81e06e3e81061fbadd3b8f980e6b09421a1248139c1d7",
+    "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "b7a42fb0c4d2f191420ef6ed67a1666be3eb71b586a46b29a8754e4eb6b0dd5c",
     "svc/fields-service/src/main/java/sam/tech/controller/FlagsController.java": "802819e7e936f17dd7322c0b7474ce28ad848bca0b598653f187b150c5a3fddf",
     "svc/fields-service/src/main/java/sam/tech/controller/GameValueHistoryController.java": "5bf63787d00544876b19e01ea354daefa7beb4711e15c890de1325ee6613e58d",
     "svc/fields-service/src/main/java/sam/tech/controller/HealthController.java": "fe9c6fa979c4a46bd1c0fa8807b2d90a00783d0ef95bdd7dbdf9e72338f2d81e",
@@ -20414,56 +20680,64 @@
     "svc/fields-service/src/main/java/sam/tech/controller/MaintenanceController.java": "39eee465b0c896a735dfa03ddaf27720a6dcfc7fc1f2edf3e70d44edf6e59eac",
     "svc/fields-service/src/main/java/sam/tech/controller/OutboxController.java": "7a049b0486141bc6036b410f1709c1aed53cbdc0d37f1bc301054ec99a009f49",
     "svc/fields-service/src/main/java/sam/tech/controller/PlayerAdminController.java": "a85a5692f6afcc18d8294ae4e4857918f4afe1f9cb08d33758b88845bc3d9d9d",
-    "svc/fields-service/src/main/java/sam/tech/controller/PlayerAnalyticsController.java": "74ac9b471a32e725dac51de62d52320898400e8d73ce67b95194b0e5d7e95af5",
+    "svc/fields-service/src/main/java/sam/tech/controller/PlayerAnalyticsController.java": "a0d419a62bc933550455f828304c43acf30fad8657e41d6714d44f6c3a3e7f3f",
     "svc/fields-service/src/main/java/sam/tech/controller/PlayerSampleController.java": "38f3338ba54bbb2c4202e47742e7eb5b69fa8219b1f81279985aaf4b0033c87c",
+    "svc/fields-service/src/main/java/sam/tech/controller/PlayerSessionsController.java": "8dcd6a837285b1d1e32b9be42ff0074b59d92a32010bbca1acb51e1e929b4cfe",
     "svc/fields-service/src/main/java/sam/tech/controller/ProbeController.java": "7f41f2a4ccc1ca0b39393506bb0273c623d2125f1bc633a1412be48f2af3d172",
     "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java": "6ea59159f32de7c49606e0b28ffd6b42c8d30a825d00db6efe3bdd77fca102ca",
     "svc/fields-service/src/main/java/sam/tech/controller/RuntimeSnapshotController.java": "251e08a95a7c658b031bd3cebb094c8657f055604e2f8da856e8cb65d90ec14f",
     "svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java": "1e8e79c8f438aacaacec912769ed6543b9aa2d1417f3a47c1c491ffc822c3976",
-    "svc/fields-service/src/main/java/sam/tech/fields/AdvisoryLocks.java": "c827616056bd1de0741fa91262f504e67e617178b0c477f657b0efa0d9ec135e",
+    "svc/fields-service/src/main/java/sam/tech/controller/ServiceBatchController.java": "f8ce975c181091e4d6b87f50af1107cce4591fa4a971978759a2818ab3b50a6e",
+    "svc/fields-service/src/main/java/sam/tech/fields/AdvisoryLocks.java": "2c6246ba686232b5c65c986b3cbf8614d2680f17a5398fbe4541b281fea56bae",
     "svc/fields-service/src/main/java/sam/tech/fields/ChangeFeed.java": "7c3f3cf7ee9f4e441adfd64d7cef7c8377a67a37b37236d3cf239ae8e1bb88dd",
     "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java": "5f8f3fd58e3437cc431d4b1caf848fd8e448cc055c2fb8ca942700eb31bd7003",
-    "svc/fields-service/src/main/java/sam/tech/fields/CommerceService.java": "05d22ce64479d6e26849586ec6c3cb00a12f958d32f4e29467f4170c4542da27",
+    "svc/fields-service/src/main/java/sam/tech/fields/CommerceService.java": "ec64275e42cc5e9ad8bc3090459bc8046a55ce6a46f1e326e0a515bb998131b9",
     "svc/fields-service/src/main/java/sam/tech/fields/CommerceStore.java": "10a72182158858d72a5b9f8377e35ee26830f7fdb1a55080576d18828bddb71c",
     "svc/fields-service/src/main/java/sam/tech/fields/ComputedFields.java": "9a665f73f13c82d5ba6ebc723d80d3ca6eb17d6ebc3212c063f89a391fd7927e",
+    "svc/fields-service/src/main/java/sam/tech/fields/ContractBody.java": "83ff3196522cb065a18da0eba483bc4640ff1aad93f2cf9c6b635d29a79617b3",
     "svc/fields-service/src/main/java/sam/tech/fields/Cursors.java": "18340d100dbca0589f0095a3a05363c3a7f145838bd489e06c61de91b2bca4d8",
     "svc/fields-service/src/main/java/sam/tech/fields/DefinitionScanner.java": "f46b4706dd079a69bd02bef13c5d2bc132e8167f11e7b1cec781801e55a1fb53",
     "svc/fields-service/src/main/java/sam/tech/fields/EnvironmentDefinitionsService.java": "dd964a958f1247e5aa8ff2ca0b1a480cd1583a0ee7a42f1200c0f25fd8ea46e4",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldLocks.java": "5203f4d874f11d9cb84c45a5dd11a9a3015a8f442e060f1488aa2ba4212b9cca",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsException.java": "5ef6672bc29020fd603d611ce8a29cebaa2026719941fedb6fb5a381a56c7eb0",
-    "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "5764afdf45a1745901a6e1f520ad30c280bf1e8981ae970b1a0f832d4be50f91",
-    "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "a676ec494d3a60f8cbe656a9b902afb21eeb508a5e30b463a3cd89de4dd277a2",
-    "svc/fields-service/src/main/java/sam/tech/fields/GameValueHistoryService.java": "97a1728576c8d3e1cab030fc314d93afcc1cd0c1994708dcb1abafddb7cff291",
+    "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "5771fb5bf4a2ace9b81fb7178cf4370994ef37ff00662ddcb8f81e9879279b19",
+    "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "a410669807271c6d28f631acfbbc4213db8ad0fa867e46fb5516a82bd6fb559f",
+    "svc/fields-service/src/main/java/sam/tech/fields/GameValueHistoryService.java": "e3fdebd57cafcf457aab408e5c26c51e6354ab5360fcf73497ac99436d07fb52",
     "svc/fields-service/src/main/java/sam/tech/fields/JsonSupport.java": "576a7d100a81f2426e98cf8c89b87f0f591efc0175b10056106c2babb8b790ac",
     "svc/fields-service/src/main/java/sam/tech/fields/LuauGenerator.java": "0b77a5e63e878735170f401e8357cc0324503d13cc506e19415a79d3272010d1",
     "svc/fields-service/src/main/java/sam/tech/fields/MaintenanceRepository.java": "8255cb9311834e5b0b8818821ed6840b916b071b57df72017c0a97c54f65a150",
-    "svc/fields-service/src/main/java/sam/tech/fields/MaintenanceService.java": "51dcc3a78eee397b00958f409563c731f18cafd11430178fa541a2f82627d697",
-    "svc/fields-service/src/main/java/sam/tech/fields/Models.java": "6b14de847cfc974d3d405062fa299b9aedd2652946ef40f9caf2a618ca284126",
+    "svc/fields-service/src/main/java/sam/tech/fields/MaintenanceService.java": "aeb686b02f5094abc0b22ac804a6c032376bc8834c98af1beed1067b41aaac45",
+    "svc/fields-service/src/main/java/sam/tech/fields/Models.java": "7df7db7039816e6dc51ce7ed1caac725ab9fd076e5fd7ad53894b1565b95d145",
     "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminModels.java": "db51bfd031cbebffe17908d569aefd8d204d7ddc64f86c3ff7923a14d7779538",
-    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminRepository.java": "0c70e2a0db9e6479fdc3c26aeebe237f1a2cc488c6179fbc69335a1a43eb4fc2",
-    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminService.java": "3a644c72a47529a0abf903b43b6219b680ef8fc53d17136f1f2dc3aa9f84ef69",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminRepository.java": "1540034e85e8a8c14d700439ffef0e8240f98a15001726fe96854c7523dbbfcc",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminService.java": "2ac0600431848dd538a7118907978bd0dfb52bce728016cc5d7e8d5ffc665ea1",
     "svc/fields-service/src/main/java/sam/tech/fields/PlayerAnalyticsRepository.java": "1a1ca49734125e87c0442707e3cc46b04cac6eb6afc86592490150f269cc0fe4",
-    "svc/fields-service/src/main/java/sam/tech/fields/PlayerChangeIndex.java": "21f16e5e9f90cbb8985640d674ad1daff3e0be1203be58af0592dbed914a208e",
-    "svc/fields-service/src/main/java/sam/tech/fields/PlayerChangePublisher.java": "b448f71b7ff83144faa09733b41a3e8d2561018ed2f76bb6221aeabc755d9dfa",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerChangeIndex.java": "2e2ea07ff01bbdd0c96eb7f01eaacdadefce1748c88a9a361096bf3bfc481833",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerChangePublisher.java": "787e333cbffb982ea50624b2f68e6e54afb514e2d4a6215b3d05e2f25703c5f4",
     "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleRepository.java": "e3f52c2addcddaeacef2d49b6e7be9785ae133cb44a2c730aa0c5467f920e52b",
-    "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java": "26bb3003bfdbb359c89abc61243ead905af30d2ce28cb0f62d6a7ee3b2e5f4c1",
-    "svc/fields-service/src/main/java/sam/tech/fields/PostgresCommerceStore.java": "59c256d80cf654ef3500c8bb875e12cd45291709737d4e26906e44674a0613e2",
-    "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java": "3e57b99df3902b1f3711c5e81d8c520a4de671255513d9be32fd5d8a42a84722",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerSampleService.java": "e4237ee40ee186742efeec3296848cc60d8788804d5077514093ef6a2312f91c",
+    "svc/fields-service/src/main/java/sam/tech/fields/PlayerSessions.java": "69b9d9f4ade4d655d65f5786ad58fd880b830989dacac6b5b11e77dd6fd9e00f",
+    "svc/fields-service/src/main/java/sam/tech/fields/PostgresCommerceStore.java": "beb8c0ce0e7bbcc0c9989bbcd075478d5c23cc526ed446fdd03ccf4e6dd0a2cf",
+    "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java": "92dab2646867366c5a8cbbcc1e66325018f8fdc2b9e2d3027f297c9bee963309",
     "svc/fields-service/src/main/java/sam/tech/fields/ProductValidator.java": "0dcb57fca10398aee3d64096db700d475fa678f2c8e567ad768a51cae835c366",
-    "svc/fields-service/src/main/java/sam/tech/fields/ReconcileWorker.java": "824a2fdb84baa74ae109683c2dffa0aefbfa680db4c8425aa9fb3ada3419f7b8",
+    "svc/fields-service/src/main/java/sam/tech/fields/ReconcileWorker.java": "23c0c0c21bc2e8274f57b06e4674b6f46299b59efdaf74289737dfc7517409ba",
     "svc/fields-service/src/main/java/sam/tech/fields/ReferenceGuard.java": "f99568ce94c3f5569bea8906027b85966b7fdf429191e78e7d46b9fecbbd8061",
     "svc/fields-service/src/main/java/sam/tech/fields/ReferenceStringDeserializer.java": "922dd25792e47380c2399a5d168c3009693f3e509b73c1d35a414df69ab81d4e",
-    "svc/fields-service/src/main/java/sam/tech/fields/ReversalEngine.java": "e09d8964b947866adf190a14b8bf64c386a168333ddb26741db123e2b6751156",
+    "svc/fields-service/src/main/java/sam/tech/fields/ReversalEngine.java": "f5e321e3614cb820c70b2f5bff3781e0cdb7f7c2caece4d10938463719cb0a78",
     "svc/fields-service/src/main/java/sam/tech/fields/RuntimeSnapshotService.java": "882f6fb2fdc97954fd73561d69acbc802d4bdc6d149bb3d393a09e126f049617",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java": "1dd6d3a7d834de96c1a5e7146b99f5187ad2137c169fac54e77c46e057d826b1",
-    "svc/fields-service/src/main/java/sam/tech/fields/SafetyRepository.java": "c0ec2a9b700f8c70603ace39ecc8d682f43c2fcf2668ff2ca1bd5dfd56dd9526",
-    "svc/fields-service/src/main/java/sam/tech/fields/SafetyService.java": "d9d4f7406bb2ecfa5c16a3ef44770ba03add44b0d026d4efa321b5dc9d1808f0",
+    "svc/fields-service/src/main/java/sam/tech/fields/SafetyRepository.java": "a9c7fee607cff29536efcc3c24db0f95312579b8f4f515f5fc938ba2d69e7845",
+    "svc/fields-service/src/main/java/sam/tech/fields/SafetyService.java": "86e5a2db07938b2f0a72a9e04da51fddc07b1647ff4fb05d0e8f33314df08ee0",
     "svc/fields-service/src/main/java/sam/tech/fields/SafetyWorker.java": "799b6ebe25ef376ce35267da86448c27d753f62cef02a08dda29e0fa41005d45",
     "svc/fields-service/src/main/java/sam/tech/fields/SchemaGeneration.java": "7c74fa1d5964aa2295cf252a61419cae9592f36970254645718ffb8e938c1539",
+    "svc/fields-service/src/main/java/sam/tech/fields/ServiceBatch.java": "d8cd93465e7d5217ed902b2acf16e95a79486db877a806099bd71f16e43b2c73",
+    "svc/fields-service/src/main/java/sam/tech/fields/SessionRequests.java": "da41fc690f186377f59bbcf327a0c309fd4749e3670efa99fbb9b87fd192bd90",
     "svc/fields-service/src/main/java/sam/tech/fields/StrictLongDeserializer.java": "f22be9bacceaa8260ebd52829d794b78e5e9754096b79293dee30c5af53ec8c6",
-    "svc/fields-service/src/main/java/sam/tech/fields/TransactionEngine.java": "e44e4e6281407bf3d0df26038fe9477706b91eee971f93f64323d90bc01e41b6",
+    "svc/fields-service/src/main/java/sam/tech/fields/TickEvaluator.java": "45c7edb433bc50301f67fe5304c056cd458a041783fbe6eb86b9cc6eb6416a1a",
+    "svc/fields-service/src/main/java/sam/tech/fields/TransactionEngine.java": "f79cb384bef3adbba7024b1bd38371601a57d1d7ffcef4ed54e3338af22d6320",
+    "svc/fields-service/src/main/java/sam/tech/fields/TransactionProjectionWorker.java": "8acbad5c1e1731da411ce72a287c8128e9e606448dd4c0fd6338adf23d75ab83",
     "svc/fields-service/src/main/java/sam/tech/fields/TypeScriptGenerator.java": "06dbe18b748d814dea056f56f0dd309a126bc2052609443cb952f60df610d8d7",
-    "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java": "3167027f043ec0e464502e16c9c110f46831ed63553666b3485e5e78059479ba",
+    "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java": "4358d77f3f68a1c6ff9e2a836674025c62b12824600db2068e516c630e58d454",
     "svc/fields-service/src/main/java/sam/tech/fields/UniverseScope.java": "165c84711da89875b04d9363d711cf9b36352cd73d80b09e2348bd2b47af5eb2",
     "svc/fields-service/src/main/java/sam/tech/fields/flags/FlagEvaluationService.java": "654f7c378db68801fcca5e101eab95bdf899d751a2490b07326a7c938c7a4161",
     "svc/fields-service/src/main/java/sam/tech/fields/flags/FlagEvaluator.java": "f0cbacc19dc2b9f81bf08881fad4ee4e7b33bcb409e03f37670988ef85d79fac",
@@ -20476,24 +20750,24 @@
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/IntegrationBindings.java": "e723089703e065310c570640bdd4ba48c08c306d4c918598f8ac41b0060094f8",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/InternalAuthClient.java": "26c6dedb66aff2a894cac1e33daac251b0be05d8e4fb715c4e17ec5b551bc600",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/LeaderboardClient.java": "a6143b920d73e0fa6eb2993ef1db40bd7614924254d6ddd32de903723fc20aae",
-    "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxService.java": "b709e48398911bcd1f3162cd88887973b8492802eb6e5a6e512449c762774d8e",
+    "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxService.java": "abaa03135820b44ca17cf8c4b3b9aa60d98bfb12648a57c2932ffb28edd1acd6",
     "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxWorker.java": "ce9e3a5e07dbd862c3fef716ab1a0edd2024af9098bcc0ac069f9bf9ba5b79ca",
-    "svc/fields-service/src/main/java/sam/tech/fields/integrations/PlatformEventWorker.java": "1ad0fde497558162f85124e4f8d43454a50b3a7d56b3163e68a35fb90ea2a9ba",
-    "svc/fields-service/src/main/java/sam/tech/fields/integrations/TransactionIntegrations.java": "679e5c768e77185707b3d9ed4d6f328db914086d3006b97a151169a10fa1a11a",
+    "svc/fields-service/src/main/java/sam/tech/fields/integrations/PlatformEventWorker.java": "af350d1ff6638feb03a7849a826c9383da26e998df6b76f25d4bc1ce3d272a0d",
+    "svc/fields-service/src/main/java/sam/tech/fields/integrations/TransactionIntegrations.java": "91973093b0934691091cb5b1b5ac08360d141f5decad48ad73d72c6d40cdbc7d",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/AlertJobs.java": "d26487d57d46d7bb9a2152efdb3f980c8613cab05f6f6af62cfc4ca2889af39d",
-    "svc/fields-service/src/main/java/sam/tech/fields/jobs/BulkJobs.java": "34b06fddaaa7edcd64dbc2447b5d65c44021b086fc8ff8f04c869a7f112902d2",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/BulkJobs.java": "d08b09202c6819bd51f6c2126dbb7358e05ae824201962d8abba99ae372d1db6",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/Converters.java": "9ae58f3ed730d6fcc232e66278d5e2659cdf9869def1b0706d9f951c1728a3eb",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobHandler.java": "d8b5ae4e6b0e100f3ee9c1560b5832f2d4b782ba92f765c53fb5172410d41980",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java": "6231a3d01f66b399b08f061ed35ba1d88868f24107c85912a41c2e29039419f5",
-    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobRepository.java": "a9af2806d868d99828088233ec3acde85f95d03dce9b9ff4ea2f44dd3ff4a0eb",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobRepository.java": "d22fd8c6401846aaf4fb5a8d8f5d3471f84f89da279b92303d750d90cfe0bf3d",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobService.java": "ee96b18ef77b849580c80e2ad0c019ad4a95fa2fbaebe0e2ed0c49cf179ec88f",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobWorker.java": "a70f27b6522fdd81bd3b25a2b9ae9633a83ad3154efe7f84b8af0e18a54260d7",
-    "svc/fields-service/src/main/java/sam/tech/fields/jobs/MigrationJobs.java": "abb74852b05523ae3325dd9c8310f19331b92a0618f3d682c94057f92d1685d0",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/MigrationJobs.java": "ebea62908954b9ce6b8535e626e593bd63660d4982d6021644b3fc871e15dc79",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/OperationalSampleAccumulator.java": "a633b0f7d376ce9bfb6156477e8ba03b0f2339e29fd4f698646d11394c01f1f4",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/OperationalSignals.java": "ddfcc71ebcded772886c5691d25163aeda3d79d0616f62620fbd6be7eee7c7c7",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/Recurrence.java": "d6fc919d4b7165c0be0630250807871a4d1238357dfdbb8e176bab8508822318",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/RecurrenceCalculator.java": "19dd49f74fd1b62c8bcdaec10ce5f2baa43fb59409a612f19373a8c8b33b5d01",
-    "svc/fields-service/src/main/java/sam/tech/fields/jobs/ScheduleJobs.java": "07fcfe2e7b8d8547525667c00e6c2640e3e85d9340c00b2209c79121cb03cbd9",
+    "svc/fields-service/src/main/java/sam/tech/fields/jobs/ScheduleJobs.java": "d07fd4090d5581df4315eb309404017d5c470aacfa90f95e9ef2aa9fdda32ce8",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/SubjectFilter.java": "5b74f713a8a9f019ed420f33fded79dab8058d45dd62f108263391fcd8396597",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookGuard.java": "d5d0dfa7510c1eeec1392a288697e20f91d2f3330170acad4962a9c36708096f",
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookSender.java": "fa96745ede3f955120c0bf6396c2a247eb9275ed9eb58b538d770775c53da620",
@@ -20503,9 +20777,9 @@
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationEditor.java": "1bbe8eddb018cd3ff8bbf1f3a278a2ef5569a3b283ec1d49d1ff509039b9bacd",
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationFieldLocks.java": "80e8b65ab3519962f5e2f568cbdba8c6543d0fbaf9344bab4a4e2ef66c498b1a",
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationModels.java": "a184d169ce5a7b8a5c83fbeea5c124bf3d1c19bfa8702bea54d43fc63c5fe2b6",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationRepository.java": "664976ad2c743e57fdd62f5aaba2477277824cdd4f68378e5c356c80084d3c66",
+    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationRepository.java": "044cb74aa99eb86f593c4a331cf6f917ba585cfbefabd41de552d26c8b4f28d0",
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationRules.java": "60180bbbf332928e9ceda2dc8df8edfd997a34baa46e5a1e9c8b902257a11b56",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationService.java": "de5138452b6be9b1648404428c2455c2f77422a8f3306b46f96b21b7cb5f9289",
+    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationService.java": "9188c9f04f9ad375c0e62b00872020cb1023e0bee802d5bab83730fa1d3ff3f2",
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationValidator.java": "0bc4410c9c4e8126e07722c95bfc0e41adddff6b5e1bab55679e257138926049",
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationWorker.java": "0b6644241b6e94ad414677da4f993567e954268f4132ed2dae391b7a35385a3a",
     "svc/fields-service/src/main/java/sam/tech/filter/DefinitionEnvironmentFilter.java": "76548165dd34427619625c33b95639e15a0b8d475432e93bb8db3f14c0ac0931",
@@ -20518,19 +20792,26 @@
     "svc/fields-service/src/main/java/sam/tech/logging/OpenObserveAppender.java": "587bbb344d44b9a10db19ac370523de6f332dd730b6ed0477d4dbf8927e32ebc",
     "svc/fields-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "18562d81bafc96bf2f9f1300547727c399093e61c78ccaa75d7e57f00330c426",
     "svc/fields-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
-    "svc/fields-service/src/main/resources/application.properties": "7471e191fe10b5ebba596d66eb1e1593b1ef0dc92dd1621c770bc35985a2cf83",
-    "svc/leaderboard-service/API_CONTRACT.md": "8e5177afa0130f754918f4f634c752996e43b71c68f19d746a564b30c44b84ec",
-    "svc/leaderboard-service/README.md": "3d8cb17df6a364a454200dc4e99dda385a0a10e3add6ef196b66fb36644509fe",
+    "svc/fields-service/src/main/resources/application.properties": "21ebd5e1f3ca85a609c55c795d1e1def0d6a875bf8618b15da225e9411c35907",
+    "svc/leaderboard-service/API_CONTRACT.md": "29cc77e7f8d84467564d4ef4e7bfad5157f067cc6d8971fcc6673412c901f104",
+    "svc/leaderboard-service/README.md": "2ce2d25c56e067054fff5ea6a8e9e31173df034250c99dc41b30b35a48cc934c",
     "svc/leaderboard-service/src/main/java/sam/tech/Main.java": "1ac0135a93284a518c1d882be9087c941eca092174b77a9cb5bd0e0833a70378",
-    "svc/leaderboard-service/src/main/java/sam/tech/client/CachedTokenClient.java": "a1482eefa45d74d58a5a46c6c309d56887f79c3533f95da722034b0efcf40b13",
+    "svc/leaderboard-service/src/main/java/sam/tech/batch/BatchController.java": "9d885a20c3bf3ac249ca8f858fc66af77ea6db23b534fe3bef0fbff24c92c39c",
+    "svc/leaderboard-service/src/main/java/sam/tech/batch/BatchParser.java": "f4a10932dd7f3f29fb9e65705eb3370cbcbf5c8b4aa68966287eee890b6c8e6b",
+    "svc/leaderboard-service/src/main/java/sam/tech/batch/BatchValidationException.java": "de8532843d9fc0966482f045e87fac7478b59fa032b82cf710b601d4df58e4cd",
+    "svc/leaderboard-service/src/main/java/sam/tech/batch/InProcessHttp.java": "70ac425c96a4c9e043b6cbd7ef0ecb9f2776c57ff20c82261c0481824bbd60d7",
+    "svc/leaderboard-service/src/main/java/sam/tech/batch/Operation.java": "cc907d30ae959c895a7815a0d1c3a3673d5a60218bd09fa3b41a30876cdf476e",
+    "svc/leaderboard-service/src/main/java/sam/tech/client/CachedTokenClient.java": "a9d67626e7f26b4e160e6a85f5b2a7e30c419925ddb511e91671ac64d8bd6432",
     "svc/leaderboard-service/src/main/java/sam/tech/config/ApiDatabaseInitializationConfiguration.java": "462279bc75cf711f7fef5e513dc059ce60d7892a31b26920b38cef27fc62db52",
     "svc/leaderboard-service/src/main/java/sam/tech/config/GlobalExceptionHandler.java": "3e0d9183ec6317b663dc38765eb860508807f92308464ce162dd9f9cb0bab62f",
     "svc/leaderboard-service/src/main/java/sam/tech/config/MetricsConfig.java": "466fb192dd52abdda0c61bcf3f63bf19318862986bf586f27d1bcf301c9d6b2b",
     "svc/leaderboard-service/src/main/java/sam/tech/config/R2dbcConfig.java": "aacb1bfe4fac2652ffb6caf8a0e434be59470b2e460e4fef4dc5bacd7273b5c5",
-    "svc/leaderboard-service/src/main/java/sam/tech/config/SecurityConfig.java": "a50b11f747e20c81be1aa3e6218bc015009bae7ea9bbbb2594a0fb10aa413ee8",
+    "svc/leaderboard-service/src/main/java/sam/tech/config/SecurityConfig.java": "34927358cddfe65bb543fbc305cd16dc17fe6ca3d3bb1fd83984b8ee5709490d",
     "svc/leaderboard-service/src/main/java/sam/tech/config/SecurityErrorResponse.java": "a8e0773fa30484571150956f6e251dc8ab8c1d688191e3ccc62e122ffcd7cc54",
     "svc/leaderboard-service/src/main/java/sam/tech/config/SecurityProperties.java": "a87d66449a5ee35c2b2b6f3239d6d91aec59901517b1c26371647de8920fc722",
     "svc/leaderboard-service/src/main/java/sam/tech/config/TokenCacheConfiguration.java": "db5f4ca72ca3f72f0b98df34114b32fb96bf0c1205bdb0d54c922797eaef5904",
+    "svc/leaderboard-service/src/main/java/sam/tech/config/WarmupHealthIndicator.java": "31b7767c5e340e227e6c48e8c4db10a3c1775d4f1439b3eec37335d7d9c13889",
+    "svc/leaderboard-service/src/main/java/sam/tech/config/WarmupWork.java": "db7a4f13551ae5090dcf25799fbf9a8fb27a98486fa77a2e006fb136724dcd07",
     "svc/leaderboard-service/src/main/java/sam/tech/config/WebClientConfig.java": "4f10d6198bdd6952a519145a3b91032b501868d821bda4af9689a77a68bfbeb6",
     "svc/leaderboard-service/src/main/java/sam/tech/config/WorkerConfiguration.java": "e9fcece4095b2c09a18473529b751a669231a7eac90caf989b3280dc28dd78a8",
     "svc/leaderboard-service/src/main/java/sam/tech/controller/BoardController.java": "bae70dd6f0693b04418fb8a01081ac2b95afbb0b0cf1f73ad8b0929d73c653b7",
@@ -20541,21 +20822,22 @@
     "svc/leaderboard-service/src/main/java/sam/tech/domain/Elo.java": "3fc4cfe6e84cf16cfcbfff51da3f3c36f120e1f16b231c5c94e911d3fc45397f",
     "svc/leaderboard-service/src/main/java/sam/tech/domain/Models.java": "242f713b1122804ab93cde1da125906d6bf8c7e66d61f1b2d6b7cbbf8e205eeb",
     "svc/leaderboard-service/src/main/java/sam/tech/domain/Rules.java": "c8877302b61c944c03bf0cd39c0767816d387a0794cc2b4dfb7c23a85e53dd5d",
-    "svc/leaderboard-service/src/main/java/sam/tech/filter/JwtAuthenticationFilter.java": "8c64b6c71e11a7996801376b3cd3b5316bee221b49524c2df694251e320c364f",
-    "svc/leaderboard-service/src/main/java/sam/tech/filter/PathExclusionMatcher.java": "2ecf41c86456763bd3e32a4eca4863d989a8aefab8bd841c1d0ac6a1418c8d58",
-    "svc/leaderboard-service/src/main/java/sam/tech/filter/RateLimitFilter.java": "927fc8e3fb827d1bf2d654020f3b050bf55935d90ed532b441ef7129bbafddc7",
+    "svc/leaderboard-service/src/main/java/sam/tech/filter/JwtAuthenticationFilter.java": "574af3cf358a2b819c6f9243a8c5ebcf8e97ab8bc612f605ae31a2cbb11eaba6",
+    "svc/leaderboard-service/src/main/java/sam/tech/filter/PathExclusionMatcher.java": "4da5995b355cfe829e16d647614d803390345dc487084261721b41fa17dc290d",
+    "svc/leaderboard-service/src/main/java/sam/tech/filter/RateLimitFilter.java": "aaba31ecf2cd69b2a5f29a4e2d23263f2a7a592e0bd68beaa9261e5c500a7c70",
     "svc/leaderboard-service/src/main/java/sam/tech/filter/RequestCorrelationFilter.java": "27447813aa64b118ebad928863addd18a86494049dfcb1f2425635e3d5b3a399",
-    "svc/leaderboard-service/src/main/java/sam/tech/filter/RequestLoggingFilter.java": "ac345850ffff8e21339b47d6b0c585fbf98c78480b455c3d5d2e9a4568c3a926",
+    "svc/leaderboard-service/src/main/java/sam/tech/filter/RequestLoggingFilter.java": "436a5c28321473a15a1d25bdd9745484a66b810ce81d5523ba3da380145d08ed",
     "svc/leaderboard-service/src/main/java/sam/tech/logging/OpenObserveAppender.java": "f70668d5053ffea1b4e86d7451f7c239515ef5efff131af50e724a46c80d8e3e",
-    "svc/leaderboard-service/src/main/java/sam/tech/repository/LeaderboardStore.java": "e7b938d492b098f25b58556e4b2eb2670eddab12b7d0efa1480a4b30e611bf6b",
-    "svc/leaderboard-service/src/main/java/sam/tech/service/BoardService.java": "3b665c85592c4cc38a449908bd5b0850fec8ae43c8b70a2623d9a0189a3a669c",
+    "svc/leaderboard-service/src/main/java/sam/tech/repository/LeaderboardStore.java": "2bbbda6ff6253109a2c6fcce9b25359c9212b35aa5af1005c824b2761ceb04af",
+    "svc/leaderboard-service/src/main/java/sam/tech/service/BoardService.java": "09d3063f78a4937f0b8e6fd181985369aa035f99a0381205c6efc83f8a2b93f9",
     "svc/leaderboard-service/src/main/java/sam/tech/service/RankingRepairWorker.java": "f14173b79f574abb092f1f15d31dc5632b17c73ee8df0d0afa1b281e3e879348",
     "svc/leaderboard-service/src/main/java/sam/tech/service/RatingService.java": "d0bdb03d54db95eda94e894fd83978c4b045e0af1f3adac1a3c1306f6807cae9",
-    "svc/leaderboard-service/src/main/java/sam/tech/service/RedisRankings.java": "273c10113f2851b4864af99a7a552017376cf8ed758de6f1f8804c693bf563ae",
-    "svc/leaderboard-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "ad8fe4266e7e97ce4afc24f991d266bfcefb6c8c07e5dff8d445e67b673eaaec",
+    "svc/leaderboard-service/src/main/java/sam/tech/service/RedisRankings.java": "f8c1475103ed44e88bac84bc7a3d80a71f63d2b932bb2fa320ee5f024562353f",
+    "svc/leaderboard-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "5bab34cdc4d937739f7c0f6c4ec5ad8d7f8e0ac1499fad7f1ee9abae1532e651",
     "svc/leaderboard-service/src/main/java/sam/tech/service/RolloverWorker.java": "eedc2ebb42650d79063377be877401d9734f582d8cad3df287d03fa5bab9bc1a",
     "svc/leaderboard-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
-    "svc/leaderboard-service/src/main/resources/application.properties": "7a329f75abfd99d5905551b8669ce1e7d21096192d36b12bbde2845d20c8f6f5",
+    "svc/leaderboard-service/src/main/java/sam/tech/util/Sha256.java": "a8a0e3d78ac6dbcb318acb8dc74286612c3abb8a19223b789d2a101ab86effbf",
+    "svc/leaderboard-service/src/main/resources/application.properties": "28bcef6e4268827c42301b3739dcf8540e1bad4bc18e483e8565401df546e01f",
     "svc/platform-service/README.md": "8370c2420301cf1b6fe887e3eb162bfdcef3b5f49568305b31e51cf3a97df898",
     "svc/platform-service/src/main/java/sam/tech/platform/Main.java": "9b16942ba827e6cede6eaf6da1f4be29a67f9ea7769e0b7275fd5c7c1ac14138",
     "svc/platform-service/src/main/java/sam/tech/platform/analytics/AnalyticsController.java": "ff001c692e34af5976cbde96deda704e19f360d8f8ef5c3d35edb1676fb0ad27",
@@ -23346,6 +23628,26 @@
       }
     },
     "fields": {
+      "AcquireInput": {
+        "fields": {
+          "players": {
+            "java": "List<SessionPlayer>",
+            "required": true,
+            "responseNullable": false
+          },
+          "serverId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "ttlMs": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
       "Action": {
         "fields": {
           "force": {
@@ -23399,6 +23701,36 @@
           "RUN_BULK"
         ],
         "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "AddRun": {
+        "fields": {
+          "steps": {
+            "java": "List<AddStep>",
+            "notBlank": false,
+            "required": false
+          },
+          "value": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java"
+      },
+      "AddStep": {
+        "fields": {
+          "after": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          },
+          "before": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/TypeSystem.java"
       },
       "Alert": {
         "fields": {
@@ -23966,6 +24298,26 @@
           }
         }
       },
+      "Candidate": {
+        "fields": {
+          "locks": {
+            "java": "List<FieldLocks.Lock>",
+            "notBlank": false,
+            "required": false
+          },
+          "transaction": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": false
+          },
+          "universe": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/TransactionProjectionWorker.java"
+      },
       "ChangesResponse": {
         "fields": {
           "items": {
@@ -23996,6 +24348,111 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookGuard.java"
+      },
+      "CommitError": {
+        "fields": {
+          "code": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "field": {
+            "java": "String",
+            "required": false,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "CommitInput": {
+        "fields": {
+          "commitId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "players": {
+            "java": "List<CommitPlayer>",
+            "required": true,
+            "responseNullable": false
+          },
+          "serverId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "CommitItem": {
+        "fields": {
+          "error": {
+            "java": "CommitError",
+            "required": false,
+            "responseNullable": false
+          },
+          "expiresAt": {
+            "java": "String",
+            "required": false,
+            "responseNullable": false
+          },
+          "seq": {
+            "java": "long",
+            "required": false,
+            "responseNullable": false
+          },
+          "status": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "userId": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          },
+          "versions": {
+            "java": "Map<String,Long>",
+            "required": false,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "CommitPlayer": {
+        "fields": {
+          "epoch": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          },
+          "ops": {
+            "java": "List<Fields.PlayerOperation>",
+            "required": true,
+            "responseNullable": false
+          },
+          "userId": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "CommitResponse": {
+        "fields": {
+          "commitId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "items": {
+            "java": "List<CommitItem>",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
       },
       "Comparison": {
         "fields": {
@@ -24060,6 +24517,56 @@
           "JSON"
         ],
         "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
+      },
+      "Configuration": {
+        "fields": {
+          "definitions": {
+            "java": "Map<String,JsonNode>",
+            "notBlank": false,
+            "required": false
+          },
+          "flags": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          },
+          "generation": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "json": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "maintenance": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java"
+      },
+      "ConsumerReferenceInput": {
+        "fields": {
+          "consumerId": {
+            "java": "String",
+            "notBlank": true,
+            "required": true
+          },
+          "fields": {
+            "java": "List< String>",
+            "notBlank": false,
+            "required": true
+          },
+          "label": {
+            "java": "String",
+            "notBlank": true,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
       "ConsumerType": {
         "enum": [
@@ -24358,6 +24865,21 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/integrations/OutboxService.java"
+      },
+      "Discovered": {
+        "fields": {
+          "at": {
+            "java": "java.time.Instant",
+            "notBlank": false,
+            "required": false
+          },
+          "candidate": {
+            "java": "Candidate",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/TransactionProjectionWorker.java"
       },
       "Document": {
         "fields": {
@@ -26157,6 +26679,21 @@
           }
         }
       },
+      "MigrationState": {
+        "fields": {
+          "generation": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "owner": {
+            "java": "UUID",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java"
+      },
       "Mismatch": {
         "fields": {
           "entryId": {
@@ -26571,6 +27108,26 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java"
+      },
+      "PreparedPolicy": {
+        "fields": {
+          "maintenance": {
+            "java": "MaintenanceState",
+            "notBlank": false,
+            "required": false
+          },
+          "runtime": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": false
+          },
+          "universe": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/integrations/TransactionIntegrations.java"
       },
       "Presence": {
         "fields": {
@@ -27124,6 +27681,21 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
+      "ReferenceBatchInput": {
+        "fields": {
+          "consumers": {
+            "java": "List< ConsumerReferenceInput>",
+            "notBlank": false,
+            "required": true
+          },
+          "universeId": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
+      },
       "ReferenceConsumerType": {
         "enum": [
           "GAMEMODE",
@@ -27169,6 +27741,56 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java"
+      },
+      "ReleaseInput": {
+        "fields": {
+          "leases": {
+            "java": "List<SessionLease>",
+            "required": true,
+            "responseNullable": false
+          },
+          "serverId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "RenewInput": {
+        "fields": {
+          "leases": {
+            "java": "List<SessionLease>",
+            "required": true,
+            "responseNullable": false
+          },
+          "serverId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "ttlMs": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "Resource": {
+        "fields": {
+          "key": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/PostgresFieldsStore.java"
       },
       "Restore": {
         "fields": {
@@ -28091,6 +28713,106 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/integrations/BoardSettings.java"
       },
+      "SessionItem": {
+        "fields": {
+          "epoch": {
+            "java": "long",
+            "required": false,
+            "responseNullable": false
+          },
+          "expiresAt": {
+            "java": "String",
+            "required": false,
+            "responseNullable": false
+          },
+          "owner": {
+            "java": "String",
+            "required": false,
+            "responseNullable": false
+          },
+          "retryAfterMs": {
+            "java": "long",
+            "required": false,
+            "responseNullable": false
+          },
+          "snapshot": {
+            "java": "SessionSnapshot",
+            "required": false,
+            "responseNullable": false
+          },
+          "status": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          },
+          "userId": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "SessionLease": {
+        "fields": {
+          "epoch": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          },
+          "userId": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "SessionPlayer": {
+        "fields": {
+          "steal": {
+            "java": "boolean",
+            "required": true,
+            "responseNullable": false
+          },
+          "userId": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "SessionResponse": {
+        "fields": {
+          "items": {
+            "java": "List<SessionItem>",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "SessionSnapshot": {
+        "fields": {
+          "fields": {
+            "java": "JsonNode",
+            "required": true,
+            "responseNullable": false
+          },
+          "seq": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          },
+          "versions": {
+            "java": "Map<String,Long>",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
       "Snapshot": {
         "fields": {
           "byteSize": {
@@ -28820,6 +29542,21 @@
         },
         "source": "svc/leaderboard-service/src/main/java/sam/tech/domain/Models.java"
       },
+      "RankingRevision": {
+        "fields": {
+          "revision": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "userId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/leaderboard-service/src/main/java/sam/tech/repository/LeaderboardStore.java"
+      },
       "Rating": {
         "fields": {
           "deviation": {
@@ -28980,6 +29717,21 @@
         },
         "source": "svc/leaderboard-service/src/main/java/sam/tech/domain/Models.java"
       },
+      "ScoreChange": {
+        "fields": {
+          "score": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "userId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/leaderboard-service/src/main/java/sam/tech/service/BoardService.java"
+      },
       "ScoreInput": {
         "fields": {
           "displayName": {
@@ -29009,6 +29761,41 @@
           }
         },
         "source": "svc/leaderboard-service/src/main/java/sam/tech/domain/Models.java"
+      },
+      "ScoreReceipt": {
+        "fields": {
+          "applied": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          },
+          "displayName": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "result": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "score": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "submissionId": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "userId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/leaderboard-service/src/main/java/sam/tech/service/BoardService.java"
       },
       "ScoreResult": {
         "fields": {

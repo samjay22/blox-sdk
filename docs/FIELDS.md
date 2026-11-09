@@ -142,13 +142,15 @@ transactions reject UNIVERSE fields. Multi-subject defaults to subject zero unti
 
 ## Profile and presence
 
-`fields:loadProfile(universeId,userId)` returns `Result<Profile>` after schema + complete document loads.
+`fields:loadProfile(universeId,userId)` returns `Result<Profile>` after schema + session acquire grants a validated coherent snapshot. Concurrent loads share one handle; native PlayerAdded starts them automatically. See [3.0 binding contract](../API_CONTRACT.md).
+
+`profile:add/set/mutate` apply optimistically and buffer operations until the next five-second commit. Buffered success is not durability. `LeaseLost` drops all ops and invalidates the handle (kick by default); `CommitRejected` drops the rejected detached ops and re-syncs, retaining later pending writes. Configure `sessions` for TTL, flush interval, acquisition timeout and kicks.
 `profile:get(id)` returns an immutable wire-shaped value and throws a value-free code for unknown,
 archived, shared, stale or missing ids; `tryGet(id)` returns a Result instead. `versions` exposes immutable
 field versions; `seq` is the last complete document watermark, not the latest local write token.
 Use generated accessors for compile-time field/value types.
 
-`profile:transaction()` owns a commit callback. After success it applies returned authoritative **after
+`profile:immediate()` owns a commit callback. After success it applies returned authoritative **after
 subvalues**, not a second arithmetic delta. Each field applies only versions newer than its cached version;
 all ordered operations sharing that final version are applied together. Older/duplicate/replayed results
 never regress values or versions. Different fields of one player can commit and arrive out of order.
@@ -188,14 +190,10 @@ are separate from player synchronization and are unchanged.
 `startPresence(placeId,sessionId?,heartbeatSeconds?)` acquires a session before scheduling heartbeats
 (default 30s, range 1–60s). An omitted ID is generated once. `heartbeat` and `stopPresence` retain it.
 409 `session_conflict` remains a Conflict Result with `error.code`; it is not retried or taken over.
-Automatic heartbeat conflicts stop the loop; `lastError` remains observable. Presence is a lease marker,
-not a lock or authorization credential. Keep game gameplay session policy separate.
+Automatic heartbeat conflicts stop the loop; `lastError` remains observable. Presence is only an online marker, not the 3.0 fenced data lease or an authorization credential.
 
 The first native Fields helper registers the same single BindToClose callback used by audit writers.
-SDK `flush` stops schema polling, releases profile presence within the total shutdown deadline, drains
-writers and closes pipeline admission. Transactions are synchronous: **there is no hidden write-behind
-profile save queue**. Issue and await final transactions before flush. Custom runtimes must call
-flush/destroy explicitly. A failed flush is not proof that an in-flight mutation failed to commit.
+SDK `flush` closes mutation admission, drains buffered commits and releases session leases within the total shutdown deadline, then stops sync/schema polling, drains writers and closes pipeline admission. `profile:immediate()` transactions remain synchronous. Custom runtimes must call flush/destroy explicitly. A failed flush is not proof that an in-flight mutation failed to commit.
 
 ## Schema-specialized static accessors (offline build)
 
@@ -217,7 +215,7 @@ local Typed = require("./GeneratedFields/Typed")
 local FieldTypes = require("./GeneratedFields/FieldTypes")
 type PlayerDocument = FieldTypes.PlayerDocument
 local gems: number = Typed.Currency.Gems:get(profile)
-local tx = profile:transaction():reason("Quest completion")
+local tx = profile:immediate():reason("Quest completion")
 Typed.Currency.Gems:add(tx, 10)
 Typed.Inventory.Items:mapAdd(tx, "SWORD", 1) -- enum/string key + numeric delta
 Typed.Characters:append(tx, {{Id=42, Level=1, Rarity="COMMON"}})
@@ -448,11 +446,11 @@ echo of a local commit does not fire twice. Initial profile loading does not emi
 initialize UI/leaderstats with `get`/`tryGet` after loading. Explicit snapshot refresh notifications have
 source `external`; transaction `apply` notifications default to `local`.
 
-Call `profile:release()` to release presence and unregister, or `profile:destroy()` to unregister without
-HTTP. Native clients also destroy all handles for a user on `Players.PlayerRemoving`. A profile
-released during a request ignores the late response. `flush` stops sync **before** draining leases;
-`destroy`/the shared native `game:BindToClose` stop polling/reloads and disconnect the removal hook.
-Already-dispatched native HttpService requests cannot be aborted, but no follow-up work is started.
+Call `profile:release()` to flush buffered writes and release its fenced lease before unregistering.
+`profile:destroy()` unregisters immediately and schedules ordered save/release on the shared clock;
+`client:destroy()` cancels everything without saving. PlayerRemoving closes writes immediately, saves,
+then releases; BindToClose uses the same shared drain. In-flight native HTTP cannot be aborted, so a
+shutdown timeout returns false and never releases an ambiguously committed player's lease early.
 
 ### Rate-limit budget
 

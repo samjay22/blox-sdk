@@ -12,6 +12,8 @@ globals:
   Instance.new:
     args:
       - type: string
+  game.JobId:
+    property: read-only
   game.GameId:
     property: read-only
   game.ServerStorage:

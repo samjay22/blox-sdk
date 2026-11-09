@@ -61,4 +61,24 @@ function Roblox.playerRemoving(callback: (number) -> ()): () -> ()
 		connection:Disconnect()
 	end
 end
+--- Observe existing and joining players; loading is cooperative and never blocks the native event.
+function Roblox.playerAdded(callback: (number) -> ()): () -> ()
+	local players = game:GetService("Players")
+	local connection = players.PlayerAdded:Connect(function(player)
+		callback(player.UserId)
+	end)
+	for _, player in players:GetPlayers() do
+		callback(player.UserId)
+	end
+	return function()
+		connection:Disconnect()
+	end
+end
+--- Kick only the currently connected player, without logging session data.
+function Roblox.kick(userId: number, message: string)
+	local player = game:GetService("Players"):GetPlayerByUserId(userId)
+	if player then
+		player:Kick(message)
+	end
+end
 return table.freeze(Roblox)

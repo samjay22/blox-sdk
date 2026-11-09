@@ -323,6 +323,14 @@ function Sync.unregister(self: Sync, profile: Profile.Profile)
 		table.clear(self._schemaPoll)
 	end
 end
+--- Cancel only load admission; leased handles must survive until the coordinator saves and releases.
+function Sync.cancelLoads(self: Sync, userId: number)
+	for signal, user in self._loads do
+		if user == userId then
+			signal.cancelled = true
+		end
+	end
+end
 --- Drop all handles for a departed player; no network request is started by the removal hook.
 function Sync.removePlayer(self: Sync, userId: number)
 	for signal, user in self._loads do

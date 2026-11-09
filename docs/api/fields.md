@@ -275,6 +275,18 @@ Service.reverseBulk(
 ): Core.Result<Types.ReverseBulkResultValue>
 ```
 
+### `Service.commitSession`
+
+POST /fields-service/api/fields/universes/{universeId}/commits via gateway; access: READ_WRITE.
+
+```luau
+Service.commitSession(
+	self: Service,
+	req: Types.CommitSessionCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.CommitSessionResultValue>
+```
+
 ### `Service.definitions`
 
 GET /fields-service/api/fields/universes/{universeId}/definitions via gateway; access: READ.
@@ -1548,6 +1560,18 @@ Service.reconcilePages(
 ): () -> Core.Result<Types.ReconcileResultValue>?
 ```
 
+### `Service.replaceReferencesBatch`
+
+PUT /fields-service/api/fields/universes/{universeId}/references/{consumerType} via gateway; access: READ_WRITE.
+
+```luau
+Service.replaceReferencesBatch(
+	self: Service,
+	req: Types.ReplaceReferencesBatchCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReplaceReferencesBatchResultValue>
+```
+
 ### `Service.deleteReferences`
 
 DELETE /fields-service/api/fields/universes/{universeId}/references/{consumerType}/{consumerId} via gateway; access: READ_WRITE.
@@ -1885,6 +1909,42 @@ Service.typescript(
 ): Core.Result<Types.TypescriptResultValue>
 ```
 
+### `Service.acquireSessions`
+
+POST /fields-service/api/fields/universes/{universeId}/sessions/acquire via gateway; access: READ_WRITE.
+
+```luau
+Service.acquireSessions(
+	self: Service,
+	req: Types.AcquireSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.AcquireSessionsResultValue>
+```
+
+### `Service.releaseSessions`
+
+POST /fields-service/api/fields/universes/{universeId}/sessions/release via gateway; access: READ_WRITE.
+
+```luau
+Service.releaseSessions(
+	self: Service,
+	req: Types.ReleaseSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ReleaseSessionsResultValue>
+```
+
+### `Service.renewSessions`
+
+POST /fields-service/api/fields/universes/{universeId}/sessions/renew via gateway; access: READ_WRITE.
+
+```luau
+Service.renewSessions(
+	self: Service,
+	req: Types.RenewSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.RenewSessionsResultValue>
+```
+
 ### `Service.snapshots`
 
 GET /fields-service/api/fields/universes/{universeId}/snapshots via gateway; access: ADMIN.
@@ -2096,6 +2156,8 @@ export type Page<T> = {
 
 export type CursorPage<T> = { items: { T }, nextCursor: (string | Core.Null)? }
 
+export type AcquireInput = { players: { SessionPlayer }, serverId: string, ttlMs: number }
+
 export type Action = { force: boolean?, idempotencyKey: string?, reason: string, universeId: number? }
 
 export type Alert = {
@@ -2238,6 +2300,25 @@ export type BulkPreviewSample = {
 }
 
 export type ChangesResponse = { items: { Entry }, latestSeq: number, nextSinceSeq: number }
+
+export type CommitError = { code: string, field: string? }
+
+export type CommitInput = { commitId: string, players: { CommitPlayer }, serverId: string }
+
+export type CommitItem = {
+	error: CommitError?,
+	expiresAt: string?,
+	seq: number?,
+	status: string,
+	userId: number,
+	versions: { [string]: number }?,
+}
+
+export type CommitPlayer = { epoch: number, ops: { FieldTypes.PlayerOperation }, userId: number }
+
+export type CommitResponse = { commitId: string, items: { CommitItem } }
+
+export type ConsumerReferenceInput = { consumerId: string, fields: { string }, label: string }
 
 export type Counts = { definitions: number, ledger: number, values: number }
 
@@ -2795,9 +2876,15 @@ export type RecurrenceType = "NONE" | "DAILY" | "WEEKLY"
 
 export type Ref = { id: string, type: string }
 
+export type ReferenceBatchInput = { consumers: { ConsumerReferenceInput }, universeId: number? }
+
 export type ReferenceConsumerType = "GAMEMODE" | "CODE"
 
 export type RefundInput = { idempotencyKey: string?, reason: string, universeId: number? }
+
+export type ReleaseInput = { leases: { SessionLease }, serverId: string }
+
+export type RenewInput = { leases: { SessionLease }, serverId: string, ttlMs: number }
 
 export type RestoreInput = {
 	idempotencyKey: string?,
@@ -2976,6 +3063,24 @@ export type Scope = "PLAYER" | "UNIVERSE"
 
 export type ScoreRange = { maxScore: number, minScore: number }
 
+export type SessionItem = {
+	epoch: number?,
+	expiresAt: string?,
+	owner: string?,
+	retryAfterMs: number?,
+	snapshot: SessionSnapshot?,
+	status: string,
+	userId: number,
+}
+
+export type SessionLease = { epoch: number, userId: number }
+
+export type SessionPlayer = { steal: boolean, userId: number }
+
+export type SessionResponse = { items: { SessionItem } }
+
+export type SessionSnapshot = { fields: Core.Json, seq: number, versions: { [string]: number } }
+
 export type Snapshot = {
 	byteSize: number,
 	createdAt: (string | Core.Null)?,
@@ -3073,6 +3178,10 @@ export type ReverseBulkCall = {
 }
 
 export type ReverseBulkResultValue = JobReceipt
+
+export type CommitSessionCall = { path: { universeId: (string | number)? }?, body: CommitInput }
+
+export type CommitSessionResultValue = CommitResponse
 
 export type DefinitionsCall = {
 	path: { universeId: (string | number)? }?,
@@ -3568,6 +3677,13 @@ export type ReconcileCall = {
 
 export type ReconcileResultValue = CursorPage<Mismatch>
 
+export type ReplaceReferencesBatchCall = {
+	path: { universeId: (string | number)?, consumerType: string },
+	body: ReferenceBatchInput,
+}
+
+export type ReplaceReferencesBatchResultValue = nil
+
 export type DeleteReferencesCall = {
 	path: { universeId: (string | number)?, consumerType: ReferenceConsumerType, consumerId: string },
 }
@@ -3692,6 +3808,18 @@ export type LuauResultValue = string
 export type TypescriptCall = { path: { universeId: (string | number)? }? }
 
 export type TypescriptResultValue = string
+
+export type AcquireSessionsCall = { path: { universeId: (string | number)? }?, body: AcquireInput }
+
+export type AcquireSessionsResultValue = SessionResponse
+
+export type ReleaseSessionsCall = { path: { universeId: (string | number)? }?, body: ReleaseInput }
+
+export type ReleaseSessionsResultValue = SessionResponse
+
+export type RenewSessionsCall = { path: { universeId: (string | number)? }?, body: RenewInput }
+
+export type RenewSessionsResultValue = SessionResponse
 
 export type SnapshotsCall = {
 	path: { universeId: (string | number)? }?,

@@ -19,13 +19,13 @@ class ReleaseTests(unittest.TestCase):
     """Verify independently observable release contracts without network or application startup."""
 
     def test_version(self) -> None:
-        """The package, runtime and release documentation agree on 2.0.0."""
+        """The package, runtime and release documentation agree on 3.0.0."""
         metadata = tomllib.loads((ROOT/'wally.toml').read_text())
-        self.assertEqual(metadata['package']['version'], '2.0.0')
+        self.assertEqual(metadata['package']['version'], '3.0.0')
         self.assertEqual(metadata['package']['realm'], 'server')
-        self.assertIn('SDK.version = "2.0.0"', (ROOT/'src/BloxSDK.luau').read_text())
+        self.assertIn('SDK.version = "3.0.0"', (ROOT/'src/BloxSDK.luau').read_text())
         for name in ('CHANGELOG.md', 'docs/CHANGELOG.md'):
-            self.assertIn('## 2.0.0', (ROOT/name).read_text())
+            self.assertIn('## 3.0.0', (ROOT/name).read_text())
 
     def test_documented_service_methods(self) -> None:
         """Every source method and exported DTO alias is represented in its generated page."""

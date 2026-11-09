@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 373 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 378 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 373 endpoints]
+  Audit --> Spec[spec/endpoints.json: 378 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
@@ -62,3 +62,7 @@ Identity and scoped credentials are separate providers. `client:scoped(id)` bind
 ScopedTokens provider to the shared pipeline without mutating its global auth. Each universe shares one
 exchange flight and token cache; identity epoch changes fence stale exchanges. Scoped Fields helper states
 share the root shutdown lifecycle but use their own credential-bound invoker.
+
+## 3.0 sessions
+
+`Fields/Sessions` owns fenced leases, per-tick acquire/control groups, shared commit serialization and immutable retry identities. Profiles retain an authoritative base plus detached/pending optimistic overlays. `LeaseLost` invalidates a handle; `CommitRejected` discards only the rejected detached ops before a coherent recovery barrier. Close saves before release and only then closes the pipeline. Native PlayerAdded and removal hooks own the lifecycle. See [binding contract](../API_CONTRACT.md).

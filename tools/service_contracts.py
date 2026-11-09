@@ -35,7 +35,7 @@ def records(root: Path) -> dict:
     from runtime_contract import RECORD_NAMES, wire_type
     for file in sorted(root.glob('src/main/java/**/*.java')):
         # Internal telemetry records collide with public Models.Batch/Key and JobModels.Kind.
-        if file.stem in ('OperationalSignals', 'OperationalSampleAccumulator'): continue
+        if file.stem in ('OperationalSignals', 'OperationalSampleAccumulator', 'ServiceBatch', 'SessionRequests', 'PlayerSessions', 'TickEvaluator') or '/batch/' in str(file): continue
         if '/rotations/' in str(file) or file.stem.startswith('Rotation'): continue  # Internal engine records are curated with isolated public DTO names in rotations_contract.
         text = java.clean(file.read_text())
         for match in re.finditer(r'\b(enum|record)\s+(\w+)\s*(?:<[^>]+>)?\s*([({])', text):
@@ -202,6 +202,8 @@ def refresh(doc: dict) -> dict:
             visit(schema(endpoint['responseJava']))
             if endpoint['bodyType']: visit(schema(endpoint['bodyType']))
         doc['types'][service] = {name:definitions[name] for name in sorted(needed)}
+    from sessions_contract import curate as curate_sessions
+    curate_sessions(doc)
     doc['endpoints'].sort(key=lambda e:(e['service'],e['path'],e['method']))
     from response_contract import curate_reads
     curate_reads(doc)

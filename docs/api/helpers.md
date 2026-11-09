@@ -18,6 +18,48 @@ Notify once per changed field with immutable final values, never intermediate op
 Profile._notify(self: Profile, old: { [string]: Core.Json }, source: "external" | "local")
 ```
 
+### `Profile._overlay`
+
+Replay pending writes over authoritative state; versions always describe only the server base.
+
+```luau
+Profile._overlay(self: Profile, base: { [string]: Core.Json }): { [string]: Core.Json }
+```
+
+### `Profile.mutate`
+
+Apply a validated operation list atomically and optimistically, without yielding or HTTP.
+
+```luau
+Profile.mutate(self: Profile, ops: { FieldTypes.PlayerOperation }): Core.Result<boolean>
+```
+
+### `Profile.add`
+
+Buffer a numeric delta and make its optimistic value visible immediately.
+
+```luau
+Profile.add(
+	self: Profile,
+	field: string,
+	delta: number,
+	path: FieldTypes.Path?
+): Core.Result<boolean>
+```
+
+### `Profile.set`
+
+Buffer a last-writer-wins replacement and make it visible immediately.
+
+```luau
+Profile.set(
+	self: Profile,
+	field: string,
+	value: Core.Json,
+	path: FieldTypes.Path?
+): Core.Result<boolean>
+```
+
 ### `Profile.refresh`
 
 Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
@@ -66,12 +108,12 @@ Apply only complete server-visible ledger groups; acknowledgements never become 
 Profile.applyChanges(self: Profile, page: Wire.PlayerChangesItem, since: number): boolean
 ```
 
-### `Profile.transaction`
+### `Profile.immediate`
 
 Build an owned transaction that updates this profile after acknowledgement, not before commit.
 
 ```luau
-Profile.transaction(self: Profile): Transaction.Transaction
+Profile.immediate(self: Profile): Transaction.Transaction
 ```
 
 ### `Profile.pullChanges`

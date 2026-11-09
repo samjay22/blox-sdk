@@ -19,7 +19,7 @@ return function(
 		profile:destroy()
 		return presence
 	end
-	local result = profile:transaction():add("Currency.Gems", 10):reason("Quest completion"):commit()
+	local result = profile:immediate():add("Currency.Gems", 10):reason("Quest completion"):commit()
 	if not result.ok then
 		return result
 	end

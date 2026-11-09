@@ -13,13 +13,16 @@ local OpBuilder = require(script.Parent.Parent.Fields.OpBuilder)
 local Types = require(script.Parent.Parent.Fields.Types)
 local Snapshot = require(script.Parent.Parent.Core.SnapshotCache)
 local ProfileSync = require(script.Parent.Parent.Fields.ProfileSync)
+local Sessions = require(script.Parent.Parent.Fields.Sessions)
 local Helpers = {}
 export type State = {
 	runtime: Core.Runtime,
 	invoke: Core.Invoke,
 	schemas: { [string]: Schema.Schema },
 	profiles: { [Profile.Profile]: boolean },
+	loading: { [string]: boolean },
 	sync: ProfileSync.Sync,
+	sessions: Sessions.Sessions,
 	closed: boolean,
 	snapshots: { [string]: Snapshot.Snapshot? },
 	snapshotListeners: { [(string, Snapshot.Snapshot?) -> ()]: boolean },
@@ -31,14 +34,17 @@ function Helpers.new(
 	runtime: Core.Runtime,
 	invoke: Core.Invoke,
 	onUse: () -> (),
-	sync: ProfileSync.Sync
+	sync: ProfileSync.Sync,
+	sessions: Sessions.Sessions
 ): State
 	return {
 		runtime = runtime,
 		invoke = invoke,
 		schemas = {},
 		profiles = {},
+		loading = {},
 		sync = sync,
+		sessions = sessions,
 		closed = false,
 		snapshots = {},
 		snapshotListeners = {},
@@ -158,7 +164,7 @@ local function snapshotOptions(options: Core.CallOptions?): Core.CallOptions
 	return fresh
 end
 --- Load schema plus a coherent player document and register profile lifecycle ownership.
-function Helpers.loadProfile(
+local function loadProfile(
 	state: State,
 	universeId: string | number,
 	userId: number
@@ -177,8 +183,28 @@ function Helpers.loadProfile(
 		state.sync:endLoad(ticket)
 		return System.failure("profile_closed")
 	end
+	local acquired = state.sessions:acquire(tostring(universeId), userId, state.invoke, ticket)
+	if not acquired.ok then
+		state.sync:endLoad(ticket)
+		return acquired
+	end
+	local lease = acquired.value
+	local initial = lease.snapshot
 	local profile = Profile.new(state.runtime, schema, userId, {
 		document = function(options)
+			if initial then
+				local snapshot = initial
+				initial = nil
+				return {
+					ok = true,
+					value = {
+						userId = userId,
+						seq = snapshot.seq,
+						data = snapshot.fields,
+						versions = snapshot.versions,
+					},
+				}
+			end
 			return state.invoke(
 				Endpoints["fields.document"],
 				{ path = { universeId = universeId, userId = userId } },
@@ -206,9 +232,11 @@ function Helpers.loadProfile(
 			return Helpers.transaction(state, universeId, userId, callback)
 		end,
 	})
+	state.sessions:attach(lease, profile)
 	local result = profile:refresh({ signal = ticket })
 	state.sync:endLoad(ticket)
 	if not result.ok then
+		state.sessions:removePlayer(userId)
 		profile:destroy()
 		return result
 	end
@@ -220,11 +248,48 @@ function Helpers.loadProfile(
 	profile._onRelease = function()
 		state.profiles[profile] = nil
 		state.sync:unregister(profile)
+		state.sessions:releaseProfile(profile)
 	end
 	state.sync:register(tostring(universeId), profile, state.invoke)
 	return { ok = true, value = profile }
 end
---- Drain owned leases before pipeline admission closes; there is no hidden write-behind data queue.
+--- Share one loaded leased profile per universe/player, including concurrent load callers.
+function Helpers.loadProfile(
+	state: State,
+	universeId: string | number,
+	userId: number
+): Core.Result<Profile.Profile>
+	if not Universe.valid(userId) or not Universe.valid(universeId) then
+		return System.failure("invalid_request")
+	end
+	local key = tostring(universeId) .. ":" .. tostring(userId)
+	while state.loading[key] and not state.closed do
+		state.runtime.wait(0.01)
+	end
+	if state.closed then
+		return System.failure("client_closed")
+	end
+	for profile in state.profiles do
+		if profile._user == userId and profile._universe == tostring(universeId) and not profile._closed then
+			return { ok = true, value = profile }
+		end
+	end
+	state.loading[key] = true
+	local ok, result = pcall(loadProfile, state, universeId, userId)
+	state.loading[key] = nil
+	local response: Core.Result<Profile.Profile> = if ok
+		then result
+		else System.failure("profile_load_failed")
+	if
+		not response.ok
+		and response.error.code ~= "profile_closed"
+		and response.error.code ~= "client_closed"
+	then
+		state.sessions:loadFailure(userId)
+	end
+	return response
+end
+--- Close profiles only after the shared session coordinator has flushed and released leases.
 function Helpers.close(state: State, deadline: number): boolean
 	state.closed = true
 	for cleanup in state.cleanups do

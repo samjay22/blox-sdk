@@ -134,6 +134,29 @@ local function harness(options: SDK.Config?): Harness
 			local result = h.batch(body, #h.polls)
 			h.activePolls -= 1
 			return result
+		elseif string.find(request.Url, "/sessions/", 1, true) then
+			local body = Decode.decode(request.Body :: string) :: any
+			local items: { any } = {}
+			for _, player in body.players or body.leases do
+				local status = if body.players then "granted" elseif body.ttlMs then "renewed" else "released"
+				local snapshot: any = nil
+				if body.players then
+					table.insert(h.documents, s.time())
+					if h.docDelay > 0 then
+						s.runtime.wait(h.docDelay)
+					end
+					local doc = h.document(player.userId)
+					snapshot = { seq = doc.seq, fields = doc.data, versions = doc.versions }
+				end
+				table.insert(items, {
+					userId = player.userId,
+					status = status,
+					epoch = 1,
+					expiresAt = "2023-11-15T00:00:00Z",
+					snapshot = snapshot,
+				})
+			end
+			return response({ items = items })
 		elseif string.find(request.Url, "/health", 1, true) then
 			return response({ status = "UP" })
 		elseif string.find(request.Url, "/schema", 1, true) then
@@ -179,7 +202,7 @@ local function harness(options: SDK.Config?): Harness
 		return batchBackend(request)
 	end
 	config.burst = config.burst or 499
-	config.requestsPerMinute = config.requestsPerMinute or 499
+	config.requestsPerMinute = config.requestsPerMinute or 480
 	config.criticalReserve = 0
 	config.key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43)
 	config.universeId = 123
@@ -241,7 +264,7 @@ return function(test: (string, () -> ()) -> ())
 			end)
 			h.s.runtime.wait(1.1)
 			check(#h.polls == 2 and #h.polls[1].body.players == 1)
-			check(h.polls[1].body.players[1].sinceSeq == 0)
+			check(h.polls[1].body.players[1].sinceSeq == 10)
 			local combined = false
 			for _, paths in h.batches do
 				if
@@ -303,7 +326,7 @@ return function(test: (string, () -> ()) -> ())
 				p.Changed:connect(function(change)
 					table.insert(changes, change)
 				end)
-				check(p:transaction():set("Score", 10):reason("test"):commit().ok and p.seq == 0)
+				check(p:immediate():set("Score", 10):reason("test"):commit().ok and p.seq == 0)
 				h.client._helpers.sync._enabled = true
 				assert(h.client._helpers.sync.wake, "Missing batch wake")()
 				h.s.runtime.wait(1.1)

@@ -75,7 +75,6 @@ The TypeSystem oracle compiles actual sibling Java sources into a temporary dire
 it does not run Spring, a service, or database. See [Fields verification](FIELDS.md#verification-evidence).
 
 Claude Code 2.1.286 is installed. The exact Opus 5.5 consultation and second-opinion requests, and Sonnet 5.5 bounded test-review request, failed with
-`Not logged in`. No consultation or second opinion succeeded, and no model substitution/upgrade occurred.
 Independent offline checks are the verification evidence, not a claim of Claude review.
 
 ## Consumer refresh evidence

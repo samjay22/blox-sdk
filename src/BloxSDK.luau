@@ -38,6 +38,8 @@ local Fields = require("./Services/Fields")
 local Platform = require("./Services/Platform")
 local FieldsHelpers = require("./Fields/Client")
 local ProfileSync = require("./Fields/ProfileSync")
+local Sessions = require("./Fields/Sessions")
+local SessionSignal = require("./Fields/SessionSignal")
 local ChangeSignal = require("./Core/ChangeSignal")
 local Observers = require("./Core/Observers")
 local AuditWriter = require("./Core/AuditWriter")
@@ -73,6 +75,8 @@ export type HealthReport = { [string]: { result: Types.Result<Types.Json>, laten
 export type ProfileChange = ChangeSignal.Change
 export type ProfileChangeConnection = ChangeSignal.Connection
 export type ProfileSyncConfig = Config.ProfileSyncConfig
+export type SessionConfig = Config.SessionConfig
+export type SessionEvent = SessionSignal.Change
 export type Profile = Profile.Profile
 export type Transaction = Transaction.Transaction
 export type SchemaCache = Schema.Schema
@@ -101,6 +105,8 @@ type ScopeBinding = {
 }
 type Helpers = {
 	sync: ProfileSync.Sync,
+	sessions: Sessions.Sessions,
+	addedCleanup: (() -> ())?,
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
 	fields: FieldsHelpers.State?,
@@ -111,6 +117,8 @@ type Helpers = {
 export type Client = typeof(setmetatable(
 	{} :: {
 		ProfileChanged: ChangeSignal.Signal,
+		LeaseLost: SessionSignal.Signal,
+		CommitRejected: SessionSignal.Signal,
 		auth: Auth.Service,
 		matchmaking: Matchmaking.Service,
 		party: Party.Service,
@@ -153,6 +161,8 @@ local function facade(
 ): Client
 	return setmetatable({
 		ProfileChanged = helpers.sync.Changed,
+		LeaseLost = helpers.sessions.LeaseLost,
+		CommitRejected = helpers.sessions.CommitRejected,
 		_state = state,
 		_helpers = helpers,
 		_invoke = invoke,
@@ -208,7 +218,7 @@ function SDK.new(config: Config): Client
 			end,
 		}
 	end
-	local rpm = Config.number(config.requestsPerMinute, 450, 1, 499, "requestsPerMinute", true)
+	local rpm = Config.number(config.requestsPerMinute, 450, 1, 480, "requestsPerMinute", true)
 	local burst = Config.number(config.burst, 15, 1, 500, "burst")
 	local reserve =
 		Config.number(config.criticalReserve, math.min(3, burst - 1), 0, burst - 1, "criticalReserve")
@@ -271,17 +281,33 @@ function SDK.new(config: Config): Client
 	local sync = ProfileSync.new(runtime, config.profileSync, function()
 		return Bucket.used(state.bucket, runtime.now()) < state.bucket.limit * threshold and not state.closing
 	end)
+	local sessions = Sessions.new(
+		runtime,
+		config.sessions,
+		if game ~= nil then game.JobId or "" else "",
+		function(userId, message)
+			if not config.runtime then
+				Roblox.kick(userId, message)
+			end
+		end
+	)
 	state.batcher.beforeTick = function()
+		sessions:tick()
 		sync:tick()
 	end
 	state.batcher.hasPoll = function()
-		return sync:hasProfiles()
+		return sync:hasProfiles() or sessions:hasWork()
+	end
+	sessions.wake = function()
+		Batcher.wake(state.batcher)
 	end
 	sync.wake = function()
 		Batcher.wake(state.batcher)
 	end
 	local helpers: Helpers = {
 		sync = sync,
+		sessions = sessions,
+		addedCleanup = nil,
 		writers = {},
 		snapshots = {},
 		fields = nil,
@@ -293,7 +319,8 @@ function SDK.new(config: Config): Client
 	helpers.fields = FieldsHelpers.new(runtime, invoke, function()
 		if helpers.lifecycle.native and not sync.cleanup then
 			sync.cleanup = Roblox.playerRemoving(function(userId)
-				sync:removePlayer(userId)
+				sync:cancelLoads(userId)
+				sessions:removePlayer(userId)
 			end)
 		end
 		if helpers.lifecycle.native and not helpers.lifecycle.bound then
@@ -306,9 +333,17 @@ function SDK.new(config: Config): Client
 				end
 			end)
 		end
-	end, sync)
+	end, sync, sessions)
 	table.insert(helpers.fieldStates, helpers.fields :: FieldsHelpers.State)
 	client = facade(state, invoke, config.universeId or auth.universeId, session, helpers)
+	if helpers.lifecycle.native and config.universeId then
+		local universe = config.universeId
+		helpers.addedCleanup = Roblox.playerAdded(function(userId)
+			runtime.spawn(function()
+				FieldsHelpers.loadProfile(helpers.fields :: FieldsHelpers.State, universe, userId)
+			end)
+		end)
+	end
 	return client :: Client
 end
 --- Return another scoped facade over the same physical resource and credential lifetime.
@@ -344,7 +379,8 @@ function Client.scoped(self: Client, id: string | number): Client
 		local fields = FieldsHelpers.new(self._state.config.runtime, invoke, function()
 			if self._helpers.lifecycle.native and not self._helpers.sync.cleanup then
 				self._helpers.sync.cleanup = Roblox.playerRemoving(function(userId)
-					self._helpers.sync:removePlayer(userId)
+					self._helpers.sync:cancelLoads(userId)
+					self._helpers.sessions:removePlayer(userId)
 				end)
 			end
 			if self._helpers.lifecycle.native and not self._helpers.lifecycle.bound then
@@ -354,7 +390,7 @@ function Client.scoped(self: Client, id: string | number): Client
 					self:destroy()
 				end)
 			end
-		end, self._helpers.sync)
+		end, self._helpers.sync, self._helpers.sessions)
 		binding = { provider = provider, invoke = invoke, fields = fields }
 		self._helpers.scopes[key] = binding
 		table.insert(self._helpers.fieldStates, fields)
@@ -411,8 +447,13 @@ end
 function Client.flush(self: Client, timeout: number?): boolean
 	local runtime = self._state.config.runtime
 	local deadline = runtime.now() + Config.number(timeout, 10, 0, 300, "flush timeout")
+	if self._helpers.addedCleanup then
+		self._helpers.addedCleanup()
+		self._helpers.addedCleanup = nil
+	end
+	local drained = self._helpers.sessions:close(deadline)
+	self._helpers.sessions:destroy()
 	self._helpers.sync:destroy()
-	local drained = true
 	for _, fields in self._helpers.fieldStates do
 		drained = FieldsHelpers.close(fields, deadline) and drained
 	end
@@ -431,6 +472,11 @@ function Client.destroy(self: Client)
 	if self._state.destroyed then
 		return
 	end
+	if self._helpers.addedCleanup then
+		self._helpers.addedCleanup()
+		self._helpers.addedCleanup = nil
+	end
+	self._helpers.sessions:destroy()
 	self._helpers.sync:destroy()
 	for _, writer in self._helpers.writers do
 		writer:destroy()
@@ -491,7 +537,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "2.0.0"
+SDK.version = "3.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

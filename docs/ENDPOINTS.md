@@ -1,6 +1,6 @@
 # Endpoint reference
 
-373 endpoints. `routes.json` coverage is checked independently.
+378 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -131,6 +131,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/fields/universes/{universeId}/bulk/definitions/{id}` | `fields.bulkDefinition` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/bulk/preview` | `fields.bulkPreview` | ADMIN | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/bulk/{id}/reverse` | `fields.reverseBulk` | ADMIN | 200 | keyed | no |
+| POST | `/api/fields/universes/{universeId}/commits` | `fields.commitSession` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/definitions` | `fields.definitions` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/definitions` | `fields.create` | ADMIN | 201 | no | no |
 | POST | `/api/fields/universes/{universeId}/definitions/preview-board` | `fields.previewBoard` | ADMIN | 200 | no | no |
@@ -223,6 +224,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/fields/universes/{universeId}/receipts/{purchaseId}` | `fields.receipt` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/receipts/{purchaseId}/refund` | `fields.refund` | ADMIN | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/reconcile` | `fields.reconcile` | ADMIN | 200 | yes | yes |
+| PUT | `/api/fields/universes/{universeId}/references/{consumerType}` | `fields.replaceReferencesBatch` | READ_WRITE | 204 | no | no |
 | DELETE | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.deleteReferences` | READ_WRITE | 204 | yes | no |
 | PUT | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.putReferences` | READ_WRITE | 204 | yes | no |
 | GET | `/api/fields/universes/{universeId}/rotations` | `fields.listRotations` | READ | 200 | yes | no |
@@ -250,6 +252,9 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/fields/universes/{universeId}/schema` | `fields.schema` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/schema/luau` | `fields.luau` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/schema/typescript` | `fields.typescript` | READ | 200 | yes | yes |
+| POST | `/api/fields/universes/{universeId}/sessions/acquire` | `fields.acquireSessions` | READ_WRITE | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/sessions/release` | `fields.releaseSessions` | READ_WRITE | 200 | no | no |
+| POST | `/api/fields/universes/{universeId}/sessions/renew` | `fields.renewSessions` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/snapshots` | `fields.snapshots` | ADMIN | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/snapshots` | `fields.createSnapshot` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/snapshots/policy` | `fields.snapshotPolicy` | ADMIN | 200 | yes | yes |

@@ -32,7 +32,7 @@ game:GetService("Players").PlayerAdded:Connect(function(player: any)
 			stat.Value = value
 		end
 	end)
-	local saved = profile:transaction():add("Smoke.Counter", 1):reason("Server example"):commit()
+	local saved = profile:immediate():add("Smoke.Counter", 1):reason("Server example"):commit()
 	if not saved.ok then
 		warn(saved.error.code)
 	end

@@ -33,8 +33,9 @@ function Transport.send(
 	if not ok then
 		return Errors.make("Network", spec.id, attempt, "Encoding failed"), {}
 	end
-	if encoded and #encoded > 256 * 1024 then
-		return Errors.make("Validation", spec.id, attempt, "Operation body exceeds 256 KiB"), {}
+	local bodyLimit = if spec.id == "fields.commitSession" then 1024 * 1024 else 256 * 1024
+	if encoded and #encoded > bodyLimit then
+		return Errors.make("Validation", spec.id, attempt, "Operation body exceeds endpoint limit"), {}
 	end
 	local admitted, entry = pcall(
 		Batcher.enqueue,

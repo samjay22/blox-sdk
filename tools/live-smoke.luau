@@ -65,7 +65,9 @@ local function backend(request: Core.HttpRequest): Core.HttpResponse
 	end
 	return { StatusCode = response.statusCode, Body = response.body, Headers = responseHeaders }
 end
+local smokeServer = "sdk-smoke-" .. tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
 local constructed, value = pcall(SDK.new, {
+	sessions = { serverId = smokeServer, kickOnFailure = false, kickOnLeaseLost = false },
 	gatewayUrl = process.env.BLOX_BASE_URL,
 	key = process.env.BLOX_API_KEY,
 	universeId = universeId,
@@ -128,30 +130,73 @@ end, "key is not scoped for AuditService")
 check("leaderboard list", function()
 	return client.leaderboards:list({ query = { limit = 1 } })
 end)
-check("field transaction", function()
-	local loaded = client.fields:loadProfile(universeId, playerId)
-	if not loaded.ok then
-		return loaded
-	end
-	local profile = loaded.value
-	local field = process.env.BLOX_FIELD_ID or "Smoke.Counter"
-	local current = profile:tryGet(field)
-	if not current.ok or profile.versions[field] == nil then
-		profile:destroy()
-		return if not current.ok
-			then current
-			else Errors.make("Validation", "fields.loadProfile", 0, "Missing field version")
-	end
-	-- Preserve the value with optimistic concurrency: no grant or lost concurrent update.
-	local result = profile
-		:transaction()
-		:set(field, current.value)
-		:expect(field, { version = profile.versions[field] })
-		:reason("SDK live smoke")
-		:commit()
-	profile:destroy()
-	return result
+local sessionFailure = false
+client.LeaseLost:connect(function(_event)
+	sessionFailure = true
 end)
+client.CommitRejected:connect(function(_event)
+	sessionFailure = true
+end)
+local smokeProfile: SDK.Profile? = nil
+check("session acquire snapshot", function()
+	local loaded = client.fields:loadProfile(universeId, playerId)
+	if loaded.ok then
+		smokeProfile = loaded.value
+	end
+	return loaded
+end)
+if smokeProfile then
+	local profile = smokeProfile
+	local field = process.env.BLOX_FIELD_ID or "Smoke.Counter"
+	check("critical immediate transaction", function()
+		local current = profile:tryGet(field)
+		if not current.ok then
+			return current
+		end
+		-- Preserve existing immediate/precondition semantics, independent of buffered commits.
+		return profile
+			:immediate()
+			:set(field, current.value)
+			:expect(field, { version = profile.versions[field] })
+			:reason("SDK live smoke")
+			:commit()
+	end)
+	check("session buffered commit", function()
+		-- Use a disposable numeric smoke field. Opposing deltas are atomic, net-zero and commute
+		-- with concurrent external ADDs; the intermediate increment must satisfy its schema.
+		local added = profile:mutate({
+			{ field = field, op = "ADD", delta = 1 },
+			{ field = field, op = "ADD", delta = -1 },
+		})
+		if not added.ok then
+			return added
+		end
+		local deadline = os.clock() + 20
+		while
+			os.clock() < deadline
+			and (#profile._buffer > 0 or #profile._sent > 0 or profile._recovering)
+			and not profile._closed
+		do
+			task.wait(0.05)
+		end
+		if
+			sessionFailure
+			or profile._closed
+			or #profile._buffer > 0
+			or #profile._sent > 0
+			or profile._recovering
+			or profile._stale
+		then
+			return Errors.make("Timeout", "fields.commitSession", 0, "Commit not confirmed")
+		end
+		return { ok = true, value = true }
+	end)
+	check("session flush and release", function()
+		return if profile:release()
+			then { ok = true, value = true }
+			else Errors.make("Timeout", "fields.releaseSessions", 0, "Release not confirmed")
+	end)
+end
 check("leaderboard submit", function()
 	return client.leaderboards:submit({
 		path = { name = process.env.BLOX_BOARD or "sdk_smoke" },
@@ -197,5 +242,10 @@ if process.env.BLOX_CODE and process.env.BLOX_CODE ~= "" then
 else
 	print("SKIP code redeem: BLOX_CODE not supplied")
 end
+check("final flush", function()
+	return if client:flush(20)
+		then { ok = true, value = true }
+		else Errors.make("Timeout", "fields.commitSession", 0, "Flush not confirmed")
+end)
 client:destroy()
 process.exit(if failures == 0 then 0 else 1)

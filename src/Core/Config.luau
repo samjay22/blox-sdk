@@ -11,7 +11,16 @@ export type ProfileSyncConfig = {
 	budgetThreshold: number?,
 	maxConcurrentReloads: number?,
 }
+export type SessionConfig = {
+	serverId: string?,
+	ttlMs: number?,
+	flushInterval: number?,
+	acquireTimeout: number?,
+	kickOnFailure: boolean?,
+	kickOnLeaseLost: boolean?,
+}
 export type Config = {
+	sessions: SessionConfig?,
 	batch: { intervalSeconds: number? }?,
 	profileSync: ProfileSyncConfig?,
 	backend: Types.Backend?,
@@ -38,6 +47,7 @@ export type Config = {
 	logger: Types.Logger?,
 }
 local known = table.freeze({
+	sessions = true,
 	batch = true,
 	profileSync = true,
 	backend = true,
@@ -98,6 +108,26 @@ function Config.validate(config: Config)
 			config.profileSync.enabled == nil or type(config.profileSync.enabled) == "boolean",
 			"Invalid profileSync enabled"
 		)
+	end
+	if config.sessions ~= nil then
+		assert(type(config.sessions) == "table", "sessions must be a table")
+		for name in config.sessions :: any do
+			assert(
+				table.find({
+					"serverId",
+					"ttlMs",
+					"flushInterval",
+					"acquireTimeout",
+					"kickOnFailure",
+					"kickOnLeaseLost",
+				}, name),
+				"Unknown sessions field"
+			)
+		end
+		for _, name in { "kickOnFailure", "kickOnLeaseLost" } do
+			local value = (config.sessions :: any)[name]
+			assert(value == nil or type(value) == "boolean", "Invalid sessions kick policy")
+		end
 	end
 	if config.key ~= nil then
 		assert(type(config.key) == "string", "key must be a string")

@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "2.0.0"
+SDK.version = "3.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -246,6 +246,10 @@ export type ProfileChangeConnection = ChangeSignal.Connection
 
 export type ProfileSyncConfig = Config.ProfileSyncConfig
 
+export type SessionConfig = Config.SessionConfig
+
+export type SessionEvent = SessionSignal.Change
+
 export type Profile = Profile.Profile
 
 export type Transaction = Transaction.Transaction
@@ -294,6 +298,8 @@ type ScopeBinding = {
 }
 type Helpers = {
 	sync: ProfileSync.Sync,
+	sessions: Sessions.Sessions,
+	addedCleanup: (() -> ())?,
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
 	fields: FieldsHelpers.State?,
@@ -351,7 +357,17 @@ export type ProfileSyncConfig = {
 	maxConcurrentReloads: number?,
 }
 
+export type SessionConfig = {
+	serverId: string?,
+	ttlMs: number?,
+	flushInterval: number?,
+	acquireTimeout: number?,
+	kickOnFailure: boolean?,
+	kickOnLeaseLost: boolean?,
+}
+
 export type Config = {
+	sessions: SessionConfig?,
 	batch: { intervalSeconds: number? }?,
 	profileSync: ProfileSyncConfig?,
 	backend: Types.Backend?,

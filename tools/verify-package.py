@@ -65,6 +65,9 @@ for id,source in sources do assert(compileSource(source,"@syntax/"..id), "Projec
 loadModule("tests/run")
 -- Exercise the default Roblox adapter without making any network calls.
 local scheduler=loadModule("tests/Scheduler").new()
+base.os=table.clone(os)
+base.os.clock=scheduler.runtime.now
+base.os.time=scheduler.runtime.unix
 local wireJson=loadModule("src/Core/Json")
 local wireDecode=loadModule("src/Core/JsonDecode")
 local prefixed={AddPrefix=function() error("Prefix must be applied once") end}
@@ -72,6 +75,8 @@ local rawSecret={AddPrefix=function(_,prefix) assert(prefix=="Bearer ","Incorrec
 local requests=0
 local fieldsMode=false
 local presenceStates={}
+local nativeValue=0
+local nativeSeq=0
 local server=true
 local closeCallbacks={}
 local guid=0
@@ -97,8 +102,18 @@ local http={
    local path="https://lb1.blox-api.com/fields-service/api/fields/universes/123"
    if request.Url==path.."/schema" then
     return {StatusCode=200,Headers={},Body=scheduler.json({universeId=123,schemaVersion=1,definitions={{universeId=123,id="Currency.Gems",type={kind="int",min=0},scope="PLAYER",status="ACTIVE",history="LEDGER",writeLevel="READ_WRITE",definitionVersion=1,description="",createdAt="now",updatedAt="now"}}})}
+
+   elseif request.Url==path.."/sessions/acquire" then
+    return {StatusCode=200,Headers={},Body=scheduler.json({items={{userId=7,status="granted",epoch=7,expiresAt="2030-01-01T00:00:00Z",snapshot={seq=nativeSeq,fields={Currency={Gems=nativeValue}},versions={["Currency.Gems"]=nativeSeq}}}}})}
+   elseif request.Url==path.."/sessions/release" then
+    return {StatusCode=200,Headers={},Body=scheduler.json({items={{userId=7,status="released"}}})}
+   elseif request.Url==path.."/commits" then
+    local body=wireDecode.decode(request.Body)
+    for _,player in body.players do for _,op in player.ops do nativeValue+=op.delta end end
+    nativeSeq+=1
+    return {StatusCode=200,Headers={},Body=scheduler.json({commitId=body.commitId,items={{userId=7,status="committed",seq=nativeSeq,versions={["Currency.Gems"]=nativeSeq},expiresAt="2030-01-01T00:00:00Z"}}})}
    elseif request.Url==path.."/players/7/document" then
-    return {StatusCode=200,Headers={},Body=scheduler.json({userId=7,seq=0,data={Currency={Gems=0}},versions={["Currency.Gems"]=0}})}
+    return {StatusCode=200,Headers={},Body=scheduler.json({userId=7,seq=nativeSeq,data={Currency={Gems=nativeValue}},versions={["Currency.Gems"]=nativeSeq}})}
    end
    assert(request.Url==path.."/players/7/presence" and request.Method=="PUT","Unexpected Fields native route")
    local online=string.find(request.Body,'"online":true',1,true)~=nil
@@ -115,12 +130,13 @@ local batchBackend=loadModule("src/Testing/FakeBackend").batch(scheduler.runtime
 http.RequestAsync=function(_,request) return batchBackend(request) end
 local removingListeners = {}
 local removalConnections = 0
-local players = {PlayerRemoving={Connect=function(_,callback)
+local addedListeners={}
+local players = {GetPlayers=function() return {} end,GetPlayerByUserId=function() return nil end,PlayerAdded={Connect=function(_,callback) addedListeners[callback]=true; return {Disconnect=function() addedListeners[callback]=nil end} end},PlayerRemoving={Connect=function(_,callback)
  removalConnections+=1
  removingListeners[callback]=true
  return {Disconnect=function() removingListeners[callback]=nil; removalConnections-=1 end}
 end}}
-base.game={BindToClose=function(_,callback) table.insert(closeCallbacks,callback) end,GetService=function(_,name)
+base.game={JobId="native-job",BindToClose=function(_,callback) table.insert(closeCallbacks,callback) end,GetService=function(_,name)
  if name=="RunService" then return {IsServer=function() return server end} end
  if name=="Players" then return players end
  assert(name=="HttpService","Unexpected service lookup")
@@ -147,6 +163,7 @@ local fieldsClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
 scheduler.run(function()
  local loaded=fieldsClient.fields:loadProfile(123,7)
  assert(loaded.ok,"Native profile load failed")
+ assert(loaded.value:add("Currency.Gems",1).ok,"Native optimistic mutation failed")
  assert(loaded.value:startPresence(1,"native-session").ok,"Native presence acquisition failed")
  assert(#closeCallbacks==2,"Fields must register exactly one additional client shutdown callback")
  closeCallbacks[2]()
@@ -160,7 +177,8 @@ scheduler.run(function()
  local b=leavingClient.fields:loadProfile(123,7)
  assert(a.ok and b.ok and removalConnections==1,"Native duplicate profile setup failed")
  for callback in removingListeners do callback({UserId=7}) end
- assert(a.value._closed and b.value._closed,"PlayerRemoving did not destroy every handle")
+ scheduler.runtime.wait(1.1)
+ assert(a.value._closed and b.value._closed,"PlayerRemoving did not save/release every handle")
  assert(next(leavingClient._helpers.sync._profiles)==nil,"Departed player leaked registry entries")
  assert(next(leavingClient._helpers.fields.profiles)==nil,"Departed player leaked helper ownership")
  leavingClient:destroy()

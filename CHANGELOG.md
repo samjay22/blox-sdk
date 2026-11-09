@@ -1,5 +1,13 @@
 # BloxSDK changelog
 
+## 3.0.0 (local, not published)
+
+- Breaking leased-profile lifecycle: batched acquire/snapshot readiness, held/steal backoff, expiry renewal, flush-then-release on leave and shutdown.
+- Optimistic `Profile.add/set/mutate` with bounded, coalesced per-player buffers; default 5-second commits on the existing 0.5-second batch, immutable `JobId:counter` retries, one physical commit in flight per server VM.
+- `Profile.immediate()` replaces `Profile.transaction()` for synchronous critical builders; purchases, codes, trades and rolls retain immediate transaction semantics. No alias or wire shim.
+- `LeaseLost` / `CommitRejected` signals, configurable kicks, conservative versioned snapshot rebasing, native PlayerAdded integration and shared concurrent loads.
+- Exact scale-contract DTOs, endpoint typings, 1-MiB commit-body support, rolling-second HTTP ceiling (8/s), docs, offline Lune regressions and opt-in acquire/commit/release smoke coverage. No publish/deploy or live verification claimed.
+
 ## 2.0.0 (local, not published)
 
 - **Breaking transport behavior; public method/Result API unchanged:** all requests use BatchService;
@@ -78,7 +86,6 @@
   Roblox packages, endpoint references, migration guidance and examples.
 
 Offline checks do not certify deployment, native Roblox networking, external webhook delivery or Party
-source parity. Claude consultation/review was attempted with exact 5.5 model IDs but authentication was
 unavailable. No registry publication, deployment or commit is part of this version.
 
 See [historical changes](docs/CHANGELOG.md).

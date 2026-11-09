@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**373 typed endpoints, version 2.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**378 typed endpoints, version 3.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@2.0.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@3.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@2.0.0"
+BloxSDK = "blox-api/blox-sdk@3.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -51,7 +51,7 @@ local client = BloxSDK.new({
 local loaded = client.fields:loadProfile(game.GameId, 123456)
 if loaded.ok then
     local profile = loaded.value
-    local committed = profile:transaction():add("Currency.Gems", 10):reason("Quest reward"):commit()
+    local committed = profile:immediate():add("Currency.Gems", 10):reason("Quest reward"):commit()
     if not committed.ok then warn(committed.error.code) end
 end
 
@@ -63,6 +63,32 @@ end)
 ```
 
 `secret:AddPrefix("Bearer ")` is passed directly as the header value. The secret is never coerced to a string. Plain `key = "bsa_..."` is supported for Studio/tests; supply it securely, never hardcode it. Readable keys are validated against the backend's exact 56-character format. Opaque Secrets cannot be inspected locally.
+
+## Leased profiles and buffered writes (3.0)
+
+Native clients with `universeId` load joining/existing players automatically. Explicit loads join that work:
+
+```luau
+local loaded = client.fields:loadProfile(game.GameId, player.UserId)
+if loaded.ok then
+    local profile = loaded.value -- Ready only after acquire grants a validated snapshot.
+    local queued = profile:add("Currency.Coins", 5) -- Immediate local update; not durable yet.
+    if not queued.ok then warn(queued.error.code) end
+    -- Purchases/codes/trades/rolls stay synchronous, never buffered:
+    -- profile:immediate():add(...):reason(...):key(...):commit()
+end
+client.LeaseLost:connect(function(event) warn("Lease lost", event.userId, event.code) end)
+client.CommitRejected:connect(function(event) warn("Commit rejected", event.userId, event.code) end)
+```
+
+One immutable commit every `sessions.flushInterval` (default 5 s) carries all dirty players on the normal
+0.5 s batch. Adjacent ADDs coalesce; retries reuse `JobId:counter` and never absorb later ops. Lease renewal,
+PlayerRemoving and BindToClose are automatic. Default load-failure/lease-loss kicks are controlled by
+`sessions.kickOnFailure` / `sessions.kickOnLeaseLost`. `profile:release()` saves then releases;
+`client:flush(timeout)` saves/releases all and permanently closes admission. `destroy()` alone is not a save.
+Versioned feed reconciliation rebases pending ops; acknowledgements use a fresh snapshot barrier because
+commit responses carry no values. See [binding SDK contract](API_CONTRACT.md), [Fields guide](docs/FIELDS.md)
+and [migration](MIGRATION.md). Live backend support must be deployed separately.
 
 ## Calls and results
 
@@ -163,15 +189,17 @@ Identity refresh and per-universe scoped exchange are separate, versioned and si
 | Gateway | `https://lb1.blox-api.com/batch-service/api/batch` |
 | Timeout | 15 seconds, end-to-end |
 | Batch cadence / native requests in flight | 0.5 seconds / 1 per client |
-| Envelope / op body / logical queue | 100 ops, 1 MiB / 256 KiB / 10,000 calls |
+| Envelope / op body / logical queue | 100 ops, 1 MiB / 256 KiB (commits: 1 MiB) / 10,000 calls |
 | Rate / burst / critical reserve | 450 per rolling minute / 15 / 3 |
+| Lease TTL / buffered flush | 60 seconds / 5 seconds |
+| Physical rolling-second ceiling | 8 requests/server |
 | Transient retries | At most 3; 20% earned retry budget, initially empty |
 | Backoff | Full jitter, 0.25-second base, 8-second cap |
 | Circuit | 5 failures in last 20 samples within 30 seconds; 10-second cooldown |
 | Cache | Off per call unless `cacheTtl` is supplied; max 128 entries |
 | Stale-if-error | Off (`staleIfError=0`) |
 
-Every physical attempt (including retries) consumes a token and a rolling-window admission. `requestsPerMinute` is an integer 1–499; bursts never bypass that window. Default-runtime clients from the same required ModuleScript share this limiter; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
+Every physical attempt (including retries) consumes a token and a rolling-window admission. `requestsPerMinute` is an integer 1–480; bursts never bypass that window. Default-runtime clients from the same required ModuleScript share this limiter; use one client and universe facades. This SDK cannot observe unrelated scripts' HTTP usage.
 
 ## Batch-only gateway transport
 

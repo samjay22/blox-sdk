@@ -52,6 +52,26 @@ local function schema(version: number?): Wire.SchemaResponse
 end
 --- Create an authenticated offline Fields facade using the existing deterministic transport.
 local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client, Fake.Fake)
+	-- Profile loads now consume the coherent acquire snapshot, not a separate GET.
+	for i = 2, #steps do
+		local previous = if steps[i - 1].body
+			then JsonDecode.decode(steps[i - 1].body :: string) :: any
+			else nil
+		local current = if steps[i].body then JsonDecode.decode(steps[i].body :: string) :: any else nil
+		if previous and previous.definitions and current and current.data and current.userId then
+			steps[i].body = s.json({
+				items = {
+					{
+						userId = current.userId,
+						status = "granted",
+						epoch = 1,
+						expiresAt = "2023-11-14T22:14:20Z",
+						snapshot = { seq = current.seq, fields = current.data, versions = current.versions },
+					},
+				},
+			})
+		end
+	end
 	local fake = Fake.new(s.runtime, steps)
 	return SDK.new({
 		runtime = s.runtime,
@@ -480,7 +500,7 @@ return function(test: (string, () -> ()) -> ())
 				check(Typed.Currency.Gems:get(profile) == 0)
 				code(profile:tryGet("Old"), "field_archived")
 				code(profile:tryGet("Missing"), "unknown_field")
-				local tx = profile:transaction():reason("quest reward")
+				local tx = profile:immediate():reason("quest reward")
 				Typed.Currency.Gems:add(tx, 1)
 				check(
 					tx:commit().ok
@@ -615,11 +635,11 @@ return function(test: (string, () -> ()) -> ())
 			local profile = loaded.value
 			local completed: { string } = {}
 			s.runtime.spawn(function()
-				check(profile:transaction():add("Currency.Gems", 10):reason("quest"):commit().ok)
+				check(profile:immediate():add("Currency.Gems", 10):reason("quest"):commit().ok)
 				table.insert(completed, "gems")
 			end)
 			s.runtime.spawn(function()
-				check(profile:transaction():add("Currency.Coins", 20):reason("quest"):commit().ok)
+				check(profile:immediate():add("Currency.Coins", 20):reason("quest"):commit().ok)
 				table.insert(completed, "coins")
 			end)
 			s.runtime.wait(1.2)
@@ -710,7 +730,7 @@ return function(test: (string, () -> ()) -> ())
 				return
 			end
 			check(Typed.Total:get(loaded.value) == Json.null)
-			code(loaded.value:transaction():set("Total", 1):reason("reward"):commit(), "field_computed")
+			code(loaded.value:immediate():set("Total", 1):reason("reward"):commit(), "field_computed")
 			check(f.count() == 2)
 			c:destroy()
 		end)
@@ -744,6 +764,7 @@ return function(test: (string, () -> ()) -> ())
 					body = s.json({ userId = 7, online = false, sessionId = "session-a", placeId = 1 }),
 					check = capture,
 				},
+				{ body = s.json({ items = { { userId = 7, status = "released" } } }) },
 			})
 			s.run(function()
 				local loaded = c.fields:loadProfile(123, 7)
@@ -757,10 +778,10 @@ return function(test: (string, () -> ()) -> ())
 				check(not conflict.ok and conflict.error.body == "[redacted]")
 				check(profile:startPresence(1, "session-a", 1).ok)
 				s.runtime.wait(1.05)
-				check(c:flush(2))
+				check(c:flush(2), "presence/session flush")
 				c:destroy()
 			end)
-			check(f.count() == 6 and string.find(bodies[4], '"online":false', 1, true) and s.pending() == 0)
+			check(f.count() == 7 and string.find(bodies[4], '"online":false', 1, true) and s.pending() == 0)
 		end
 	)
 	test(

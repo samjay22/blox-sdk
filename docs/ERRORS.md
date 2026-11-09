@@ -49,6 +49,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `below_min` |
 | `below_min_length` |
 | `below_min_size` |
+| `buffer_full` |
 | `bulk_definition_not_found` |
 | `cannot_change_own_role` |
 | `changes_limit` |
@@ -127,6 +128,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `leaderboard_requires_int` |
 | `leaderboard_score_range` |
 | `leaderboard_unavailable` |
+| `lease_lost` |
 | `maintenance` |
 | `max_delta_exceeded` |
 | `member_exists` |
@@ -159,7 +161,9 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `presence_not_started` |
 | `product_disabled` |
 | `product_not_found` |
+| `profile_already_loaded` |
 | `profile_closed` |
+| `profile_load_failed` |
 | `profile_stale` |
 | `purchase_id_conflict` |
 | `rate_limited` |

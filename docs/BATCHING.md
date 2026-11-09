@@ -104,6 +104,10 @@ cadence replaces the removed profile `intervalSeconds` option (now rejected) and
 At the default 0.5-second cadence there are **at most 120 physical requests/minute/client**, including
 polls, retries, refreshes and health. At the 0.25-second minimum there are at most 240. Both are below the
 specified Roblox 500/minute server budget, but multiple clients and unrelated scripts share that budget.
-The shared rolling-minute limiter remains a safety net (default 450, configurable 1–499), charging **one
+The shared rolling-minute limiter remains a safety net (default 450, configurable 1–480), charging **one
 admission per physical batch**, not per op. Use one long-lived client and its facades. See the
 [performance and limits table](PERFORMANCE.md).
+
+## 3.0 leased commits
+
+Session acquire/renew/release and one buffered commit share this tick. Commit bodies alone support up to 1 MiB; all envelopes still cap at 1 MiB, so the coordinator leaves headroom. At most eight physical envelopes are admitted per rolling second across native clients sharing the required module, in addition to the minute budget. See [binding contract](../API_CONTRACT.md).

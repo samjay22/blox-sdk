@@ -1,3 +1,7 @@
+# 3.0 leased profiles
+
+See the binding [2.0 to 3.0 migration](../MIGRATION.md#200-to-300--leased-profiles-and-optimistic-writes). The historical tenant-auth context below does not override 3.0 lifecycle, buffering or HTTP limits.
+
 # 1.1.0 Fields synchronization
 
 See [1.0 to 1.1 migration](../MIGRATION.md): no API break. Mutation `seq` values are sparse allocation

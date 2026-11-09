@@ -1,5 +1,23 @@
 # Migrating BloxSDK
 
+## 2.0.0 to 3.0.0 — leased profiles and optimistic writes
+
+Deploy the exact session/commit protocol in [API_CONTRACT.md](API_CONTRACT.md) before upgrading; no fallback exists.
+`loadProfile` requires READ_WRITE and now waits for batched acquire + snapshot, not a plain document GET.
+Native clients load joining players automatically and share concurrent loads/one handle per player.
+Use `profile:add/set/mutate` for optimistic buffered gameplay writes (default durability interval 5 s).
+Replace `profile:transaction()` with `profile:immediate()` for synchronous critical transactions; direct
+transactionBuilder, purchase/redemption/roll endpoints remain synchronous and unchanged. Update callers,
+not aliases. Never authorize purchases from optimistic values. `LeaseLost` and `CommitRejected` expose
+failures; kicks default on and are configurable through `sessions`. Manual `profile:release()` now drains
+buffers and releases the fenced lease. Call `client:flush(timeout)` before destroy; false means durability
+or release remains unconfirmed. PlayerRemoving and native BindToClose do this automatically.
+
+Ordinary bodies remain 256 KiB; commit bodies support 1 MiB (the coordinator leaves envelope headroom).
+The physical HTTP budget additionally caps any rolling second at eight; `requestsPerMinute` maximum is
+480, default 450. Update injected runtimes/mocks to provide exact acquire/renew/commit/release responses,
+including snapshot `fields` (not document `data`), epochs, ordered IDs and ISO expiration timestamps.
+
 ## 1.2.0 to 2.0.0 — batch-only transport, public calls unchanged
 
 All SDK network traffic now uses `POST {gatewayUrl}/batch-service/api/batch`. Deploy a compatible
