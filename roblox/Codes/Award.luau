@@ -1,107 +1,51 @@
 --!strict
 -- Generated Roblox projection; edit src/ and run tools/build-roblox.py.
 local Core = require(script.Parent.Parent.Types.Core)
-local Types = require(script.Parent.Parent.Types.Codes)
+local FieldTypes = require(script.Parent.Parent.Fields.Types)
 local Fields = require(script.Parent.Parent.Fields.Client)
 local OpBuilder = require(script.Parent.Parent.Fields.OpBuilder)
 local Operations = require(script.Parent.Parent.Fields.Operations)
 local System = require(script.Parent.Parent.Fields.TypeSystem)
-local Copy = require(script.Parent.Parent.Core.Idempotency)
 local Universe = require(script.Parent.Parent.Core.Universe)
 local Award = {}
 export type Builder = OpBuilder.Builder
+--- What a code grants: a builder from `codes:award()` or a plain list of subject-free Fields operations.
+export type Award = Builder | { FieldTypes.PlayerOperation }
 --- Compose the Fields op builder; awards have no subject, conditions, reason or caller key.
 function Award.new(state: Fields.State, universeId: string | number): Builder
 	return Fields.operations(state, universeId)
 end
---- Snapshot and canonicalize a single award, independent of the number of generated codes.
-local function prepare<T>(state: Fields.State, req: T, universeId: (string | number)?): Core.Result<T>
+--- Builders carry a `build` method through their metatable; an operation list never does.
+local function isBuilder(award: unknown): boolean
+	return type(award) == "table"
+		and rawget(award :: any, 1) == nil
+		and type((award :: any).build) == "function"
+end
+--- Resolve an award to a canonical private operation list, loading the universe schema on first use.
+function Award.prepare(
+	state: Fields.State,
+	universeId: (string | number)?,
+	award: Award
+): Core.Result<{ FieldTypes.PlayerOperation }>
 	if state.closed then
 		return System.failure("client_closed")
 	end
-	if type(req) ~= "table" then
+	if type(award) ~= "table" or not Universe.valid(universeId) then
 		return System.failure("invalid_request")
 	end
-	local body: any = req
-	if body.maxRedemptionsPerUser ~= nil and body.maxRedemptionsPerUser ~= 1 then
-		return System.failure("invalid_request")
+	if isBuilder(award) then
+		local builder = award :: Builder
+		local loaded = builder._schema:load()
+		if not loaded.ok then
+			return loaded
+		end
+		return builder:build()
 	end
-	local scope = body.universeId or universeId
-	if not Universe.valid(scope) then
-		return System.failure("invalid_request")
+	local schema = Fields.schema(state, universeId :: string | number)
+	local loaded = schema:load()
+	if not loaded.ok then
+		return loaded
 	end
-	local prepared = Operations.prepare(Fields.schema(state, scope :: string | number), body.award)
-	if not prepared.ok then
-		return prepared
-	end
-	local copied, result = pcall(Copy.copy, req)
-	if not copied then
-		return System.failure("invalid_request")
-	end
-	result.award = prepared.value
-	return { ok = true, value = result }
-end
---- Validate against the same universe schema before any CodeService create request.
-function Award.create(
-	state: Fields.State,
-	req: Types.CreateCodeRequest,
-	universeId: (string | number)?
-): Core.Result<Types.CreateCodeRequest>
-	return prepare(state, req, universeId)
-end
---- Preflight one award for the whole batch and preserve the optional caller replay key.
-function Award.bulk(
-	state: Fields.State,
-	req: Types.BulkCreateCodesCall,
-	universeId: (string | number)?
-): Core.Result<Types.BulkCreateCodesCall>
-	if state.closed then
-		return System.failure("client_closed")
-	end
-	if type(req) ~= "table" or type(req.body) ~= "table" then
-		return System.failure("invalid_request")
-	end
-	local prepared = prepare(state, req.body, universeId)
-	if not prepared.ok then
-		return prepared
-	end
-	local copied, result = pcall(Copy.copy, req)
-	if not copied then
-		return System.failure("invalid_request")
-	end
-	result.body = prepared.value
-	return { ok = true, value = result }
-end
---- Validate replacement awards for scoped updates; the backend revalidates unchanged awards too.
-function Award.update(
-	state: Fields.State,
-	req: Types.UpdateCodeCall,
-	universeId: (string | number)?
-): Core.Result<Types.UpdateCodeCall>
-	if state.closed then
-		return System.failure("client_closed")
-	end
-	if type(req) ~= "table" or type(req.body) ~= "table" then
-		return System.failure("invalid_request")
-	end
-	if req.body.maxRedemptionsPerUser ~= nil and req.body.maxRedemptionsPerUser ~= 1 then
-		return System.failure("invalid_request")
-	end
-	if req.body.award == nil then
-		return { ok = true, value = req }
-	end
-	if not Universe.valid(universeId) then
-		return System.failure("invalid_request")
-	end
-	local prepared = Operations.prepare(Fields.schema(state, universeId :: string | number), req.body.award)
-	if not prepared.ok then
-		return prepared
-	end
-	local copied, result = pcall(Copy.copy, req)
-	if not copied then
-		return System.failure("invalid_request")
-	end
-	result.body.award = prepared.value
-	return { ok = true, value = result }
+	return Operations.prepare(schema, award :: { FieldTypes.PlayerOperation })
 end
 return table.freeze(Award)

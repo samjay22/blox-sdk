@@ -18,6 +18,9 @@ PREFIXES={
     'fields':'/fields-service', 'platform':'/platform-service',
 }
 # Documented Boot routes have no annotated controller; keep them independently required.
+# CodeService is a hand-written facade; its methods are named for the task, not the controller.
+HANDWRITTEN={'codes.redeem':'redeem','codes.createCode':'create','codes.bulkCreateCodes':'createBatch','codes.exportBatch':'exportBatch',
+    'codes.searchCodes':'list','codes.getCode':'get','codes.updateCode':'update','codes.deleteCode':'delete','codes.listRedemptions':'redemptions'}
 BOOT_SERVICES = {'audit', 'leaderboards', 'fields', 'platform', 'codes'}
 
 # Exact contract additions may land before parallel backend controller implementations.
@@ -143,7 +146,8 @@ def main() -> None:
         assert e['minimumLevel'] in (None,'READ','READ_WRITE','ADMIN'),e['id']
         assert not e['cacheable'] or e['method']=='GET',e['id']
         module=(ROOT/'src/Services'/f'{e["service"].capitalize()}.luau').read_text()
-        assert 'function Service.'+e['name']+'(' in module,e['id']
+        method=HANDWRITTEN.get(e['id'],e['name'])
+        assert 'function Service.'+method+'(' in module,e['id']
         assert f'--- {e["method"]} {PREFIXES[e["service"]]}{e["path"]} via gateway;' in module,e['id']
         assert f'Endpoints["{e["id"]}"]' in module + ((ROOT/'src/Fields/Client.luau').read_text() if e['id']=='fields.validateOps' else ''),e['id']
     counts=Counter(x[0] for x in expected)

@@ -1,6 +1,7 @@
 --!strict
 local SDK = require("../src/BloxSDK")
 local Codes = require("../src/Types/Codes")
+local Facade = require("../src/Services/Codes")
 local Core = require("../src/Types/Core")
 local Json = require("../src/Core/Json")
 local JsonDecode = require("../src/Core/JsonDecode")
@@ -22,6 +23,15 @@ local function body(): Codes.BulkCreateCodesRequest
 		name = "Launch",
 		prefix = "SUMMER",
 		award = { { field = "Currency.Gems", op = "ADD", delta = 100 } },
+	}
+end
+--- The same batch as a facade request, with an award list in place of a builder.
+local function batch(): Facade.NewBatch
+	return {
+		count = 1,
+		name = "Launch",
+		prefix = "SUMMER",
+		award = { { field = "Currency.Gems", op = "ADD" :: "ADD", delta = 100 } },
 	}
 end
 --- Provide the compact bulk response rather than a full CodeDto.
@@ -62,7 +72,8 @@ end
 return function(test: (string, () -> ()) -> ())
 	test("Bulk generation sends one typed award and preserves a caller replay key", function()
 		local s = Scheduler.new()
-		local req = { body = body(), idempotencyKey = "launch:2026 / 1" }
+		local req = batch()
+		req.idempotencyKey = "launch:2026 / 1"
 		local c, f = client(s, {
 			{
 				status = 201,
@@ -81,12 +92,8 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			local built = c.codes:award():add("Currency.Gems", 100):build()
-			check(built.ok)
-			if built.ok then
-				req.body.award = built.value
-			end
-			local result = c.codes:bulkCreateCodes(req)
+			req.award = c.codes:award():add("Currency.Gems", 100)
+			local result = c.codes:createBatch(req)
 			check(result.ok and result.status == 201)
 			if result.ok then
 				check(
@@ -95,9 +102,7 @@ return function(test: (string, () -> ()) -> ())
 						and result.value.codes[1].id == 5
 				)
 			end
-			check(
-				req.body.award[1].op == "ADD" and req.idempotencyKey == "launch:2026 / 1" and f.count() == 1
-			)
+			check(req.idempotencyKey == "launch:2026 / 1" and f.count() == 1)
 			c:destroy()
 		end)
 	end)
@@ -150,33 +155,45 @@ return function(test: (string, () -> ()) -> ())
 			local s = Scheduler.new()
 			local c, f = client(s, {})
 			s.run(function()
-				local value = body()
-				value.award = { { field = "Missing", op = "RESET" } }
-				local unknown = c.codes:bulkCreateCodes({ body = value })
+				local value = batch()
+				value.award = { { field = "Missing", op = "RESET" :: "RESET" } }
+				local unknown = c.codes:createBatch(value)
 				check(not unknown.ok and unknown.error.code == "unknown_field")
-				check(not c.codes:bulkCreateCodes({} :: any).ok)
-				check(
-					not c.codes:bulkCreateCodes({ body = body(), idempotencyKey = "bad\r\nInjected: yes" }).ok
-				)
-				check(not c.codes:bulkCreateCodes({ body = body(), idempotencyKey = "" }).ok)
-				value = body()
+				check(not c.codes:createBatch({} :: any).ok)
+				value = batch()
+				value.idempotencyKey = "bad\r\nInjected: yes"
+				check(not c.codes:createBatch(value).ok)
+				value.idempotencyKey = ""
+				check(not c.codes:createBatch(value).ok)
+				value = batch()
 				value.count = 1001
-				check(not c.codes:bulkCreateCodes({ body = value }).ok)
-				value = body()
-				value.universeId = 456
-				check(not c.codes:bulkCreateCodes({ body = value }).ok)
-				c.fields:schemaCache()._version = nil
-				local unloaded = c.codes:bulkCreateCodes({ body = body() })
-				check(not unloaded.ok and unloaded.error.code == "schema_unavailable")
+				check(not c.codes:createBatch(value).ok)
+				local other: any = batch()
+				other.universeId = 456
+				check(not c.codes:createBatch(other).ok)
 				check(f.count() == 0)
 				c:destroy()
-				local closed = c.codes:bulkCreateCodes({ body = body() })
+				local closed = c.codes:createBatch(batch())
 				check(not closed.ok and closed.error.code == "client_closed")
 				local restricted, backend = client(s, {}, "READ_WRITE")
-				check(not restricted.codes:bulkCreateCodes({ body = body() }).ok)
-				check(not restricted.codes:exportBatch({ path = { batchId = BATCH } }).ok)
+				check(not restricted.codes:createBatch(batch()).ok)
+				check(not restricted.codes:exportBatch(BATCH).ok)
 				check(backend.count() == 0)
 				restricted:destroy()
+			end)
+		end
+	)
+	test(
+		"Bulk generation loads the universe schema on first use and sends nothing when it is unavailable",
+		function()
+			local s = Scheduler.new()
+			local c, f = client(s, { { status = 404 } })
+			s.run(function()
+				c.fields:schemaCache()._version = nil
+				local unloaded = c.codes:createBatch(batch())
+				check(not unloaded.ok)
+				check(f.count() == 1)
+				c:destroy()
 			end)
 		end
 	)
@@ -208,13 +225,14 @@ return function(test: (string, () -> ()) -> ())
 		local c, f = client(s, steps)
 		s.run(function()
 			for _ = 1, 6 do
-				check(c.codes:exportBatch({ path = { batchId = BATCH } }).ok)
+				check(c.codes:exportBatch(BATCH).ok)
 			end
-			local req = { body = body(), idempotencyKey = "persisted-campaign" }
-			check(not c.codes:bulkCreateCodes(req, { retry = 3 }).ok)
+			local req = batch()
+			req.idempotencyKey = "persisted-campaign"
+			check(not c.codes:createBatch(req, { retry = 3 }).ok)
 			check(f.count() == 7)
-			check(c.codes:bulkCreateCodes(req).ok and f.count() == 8)
-			check(not c.codes:bulkCreateCodes({ body = body() }, { retry = 3 }).ok)
+			check(c.codes:createBatch(req).ok and f.count() == 8)
+			check(not c.codes:createBatch(batch(), { retry = 3 }).ok)
 			check(f.count() == 9 and c:metrics().retries == 0)
 			c:destroy()
 		end)
@@ -251,8 +269,8 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.codes:searchCodes({ query = { batchId = "batch /?", page = 0, size = 10 } }).ok)
-			local csv = c.codes:exportBatch({ path = { batchId = "batch /?" } })
+			check(c.codes:list({ batchId = "batch /?", page = 0, size = 10 }).ok)
+			local csv = c.codes:exportBatch("batch /?")
 			check(csv.ok and csv.value == CSV and f.count() == 2)
 			c:destroy()
 		end)

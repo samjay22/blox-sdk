@@ -57,9 +57,9 @@ local SDK = require("./src/BloxSDK")
 local Codes = require("./src/Types/Codes")
 --- Compile only; no client startup, credentials or HTTP.
 return function(client: SDK.Client, response: Codes.BulkCreateCodesResponse)
- local _result = client.codes:bulkCreateCodes({body={universeId=123,count=1,name="Campaign",award={{field="Currency.Gems",op="ADD",delta=100}}},idempotencyKey="persisted-batch"})
- local _page = client.codes:searchCodes({query={batchId=response.batchId}})
- local csv = client.codes:exportBatch({path={batchId=response.batchId}})
+ local _result = client.codes:createBatch({count=1,name="Campaign",award=client.codes:award():add("Currency.Gems",100),idempotencyKey="persisted-batch"})
+ local _page = client.codes:list({batchId=response.batchId})
+ local csv = client.codes:exportBatch(response.batchId)
  if csv.ok then local _text: string = csv.value end
  local _id: number = response.codes[1].id
 '''
@@ -69,11 +69,11 @@ return function(client: SDK.Client, response: Codes.BulkCreateCodesResponse)
             try:
                 for extra, valid in (
                     ('', True),
-                    ('client.codes:bulkCreateCodes({body={count=1,name="Campaign",award={}}})', True),
-                    ('client.codes:bulkCreateCodes({body={universeId=123,count=1,award={}}})', False),
-                    ('client.codes:bulkCreateCodes({body={universeId=123,count="1",name="Campaign",award={}}})', False),
-                    ('client.codes:bulkCreateCodes({body={universeId=123,count=1,name="Campaign",award={}},idempotencyKey=1})', False),
-                    ('client.codes:exportBatch({path={batchId=1}})', False),
+                    ('client.codes:createBatch({count=1,name="Campaign",award={}})', True),
+                    ('client.codes:createBatch({count=1,award={}})', False),
+                    ('client.codes:createBatch({count="1",name="Campaign",award={}})', False),
+                    ('client.codes:createBatch({count=1,name="Campaign",award={},idempotencyKey=1})', False),
+                    ('client.codes:exportBatch(1)', False),
                     ('local bad: string = response.codes[1].id', False),
                 ):
                     path.write_text(prelude + extra + '\nend\n')

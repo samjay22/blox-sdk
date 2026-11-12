@@ -221,78 +221,87 @@ return function(test: (string, () -> ()) -> ())
 			c:destroy()
 		end)
 	end)
-	test("Codes typed award builder snapshots and canonicalizes Fields operations before create", function()
-		local s = Scheduler.new()
-		local award: { FieldTypes.PlayerOperation } = { { field = "Currency.Gems", op = "ADD", delta = 10 } }
-		local response: Codes.CodeDto = {
-			id = 9,
-			universeId = 123,
-			code = "WELCOME",
-			award = award,
-			maxRedemptionsPerUser = 1,
-			timesRedeemed = 0,
-			pendingRedemptions = 0,
-			active = true,
-			redeemableNow = true,
-			createdAt = "now",
-			updatedAt = "now",
-		}
-		local c, f = client(s, {
-			{ body = s.json(schema()) },
-			{ body = s.json({ valid = true, errors = Json.array({}) }) },
-			{
-				status = 201,
-				body = s.json(response),
-				check = function(request)
-					check(request.Url == "https://lb1.blox-api.com/code-service/api/codes")
-					local body: any = JsonDecode.decode(request.Body :: string)
-					check(#body.award == 3 and body.award[1].delta == 10 and body.award[1].subject == nil)
-					check(string.find(request.Body :: string, '"items":[]', 1, true) ~= nil)
-				end,
-			},
-		})
-		s.run(function()
-			check(c.fields:schemaCache():load().ok)
-			local builder = c.codes:award():add("Currency.Gems", 10):setAdd("Tags", {}):reset("Optional")
-			local built = builder:build()
-			check(built.ok)
-			if not built.ok then
-				return
-			end
-			check(builder:validate().ok)
-			builder:add("Currency.Gems", 5)
-			check(#built.value == 3)
-			check(c.codes:createCode({ code = "WELCOME", award = built.value, maxRedemptionsPerUser = 1 }).ok)
+	test(
+		"Codes create resolves a builder or operation list, loading the schema and validating before send",
+		function()
+			local s = Scheduler.new()
+			local award: { FieldTypes.PlayerOperation } =
+				{ { field = "Currency.Gems", op = "ADD", delta = 10 } }
+			local response: Codes.CodeDto = {
+				id = 9,
+				universeId = 123,
+				code = "WELCOME",
+				award = award,
+				maxRedemptionsPerUser = 1,
+				timesRedeemed = 0,
+				pendingRedemptions = 0,
+				active = true,
+				redeemableNow = true,
+				createdAt = "now",
+				updatedAt = "now",
+			}
+			local c, f = client(s, {
+				{ body = s.json(schema()) },
+				{
+					status = 201,
+					body = s.json(response),
+					check = function(request)
+						check(request.Url == "https://lb1.blox-api.com/code-service/api/codes")
+						local body: any = JsonDecode.decode(request.Body :: string)
+						check(#body.award == 3 and body.award[1].delta == 10 and body.award[1].subject == nil)
+						check(
+							body.universeId == 123
+								and body.code == "WELCOME"
+								and body.maxRedemptionsPerUser == nil
+						)
+						check(string.find(request.Body :: string, '"items":[]', 1, true) ~= nil)
+					end,
+				},
+				{ status = 201, body = s.json(response) },
+				{ body = s.json(response) },
+			})
+			s.run(function()
+				local builder = c.codes:award():add("Currency.Gems", 10):setAdd("Tags", {}):reset("Optional")
+				check(c.codes:create({ code = "WELCOME", award = builder }).ok)
+				check(f.count() == 2, "Schema loads implicitly, then one POST")
+				check(c.codes:create({ code = "WELCOME2", award = award }).ok)
+				check(c.codes:update(9, { description = "renamed" }).ok)
+				check(f.count() == 4)
+				code(
+					c.codes:create({
+						code = "BAD",
+						award = { { field = "Missing", op = "RESET" :: "RESET" } },
+					}),
+					"unknown_field"
+				)
+				code(
+					c.codes:update(9, { award = { { field = "Old", op = "RESET" :: "RESET" } } }),
+					"field_archived"
+				)
+				code(
+					c.codes:create({
+						code = "BAD",
+						award = { { field = "Currency.Gems", op = "RESET", subject = 7 } } :: any,
+					}),
+					"invalid_request"
+				)
+				code(
+					c.codes:create({ code = "BAD", award = c.codes:award():add("Missing", 1) }),
+					"unknown_field"
+				)
+				check(f.count() == 4, "Invalid awards never reach CodeService")
+				c:destroy()
+			end)
 			code(
-				c.codes:createCode({ code = "BAD", award = built.value, maxRedemptionsPerUser = 2 }),
-				"invalid_request"
-			)
-			code(
-				c.codes:createCode({ code = "BAD", award = { { field = "Missing", op = "RESET" } } }),
-				"unknown_field"
-			)
-			code(
-				c.codes:updateCode({
-					path = { id = 9 },
-					body = { award = { { field = "Old", op = "RESET" :: "RESET" } } },
+				c.codes:create({
+					code = "CLOSED",
+					award = { { field = "Currency.Gems", op = "RESET" :: "RESET" } },
 				}),
-				"field_archived"
+				"client_closed"
 			)
-			code(
-				c.codes:createCode(
-					{ code = "BAD", award = { { field = "Currency.Gems", op = "RESET", subject = 7 } } } :: any
-				),
-				"invalid_request"
-			)
-			check(f.count() == 3)
-			c:destroy()
-		end)
-		code(
-			c.codes:createCode({ code = "CLOSED", award = { { field = "Currency.Gems", op = "RESET" } } }),
-			"client_closed"
-		)
-	end)
-	test("Code redemption decodes typed receipt nulls, replays and safe error diagnostics", function()
+		end
+	)
+	test("Codes redeem returns one typed outcome and never a raw HTTP error", function()
 		local s = Scheduler.new()
 		local response = {
 			redemptionId = 42,
@@ -301,9 +310,14 @@ return function(test: (string, () -> ()) -> ())
 			universeId = 123,
 			robloxUserId = 7,
 			transaction = receipt(),
-			replayed = true,
+			replayed = false,
 			redeemedAt = "now",
 		}
+		local replay = table.clone(response)
+		replay.replayed = true
+		local function refusal(message: string): Fake.Step
+			return { status = 409, body = s.json({ status = 409, error = "Conflict", message = message }) }
+		end
 		local c, f = client(s, {
 			{
 				body = s.json(response),
@@ -316,6 +330,16 @@ return function(test: (string, () -> ()) -> ())
 					)
 				end,
 			},
+			{ body = s.json(replay) },
+			refusal("Code has expired"),
+			refusal("Code is not active yet"),
+			refusal("Code redemption limit reached (including pending grants)"),
+			refusal("Code is not active"),
+			refusal("Something else entirely"),
+			{
+				status = 404,
+				body = s.json({ status = 404, error = "Not Found", message = "Code not found" }),
+			},
 			{
 				status = 422,
 				body = s.json({
@@ -324,47 +348,62 @@ return function(test: (string, () -> ()) -> ())
 					grantPending = true,
 					errors = {
 						{ opIndex = 0, field = "Currency.Gems", path = Json.array({}), code = "below_min" },
-						{ opIndex = 1, field = "Settings", path = { "Sound" }, code = "wrong_type" },
 					},
 				}),
 			},
+			{ status = 503, body = s.json({ status = 503, code = "fields_unavailable", retryable = true }) },
+			{ status = 403, body = s.json({ error = "Forbidden" }) },
 		})
 		s.run(function()
-			local result = c.codes:redeem({ code = "WELCOME", robloxUserId = 7 })
+			local granted = c.codes:redeem({ UserId = 7 }, "  WELCOME ")
+			if granted.status == "granted" then
+				local reward = granted.rewards[1]
+				check(granted.code == "WELCOME" and granted.redeemedAt == "now" and #granted.rewards == 1)
+				check(reward.field == "Currency.Gems" and reward.op == "ADD" and #reward.path == 0)
+				check(reward.before == Json.null and reward.after == 10)
+			else
+				check(false, "Expected granted")
+			end
+			local again = c.codes:redeem(7, "WELCOME")
+			check(again.status == "already_redeemed" and again.rewards[1].after == 10)
+			check(c.codes:redeem(7, "WELCOME").status == "expired")
+			check(c.codes:redeem(7, "WELCOME").status == "not_started")
+			check(c.codes:redeem(7, "WELCOME").status == "exhausted")
+			check(c.codes:redeem(7, "WELCOME").status == "invalid")
+			local unknown = c.codes:redeem(7, "WELCOME")
 			check(
-				result.ok
-					and result.value.replayed
-					and not (result.value.transaction :: Codes.FieldsTransactionResult).replayed
+				unknown.status == "failed"
+					and unknown.error.status == 409
+					and unknown.error.code == "sdk_conflict"
 			)
+			check(c.codes:redeem(7, "NOPE").status == "invalid")
+			local rejected = c.codes:redeem(7, "WELCOME")
+			check(rejected.status == "failed" and rejected.error.code == "invalid_award")
 			check(
-				result.ok
-					and (
-						(result.value.transaction :: Codes.FieldsTransactionResult).results :: { Codes.Result }
-					)[1].entryId == Json.null
-					and (
-							(result.value.transaction :: Codes.FieldsTransactionResult).results :: { Codes.Result }
-						)[1].before
-						== Json.null
-			)
-			local rejected = c.codes:redeem({ code = "WELCOME", robloxUserId = 7 })
-			code(rejected, "invalid_award")
-			check(
-				not rejected.ok
+				rejected.status == "failed"
 					and rejected.error.grantPending
-					and rejected.error.errors
-					and #rejected.error.errors == 2
 					and rejected.error.body == "[redacted]"
 			)
-			check(f.count() == 2)
+			local outage = c.codes:redeem(7, "WELCOME")
+			check(outage.status == "retry" and outage.error.code == "fields_unavailable")
+			local denied = c.codes:redeem(7, "WELCOME")
+			check(denied.status == "failed" and denied.error.kind == "Forbidden")
+			check(f.count() == 11)
+			check(
+				c.codes:redeem(7, "   ").status == "invalid"
+					and c.codes:redeem(7, string.rep("A", 129)).status == "invalid"
+			)
+			check(f.count() == 11, "Malformed codes are refused locally")
 			c:destroy()
 		end)
 	end)
-	test("Code receipts fail closed on unsafe integers and incomplete successful responses", function()
+	test("Codes redeem treats malformed successful responses as failures, never grants", function()
 		for _, body in { '{"transaction":{"txId":"x"}}', '{"redemptionId":9007199254740993}' } do
 			local s = Scheduler.new()
 			local c, f = client(s, { { body = body } })
 			s.run(function()
-				check(not c.codes:redeem({ code = "WELCOME", robloxUserId = 7 }).ok)
+				local outcome = c.codes:redeem(7, "WELCOME")
+				check(outcome.status ~= "granted" and outcome.status ~= "already_redeemed")
 			end)
 			check(f.count() == 1)
 			c:destroy()

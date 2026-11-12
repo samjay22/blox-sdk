@@ -1,5 +1,33 @@
 # Migrating BloxSDK
 
+## 4.0.0 to 5.0.0 — codes simplified
+
+`client.codes` is reorganized around redeeming and administering codes. No aliases remain.
+
+| Before | After |
+|---|---|
+| `client.codes:redeem({ code = c, robloxUserId = player.UserId })` returning a `Result` of a receipt | `client.codes:redeem(player, c)` returning an outcome; switch on `outcome.status` |
+| `if not r.ok then warn(r.error.code)` for expired, unknown or used-up codes | `outcome.status == "expired"` / `"invalid"` / `"not_started"` / `"exhausted"` |
+| `r.value.replayed` | `outcome.status == "already_redeemed"` |
+| `r.value.transaction.results` | `outcome.rewards` (`field`, `op`, `path`, `before`, `after`) |
+| `r.error` on a timeout or outage | `outcome.status == "retry"` (`outcome.error`); call again |
+| `client.fields:schemaCache():load()` then `codes:award()...:build()` then `createCode` | `codes:create({ code = c, award = codes:award()... })` |
+| `createCode({ code, award, maxRedemptionsPerUser = 1, universeId })` | `create({ code, award })` |
+| `bulkCreateCodes({ body = { count, name, award }, idempotencyKey = k })` | `createBatch({ count, name, award, idempotencyKey = k })` |
+| `searchCodes({ query = { batchId = b, page = 0 } })` | `list({ batchId = b, page = 0 })` |
+| `getCode({ path = { id = i } })` | `get(i)` |
+| `updateCode({ path = { id = i }, body = changes })` | `update(i, changes)` |
+| `deleteCode({ path = { id = i } })` | `delete(i)` |
+| `listRedemptions({ path = { id = i }, query = page })` | `redemptions(i, page)` |
+| `exportBatch({ path = { batchId = b } })` | `exportBatch(b)` |
+| `liveness({})`, `readiness({})`, `healthProxy({})`, `info({})`, `metrics({})` | the same calls with no request, or just options |
+
+`Types/Codes` no longer exports `RedeemCall`, `RedeemResultValue`, `CreateCodeCall` and the other per-route
+aliases; the wire DTOs (`CodeDto`, `RedeemCodeResponse`, `BulkCreateCodesResponse`, ...) are unchanged, and the new
+facade types (`Outcome`, `Reward`, `NewCode`, `NewBatch`, `CodeChanges`) are exported from `BloxSDK` as
+`CodeOutcome`, `CodeReward` and `CodeAward`. Per-user limits are always one, so `maxRedemptionsPerUser` is gone.
+A failed `redeem` never raises: only a value that is neither a `Player` nor a user ID does.
+
 ## 3.1.0 to 4.0.0 — one universe, stated once
 
 Delete the universe argument from every helper call and from request bodies; the client supplies it.

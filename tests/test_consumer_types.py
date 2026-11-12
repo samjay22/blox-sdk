@@ -92,6 +92,45 @@ return function(client: SDK.Client, response: Fields.Preview)
                     self.assertNotIn('subject', op)
         self.assertGreaterEqual(awards, 3)
 
+    def test_redeem_outcome(self) -> None:
+        """Redemption is one typed union: callers narrow on status and only failures carry an error."""
+        prelude = '''--!strict
+local SDK = require("./src/BloxSDK")
+--- Compile only; no client is constructed or requests sent.
+return function(client: SDK.Client, player: { UserId: number })
+ local outcome = client.codes:redeem(player, "WELCOME")
+ if outcome.status == "granted" or outcome.status == "already_redeemed" then
+   local _reward: SDK.CodeReward = outcome.rewards[1]
+   local _field: string = outcome.rewards[1].field
+ elseif outcome.status == "retry" or outcome.status == "failed" then
+   local _code: string = outcome.error.code
+ elseif outcome.status == "expired" or outcome.status == "invalid" then
+   local _status: string = outcome.status
+ end
+ local _byId: SDK.CodeOutcome = client.codes:redeem(7, "WELCOME")
+'''
+        with tempfile.TemporaryDirectory(prefix='consumer-types-', dir=ROOT/'.test-build') as temporary:
+            path = ROOT/(Path(temporary).name+'.luau')
+            try:
+                for extra, valid in (
+                    ('', True),
+                    ('local bad = client.codes:redeem(player, 5)', False),
+                    ('local bad = client.codes:redeem("WELCOME")', False),
+                    ('local bad = client.codes:redeem({code="WELCOME", robloxUserId=7})', False),
+                    ('local bad = client.codes:redeem(7, "A", {}).ok', False),
+                    ('if outcome.status == "granted" then local _e = outcome.error end', False),
+                    ('if outcome.status == "bogus" then end', False),
+                ):
+                    path.write_text(prelude+extra+'\nend\n')
+                    result = subprocess.run(['luau-analyze', '-j1', str(path)], capture_output=True, text=True)
+                    if valid:
+                        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                    else:
+                        self.assertNotEqual(result.returncode, 0, extra)
+                        self.assertIn('TypeError', result.stdout+result.stderr)
+            finally:
+                path.unlink(missing_ok=True)
+
     def test_static_awards(self) -> None:
         """Reject subjects, untyped operands and receipt mismatches without weakening public APIs."""
         prelude = '''--!strict
@@ -104,7 +143,8 @@ return function(client: SDK.Client, receipt: Codes.RedeemCodeResponse)
  local operation: Fields.PlayerOperation = {field="Currency.Gems",op="ADD",delta=10}
  local award = client.codes:award():add("Currency.Gems",10):mapAdd("Inventory.Items","SWORD",1)
  local _built = award:build()
- local _result = client.codes:createCode({code="WELCOME",award={operation}})
+ local _result = client.codes:create({code="WELCOME",award={operation}})
+ local _same = client.codes:create({code="WELCOME",award=award})
  if receipt.transaction and receipt.transaction ~= SDK.null then
    local _tx: (string | Core.Null)? = (receipt.transaction :: Codes.FieldsTransactionResult).txId
  end
@@ -117,6 +157,7 @@ return function(client: SDK.Client, receipt: Codes.RedeemCodeResponse)
                     ('local bad: Fields.PlayerOperation = {field="Currency.Gems",op="ADD",delta="10"}', False),
                     ('local bad: Fields.PlayerOperation = {field="Currency.Gems",op="RESET",subject=7}', False),
                     ('award:add("Currency.Gems","10")', False),
+                    ('client.codes:create({award=award})', False),
                     ('local bad: number = receipt.transaction.txId', False),
                 ):
                     path.write_text(prelude+extra+'\nend\n')

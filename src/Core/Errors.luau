@@ -104,6 +104,10 @@ local codes = table.freeze({
 	rotation_disabled = true,
 	rotation_clock_regressed = true,
 	insufficient_funds = true,
+	code_expired = true,
+	code_not_started = true,
+	code_exhausted = true,
+	code_inactive = true,
 
 	alert_config_unavailable = true,
 	alert_not_found = true,
@@ -257,6 +261,13 @@ local function diagnostic(value: any): Types.OperationDiagnostic?
 	end
 	return { opIndex = value.opIndex, field = value.field, path = path, code = value.code }
 end
+-- CodeService refuses a redemption with a 409 whose only signal is fixed text; map exactly those texts to codes.
+local redeemRefusals = table.freeze({
+	["Code has expired"] = "code_expired",
+	["Code is not active yet"] = "code_not_started",
+	["Code is not active"] = "code_inactive",
+	["Code redemption limit reached (including pending grants)"] = "code_exhausted",
+})
 --- Preserve only allowlisted machine codes, never backend messages or raw error bodies.
 function Errors.domain(status: number, endpoint: string, attempts: number, value: unknown): Types.Result<any>
 	local result = Errors.http(status, endpoint, attempts)
@@ -284,6 +295,9 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 			if #list > 0 then
 				result.error.errors = list
 			end
+		end
+		if endpoint == "codes.redeem" and status == 409 and type(body.message) == "string" then
+			result.error.code = redeemRefusals[body.message] or result.error.code
 		end
 		if type(body.grantPending) == "boolean" then
 			result.error.grantPending = body.grantPending

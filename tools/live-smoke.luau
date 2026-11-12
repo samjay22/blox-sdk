@@ -122,7 +122,7 @@ check("party list", function()
 	return client.party:getAllParties()
 end, "listing every party is admin-only (ADMIN or UNIVERSE_ADMIN); game-server keys are refused")
 check("codes search", function()
-	return client.codes:searchCodes({ query = { size = 1 } })
+	return client.codes:list({ size = 1 })
 end)
 check("audit list", function()
 	return client.audit:list({ query = { limit = 1 } })
@@ -235,7 +235,23 @@ check("generator preview", function()
 end)
 if process.env.BLOX_CODE and process.env.BLOX_CODE ~= "" then
 	check("code redeem", function()
-		return client.codes:redeem({ code = process.env.BLOX_CODE, robloxUserId = playerId })
+		local outcome = client.codes:redeem(playerId, process.env.BLOX_CODE)
+		if outcome.status == "retry" or outcome.status == "failed" then
+			return { ok = false, error = outcome.error }
+		end
+		if outcome.status ~= "granted" and outcome.status ~= "already_redeemed" then
+			return {
+				ok = false,
+				error = {
+					kind = "Conflict",
+					message = "Code refused",
+					endpoint = "codes.redeem",
+					attempts = 1,
+					code = "sdk_" .. outcome.status,
+				},
+			}
+		end
+		return { ok = true, value = outcome.status }
 	end)
 else
 	print("SKIP code redeem: BLOX_CODE not supplied")

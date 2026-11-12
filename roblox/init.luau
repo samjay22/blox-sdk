@@ -64,6 +64,9 @@ export type AuthProvider = Types.AuthProvider
 export type AuthClient = Auth.Service
 export type FieldsClient = Fields.Service
 export type CodesClient = Codes.Service
+export type CodeOutcome = Codes.Outcome
+export type CodeReward = Codes.Reward
+export type CodeAward = Codes.Award
 export type PartyClient = Party.Service
 export type MatchmakingClient = Matchmaking.Service
 export type LeaderboardsClient = Leaderboards.Service
@@ -546,7 +549,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "4.0.0"
+SDK.version = "5.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

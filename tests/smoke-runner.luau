@@ -162,6 +162,20 @@ local function run(
 			payload = { V.roll.results[1] }
 		elseif string.find(url, "/redeem", 1, true) then
 			redeems += 1
+			payload = {
+				redemptionId = 1,
+				codeId = 1,
+				code = "SMOKE",
+				robloxUserId = 7,
+				replayed = false,
+				redeemedAt = "now",
+				transaction = {
+					txId = "smoke-redeem",
+					replayed = false,
+					results = Json.array({}),
+					seq = { ["7"] = 1 },
+				},
+			}
 		end
 		assert(
 			not string.find(url, "/roll", 1, true)

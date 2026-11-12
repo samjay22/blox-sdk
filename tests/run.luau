@@ -521,6 +521,36 @@ test("flush/destroy and scope facades share state", function()
 	check(f.count() == 0)
 end)
 
+--- CodeService is a hand-written facade, so each controller route is reached through its task-named method.
+local function codesCall(facade: any, name: string, request: Core.Request): Core.Result<any>
+	local path: any, body: any = request.path, request.body
+	if name == "redeem" then
+		local outcome = facade:redeem(7, "WELCOME")
+		if outcome.status == "granted" or outcome.status == "already_redeemed" then
+			return { ok = true, value = outcome }
+		end
+		return { ok = false, error = outcome.error }
+	elseif name == "createCode" then
+		return facade:create(body)
+	elseif name == "bulkCreateCodes" then
+		local spec = table.clone(body)
+		spec.idempotencyKey = request.idempotencyKey
+		return facade:createBatch(spec)
+	elseif name == "exportBatch" then
+		return facade:exportBatch(path.batchId)
+	elseif name == "searchCodes" then
+		return facade:list(request.query)
+	elseif name == "getCode" then
+		return facade:get(path.id)
+	elseif name == "updateCode" then
+		return facade:update(path.id, body)
+	elseif name == "deleteCode" then
+		return facade:delete(path.id)
+	elseif name == "listRedemptions" then
+		return facade:redemptions(path.id, request.query)
+	end
+	return facade[name](facade)
+end
 test(
 	"all generated endpoints use internal operations through default and custom batch gateways offline",
 	function()
@@ -648,10 +678,16 @@ test(
 						and (#spec.pathParams == 0 or scopedOnly)
 						and #spec.queryParams == 0
 						and not spec.idempotencyHeader
-					local owner = if direct and #spec.pathParams > 0 then c:withUniverse(1) else c
+					local owner = if (direct and #spec.pathParams > 0)
+							or id == "codes.createCode"
+							or id == "codes.bulkCreateCodes"
+						then c:withUniverse(1)
+						else c
 					local facade = (owner :: any)[spec.service]
 					local argument = if direct then request.body else request
-					local r = facade[name](facade, argument)
+					local r = if spec.service == "codes"
+						then codesCall(facade, name, request)
+						else facade[name](facade, argument)
 					check(r.ok, "Endpoint failed " .. id)
 				end)
 				check(f.count() == 1)

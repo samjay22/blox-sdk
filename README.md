@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**379 typed endpoints, version 4.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**379 typed endpoints, version 5.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@4.0.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@5.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@4.0.0"
+BloxSDK = "blox-api/blox-sdk@5.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -91,11 +91,11 @@ and [migration](MIGRATION.md). Live backend support must be deployed separately.
 
 ## Calls and results
 
-The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written. Config is retired: game configuration lives in Fields, with no compatibility facade or fallback.
+The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes facade and the scoped-token cache are hand-written. Config is retired: game configuration lives in Fields, with no compatibility facade or fallback.
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
 - Endpoints with other path or query parameters take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
-- Optional requests can be omitted: `client.codes:searchCodes()`.
+- Optional requests can be omitted: `client.audit:list()`.
 - The universe comes from `BloxSDK.new` (on Roblox it defaults to `game.GameId`) and is filled into every path, query and body that declares one. A path that names only the universe disappears from the call, so those endpoints take their body directly. `client:withUniverse(id)` returns a facade for a different universe that shares the original client's auth, queue, rate budget, breakers, cache and lifetime.
 - `client:health()` queues `/health` for all eight services in one batch and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
@@ -139,11 +139,21 @@ failing op with zero-based `opIndex/field/path/code`, and sends locally valid li
 validation. `client.fields:operations():add("Currency.Gems",100):validate()` and player
 transaction `:validate()` provide dry runs without a reason, key or commit. No player state is read.
 
-Codes now take `award` directly as a list of Fields operations. Use
-`client.codes:award():add("Currency.Gems",100):build()` for a typed canonical snapshot;
-`createCode` also pre-validates raw lists. Redemption returns `transaction`, `replayed`, `redeemedAt`;
-CodeService applies one atomic transaction using `code-<codeId>-<userId>`. The per-user maximum must be 1.
-See [Codes guide](docs/CODES.md), [award example](examples/code-award.luau), and [Fields guide](docs/FIELDS.md).
+Codes are redeemed in one call and answered with one typed outcome:
+
+```luau
+local outcome = client.codes:redeem(player, text) -- Player or user ID
+if outcome.status == "granted" then
+    print("rewards", #outcome.rewards)
+elseif outcome.status == "already_redeemed" or outcome.status == "expired" then
+    -- also: invalid, not_started, exhausted; "retry" and "failed" carry outcome.error
+end
+```
+
+Administrators create codes with `client.codes:create({ code = "WELCOME100", award = client.codes:award():add("Currency.Gems", 100) })`;
+the schema loads and the award validates on use. CodeService applies one atomic transaction using `code-<codeId>-<userId>`,
+so each player redeems each code once. See [Codes guide](docs/CODES.md), [redeem example](examples/redeem.luau),
+[award example](examples/code-award.luau), and [Fields guide](docs/FIELDS.md).
 
 Matchmaking criteria read server-fetched Fields computed values. `fieldName` accepts any computed
 Fields ID, including namespaced IDs (`Stats.Elo`, `Progress.Level`), as a literal ID, not a nested
@@ -244,7 +254,7 @@ Pinned `aftman.toml` selects already-installed tools; verification never install
 
 - `src/Core/`: portable transport, admission, retry/breaker/cache, validation, codecs, configuration.
 - `src/Fields/`: hand-written TypeSystem, schema, transaction/profile helpers and domain wire conversion.
-- `src/Codes/`: handwritten award builder composition and schema preflight.
+- `src/Codes/`: handwritten award resolution (builder or op list, schema loaded on use); `Services/Codes` is the hand-written facade.
 - `src/Auth/`: service keys, identity sessions and the hand-written scoped-token cache.
 - `src/Services/`, `src/Types/`: generated typed facades and DTOs.
 - `src/BloxSDK.luau`: portable client composition; `src/init.luau`: Luau CLI package entry.

@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "4.0.0"
+SDK.version = "5.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -221,6 +221,12 @@ export type AuthClient = Auth.Service
 export type FieldsClient = Fields.Service
 
 export type CodesClient = Codes.Service
+
+export type CodeOutcome = Codes.Outcome
+
+export type CodeReward = Codes.Reward
+
+export type CodeAward = Codes.Award
 
 export type PartyClient = Party.Service
 

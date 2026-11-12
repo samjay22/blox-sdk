@@ -117,7 +117,7 @@ backend or move production data during generation, testing or migration. Univers
 ## Fields-backed consumers (breaking, no compatibility layer)
 
 - Replace Code awards with an ordered list of subject-free Fields operations; regenerate callers against
-  `Types/Codes`. Load the universe schema, use `codes:award()`, and build/validate before create.
+  `Types/Codes`. Use `codes:award()` (or an op list) with `codes:create`; the schema loads and validates on use.
 - `maxRedemptionsPerUser` must be 1. Grant identity is backend-owned (`code-<codeId>-<userId>`); retries
   use the same code/player pair. Consume `transaction`, `replayed`, `redeemedAt` and touched subvalues,
   not a player document. History now contains the frozen operation list and receipt.

@@ -7,9 +7,9 @@ local client = require(script.Parent.Client)
 local code = script:GetAttribute("Code")
 assert(type(code) == "string" and #code > 0, "Set a configured test Code attribute")
 game:GetService("Players").PlayerAdded:Connect(function(player: any)
-	local redeemed = client.codes:redeem({ code = code, robloxUserId = player.UserId })
-	if not redeemed.ok then
-		warn(redeemed.error.code)
+	local outcome = client.codes:redeem(player, code)
+	if outcome.status == "failed" then
+		warn(outcome.error.code)
 	end
 	-- Fields already granted the award atomically; never grant it again here.
 end)

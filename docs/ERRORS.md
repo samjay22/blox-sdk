@@ -54,6 +54,10 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `cannot_change_own_role` |
 | `changes_limit` |
 | `client_closed` |
+| `code_exhausted` |
+| `code_expired` |
+| `code_inactive` |
+| `code_not_started` |
 | `computed_dependency` |
 | `conflict` |
 | `conversion_clamp` |

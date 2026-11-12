@@ -1,5 +1,25 @@
 # Changelog
 
+## 5.0.0 (local, not published)
+
+- Breaking: `client.codes` is rewritten around the task. Redeeming is `client.codes:redeem(player, code)`, which
+  takes a `Player` or user ID and returns one typed outcome instead of a `Result` of the raw receipt:
+  `granted`, `already_redeemed`, `invalid`, `expired`, `not_started`, `exhausted`, `retry` or `failed`. A game
+  switches on `outcome.status`; only `retry` and `failed` carry an `error`. `granted` and `already_redeemed`
+  carry `rewards` (the touched fields with `before`/`after`).
+- Breaking: administration is `create`, `createBatch`, `list`, `get`, `update`, `delete`, `redemptions` and
+  `exportBatch`, replacing `createCode`, `bulkCreateCodes`, `searchCodes`, `getCode`, `updateCode`,
+  `deleteCode`, `listRedemptions` and the `{ path, query, body }` request envelopes. IDs and the batch ID are
+  plain arguments. The health calls take only options.
+- `award` on `create`, `createBatch` and `update` accepts a `codes:award()` builder or an operation list. The
+  schema now loads on first use, so the load/build/validate sequence before create is gone.
+- Removed redundant parameters: `universeId` (the client's), `maxRedemptionsPerUser` (always 1) and the
+  `Types/Codes` request/result aliases such as `RedeemCall` and `CreateCodeCall`. Wire DTOs remain.
+- CodeService refusals are now machine codes: `code_expired`, `code_not_started`, `code_exhausted` and
+  `code_inactive` (mapped from the service's fixed 409 texts; no other backend text is copied).
+- `src/Services/Codes.luau` is hand-written; `tools/gen.py` still generates its wire types and endpoint
+  metadata, and `tools/check-coverage` verifies every CodeService route is reachable.
+
 ## 4.0.0 (local, not published)
 
 - Breaking: the universe is stated once, in `BloxSDK.new`. On Roblox it defaults to `game.GameId`, so

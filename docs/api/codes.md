@@ -10,12 +10,113 @@ Underscore members and module constructors other than `BloxSDK.new` are private 
 
 Source: [src/Services/Codes.luau](../../src/Services/Codes.luau)
 
+### `Service.redeem`
+
+Redeem `code` for a player, given a Player or user ID. Never raises on a bad code or backend failure:
+switch on `outcome.status`. Requires CodeService READ_WRITE and Fields write access to the awarded fields.
+POST /code-service/api/codes/redeem via gateway; access: READ_WRITE.
+
+```luau
+Service.redeem(self: Service, user: Core.User, code: string, opts: Core.CallOptions?): Outcome
+```
+
 ### `Service.award`
 
-Create a typed subject-free award builder over this client's universe schema.
+Start an award for a new code: `codes:award():add("Currency.Gems", 100):mapAdd("Inventory.Items", "SWORD", 1)`.
+Pass the builder (or a plain operation list) as `award`; the schema loads and validates on use.
 
 ```luau
 Service.award(self: Service): Award.Builder
+```
+
+### `Service.create`
+
+Create one code. `award` may be a `codes:award()` builder or an operation list; it is validated first.
+POST /code-service/api/codes via gateway; access: ADMIN.
+
+```luau
+Service.create(self: Service, spec: NewCode, opts: Core.CallOptions?): Core.Result<Types.CodeDto>
+```
+
+### `Service.createBatch`
+
+Create `count` random codes that share one award, all or nothing. Keep this in trusted admin tooling.
+POST /code-service/api/codes/bulk via gateway; access: ADMIN.
+
+```luau
+Service.createBatch(
+	self: Service,
+	spec: NewBatch,
+	opts: Core.CallOptions?
+): Core.Result<Types.BulkCreateCodesResponse>
+```
+
+### `Service.exportBatch`
+
+Download a batch's codes as CSV text; treat it as a secret and never log it.
+GET /code-service/api/codes/batches/{batchId}/export via gateway; access: ADMIN.
+
+```luau
+Service.exportBatch(self: Service, batchId: string, opts: Core.CallOptions?): Core.Result<string>
+```
+
+### `Service.list`
+
+List this universe's codes, newest first; filter by `active` or `batchId`.
+GET /code-service/api/codes via gateway; access: READ.
+
+```luau
+Service.list(
+	self: Service,
+	filter: CodeFilter?,
+	opts: Core.CallOptions?
+): Core.Result<Types.Page<Types.CodeDto>>
+```
+
+### `Service.get`
+
+Read one code by its numeric ID, including remaining capacity and `redeemableNow`.
+GET /code-service/api/codes/{id} via gateway; access: READ.
+
+```luau
+Service.get(self: Service, id: number | string, opts: Core.CallOptions?): Core.Result<Types.CodeDto>
+```
+
+### `Service.update`
+
+Change a code; a new `award` only affects future redemptions.
+PUT /code-service/api/codes/{id} via gateway; access: ADMIN.
+
+```luau
+Service.update(
+	self: Service,
+	id: number | string,
+	changes: CodeChanges,
+	opts: Core.CallOptions?
+): Core.Result<Types.CodeDto>
+```
+
+### `Service.delete`
+
+Delete a code that has no pending grants.
+DELETE /code-service/api/codes/{id} via gateway; access: ADMIN.
+
+```luau
+Service.delete(self: Service, id: number | string, opts: Core.CallOptions?): Core.Result<nil>
+```
+
+### `Service.redemptions`
+
+Page through who redeemed a code, newest first.
+GET /code-service/api/codes/{id}/redemptions via gateway; access: ADMIN.
+
+```luau
+Service.redemptions(
+	self: Service,
+	id: number | string,
+	page: PageRequest?,
+	opts: Core.CallOptions?
+): Core.Result<Types.Page<Types.CodeRedemptionDto>>
 ```
 
 ### `Service.liveness`
@@ -23,11 +124,7 @@ Service.award(self: Service): Award.Builder
 GET /code-service/actuator/health/liveness via gateway; access: public/authenticated.
 
 ```luau
-Service.liveness(
-	self: Service,
-	req: Types.LivenessCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.LivenessResultValue>
+Service.liveness(self: Service, opts: Core.CallOptions?): Core.Result<Types.HealthComponent>
 ```
 
 ### `Service.readiness`
@@ -35,119 +132,7 @@ Service.liveness(
 GET /code-service/actuator/health/readiness via gateway; access: public/authenticated.
 
 ```luau
-Service.readiness(
-	self: Service,
-	req: Types.ReadinessCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.ReadinessResultValue>
-```
-
-### `Service.searchCodes`
-
-GET /code-service/api/codes via gateway; access: READ.
-
-```luau
-Service.searchCodes(
-	self: Service,
-	req: Types.SearchCodesCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.SearchCodesResultValue>
-```
-
-### `Service.createCode`
-
-POST /code-service/api/codes via gateway; access: ADMIN.
-
-```luau
-Service.createCode(
-	self: Service,
-	req: Types.CreateCodeCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateCodeResultValue>
-```
-
-### `Service.exportBatch`
-
-GET /code-service/api/codes/batches/{batchId}/export via gateway; access: ADMIN.
-
-```luau
-Service.exportBatch(
-	self: Service,
-	req: Types.ExportBatchCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.ExportBatchResultValue>
-```
-
-### `Service.bulkCreateCodes`
-
-POST /code-service/api/codes/bulk via gateway; access: ADMIN.
-
-```luau
-Service.bulkCreateCodes(
-	self: Service,
-	req: Types.BulkCreateCodesCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.BulkCreateCodesResultValue>
-```
-
-### `Service.redeem`
-
-POST /code-service/api/codes/redeem via gateway; access: READ_WRITE.
-
-```luau
-Service.redeem(
-	self: Service,
-	req: Types.RedeemCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RedeemResultValue>
-```
-
-### `Service.deleteCode`
-
-DELETE /code-service/api/codes/{id} via gateway; access: ADMIN.
-
-```luau
-Service.deleteCode(
-	self: Service,
-	req: Types.DeleteCodeCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteCodeResultValue>
-```
-
-### `Service.getCode`
-
-GET /code-service/api/codes/{id} via gateway; access: READ.
-
-```luau
-Service.getCode(
-	self: Service,
-	req: Types.GetCodeCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetCodeResultValue>
-```
-
-### `Service.updateCode`
-
-PUT /code-service/api/codes/{id} via gateway; access: ADMIN.
-
-```luau
-Service.updateCode(
-	self: Service,
-	req: Types.UpdateCodeCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.UpdateCodeResultValue>
-```
-
-### `Service.listRedemptions`
-
-GET /code-service/api/codes/{id}/redemptions via gateway; access: ADMIN.
-
-```luau
-Service.listRedemptions(
-	self: Service,
-	req: Types.ListRedemptionsCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.ListRedemptionsResultValue>
+Service.readiness(self: Service, opts: Core.CallOptions?): Core.Result<Types.HealthComponent>
 ```
 
 ### `Service.healthProxy`
@@ -155,11 +140,7 @@ Service.listRedemptions(
 GET /code-service/health via gateway; access: public/authenticated.
 
 ```luau
-Service.healthProxy(
-	self: Service,
-	req: Types.HealthProxyCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.HealthProxyResultValue>
+Service.healthProxy(self: Service, opts: Core.CallOptions?): Core.Result<Types.HealthResponse>
 ```
 
 ### `Service.info`
@@ -167,11 +148,7 @@ Service.healthProxy(
 GET /code-service/info via gateway; access: public/authenticated.
 
 ```luau
-Service.info(
-	self: Service,
-	req: Types.InfoCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.InfoResultValue>
+Service.info(self: Service, opts: Core.CallOptions?): Core.Result<{ [string]: Core.Json }>
 ```
 
 ### `Service.metrics`
@@ -179,17 +156,83 @@ Service.info(
 GET /code-service/metrics via gateway; access: public/authenticated.
 
 ```luau
-Service.metrics(
-	self: Service,
-	req: Types.MetricsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.MetricsResultValue>
+Service.metrics(self: Service, opts: Core.CallOptions?): Core.Result<Types.MetricsResponse>
 ```
 
 ### Exported types
 
 ```luau
 export type Service = -- opaque handle; see methods below
+
+export type Award = Award.Award
+
+export type Reward = {
+	field: string,
+	op: Types.Op,
+	path: { string | number },
+	before: Core.Json?,
+	after: Core.Json?,
+}
+
+export type Granted = { status: "granted", code: string, rewards: { Reward }, redeemedAt: string? }
+
+export type AlreadyRedeemed = {
+	status: "already_redeemed",
+	code: string,
+	rewards: { Reward },
+	redeemedAt: string?,
+}
+
+export type Refused = { status: "invalid" | "expired" | "not_started" | "exhausted" }
+
+export type Retry = { status: "retry", error: Core.BloxError }
+
+export type Failed = { status: "failed", error: Core.BloxError }
+
+export type Outcome = Granted | AlreadyRedeemed | Refused | Retry | Failed
+
+export type NewCode = {
+	code: string,
+	award: Award,
+	name: string?,
+	description: string?,
+	startsAt: string?,
+	expiresAt: string?,
+	maxGlobalRedemptions: number?,
+	active: boolean?,
+	metadata: Core.Json?,
+}
+
+export type NewBatch = {
+	name: string,
+	count: number,
+	award: Award,
+	prefix: string?,
+	length: number?,
+	description: string?,
+	startsAt: string?,
+	expiresAt: string?,
+	maxGlobalRedemptions: number?,
+	active: boolean?,
+	metadata: { [string]: Core.Json }?,
+	idempotencyKey: string?,
+}
+
+export type CodeChanges = {
+	code: string?,
+	award: Award?,
+	name: string?,
+	description: string?,
+	startsAt: string?,
+	expiresAt: string?,
+	maxGlobalRedemptions: number?,
+	active: boolean?,
+	metadata: Core.Json?,
+}
+
+export type CodeFilter = { active: boolean?, batchId: string?, page: number?, size: number? }
+
+export type PageRequest = { page: number?, size: number? }
 ```
 
 ## Codes
@@ -349,68 +392,4 @@ export type UpdateCodeRequest = {
 	name: string?,
 	startsAt: string?,
 }
-
-export type LivenessCall = {}
-
-export type LivenessResultValue = HealthComponent
-
-export type ReadinessCall = {}
-
-export type ReadinessResultValue = HealthComponent
-
-export type SearchCodesCall = {
-	query: {
-		active: boolean?,
-		batchId: string?,
-		page: number?,
-		size: number?,
-		universeId: (string | number)?,
-	}?,
-}
-
-export type SearchCodesResultValue = Page<CodeDto>
-
-export type CreateCodeCall = CreateCodeRequest
-
-export type CreateCodeResultValue = CodeDto
-
-export type ExportBatchCall = { path: { batchId: string } }
-
-export type ExportBatchResultValue = string
-
-export type BulkCreateCodesCall = { idempotencyKey: string?, body: BulkCreateCodesRequest }
-
-export type BulkCreateCodesResultValue = BulkCreateCodesResponse
-
-export type RedeemCall = RedeemCodeRequest
-
-export type RedeemResultValue = RedeemCodeResponse
-
-export type DeleteCodeCall = { path: { id: string | number } }
-
-export type DeleteCodeResultValue = nil
-
-export type GetCodeCall = { path: { id: string | number } }
-
-export type GetCodeResultValue = CodeDto
-
-export type UpdateCodeCall = { path: { id: string | number }, body: UpdateCodeRequest }
-
-export type UpdateCodeResultValue = CodeDto
-
-export type ListRedemptionsCall = { path: { id: string | number }, query: { page: number?, size: number? }? }
-
-export type ListRedemptionsResultValue = Page<CodeRedemptionDto>
-
-export type HealthProxyCall = {}
-
-export type HealthProxyResultValue = HealthResponse
-
-export type InfoCall = {}
-
-export type InfoResultValue = { [string]: Core.Json }
-
-export type MetricsCall = {}
-
-export type MetricsResultValue = MetricsResponse
 ```

@@ -285,7 +285,7 @@ return function(test: (string, () -> ()) -> ())
 			end)
 		end)
 		s.run(function()
-			check(c2.codes:searchCodes({ query = { batchId = "a /?é" } }).ok)
+			check(c2.codes:list({ batchId = "a /?é" }).ok)
 		end)
 	end)
 

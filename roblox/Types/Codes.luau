@@ -137,40 +137,4 @@ export type UpdateCodeRequest = {
 	name: string?,
 	startsAt: string?,
 }
-export type LivenessCall = {}
-export type LivenessResultValue = HealthComponent
-export type ReadinessCall = {}
-export type ReadinessResultValue = HealthComponent
-export type SearchCodesCall = {
-	query: {
-		active: boolean?,
-		batchId: string?,
-		page: number?,
-		size: number?,
-		universeId: (string | number)?,
-	}?,
-}
-export type SearchCodesResultValue = Page<CodeDto>
-export type CreateCodeCall = CreateCodeRequest
-export type CreateCodeResultValue = CodeDto
-export type ExportBatchCall = { path: { batchId: string } }
-export type ExportBatchResultValue = string
-export type BulkCreateCodesCall = { idempotencyKey: string?, body: BulkCreateCodesRequest }
-export type BulkCreateCodesResultValue = BulkCreateCodesResponse
-export type RedeemCall = RedeemCodeRequest
-export type RedeemResultValue = RedeemCodeResponse
-export type DeleteCodeCall = { path: { id: string | number } }
-export type DeleteCodeResultValue = nil
-export type GetCodeCall = { path: { id: string | number } }
-export type GetCodeResultValue = CodeDto
-export type UpdateCodeCall = { path: { id: string | number }, body: UpdateCodeRequest }
-export type UpdateCodeResultValue = CodeDto
-export type ListRedemptionsCall = { path: { id: string | number }, query: { page: number?, size: number? }? }
-export type ListRedemptionsResultValue = Page<CodeRedemptionDto>
-export type HealthProxyCall = {}
-export type HealthProxyResultValue = HealthResponse
-export type InfoCall = {}
-export type InfoResultValue = { [string]: Core.Json }
-export type MetricsCall = {}
-export type MetricsResultValue = MetricsResponse
 return {}

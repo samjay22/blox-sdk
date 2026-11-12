@@ -49,7 +49,7 @@ Shared helper state owns caches, presence timers and bounded close work. See [Fi
 `Fields/OpBuilder` composes it for dry runs; `Codes/Award` reuses that builder and the same universe schema
 cache. Transactions use the shared constructor and TypeSystem, retaining full commit validation and
 per-transaction identity. Codes never choose a downstream key or emulate a player-state mutation locally.
-Generated facades delegate only the handwritten preflight; transport/retry/auth remain in one pipeline.
+The Codes facade and generated facades delegate only the handwritten preflight; transport/retry/auth remain in one pipeline.
 
 `Fields/Bulk` composes the same operation builder; `Fields/Control` validates closed target/filter and
 schedule-action grammar. `Fields/Jobs` validates import/export requests and offers synchronous bounded
