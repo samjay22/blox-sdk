@@ -1,0 +1,58 @@
+#!/bin/sh
+# Install the pinned verification toolchain on a clean macOS arm64 machine (GitHub-hosted CI).
+# ./tools/verify never calls this: it assumes the tools already exist. Versions for lune, stylua,
+# selene, rojo and wally come from aftman.toml so there is one place to bump them.
+# wally ships an x86_64 binary only, so Apple Silicon needs Rosetta; this script never installs it.
+# Usage: tools/install-ci-tools [destination]   (default: ~/.aftman/bin, which tools/verify searches)
+set -eu
+cd "$(dirname "$0")/.."
+LUAU_VERSION=0.703 # Not an Aftman tool; keep in step with the version noted in tools/verify.
+dest="${1:-$HOME/.aftman/bin}"
+
+[ "$(uname -s)-$(uname -m)" = "Darwin-arm64" ] || { echo "install-ci-tools supports macOS arm64 only" >&2; exit 1; }
+
+pin() {
+	version=$(sed -n "s|^$1 *= *\"[^@]*@\(.*\)\"|\1|p" aftman.toml)
+	[ -n "$version" ] || { echo "no $1 pin in aftman.toml" >&2; exit 1; }
+	echo "$version"
+}
+
+mkdir -p "$dest"
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+# fetch <url> <binary>...: download a zip and install the named binaries into $dest.
+fetch() {
+	url=$1
+	shift
+	curl -fsSL --retry 3 -o "$work/archive.zip" "$url"
+	rm -rf "$work/out"
+	mkdir "$work/out"
+	unzip -q "$work/archive.zip" -d "$work/out"
+	for binary in "$@"; do
+		found=$(find "$work/out" -type f -name "$binary" | head -n 1)
+		[ -n "$found" ] || { echo "$binary not found in $url" >&2; exit 1; }
+		install -m 755 "$found" "$dest/$binary"
+	done
+}
+
+v=$(pin lune)
+fetch "https://github.com/lune-org/lune/releases/download/v$v/lune-$v-macos-aarch64.zip" lune
+v=$(pin stylua)
+fetch "https://github.com/JohnnyMorganz/StyLua/releases/download/v$v/stylua-macos-aarch64.zip" stylua
+v=$(pin selene)
+fetch "https://github.com/Kampfkarren/selene/releases/download/$v/selene-$v-macos.zip" selene
+v=$(pin rojo)
+fetch "https://github.com/rojo-rbx/rojo/releases/download/v$v/rojo-$v-macos-aarch64.zip" rojo
+v=$(pin wally)
+fetch "https://github.com/UpliftGames/wally/releases/download/v$v/wally-v$v-macos.zip" wally
+fetch "https://github.com/luau-lang/luau/releases/download/$LUAU_VERSION/luau-macos.zip" luau luau-analyze
+
+for tool in lune stylua selene rojo wally; do
+	printf '%s: ' "$tool"
+	"$dest/$tool" --version 2>&1 | head -n 1
+done
+for tool in luau luau-analyze; do
+	[ -x "$dest/$tool" ] || { echo "$tool missing" >&2; exit 1; }
+	echo "$tool: $LUAU_VERSION"
+done

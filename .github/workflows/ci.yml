@@ -4,21 +4,31 @@ permissions:
   contents: read
 jobs:
   offline-verification:
-    # Never execute fork-provided code on the owner's preprovisioned runner.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    # Provision the pinned Aftman tools and luau/luau-analyze in the runner image.
-    # Do not run installers or download tools during SDK verification.
-    runs-on: [self-hosted, macOS, ARM64]
-    timeout-minutes: 10
+    # GitHub-hosted Apple Silicon runner: free for this public repository, so CI needs no machine of ours.
+    # Fork PRs are safe here (read-only token, no secrets, throwaway VM).
+    runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-      - name: Strict analysis, formatting, lint, dual-runtime tests, drift, coverage, Rojo
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.13" # gen-docs and the release tests need 3.12+
+      - name: Install the pinned toolchain (aftman.toml versions plus Luau)
         shell: bash
-        run: ./tools/verify
+        run: |
+          set -euo pipefail
+          # wally is x86_64-only; a throwaway runner VM can install Rosetta if the image lacks it.
+          arch -x86_64 /usr/bin/true 2>/dev/null || sudo softwareupdate --install-rosetta --agree-to-license
+          tools/install-ci-tools
+      - name: Strict analysis, formatting, lint, dual-runtime tests, drift, Rojo, package
+        shell: bash
+        # Everything that needs only this repository. ./tools/verify adds the checks that read the backend
+        # services' source (not available to CI) and is still the complete local gate.
+        run: ./tools/verify-cloud
   release-rbxm:
-    # Publish a Roblox model for every push to main, but only after the full offline suite passed.
+    # Publish a Roblox model for every push to main, but only after verification passed.
     needs: offline-verification
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

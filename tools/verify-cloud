@@ -1,0 +1,24 @@
+#!/bin/sh
+# The offline checks that need nothing beyond this repository, for CI on a clean GitHub-hosted runner.
+# ./tools/verify is still the complete gate: on top of this it runs the checks that read the backend
+# services' source (check-field-vectors.py, check-coverage and the backend-refresh unit tests), which
+# only exist on a developer machine. Run tools/install-ci-tools first on a machine without the toolchain.
+set -eu
+cd "$(dirname "$0")/.."
+export PATH="/opt/homebrew/bin:$HOME/.aftman/bin:$PATH"
+python3 tools/gen-vectors.py --check
+python3 tools/gen-docs --check
+stylua --check src tests examples roblox tools/live-smoke.luau tools/LuneTypes.luau
+# Installed Luau 0.703 can SIGTRAP in parallel type checking; serialize without skipping checks.
+luau-analyze -j1 src tests examples/*.luau tools/live-smoke.luau tools/LuneTypes.luau
+python3 tools/verify-examples.py
+selene src tests examples tools/live-smoke.luau tools/LuneTypes.luau
+luau tests/run.luau
+lune run tests/run.luau
+lune run tests/smoke-runner.luau
+python3 tools/gen.py --check
+python3 tools/build-roblox.py --check
+python3 tools/verify-package.py
+rojo build default.project.json -o /private/tmp/BloxSDK.rbxm
+python3 tools/run-portable-tests.py
+python3 tools/check-package
