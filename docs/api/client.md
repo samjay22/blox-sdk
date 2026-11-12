@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "3.0.0"
+SDK.version = "3.1.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -355,6 +355,7 @@ export type ProfileSyncConfig = {
 	enabled: boolean?,
 	budgetThreshold: number?,
 	maxConcurrentReloads: number?,
+	resyncSeconds: number?,
 }
 
 export type SessionConfig = {

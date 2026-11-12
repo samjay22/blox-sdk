@@ -25,13 +25,13 @@ Fields Rotations, Generators and Tables are covered, including server gameplay h
 | audit | 13 | Available controllers covered |
 | auth | 62 | Available controllers covered |
 | codes | 14 | Available controllers covered |
-| fields | 150 | Available controllers covered |
+| fields | 151 | Available controllers covered |
 | leaderboards | 28 | Available controllers covered |
 | matchmaking | 52 | Available controllers covered |
 | party | 16 | Unverified: source unavailable |
 | platform | 43 | Available controllers covered |
 
-Total: **378** typed HTTP methods across eight facades (including public/management APIs).
+Total: **379** typed HTTP methods across eight facades (including public/management APIs).
 
 ## Endpoint inventory
 
@@ -280,6 +280,7 @@ The endpoint column is the gateway route inventory; SDK 3.0 sends operations wit
 | `GET /fields-service/api/fields/universes/{universeId}/schema/luau` | `client.fields:luau` | READ | `svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/schema/typescript` | `client.fields:typescript` | READ | `svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java` |
 | `POST /fields-service/api/fields/universes/{universeId}/sessions/acquire` | `client.fields:acquireSessions` | READ_WRITE | `API_CONTRACT.md` |
+| `POST /fields-service/api/fields/universes/{universeId}/sessions/poll` | `client.fields:pollSessions` | READ_WRITE | `API_CONTRACT.md` |
 | `POST /fields-service/api/fields/universes/{universeId}/sessions/release` | `client.fields:releaseSessions` | READ_WRITE | `API_CONTRACT.md` |
 | `POST /fields-service/api/fields/universes/{universeId}/sessions/renew` | `client.fields:renewSessions` | READ_WRITE | `API_CONTRACT.md` |
 | `GET /fields-service/api/fields/universes/{universeId}/snapshots` | `client.fields:snapshots` | ADMIN | `svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java` |

@@ -105,6 +105,8 @@ local http={
 
    elseif request.Url==path.."/sessions/acquire" then
     return {StatusCode=200,Headers={},Body=scheduler.json({items={{userId=7,status="granted",epoch=7,expiresAt="2030-01-01T00:00:00Z",snapshot={seq=nativeSeq,fields={Currency={Gems=nativeValue}},versions={["Currency.Gems"]=nativeSeq}}}}})}
+   elseif request.Url==path.."/sessions/poll" then
+    return {StatusCode=200,Headers={},Body=scheduler.json({cursor=0,reset=false,more=false,players=wireJson.array({})})}
    elseif request.Url==path.."/sessions/release" then
     return {StatusCode=200,Headers={},Body=scheduler.json({items={{userId=7,status="released"}}})}
    elseif request.Url==path.."/commits" then

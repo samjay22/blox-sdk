@@ -96,6 +96,14 @@ end
 function Sessions.hasWork(self: Sessions): boolean
 	return not self._closed and next(self._leases) ~= nil
 end
+--- Name this server while it holds a granted lease for the player, whose outside changes then arrive in its inbox.
+function Sessions.inboxServer(self: Sessions, universe: string, user: number): string?
+	local lease = self._leases[universe .. ":" .. tostring(user)]
+	if lease and lease.epoch and not lease.lost and not lease.closing then
+		return self._server
+	end
+	return nil
+end
 --- Fence and discard all local writes on lost ownership, reporting before optional native kick.
 function Sessions._lost(self: Sessions, lease: Lease, code: string)
 	if lease.lost then

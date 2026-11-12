@@ -513,6 +513,8 @@ export type PlayerSampleResponse = { players: { PlayerSample }, sampled: number,
 export type PlayerSearchPage = { items: { Core.Json }, nextCursor: (string | Core.Null)? }
 export type Policy = { autoEnabled: boolean, retentionDays: number }
 export type PolicyInput = { autoEnabled: boolean, retentionDays: number, universeId: number? }
+export type PollInput = { cursor: number, serverId: string }
+export type PollResponse = { cursor: number, more: boolean, players: { number }, reset: boolean }
 export type Presence = {
 	online: boolean,
 	placeId: (number | Core.Null)?,
@@ -1228,6 +1230,8 @@ export type TypescriptCall = { path: { universeId: (string | number)? }? }
 export type TypescriptResultValue = string
 export type AcquireSessionsCall = { path: { universeId: (string | number)? }?, body: AcquireInput }
 export type AcquireSessionsResultValue = SessionResponse
+export type PollSessionsCall = { path: { universeId: (string | number)? }?, body: PollInput }
+export type PollSessionsResultValue = PollResponse
 export type ReleaseSessionsCall = { path: { universeId: (string | number)? }?, body: ReleaseInput }
 export type ReleaseSessionsResultValue = SessionResponse
 export type RenewSessionsCall = { path: { universeId: (string | number)? }?, body: RenewInput }

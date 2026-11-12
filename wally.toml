@@ -1,6 +1,6 @@
 [package]
 name = "blox-api/blox-sdk"
-version = "3.0.0"
+version = "3.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "server"
 license = "MIT"

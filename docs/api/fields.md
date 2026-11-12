@@ -1921,6 +1921,18 @@ Service.acquireSessions(
 ): Core.Result<Types.AcquireSessionsResultValue>
 ```
 
+### `Service.pollSessions`
+
+POST /fields-service/api/fields/universes/{universeId}/sessions/poll via gateway; access: READ_WRITE.
+
+```luau
+Service.pollSessions(
+	self: Service,
+	req: Types.PollSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PollSessionsResultValue>
+```
+
 ### `Service.releaseSessions`
 
 POST /fields-service/api/fields/universes/{universeId}/sessions/release via gateway; access: READ_WRITE.
@@ -2763,6 +2775,10 @@ export type PlayerSearchPage = { items: { Core.Json }, nextCursor: (string | Cor
 export type Policy = { autoEnabled: boolean, retentionDays: number }
 
 export type PolicyInput = { autoEnabled: boolean, retentionDays: number, universeId: number? }
+
+export type PollInput = { cursor: number, serverId: string }
+
+export type PollResponse = { cursor: number, more: boolean, players: { number }, reset: boolean }
 
 export type Presence = {
 	online: boolean,
@@ -3812,6 +3828,10 @@ export type TypescriptResultValue = string
 export type AcquireSessionsCall = { path: { universeId: (string | number)? }?, body: AcquireInput }
 
 export type AcquireSessionsResultValue = SessionResponse
+
+export type PollSessionsCall = { path: { universeId: (string | number)? }?, body: PollInput }
+
+export type PollSessionsResultValue = PollResponse
 
 export type ReleaseSessionsCall = { path: { universeId: (string | number)? }?, body: ReleaseInput }
 

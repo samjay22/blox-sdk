@@ -110,6 +110,8 @@ local function run(
 					},
 				},
 			}
+		elseif string.find(url, "/sessions/poll", 1, true) then
+			payload = { cursor = 0, reset = false, more = false, players = Json.array({}) }
 		elseif string.find(url, "/sessions/release", 1, true) then
 			payload = { items = { { userId = 7, status = "released" } } }
 		elseif string.find(url, "/commits", 1, true) then

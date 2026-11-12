@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.0 (local, not published)
+
+- Profile sync now polls a per-server inbox: each batch tick sends one `sessions/poll` for the server and
+  reads change feeds only for the players the inbox names, instead of polling every loaded player every tick.
+- Safety net: every leased player is still re-read on a jittered `profileSync.resyncSeconds` interval
+  (default 30, range 5..300) and immediately after an inbox reset, so a missed notification self-heals.
+- Players loaded without a lease keep the previous every-tick change poll. No public API removed.
+- Requires a Fields service that serves `POST /api/fields/universes/{u}/sessions/poll`; no fallback exists.
+- 379 endpoints; adds `Fields.pollSessions` with `PollInput` / `PollResponse` types.
+
 ## 3.0.0 (local, not published)
 
 - Breaking leased-profile lifecycle: batched acquire/snapshot readiness, held/steal backoff, expiry renewal, flush-then-release on leave and shutdown.

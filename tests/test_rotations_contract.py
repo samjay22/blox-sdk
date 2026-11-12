@@ -88,7 +88,7 @@ class RotationsContractTests(unittest.TestCase):
         coverage=(ROOT/'SDK_COVERAGE.md').read_text()
         self.assertNotIn('TODO: Fields generic Rotations',coverage)
         self.assertIn('378',coverage)
-        self.assertIn('version = "3.0.0"',(ROOT/'wally.toml').read_text())
+        self.assertIn('version = "3.1.0"',(ROOT/'wally.toml').read_text())
         for file in ('CHANGELOG.md','docs/CHANGELOG.md'):
             text=(ROOT/file).read_text()
             self.assertIn('## 0.3.0',text)

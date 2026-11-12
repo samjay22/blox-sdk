@@ -11,6 +11,7 @@ export type ProfileSyncConfig = {
 	enabled: boolean?,
 	budgetThreshold: number?,
 	maxConcurrentReloads: number?,
+	resyncSeconds: number?,
 }
 export type SessionConfig = {
 	serverId: string?,
@@ -101,7 +102,7 @@ function Config.validate(config: Config)
 		assert(type(config.profileSync) == "table", "profileSync must be a table")
 		for name in config.profileSync :: any do
 			assert(
-				table.find({ "enabled", "budgetThreshold", "maxConcurrentReloads" }, name),
+				table.find({ "enabled", "budgetThreshold", "maxConcurrentReloads", "resyncSeconds" }, name),
 				"Unknown profileSync field"
 			)
 		end

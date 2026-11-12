@@ -10,10 +10,14 @@ local Sync = {}
 Sync.__index = Sync
 type Registration = { universe: string, invoke: Core.Invoke }
 type Reload = { at: number, busy: boolean, attempts: number }
+type Inbox = { server: string, cursor: number, flagged: { [number]: number }, resyncAt: number }
 type Group = { universe: string, invoke: Core.Invoke, users: { [number]: { Profile.Profile } } }
 export type Sync = typeof(setmetatable(
 	{} :: {
 		wake: (() -> ())?,
+		inbox: ((universe: string, userId: number) -> string?)?,
+		_inboxes: { [Core.Invoke]: { [string]: Inbox } },
+		_resync: number,
 		_runtime: Core.Runtime,
 		_enabled: boolean,
 		_pollAt: number,
@@ -60,6 +64,8 @@ function Sync.new(runtime: Core.Runtime, options: Config.ProfileSyncConfig?, can
 			true
 		),
 		_canPoll = canPoll,
+		_inboxes = {},
+		_resync = Config.number(config.resyncSeconds, 30, 5, 300, "profileSync.resyncSeconds", false),
 		_profiles = {},
 		_loads = {},
 		_reloads = {},
@@ -200,88 +206,187 @@ function Sync._poll(self: Sync)
 	end
 	local pending = 0
 	local failed = false
-	for _, group in groups do
-		local users: { number } = {}
-		for user in group.users do
-			table.insert(users, user)
+	--- Settle one group; the tick is released when every group has finished.
+	local function settle()
+		pending -= 1
+		if pending == 0 then
+			self._busy = false
+			if not failed then
+				self.lastError = nil
+				self._failures = 0
+			else
+				self._failures += 1
+				self._pollAt = self._runtime.now()
+					+ backoff(
+						self,
+						self._failures,
+						if self.lastError then self.lastError.retryAfterSeconds else nil
+					)
+			end
 		end
-		table.sort(users)
-		for first = 1, #users, 200 do
-			local players: { Wire.PlayerChangesInput } = {}
-			for i = first, math.min(first + 199, #users) do
-				local user = users[i]
-				local since = math.huge
-				for _, profile in group.users[user] do
-					since = math.min(since, profile.seq)
+	end
+	--- Read and apply one chunk of change feeds; report whether every cursor in it was handled.
+	local function pull(group: Group, users: { number }, first: number): boolean
+		local players: { Wire.PlayerChangesInput } = {}
+		for i = first, math.min(first + 199, #users) do
+			local user = users[i]
+			local since = math.huge
+			for _, profile in group.users[user] do
+				since = math.min(since, profile.seq)
+			end
+			table.insert(players, { userId = user, sinceSeq = since })
+		end
+		local result = group.invoke(Endpoints["fields.changesBatch"], {
+			path = { universeId = group.universe },
+			body = { players = players, maxEntries = 500 },
+		}, { priority = "low", retry = 0, signal = signal }, group.universe)
+		if self._closed or signal.cancelled then
+			return false
+		end
+		if not result.ok then
+			failed = true
+			self.lastError = result.error
+			return false
+		end
+		local response: Wire.BatchChangesResponse = result.value
+		local valid = #response.items == #players
+		for i, item in response.items do
+			if not players[i] or item.userId ~= players[i].userId then
+				valid = false
+			end
+		end
+		if not valid then
+			failed = true
+			self.lastError = {
+				kind = "Validation",
+				code = "invalid_changes_batch",
+				endpoint = "fields.changesBatch",
+				attempts = 1,
+				message = "Invalid batch response",
+			}
+			return false
+		end
+		for i, item in response.items do
+			-- A player may leave while the request is in flight.
+			local profiles = group.users[item.userId]
+			if profiles then
+				for _, profile in profiles do
+					if
+						self._profiles[profile]
+						and not self._reloads[profile]
+						-- A snapshot that completed during this poll already covers this response.
+						and not (profile.seq > players[i].sinceSeq and profile.seq >= item.nextSinceSeq)
+						and not profile:applyChanges(item, players[i].sinceSeq)
+					then
+						self:_reload(profile)
+					end
 				end
-				table.insert(players, { userId = user, sinceSeq = since })
+			end
+		end
+		return true
+	end
+	for _, group in groups do
+		-- Players this server leases are named by its inbox when another writer changes them, so their feeds are
+		-- read only then and on a periodic safety-net pass. Players without a lease are still read every tick.
+		local server: string? = nil
+		local leased: { number } = {}
+		local targets: { number } = {}
+		for user in group.users do
+			local owner = if self.inbox then self.inbox(group.universe, user) else nil
+			if owner then
+				server = owner
+				table.insert(leased, user)
+			else
+				table.insert(targets, user)
+			end
+		end
+		local universes = self._inboxes[group.invoke]
+		if not universes then
+			universes = {}
+			self._inboxes[group.invoke] = universes
+		end
+		local inbox = universes[group.universe]
+		if server and (not inbox or inbox.server ~= server) then
+			local created: Inbox = {
+				server = server,
+				cursor = 0,
+				flagged = {},
+				resyncAt = self._runtime.now() + self:_resyncDelay(),
+			}
+			inbox = created
+			universes[group.universe] = created
+		end
+		if server and inbox then
+			local state: Inbox = inbox
+			-- Feeds named by earlier polls ride this tick beside the next inbox poll, so the poll never waits on them.
+			if self._runtime.now() >= state.resyncAt then
+				for _, user in leased do
+					state.flagged[user] = state.cursor
+				end
+				state.resyncAt = self._runtime.now() + self:_resyncDelay()
+			end
+			for user in state.flagged do
+				if group.users[user] and table.find(leased, user) then
+					table.insert(targets, user)
+				elseif not group.users[user] then
+					-- Notices for players who have left are no longer this server's to read.
+					state.flagged[user] = nil
+				end
 			end
 			pending += 1
 			self._runtime.spawn(function()
-				local result = group.invoke(Endpoints["fields.changesBatch"], {
+				local polled = group.invoke(Endpoints["fields.pollSessions"], {
 					path = { universeId = group.universe },
-					body = { players = players, maxEntries = 500 },
+					body = { serverId = state.server, cursor = state.cursor },
 				}, { priority = "low", retry = 0, signal = signal }, group.universe)
 				if not self._closed and not signal.cancelled then
-					if result.ok then
-						local response: Wire.BatchChangesResponse = result.value
-						local valid = #response.items == #players
-						for i, item in response.items do
-							if not players[i] or item.userId ~= players[i].userId then
-								valid = false
-							end
-						end
-						if valid then
-							for i, item in response.items do
-								for _, profile in group.users[item.userId] do
-									if
-										self._profiles[profile]
-										and not self._reloads[profile]
-										-- A snapshot that completed during this poll already covers this response.
-										and not (profile.seq > players[i].sinceSeq and profile.seq >= item.nextSinceSeq)
-										and not profile:applyChanges(item, players[i].sinceSeq)
-									then
-										self:_reload(profile)
-									end
-								end
-							end
-						else
-							failed = true
-							self.lastError = {
-								kind = "Validation",
-								code = "invalid_changes_batch",
-								endpoint = "fields.changesBatch",
-								attempts = 1,
-								message = "Invalid batch response",
-							}
-						end
-					else
+					if not polled.ok then
 						failed = true
-						self.lastError = result.error
-					end
-				end
-				pending -= 1
-				if pending == 0 then
-					self._busy = false
-					if not failed then
-						self.lastError = nil
-						self._failures = 0
+						self.lastError = polled.error
+					elseif polled.value == nil then
+						-- A success without a body carries no cursor, so it is a failed poll, not an empty one.
+						failed = true
 					else
-						self._failures += 1
-						self._pollAt = self._runtime.now()
-							+ backoff(
-								self,
-								self._failures,
-								if self.lastError then self.lastError.retryAfterSeconds else nil
-							)
+						local response: Wire.PollResponse = polled.value
+						state.cursor = response.cursor
+						if response.reset then
+							-- An expired inbox cannot say what it missed, so the next tick re-reads every leased player.
+							state.resyncAt = 0
+						end
+						for _, user in response.players do
+							state.flagged[user] = response.cursor
+						end
 					end
 				end
+				settle()
+			end)
+		end
+		table.sort(targets)
+		-- A notice that arrives while a read is in flight is newer than that read and must survive it.
+		local mark = if inbox then inbox.cursor else 0
+		for first = 1, #targets, 200 do
+			pending += 1
+			self._runtime.spawn(function()
+				-- A failed read keeps its players flagged, so they are read again on a later tick.
+				if pull(group, targets, first) and inbox then
+					for i = first, math.min(first + 199, #targets) do
+						local noticed = inbox.flagged[targets[i]]
+						if noticed and noticed <= mark then
+							inbox.flagged[targets[i]] = nil
+						end
+					end
+				end
+				settle()
 			end)
 		end
 	end
 	if pending == 0 then
 		self._busy = false
 	end
+end
+--- Spread safety-net passes so servers that started together do not re-read their rosters together.
+function Sync._resyncDelay(self: Sync): number
+	return self._resync * (0.8 + 0.4 * self._runtime.random())
 end
 --- Fence asynchronous loads against player departure without retaining departed-user history.
 function Sync.beginLoad(self: Sync, userId: number): Core.Signal
@@ -369,6 +474,7 @@ function Sync.destroy(self: Sync)
 	table.clear(self._profiles)
 	table.clear(self._reloads)
 	table.clear(self._schemaPoll)
+	table.clear(self._inboxes)
 	self.Changed:destroy()
 end
 return table.freeze(Sync)

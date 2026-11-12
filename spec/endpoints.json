@@ -12417,6 +12417,58 @@
         "scoped"
       ],
       "bodyRequired": true,
+      "bodyType": "PollInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.pollSessions",
+      "idempotent": true,
+      "javaResponse": "Mono<ChangesBatchResult>",
+      "method": "POST",
+      "minimumLevel": "READ_WRITE",
+      "name": "pollSessions",
+      "path": "/api/fields/universes/{universeId}/sessions/poll",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "PollResponse",
+      "responseType": "PollSessionsResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "API_CONTRACT.md",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
       "bodyType": "ReleaseInput",
       "cacheable": false,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
@@ -27108,6 +27160,46 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java"
+      },
+      "PollInput": {
+        "fields": {
+          "cursor": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          },
+          "serverId": {
+            "java": "String",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
+      },
+      "PollResponse": {
+        "fields": {
+          "cursor": {
+            "java": "long",
+            "required": true,
+            "responseNullable": false
+          },
+          "more": {
+            "java": "boolean",
+            "required": true,
+            "responseNullable": false
+          },
+          "players": {
+            "java": "List<Long>",
+            "required": true,
+            "responseNullable": false
+          },
+          "reset": {
+            "java": "boolean",
+            "required": true,
+            "responseNullable": false
+          }
+        },
+        "source": "API_CONTRACT.md"
       },
       "PreparedPolicy": {
         "fields": {

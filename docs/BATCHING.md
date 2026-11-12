@@ -97,7 +97,9 @@ there cannot be an unlimited number of polls in a single envelope.
 
 Sync response validation, complete ledger groups, per-field versions, signals and conservative snapshot
 recovery remain in place. A snapshot covering an older in-flight poll cannot be re-invalidated by that
-poll. `profileSync.enabled=false` disables automatic polling. Poll failures back off with Retry-After;
+poll. `profileSync.enabled=false` disables automatic polling. With leased profiles a tick normally carries one
+`sessions/poll` op per universe instead of a changes op per 200 players; full-roster changes reads run every
+`profileSync.resyncSeconds` (default 30) and after an inbox reset. Poll failures back off with Retry-After;
 recovery remains staggered and bounded by `maxConcurrentReloads`, with its budget threshold. Batch
 cadence replaces the removed profile `intervalSeconds` option (now rejected) and server `pollAfterMs` scheduling hint.
 

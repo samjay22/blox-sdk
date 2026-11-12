@@ -23,6 +23,9 @@ type Harness = {
 	maxDocs: number,
 	activePolls: number,
 	maxPolls: number,
+	leased: { [number]: true },
+	inboxPolls: { { at: number, body: Wire.PollInput } },
+	inbox: (Wire.PollInput) -> Wire.PollResponse,
 }
 --- Fail regressions with a concise value-free label.
 local function check(value: unknown, label: string?)
@@ -100,7 +103,7 @@ local function response(value: unknown, status: number?, headers: { [string]: st
 	return { StatusCode = status or 200, Body = Json.encode(value), Headers = headers or {} }
 end
 --- Route a deterministic in-memory mock transport while recording budget and overlap behavior.
-local function harness(options: SDK.Config?): Harness
+local function harness(options: SDK.Config?, inbox: boolean?): Harness
 	local s = Scheduler.new()
 	local h: Harness = {} :: any
 	h.s = s
@@ -113,6 +116,11 @@ local function harness(options: SDK.Config?): Harness
 	h.activePolls = 0
 	h.maxPolls = 0
 	h.schema = schema
+	h.leased = {}
+	h.inboxPolls = {}
+	h.inbox = function(body)
+		return { cursor = body.cursor, reset = false, more = false, players = Json.array({}) :: any }
+	end
 	h.document = function(user)
 		return document(user)
 	end
@@ -134,11 +142,20 @@ local function harness(options: SDK.Config?): Harness
 			local result = h.batch(body, #h.polls)
 			h.activePolls -= 1
 			return result
+		elseif string.find(request.Url, "/sessions/poll", 1, true) then
+			local body = Decode.decode(request.Body :: string) :: Wire.PollInput
+			table.insert(h.inboxPolls, { at = s.time(), body = body })
+			return response(h.inbox(body))
 		elseif string.find(request.Url, "/sessions/", 1, true) then
 			local body = Decode.decode(request.Body :: string) :: any
 			local items: { any } = {}
 			for _, player in body.players or body.leases do
 				local status = if body.players then "granted" elseif body.ttlMs then "renewed" else "released"
+				if status == "released" then
+					h.leased[player.userId] = nil
+				else
+					h.leased[player.userId] = true
+				end
 				local snapshot: any = nil
 				if body.players then
 					table.insert(h.documents, s.time())
@@ -207,6 +224,10 @@ local function harness(options: SDK.Config?): Harness
 	config.key = "bsa_" .. string.rep("a", 8) .. "_" .. string.rep("b", 43)
 	config.universeId = 123
 	h.client = SDK.new(config)
+	if not inbox then
+		-- Feed mechanics are tested as for players this server does not lease: every handle is read on every tick.
+		h.client._helpers.sync.inbox = nil
+	end
 	return h
 end
 --- Load a profile or fail the test at its setup boundary.
@@ -230,7 +251,7 @@ return function(test: (string, () -> ()) -> ())
 		s.run(function()
 			for _, body in
 				{
-					{ players = {} },
+					{ players = Json.array({}) :: any },
 					{ players = { { userId = 0, sinceSeq = 0 } } },
 					{ players = { { userId = 7, sinceSeq = -1 } } },
 					{ players = { { userId = 7, sinceSeq = 0.1 } } },
@@ -537,4 +558,105 @@ return function(test: (string, () -> ()) -> ())
 			end)
 		end
 	)
+
+	test("ProfileSync polls one inbox per tick and reads no feed while no leased player changed", function()
+		local h = harness({ profileSync = { enabled = false } }, true)
+		h.s.run(function()
+			load(h, 7)
+			load(h, 8)
+			h.client._helpers.sync._enabled = true
+			assert(h.client._helpers.sync.wake, "Missing batch wake")()
+			h.s.runtime.wait(2.1)
+			check(#h.inboxPolls >= 3, "Inbox was not polled on each tick")
+			check(#h.polls == 0, "A quiet inbox still read change feeds")
+			check(#h.inboxPolls[1].body.serverId > 0 and h.inboxPolls[1].body.cursor == 0)
+			h.client:destroy()
+		end)
+	end)
+
+	test(
+		"ProfileSync reads only the players its inbox names and acknowledges with the returned cursor",
+		function()
+			local h = harness({ profileSync = { enabled = false } }, true)
+			h.s.run(function()
+				load(h, 7)
+				local changed = load(h, 8)
+				changed.seq = 4
+				h.inbox = function(body)
+					if body.cursor == 0 then
+						return { cursor = 3, reset = false, more = false, players = Json.array({ 8 }) :: any }
+					end
+					return {
+						cursor = body.cursor,
+						reset = false,
+						more = false,
+						players = Json.array({}) :: any,
+					}
+				end
+				h.client._helpers.sync._enabled = true
+				assert(h.client._helpers.sync.wake, "Missing batch wake")()
+				h.s.runtime.wait(2.1)
+				check(#h.polls == 1, "A named player was not read exactly once")
+				check(#h.polls[1].body.players == 1 and h.polls[1].body.players[1].userId == 8)
+				check(h.polls[1].body.players[1].sinceSeq == 4)
+				check(h.inboxPolls[2].body.cursor == 3, "The inbox cursor was not acknowledged")
+				h.client:destroy()
+			end)
+		end
+	)
+
+	test(
+		"ProfileSync re-reads every leased player after an inbox reset and on the periodic safety pass",
+		function()
+			local h = harness({ profileSync = { enabled = false, resyncSeconds = 5 } }, true)
+			h.s.run(function()
+				load(h, 7)
+				load(h, 8)
+				local reset = true
+				h.inbox = function(_body)
+					local expired = reset
+					reset = false
+					return { cursor = 0, reset = expired, more = false, players = Json.array({}) :: any }
+				end
+				h.client._helpers.sync._enabled = true
+				assert(h.client._helpers.sync.wake, "Missing batch wake")()
+				h.s.runtime.wait(2.1)
+				check(#h.polls == 1 and #h.polls[1].body.players == 2, "A reset did not re-read the roster")
+				h.s.runtime.wait(8)
+				check(
+					#h.polls == 2 and #h.polls[2].body.players == 2,
+					"The safety pass did not re-read the roster once"
+				)
+				h.client:destroy()
+			end)
+		end
+	)
+
+	test("ProfileSync keeps a player flagged when its feed read fails", function()
+		local h = harness({ profileSync = { enabled = false } }, true)
+		h.s.run(function()
+			load(h, 7)
+			h.inbox = function(body)
+				if body.cursor == 0 then
+					return { cursor = 1, reset = false, more = false, players = Json.array({ 7 }) :: any }
+				end
+				return { cursor = body.cursor, reset = false, more = false, players = Json.array({}) :: any }
+			end
+			local batch = h.batch
+			h.batch = function(body, count)
+				if count == 1 then
+					return response({ code = "unavailable" }, 503)
+				end
+				return batch(body, count)
+			end
+			h.client._helpers.sync._enabled = true
+			assert(h.client._helpers.sync.wake, "Missing batch wake")()
+			h.s.runtime.wait(30)
+			check(
+				#h.polls >= 2 and h.polls[2].body.players[1].userId == 7,
+				"A failed read dropped the notice"
+			)
+			h.client:destroy()
+		end)
+	end)
 end

@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 378 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 379 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 378 endpoints]
+  Audit --> Spec[spec/endpoints.json: 379 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]

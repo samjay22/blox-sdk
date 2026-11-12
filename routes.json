@@ -1202,6 +1202,11 @@
   {
     "svc": "fields",
     "method": "POST",
+    "path": "/api/fields/universes/{universeId}/sessions/poll"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
     "path": "/api/fields/universes/{universeId}/sessions/release"
   },
   {

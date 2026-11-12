@@ -29,12 +29,15 @@ def curate(doc: dict) -> None:
     dto('CommitItem', userId='long', status='String', seq='long?', versions='Map<String,Long>?',
         expiresAt='String?', error='CommitError?')
     dto('CommitResponse', commitId='String', items='List<CommitItem>')
+    dto('PollInput', serverId='String', cursor='long')
+    dto('PollResponse', cursor='long', reset='boolean', more='boolean', players='List<Long>')
     base = next(endpoint for endpoint in doc['endpoints'] if endpoint['id'] == 'fields.changesBatch')
     for name, route, body, response in (
         ('acquireSessions', 'sessions/acquire', 'AcquireInput', 'SessionResponse'),
         ('renewSessions', 'sessions/renew', 'RenewInput', 'SessionResponse'),
         ('releaseSessions', 'sessions/release', 'ReleaseInput', 'SessionResponse'),
         ('commitSession', 'commits', 'CommitInput', 'CommitResponse'),
+        ('pollSessions', 'sessions/poll', 'PollInput', 'PollResponse'),
     ):
         endpoint = dict(base, id='fields.' + name, name=name,
                         path='/api/fields/universes/{universeId}/' + route, bodyType=body,

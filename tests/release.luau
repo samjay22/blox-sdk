@@ -29,7 +29,7 @@ return function(test: (string, () -> ()) -> ())
 	test("1.0 root surface excludes internal modules and has stable error codes", function()
 		local root: any = SDK
 		check(
-			SDK.version == "3.0.0"
+			SDK.version == "3.1.0"
 				and root.endpoints == nil
 				and root.Testing == nil
 				and root.Fields == nil

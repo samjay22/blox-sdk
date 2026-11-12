@@ -1,5 +1,13 @@
 # Migrating BloxSDK
 
+## 3.0.0 to 3.1.0 — inbox-driven profile sync
+
+Deploy a Fields service that serves `POST /api/fields/universes/{u}/sessions/poll` before upgrading; no
+fallback exists. No code changes are needed in games. Each tick the SDK polls the server's inbox, reads
+change feeds only for the players it names, and re-reads the whole roster every
+`profileSync.resyncSeconds` (default 30) or after an inbox reset. External writes to a leased player
+therefore still arrive within about one tick; only a lost notification waits for the next resync.
+
 ## 2.0.0 to 3.0.0 — leased profiles and optimistic writes
 
 Deploy the exact session/commit protocol in [API_CONTRACT.md](API_CONTRACT.md) before upgrading; no fallback exists.

@@ -22,7 +22,7 @@ BOOT_SERVICES = {'audit', 'leaderboards', 'fields', 'platform', 'codes'}
 
 # Exact contract additions may land before parallel backend controller implementations.
 SCALE_ROUTES = {('fields', 'POST', '/api/fields/universes/{universeId}/' + path)
-                for path in ('sessions/acquire', 'sessions/renew', 'sessions/release', 'commits')}
+                for path in ('sessions/acquire', 'sessions/renew', 'sessions/release', 'sessions/poll', 'commits')}
 
 
 def assert_gateway_coverage(endpoints: list[dict], routing: str) -> None:

@@ -292,6 +292,9 @@ function SDK.new(config: Config): Client
 			end
 		end
 	)
+	sync.inbox = function(universe: string, userId: number): string?
+		return sessions:inboxServer(universe, userId)
+	end
 	state.batcher.beforeTick = function()
 		sessions:tick()
 		sync:tick()
@@ -538,7 +541,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "3.0.0"
+SDK.version = "3.1.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

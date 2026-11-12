@@ -5894,6 +5894,49 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["PollInput"] = {
+			["fields"] = {
+				["cursor"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["serverId"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PollResponse"] = {
+			["fields"] = {
+				["cursor"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["more"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["players"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["reset"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["Presence"] = {
 			["fields"] = {
 				["online"] = {
@@ -11615,6 +11658,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 			["item"] = { ["kind"] = "ref", ["name"] = "RandomHistory" } :: Core.Schema,
 			["kind"] = "cursorPage",
 		} :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.pollSessions"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "PollInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "PollResponse" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.presence"] = {

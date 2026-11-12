@@ -1412,6 +1412,14 @@ function Service.acquireSessions(
 ): Core.Result<Types.AcquireSessionsResultValue>
 	return self._invoke(Endpoints["fields.acquireSessions"], req, opts, self._universe)
 end
+--- POST /fields-service/api/fields/universes/{universeId}/sessions/poll via gateway; access: READ_WRITE.
+function Service.pollSessions(
+	self: Service,
+	req: Types.PollSessionsCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PollSessionsResultValue>
+	return self._invoke(Endpoints["fields.pollSessions"], req, opts, self._universe)
+end
 --- POST /fields-service/api/fields/universes/{universeId}/sessions/release via gateway; access: READ_WRITE.
 function Service.releaseSessions(
 	self: Service,

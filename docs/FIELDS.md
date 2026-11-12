@@ -381,7 +381,13 @@ See [Rotations & Generators](ROTATIONS.md) for current/next heads, snapshot-back
 ## Admin edits & live sync
 
 Successfully loaded profiles now register with **one per-client ProfileSync registry** automatically.
-It polls `POST /api/fields/universes/{u}/players/changes/batch`, using Fields READ and game-server keys.
+For leased players (every profile from `loadProfile`) each tick sends one
+`POST /api/fields/universes/{u}/sessions/poll` carrying the server ID and inbox cursor. The response names
+only the players that changed elsewhere since that cursor; the SDK then reads
+`POST /api/fields/universes/{u}/players/changes/batch` for those players alone. Every leased player is also
+re-read on a jittered `profileSync.resyncSeconds` interval (default 30) and at once when the inbox reports
+`reset`, so a lost notification heals without a rejoin. Players held without a lease are read every tick.
+Both calls use Fields READ and game-server keys.
 Profiles for the same universe/credential scope and player share one request item (minimum applied
 watermark); distinct handles still receive their own updates/signals. Universe facades share the
 registry and only one batch request may be physically in flight. Different universes/credential scopes
@@ -396,11 +402,12 @@ local client = BloxSDK.new({
         enabled = true,              -- default; false disables automatic polls/recovery
         budgetThreshold = 0.8,       -- fraction of configured rolling-minute SDK limit
         maxConcurrentReloads = 2,    -- 1..16, default 2
+        resyncSeconds = 30,          -- 5..300, default 30; full-roster re-read for leased players
     },
 })
 ```
 
-Changes polls are appended to each available transport tick in chunks of at most 200 players/op.
+Inbox polls and the changes reads they trigger are appended to each available transport tick; changes reads go in chunks of at most 200 players/op.
 The 2.0 tick cadence supersedes the old independent poll interval and `pollAfterMs` hint; `hasMore`
 continues from the safe cursor on the next available tick. Overflow, in-flight work, credential
 partitioning and retry backoff can defer polls. See [batch transport](BATCHING.md).

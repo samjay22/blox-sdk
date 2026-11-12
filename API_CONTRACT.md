@@ -1,4 +1,4 @@
-# BloxSDK 3.0.0 session contract
+# BloxSDK 3.1.0 session contract
 
 Binding wire authority: `../scale/CONTRACT.md` v1, sections 1, 2 and 6. No compatibility aliases or wire extensions. Four new Fields POST operations use the existing BatchService envelope and internal paths `/api/fields/universes/{universeId}/…`:
 
@@ -8,10 +8,13 @@ Binding wire authority: `../scale/CONTRACT.md` v1, sections 1, 2 and 6. No compa
 | `renewSessions` | `sessions/renew` | `{serverId, ttlMs, leases:[{userId, epoch}]}` |
 | `releaseSessions` | `sessions/release` | `{serverId, leases:[{userId, epoch}]}` |
 | `commitSession` | `commits` | `{serverId, commitId, players:[{userId, epoch, ops}]}` |
+| `pollSessions` | `sessions/poll` | `{serverId, cursor}` |
 
 READ_WRITE game-key authorization; universe path scope is mandatory. Each list has 1–200 distinct players. Server ID is Roblox JobId (1–64 characters); Studio/injected runtimes generate a session ID lazily, or explicitly configure `sessions.serverId`. TTL is 10,000–300,000 ms, default 60,000. Commit limits: 4,000 total ops and 1 MiB body; the coordinator uses a conservative 950,000-byte body limit to leave batch-envelope room. Each player's buffered list is capped at 4,000 ops / 900,000 bytes; excess admission returns `buffer_full` without changing local state. Overflow across players is drained in subsequent serialized commits, immediately during shutdown/removal.
 
 Acquire returns ordered `{items:[{userId,status:"granted",epoch,expiresAt,snapshot:{seq,fields,versions}} | {userId,status:"held",owner,expiresAt,retryAfterMs}]}`. Snapshot `fields` becomes the profile's document data; it is **not** renamed on the wire. Same-owner acquire retains epoch. Released epochs are never reused by Fields.
+
+Poll returns `{cursor, reset, more, players:[userId]}`: the leased players another writer changed since the caller's inbox cursor. Sending a cursor acknowledges every earlier notice. `reset:true` means the inbox expired and cannot say what was missed, so the caller re-reads every leased player's change feed. `more:true` means another page follows at the returned cursor. The owner's own commits never appear.
 
 Renew returns ordered `{items:[{userId,status:"renewed"|"lost",expiresAt?}]}`; release returns `{items:[{userId,status:"released"|"lost"}]}`. Commit returns `{commitId,items:[{userId,status:"committed",seq,versions,expiresAt} | {userId,status:"lease_lost"} | {userId,status:"rejected",error:{code,field?}}]}`. Session results are matched by request order and user ID; malformed/ambiguous commit acknowledgements retain the entire detached request for retry.
 
