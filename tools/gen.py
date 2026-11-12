@@ -156,7 +156,7 @@ def generate(doc: dict) -> dict[Path,str]:
                     typ='('+typ+' | Core.Null)'; s={'kind':'nullable','item':s}
                 if svc=='auth' and name=='ServiceAccountPatchRequest' and n in ('description','expiresAt'):
                     typ='('+typ+' | Core.Null)'; s={'kind':'nullable','item':s}
-                if n == 'entryId' and svc in ('fields','codes') and name not in ('GeneratorPick','RotationClaimInput','RotationClaimResult','RotationStock'):
+                if n == 'entryId' and svc in ('fields','codes'):
                     typ='(string | Core.Null)'; s={'kind':'nullable','item':{'kind':'string'}}
                 if svc=='fields' and name=='BoardActualSettings' and n=='maxDeltaPerSubmit':
                     typ='(number | Core.Null)'; s={'kind':'nullable','item':{'kind':'number'}}
@@ -229,12 +229,12 @@ def generate(doc: dict) -> dict[Path,str]:
         if svc == 'fields':
             lines[3:3] = ['local Helpers = require("../Fields/Client")', 'local Schema = require("../Fields/Schema")', 'local Transaction = require("../Fields/Transaction")', 'local Profile = require("../Fields/Profile")', 'local OpBuilder = require("../Fields/OpBuilder")']
             bound = 'assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe)'
-            for module in ('Bulk','Schedules','Jobs','Health','Rotations','Generators'):
+            for module in ('Bulk','Schedules','Jobs','Health','Rotations'):
                 lines.insert(3, 'local '+module+' = require("../Fields/'+module+'")')
                 helper_type = 'Builder' if module == 'Bulk' else 'Client'
                 lines.extend([
-                    '--- '+module+' helpers for this client\'s universe; '+('server authorization remains authoritative.' if module in ('Rotations','Generators') else 'control-plane mutations require a server ADMIN key.'),
-                    f'function Service.{dict(Bulk="bulkBuilder", Schedules="scheduleClient", Jobs="jobClient", Health="healthClient", Rotations="rotations", Generators="generators")[module]}(self: Service): {module}.{helper_type} return {module}.new({bound}) end',
+                    '--- '+module+' helpers for this client\'s universe; '+('server authorization remains authoritative.' if module == 'Rotations' else 'control-plane mutations require a server ADMIN key.'),
+                    f'function Service.{dict(Bulk="bulkBuilder", Schedules="scheduleClient", Jobs="jobClient", Health="healthClient", Rotations="rotations")[module]}(self: Service): {module}.{helper_type} return {module}.new({bound}) end',
                 ])
             lines += [
                 '--- Build a subject-free list for read-only static validation.',

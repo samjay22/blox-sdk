@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "6.0.0"
+SDK.version = "7.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -278,11 +278,15 @@ export type Transaction = Transaction.Transaction
 
 export type SchemaCache = Schema.Schema
 
-export type GeneratorsClient = Generators.Client
-
 export type RotationsClient = Rotations.Client
 
 export type RotationWatch = Rotations.Watch
+
+export type RotationItem = Rotations.Item
+
+export type RotationPeriod = Rotations.Period
+
+export type RotationCurrent = Rotations.Current
 
 export type OperationsBuilder = Operations.Builder
 
@@ -295,10 +299,6 @@ export type BulkBuilder = Bulk.Builder
 export type FieldsHealthClient = Health.Client
 
 export type AuditWriterOptions = AuditWriter.Options
-
-export type GeneratorOptions = Generators.Options
-
-export type RotationClaimOptions = Rotations.ClaimOptions
 
 export type SnapshotConnection = SnapshotCache.Connection
 

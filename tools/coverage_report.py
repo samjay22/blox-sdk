@@ -34,7 +34,7 @@ def render(doc: dict, prefixes: dict[str, str]) -> str:
         '- Platform currently exposes metering, plans, rate limits, webhooks, analytics and developer tools. No LiveOps, environment promotion, flag or exposure controllers exist in its current `src/main/java`. Removed speculative SDK methods are not aliases. Use Fields schedules, environments and flags where exposed; missing Platform capabilities are service-side work, not SDK coverage.',
         '- SDK 3.0 uses internal operation paths without gateway prefixes; no direct-host routing or fallback is supported.',
         '- Offline verification is not proof of gateway rewrites, deployed backend parity, production key grants or native Roblox networking. No live HTTP calls were made.', '',
-        '## Rotations and generators', '', 'Fields Rotations, Generators and Tables are covered, including server gameplay helpers, preview and table odds. See [guide](docs/ROTATIONS.md).', '',
+        '## Rotations', '', 'Fields rotations are covered: `fields:currentRotation` and the `client.fields:rotations()` helpers (`current`, `upcoming`, `watch`), plus save, list, delete and preview. See [guide](docs/ROTATIONS.md).', '',
         '## Summary', '', '| Service | SDK methods | Source parity |', '|---|---:|---|']
     counts=Counter(e['service'] for e in doc['endpoints'])
     for service, count in sorted(counts.items()): rows.append(f'| {service} | {count} | '+('Unverified: source unavailable' if service=='party' else 'Available controllers covered')+' |')

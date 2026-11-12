@@ -24,9 +24,8 @@ only Instance require expressions with equivalent portable imports (`tools/verif
 | configs | namespace `Shop` key `SwordPrice`; observes ETag-polled changes |
 | flags | `double_xp` flag; authoritative player evaluation |
 | live-events | enabled `live_event` rotation with current head |
-| weather | `weather` rotation; picks carry weather values RAIN/METEOR/CLEAR |
-| pack-store | `pack_store` rotation; trusted server invokes child PurchasePack BindableFunction |
-| card-pack | `card_pack` generator; preview, then trusted server invokes OpenCardPack BindableFunction |
+| weather | `weather` rotation; each item's data carries weather values RAIN/METEOR/CLEAR; `watch` applies it |
+| daily-shop | `daily_shop` rotation; `current` for the offers and a countdown (server: child GetShopOffers BindableFunction) |
 | leaderboard | dedicated `sdk_smoke` board; reads around/top |
 | ratings | discovers configured rating scopes; no untrusted rating deltas |
 | matchmaking-queue | provision `ranked` mode; joins, polls, removes on completion/cancellation |

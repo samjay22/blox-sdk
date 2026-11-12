@@ -9,7 +9,6 @@ local AuthTypes = require(script.Types.Auth)
 local Profile = require(script.Fields.Profile)
 local Transaction = require(script.Fields.Transaction)
 local Schema = require(script.Fields.Schema)
-local Generators = require(script.Fields.Generators)
 local Rotations = require(script.Fields.Rotations)
 local Operations = require(script.Fields.OpBuilder)
 local Jobs = require(script.Fields.Jobs)
@@ -94,17 +93,17 @@ export type SessionEvent = SessionSignal.Change
 export type Profile = Profile.Profile
 export type Transaction = Transaction.Transaction
 export type SchemaCache = Schema.Schema
-export type GeneratorsClient = Generators.Client
 export type RotationsClient = Rotations.Client
 export type RotationWatch = Rotations.Watch
+export type RotationItem = Rotations.Item
+export type RotationPeriod = Rotations.Period
+export type RotationCurrent = Rotations.Current
 export type OperationsBuilder = Operations.Builder
 export type JobsClient = Jobs.Client
 export type SchedulesClient = Schedules.Client
 export type BulkBuilder = Bulk.Builder
 export type FieldsHealthClient = Health.Client
 export type AuditWriterOptions = AuditWriter.Options
-export type GeneratorOptions = Generators.Options
-export type RotationClaimOptions = Rotations.ClaimOptions
 export type SnapshotConnection = SnapshotCache.Connection
 export type TokenStore = UserSession.TokenStore
 export type ManagedSession = UserSession.Session
@@ -594,7 +593,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "6.0.0"
+SDK.version = "7.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

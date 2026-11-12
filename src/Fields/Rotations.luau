@@ -3,269 +3,204 @@ local Core = require("../Types/Core")
 local Wire = require("../Types/Fields")
 local Helpers = require("./Client")
 local Scope = require("./Scope")
-local Control = require("./Control")
 local System = require("./TypeSystem")
-local Generators = require("./Generators")
-local Snapshot = require("../Core/SnapshotCache")
+local Errors = require("../Core/Errors")
 local Json = require("../Core/Json")
 local Instant = require("../Core/Instant")
 local Rotations = {}
 Rotations.__index = Rotations
-export type ClaimOptions = { playerId: number, idempotencyKey: string? }
-export type Watch = { disconnect: (Watch) -> (), refresh: (Watch) -> (), lastError: Core.BloxError? }
+--- One thing that can be active. `data` is whatever JSON object you saved with the item.
+export type Item = { id: string, data: { [string]: any }? }
+--- The items active from `startsAt` until `endsAt` (Unix seconds).
+export type Period = { items: { Item }, startsAt: number, endsAt: number }
+--- What a game reads: the active period, flattened, plus the one after it.
+export type Current = {
+	key: string,
+	version: number,
+	items: { Item },
+	startsAt: number,
+	endsAt: number,
+	next: Period,
+}
+export type Watch = { disconnect: (Watch) -> (), lastError: Core.BloxError? }
 export type Client = typeof(setmetatable({} :: { _scope: Scope.Scope }, Rotations))
---- Bind shared rotations without starting background work; mutations need server WRITE access.
+-- A cached answer is reused until the period ends, but never for longer than this, so edits show up.
+local MAX_AGE = 60
+local RETRY = 15
+type Entry = { value: Current, fetchedAt: number }
+local caches: { [Helpers.State]: { [string]: Entry } } = setmetatable({}, { __mode = "k" }) :: any
+--- Bind rotations to this client's universe without starting background work.
 function Rotations.new(state: Helpers.State, universe: string | number): Client
 	return setmetatable({ _scope = Scope.new(state, universe) }, Rotations)
 end
---- Read a current head and prepared next; never promote a prediction locally.
-function Rotations.get(
-	self: Client,
-	key: string,
-	options: Core.CallOptions?
-): Core.Result<Wire.RotationActive>
-	if not Generators.validKey(key) then
+--- Check the published name grammar before building a route.
+function Rotations.validName(name: unknown): boolean
+	return type(name) == "string" and #name <= 100 and string.match(name, "^[A-Za-z][A-Za-z0-9_.%-]*$") ~= nil
+end
+--- Convert a wire period (ISO instants) to Unix seconds; nil if the server sent something unusable.
+local function period(wire: Wire.RotationPeriod): Period?
+	local startsAt, endsAt = Instant.unix(wire.startsAt), Instant.unix(wire.endsAt)
+	if startsAt == nil or endsAt == nil then
+		return nil
+	end
+	local items: { Item } = {}
+	for _, item in wire.items do
+		local data = item.data
+		table.insert(
+			items,
+			{ id = item.id, data = if data == nil or data == Json.null then nil else data :: any }
+		)
+	end
+	return { items = table.freeze(items), startsAt = startsAt, endsAt = endsAt }
+end
+--- Fetch fresh from the server and convert to the friendly shape.
+local function fetch(self: Client, name: string, options: Core.CallOptions?): Core.Result<Current>
+	local result: Core.Result<Wire.RotationCurrent> =
+		Scope.call(self._scope, "fields.currentRotation", { path = { key = name } }, options)
+	if not result.ok then
+		return result
+	end
+	local now, nextPeriod = period(result.value.current), period(result.value.next)
+	if now == nil or nextPeriod == nil then
+		return Errors.make("Validation", "fields.currentRotation", 0, "Invalid rotation response")
+	end
+	return {
+		ok = true,
+		value = table.freeze({
+			key = result.value.key,
+			version = result.value.version,
+			items = now.items,
+			startsAt = now.startsAt,
+			endsAt = now.endsAt,
+			next = table.freeze(nextPeriod),
+		}),
+	}
+end
+--- What is active now and what comes next. Cached until the period ends (at most 60 seconds), so call
+--- it as often as you like; if a refresh fails while the cached period is still running, that answer is kept.
+function Rotations.current(self: Client, name: string, options: Core.CallOptions?): Core.Result<Current>
+	if not Rotations.validName(name) then
 		return System.failure("invalid_request")
 	end
-	return Scope.call(self._scope, "fields.activeRotation", { path = { key = key } }, options)
+	local state = self._scope.state
+	local cache = caches[state]
+	if cache == nil then
+		cache = {}
+		caches[state] = cache
+	end
+	local slot = tostring(self._scope.universe) .. "/" .. name
+	local entry = (cache :: { [string]: Entry })[slot]
+	local now = state.runtime.unix()
+	if entry and now < entry.value.endsAt and now - entry.fetchedAt < MAX_AGE then
+		return { ok = true, value = entry.value }
+	end
+	local result = fetch(self, name, options)
+	if result.ok then
+		(cache :: { [string]: Entry })[slot] = { value = result.value, fetchedAt = now }
+		return result
+	end
+	if entry and now < entry.value.endsAt and result.error.kind ~= "Cancelled" then
+		return { ok = true, value = entry.value }
+	end
+	return result
 end
---- Use an existing snapshot, otherwise enumerate definitions and fetch each active head.
-function Rotations.getAll(self: Client, options: Core.CallOptions?): Core.Result<{ Wire.RotationActive }>
-	if self._scope.state.closed then
-		return Scope.call(self._scope, "fields.listRotations", {}, options)
-	end
-	local snapshot = self._scope.state.snapshots[tostring(self._scope.universe)]
-	local values = if snapshot then snapshot:getRotations() else nil
-	if values then
-		return { ok = true, value = values }
-	end
-	local definitions: Core.Result<{ Wire.RandomDefinition }> =
-		Scope.call(self._scope, "fields.listRotations", {}, options)
-	if not definitions.ok then
-		return definitions
-	end
-	local result: { Wire.RotationActive } = {}
-	for _, definition in definitions.value do
-		local active = self:get(definition.key, options)
-		if not active.ok then
-			return active
-		end
-		table.insert(result, active.value)
-	end
-	return { ok = true, value = table.freeze(result) }
+--- Seconds until the active items change (display only; never negative).
+function Rotations.secondsLeft(self: Client, current: Current): number
+	return math.max(0, current.endsAt - self._scope.state.runtime.unix())
 end
---- Compute a display-only remaining duration using the injected Unix clock, clamped at zero.
-function Rotations.timeRemaining(self: Client, instance: Wire.RotationInstance): number
-	local seconds = Instant.unix(instance.endsAt)
-	return if seconds then math.max(0, seconds - self._scope.state.runtime.unix()) else 0
-end
---- Read mutable stock separately: snapshot ETags and pinned result.rolls.stock are not live stock.
-function Rotations.getStock(
+--- The next `count` periods (default 5, at most 50), starting with the active one. Not cached.
+function Rotations.upcoming(
 	self: Client,
-	instanceId: string,
+	name: string,
+	count: number?,
 	options: Core.CallOptions?
-): Core.Result<{ Wire.RotationStock }>
-	if not Control.uuid(instanceId) then
-		return System.failure("invalid_request")
-	end
-	return Scope.call(self._scope, "fields.rotationStock", { path = { id = instanceId } }, options)
-end
---- Claim stock and apply pinned costs/grants atomically; omitted keys are generated by the pipeline.
-function Rotations.claim(
-	self: Client,
-	instanceId: string,
-	slot: string,
-	entryId: string,
-	quantity: number,
-	options: ClaimOptions,
-	callOptions: Core.CallOptions?
-): Core.Result<Wire.RotationClaimResult>
-	local raw: any = options
+): Core.Result<{ Period }>
 	if
-		not Control.uuid(instanceId)
-		or type(slot) ~= "string"
-		or not string.find(slot, "%S")
-		or #slot > 110
-		or type(entryId) ~= "string"
-		or not string.find(entryId, "%S")
-		or #entryId > 100
-		or type(quantity) ~= "number"
-		or quantity % 1 ~= 0
-		or quantity < 1
-		or quantity > 100
-		or not Control.object(raw, { "playerId", "idempotencyKey" })
-		or not Control.subject(raw.playerId)
-		or raw.idempotencyKey ~= nil and not Control.key(raw.idempotencyKey)
+		not Rotations.validName(name)
+		or count ~= nil and (type(count) ~= "number" or count % 1 ~= 0 or count < 1 or count > 50)
 	then
 		return System.failure("invalid_request")
 	end
-	return Scope.call(self._scope, "fields.claimRotation", {
-		body = {
-			instanceId = instanceId,
-			slot = slot,
-			entryId = entryId,
-			quantity = quantity,
-			playerId = raw.playerId,
-			idempotencyKey = raw.idempotencyKey,
-		},
-	}, callOptions)
+	local result: Core.Result<Wire.RotationSchedule> = Scope.call(
+		self._scope,
+		"fields.rotationSchedule",
+		{ path = { key = name }, query = { count = count } },
+		options
+	)
+	if not result.ok then
+		return result
+	end
+	local periods: { Period } = {}
+	for _, wire in result.value.periods do
+		local converted = period(wire)
+		if converted == nil then
+			return Errors.make("Validation", "fields.rotationSchedule", 0, "Invalid rotation response")
+		end
+		table.insert(periods, table.freeze(converted))
+	end
+	return { ok = true, value = table.freeze(periods) }
 end
---- Observe authoritative IDs, sharing snapshot polls or one end-edge timer; failures stop fallback polling.
-function Rotations.watch(
-	self: Client,
-	key: string,
-	callback: (Wire.RotationInstance, Wire.RotationActive) -> ()
-): Watch
-	assert(Generators.validKey(key) and type(callback) == "function", "Invalid rotation watch")
+--- Call `callback(current)` now and again whenever the active items change (a new period starts or the
+--- list is edited). Stops with `watch:disconnect()` or when the client is destroyed.
+function Rotations.watch(self: Client, name: string, callback: (Current) -> ()): Watch
+	assert(Rotations.validName(name) and type(callback) == "function", "Invalid rotation watch")
 	local state = self._scope.state
 	assert(not state.closed, "Client is closed")
 	local runtime = state.runtime
 	local connected = true
-	local fallback = false
 	local generation = 0
-	local seen: { [string]: boolean } = {}
 	local timer: thread? = nil
-	local connection: Snapshot.Connection? = nil
-	local signal: Core.Signal = { cancelled = false }
+	local last: string? = nil
 	local watch: Watch
-	local bind: (Snapshot.Snapshot?) -> ()
-	--- Cancel a pending end-edge without scheduling a replacement until an authoritative read succeeds.
-	local function cancelTimer()
-		if timer then
-			runtime.cancel(timer)
-			timer = nil
-		end
-	end
-	--- Dispatch safely after recording the ID, isolating errors and respecting disconnect/destroy.
-	local function emit(active: Wire.RotationActive)
-		local instance = active.current
-		if instance == Json.null or instance == nil then
-			return
-		end
-		local current = instance :: Wire.RotationInstance
-		if seen[current.id] then
-			return
-		end
-		seen[current.id] = true
-		runtime.spawn(function()
-			if connected and not state.closed then
-				pcall(callback, current, active)
-			end
-		end)
-	end
-	--- Fetch at most once per end edge; never loop on expired heads, disabled resources or HTTP errors.
-	local function refresh()
-		if not connected or state.closed then
-			return
-		end
-		generation += 1
-		local expected = generation
-		cancelTimer()
-		signal.cancelled = true
-		signal = { cancelled = false }
-		local requestSignal = signal
-		runtime.spawn(function()
-			local result = self:get(key, { signal = requestSignal })
-			if not connected or state.closed or generation ~= expected then
-				return
-			end
-			if not result.ok then
-				watch.lastError = result.error
-				return
-			end
-			watch.lastError = nil
-			emit(result.value)
-			local current = result.value.current
-			if current ~= Json.null and current ~= nil then
-				local remaining = self:timeRemaining(current :: Wire.RotationInstance)
-				if remaining > 0 then
-					timer = runtime.delay(remaining + 0.05 + runtime.random() * 0.2, function()
-						timer = nil
-						refresh()
-					end)
-				end
-			end
-		end)
-	end
-	--- Select snapshot mode only when the server actually supplies the rotations member.
-	local function applySnapshot(snapshot: Snapshot.Snapshot)
-		local values = snapshot:getRotations()
-		if values == nil then
-			if snapshot:version() ~= nil and not fallback then
-				fallback = true
-				refresh()
-			end
-			return
-		end
-		fallback = false
-		generation += 1
-		signal.cancelled = true
-		cancelTimer()
-		watch.lastError = nil
-		for _, active in values do
-			local current = active.current
-			if current ~= Json.null and current ~= nil and (current :: Wire.RotationInstance).key == key then
-				emit(active)
-				return
-			end
-		end
-	end
-	bind = function(snapshot: Snapshot.Snapshot?)
-		fallback = false
-		generation += 1
-		signal.cancelled = true
-		cancelTimer()
-		if connection then
-			connection:disconnect()
-			connection = nil
-		end
-		if not connected or state.closed then
-			return
-		end
-		if snapshot and not snapshot:isDestroyed() then
-			connection = snapshot.changed:connect(function(_value)
-				applySnapshot(snapshot)
-			end)
-			applySnapshot(snapshot)
-		else
-			refresh()
-		end
-	end
-	--- Rebind watches created before runtimeSnapshot without additional requests in snapshot mode.
-	local function onSnapshot(universe: string, snapshot: Snapshot.Snapshot?)
-		if universe == tostring(self._scope.universe) then
-			bind(snapshot)
-		end
-	end
-	--- Release all owned resources synchronously, including in-flight cancellation and lifecycle hooks.
 	local function disconnect()
 		if not connected then
 			return
 		end
 		connected = false
 		generation += 1
-		signal.cancelled = true
-		cancelTimer()
-		if connection then
-			connection:disconnect()
-			connection = nil
+		if timer then
+			runtime.cancel(timer)
+			timer = nil
 		end
-		state.snapshotListeners[onSnapshot] = nil
 		state.cleanups[disconnect] = nil
+	end
+	local function check()
+		timer = nil
+		if not connected or state.closed then
+			return
+		end
+		generation += 1
+		local expected = generation
+		runtime.spawn(function()
+			local result = self:current(name)
+			if not connected or state.closed or generation ~= expected then
+				return
+			end
+			if not result.ok then
+				watch.lastError = result.error
+				timer = runtime.delay(RETRY + runtime.random() * 5, check)
+				return
+			end
+			watch.lastError = nil
+			local value = result.value
+			local identity = tostring(value.version) .. ":" .. tostring(value.startsAt)
+			if identity ~= last then
+				last = identity
+				pcall(callback, value)
+			end
+			local wait = math.clamp(value.endsAt - runtime.unix(), 1, MAX_AGE)
+			timer = runtime.delay(wait + 0.05 + runtime.random() * 0.2, check)
+		end)
 	end
 	watch = {
 		disconnect = function(_self: Watch)
 			disconnect()
 		end,
-		refresh = function(_self: Watch)
-			bind(state.snapshots[tostring(self._scope.universe)])
-		end,
 		lastError = nil,
 	}
-	state.snapshotListeners[onSnapshot] = true
 	state.cleanups[disconnect] = true
 	state.onUse()
-	bind(state.snapshots[tostring(self._scope.universe)])
+	check()
 	return watch
 end
 return table.freeze(Rotations)

@@ -1,4 +1,4 @@
-Current migration: [5.0.0 to 6.0.0, configs split out of Fields](../MIGRATION.md#500-to-600--configs-split-out-of-fields).
+Current migration: [6.0.0 to 7.0.0, rotations simplified](../MIGRATION.md#600-to-700--rotations-simplified).
 
 # 3.0 leased profiles
 

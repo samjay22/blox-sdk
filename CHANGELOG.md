@@ -1,5 +1,21 @@
 # BloxSDK changelog
 
+## 7.0.0 (local, not published)
+
+- Breaking: rotations are rewritten around the task. A rotation is a named list of items that take turns on a fixed
+  clock (`items`, `every`, optional `show`, `order`, `startsAt`); the game reads it with
+  `client.fields:rotations():current(name)`, which returns the active `items`, `endsAt` (Unix seconds), `version` and the
+  `next` period. Reads are cached until the period ends (at most 60 s), `secondsLeft`, `upcoming(name, count?)` and
+  `watch(name, callback)` complete the helper; saving is `fields:putRotation`.
+- Removed: random tables, generators (`client.fields:generators()`), rolls, odds, simulation, pity, costs and grants,
+  stock and `claim`, `advance`/`reroll`/`applyNow`, instances and their history, `getAll`, `getStock`, `timeRemaining`, the
+  `rotations` member of the runtime snapshot (and `snapshot:getRotations`), the Fields `rotation.started` event, the
+  `randomness` player-export section and fourteen `rotation_*` error codes. Only `rotation_not_found` and
+  `rotation_version_conflict` remain.
+- 367 endpoints (the 31 rotation/generator/table routes became 7), regenerated Roblox projection, docs
+  ([ROTATIONS.md](docs/ROTATIONS.md)), examples (weather, daily-shop) and tests.
+- See [migration](MIGRATION.md).
+
 ## 6.0.0 (local, not published)
 
 - Breaking: dynamic game configuration is its own service, `client.configs`, backed by ConfigService. A namespace is

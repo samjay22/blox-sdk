@@ -1,19 +1,24 @@
 --!strict
 local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
-local Wire = require("../src/Types/Fields")
 local Json = require("../src/Core/Json")
 local Copy = require("../src/Core/Idempotency")
-local Instant = require("../src/Core/Instant")
 local Scheduler = require("./Scheduler")
 local Fake = require("../src/Testing/FakeBackend")
 local V = require("./FixtureVectors").rotations
-local ID = "00000000-0000-4000-8000-000000000001"
+-- The scheduler's clock starts at Unix 1700000000 = 2023-11-14T22:13:20Z.
+local T0, T1, T2, T3 =
+	"2023-11-14T22:13:20Z", "2023-11-14T22:23:20Z", "2023-11-14T22:33:20Z", "2023-11-14T22:43:20Z"
 --- Fail a regression without logging request secrets or payloads.
 local function check(value: unknown, message: string?)
 	assert(value, message or "Rotations regression at " .. tostring(debug.info(2, "l")))
 end
---- Bind synthetic WRITE-capable credentials and the existing deterministic mock transport.
+--- Unwrap a successful result (failing the test otherwise) without fighting the type narrowing.
+local function ok(result: any): any
+	assert(result.ok, "Expected a successful result")
+	return result.value
+end
+--- Bind synthetic credentials and the existing deterministic mock transport.
 local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client, Fake.Fake)
 	local f = Fake.new(s.runtime, steps)
 	return SDK.new({
@@ -25,26 +30,18 @@ local function client(s: Scheduler.Scheduler, steps: { Fake.Step }): (SDK.Client
 		levels = { FieldsService = "ADMIN" },
 		requestsPerMinute = 480,
 		burst = 100,
-		retries = 1,
-		retryRatio = 1,
+		retries = 0,
 	}),
 		f
 end
---- Make an authoritative head with an edge relative to the scheduler's 2023 Unix epoch.
-local function active(id: string, finish: string): Wire.RotationActive
-	local value = Copy.copy(V.active)
-	value.current.id = id
-	value.current.endsAt = finish
+--- A `/current` body whose active period runs from `startsAt` to `endsAt`.
+local function current(version: number, id: string, startsAt: string, endsAt: string, nextEnds: string): any
+	local value = Copy.copy(V.current)
+	value.version = version
+	value.current =
+		{ startsAt = startsAt, endsAt = endsAt, items = Json.array({ { id = id, data = { n = 1 } } }) }
+	value.next = { startsAt = endsAt, endsAt = nextEnds, items = Json.array({ { id = "after_" .. id } }) }
 	return value
-end
---- Assemble a minimal ETag snapshot, preserving absent versus present-empty rotations.
-local function snapshot(values: { Wire.RotationActive }?, version: number?): any
-	return {
-		version = version or 1,
-		flags = Json.array({}),
-		maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
-		rotations = if values then Json.array(values) else nil,
-	}
 end
 return function(test: (string, () -> ()) -> ())
 	for _, vector in V.vectors do
@@ -64,7 +61,11 @@ return function(test: (string, () -> ()) -> ())
 			s.run(function()
 				local method = string.match(vector.endpoint, "%.(.+)$")
 				local facade: any = c.fields
-				local result = facade[method](facade, vector.request)
+				-- A call whose only path part is the universe takes its body directly.
+				local argument = if vector.endpoint == "fields.previewRotation"
+					then vector.request.body
+					else vector.request
+				local result = facade[method](facade, argument)
 				check(
 					result.ok and Json.encode(result.value) == Json.encode(vector.response),
 					vector.endpoint
@@ -74,426 +75,238 @@ return function(test: (string, () -> ()) -> ())
 			c:destroy()
 		end)
 	end
-	test("Rotations/Generators helpers preserve typed results and preview/odds request shape", function()
+	test("current returns the active items, end time and next items in Unix seconds", function()
 		local s = Scheduler.new()
-		local c, f = client(s, {
-			{ body = s.json(V.active) },
-			{ body = s.json(V.stock) },
-			{ body = s.json(V.roll) },
-			{ body = s.json({ V.roll.results[1] }) },
-			{ body = s.json(V.odds) },
-		})
-		local rotations, generators = c.fields:rotations(), c.fields:generators()
+		local c = client(s, { { body = s.json(current(3, "rain", T0, T1, T2)) } })
 		s.run(function()
-			local got = rotations:get("weather")
-			check(got.ok and got.value.current ~= Json.null)
-			local stock = rotations:getStock(ID)
-			check(stock.ok and stock.value[1].remaining == 19)
-			local roll = generators:roll("card_pack", 7)
-			check(roll.ok and #roll.value.results[1].picks == 5 and roll.value.transaction.replayed == false)
-			check(generators:preview("card_pack", 7, 1).ok)
-			check(generators:getOdds("card_pack", 7).ok)
+			local rotations = c.fields:rotations()
+			local value: SDK.RotationCurrent = ok(rotations:current("weather"))
+			check(value.key == "weather" and value.version == 3)
+			check(#value.items == 1 and value.items[1].id == "rain" and value.items[1].data ~= nil)
+			check((value.items[1].data :: any).n == 1)
+			check(value.startsAt == 1700000000 and value.endsAt == 1700000600)
+			check(value.next.startsAt == 1700000600 and value.next.endsAt == 1700001200)
+			check(value.next.items[1].id == "after_rain" and value.next.items[1].data == nil)
+			check(math.abs(rotations:secondsLeft(value) - 600) < 1)
+			s.runtime.wait(125)
+			check(math.abs(rotations:secondsLeft(value) - 475) < 1)
+			s.runtime.wait(1000)
+			check(rotations:secondsLeft(value) == 0)
+			check(not pcall(function()
+				(value :: any).items = {}
+			end))
 		end)
-		check(f.count() == 5)
 		c:destroy()
 	end)
 	test(
-		"roll and claim auto/supplied idempotency keys survive transient retries and caller tables stay unchanged",
+		"current is cached until the period ends, at most one minute, and is shared by every handle",
 		function()
-			for _, claim in { false, true } do
-				for _, supplied in { false, true } do
-					local s = Scheduler.new()
-					local first: string? = nil
-					local header: unknown = nil
-					local capture = function(request: Core.HttpRequest)
-						local key = string.match(request.Body or "", '"idempotencyKey":"([^"]+)"')
-						check(
-							key ~= nil
-								and (
-									request.Headers["Idempotency-Key"] == nil
-									or request.Headers["Idempotency-Key"] == key
-								)
-						)
-						if supplied then
-							check(key == "saved-key")
-						end
-						if first then
-							check(first == request.Body and header == key)
-						else
-							first = request.Body
-							header = key
-						end
-					end
-					local c, f = client(s, {
-						{ status = 503, check = capture },
-						{ body = s.json(if claim then V.claim else V.roll), check = capture },
-					})
-					local options = { playerId = 7, idempotencyKey = if supplied then "saved-key" else nil }
-					s.run(function()
-						local result = if claim
-							then c.fields:rotations():claim(ID, "packs:0", "starter_pack", 1, options)
-							else c.fields
-								:generators()
-								:roll("card_pack", 7, { idempotencyKey = options.idempotencyKey })
-						check(result.ok)
-					end)
-					check(
-						f.count() == 2 and options.idempotencyKey == (if supplied then "saved-key" else nil)
-					)
-					c:destroy()
-				end
-			end
+			local s = Scheduler.new()
+			local c, f = client(s, {
+				{ body = s.json(current(1, "a", T0, T3, T3)) },
+				{ body = s.json(current(2, "b", T0, T3, T3)) },
+				{ body = s.json(current(3, "c", T1, T2, T3)) },
+			})
+			s.run(function()
+				check(c.fields:rotations():current("weather").ok)
+				s.runtime.wait(30)
+				check(ok(c.fields:rotations():current("weather")).version == 1 and f.count() == 1)
+				s.runtime.wait(31)
+				check(ok(c.fields:rotations():current("weather")).version == 2 and f.count() == 2)
+				s.runtime.wait(30)
+				check(ok(c.fields:rotations():current("weather")).version == 2 and f.count() == 2)
+				-- Past the end of the cached period the cache is never used, even inside the minute.
+				local s2 = Scheduler.new()
+				local c2, f2 = client(s2, {
+					{ body = s2.json(current(1, "a", T0, "2023-11-14T22:13:50Z", T1)) },
+					{ body = s2.json(current(2, "b", "2023-11-14T22:13:50Z", T1, T2)) },
+				})
+				s2.run(function()
+					check(ok(c2.fields:rotations():current("weather")).version == 1)
+					s2.runtime.wait(31)
+					check(ok(c2.fields:rotations():current("weather")).version == 2 and f2.count() == 2)
+				end)
+				c2:destroy()
+			end)
+			c:destroy()
 		end
 	)
-	test("409 sold-out, expired and insufficient-funds are redacted non-retryable conflicts", function()
-		for _, code in
-			{ "rotation_out_of_stock", "rotation_expired", "insufficient_funds", "idempotency_conflict" }
-		do
-			local s = Scheduler.new()
-			local c, f = client(
-				s,
-				{ { status = 409, body = s.json({ code = code, message = "Do not expose this" }) } }
-			)
-			s.run(function()
-				local result = c.fields:rotations():claim(ID, "packs:0", "starter_pack", 1, { playerId = 7 })
-				check(
-					not result.ok
-						and result.error.code == code
-						and result.error.kind == "Conflict"
-						and result.error.status == 409
-						and result.error.body == "[redacted]"
-				)
-			end)
-			check(f.count() == 1)
-			c:destroy()
-		end
-	end)
-	test("claim permanent replay retains its historical remaining and transaction.replayed", function()
+	test("a failed refresh keeps serving a period that has not ended, but never an ended one", function()
 		local s = Scheduler.new()
-		local c, f = client(s, { { body = s.json(V.claim) }, { body = s.json(V.claim) } })
+		local c, f = client(s, {
+			{ body = s.json(current(1, "a", T0, T3, T3)) },
+			{ status = 404, body = '{"code":"rotation_not_found"}' },
+			{ status = 404, body = '{"code":"rotation_not_found"}' },
+		})
 		s.run(function()
-			local rotations = c.fields:rotations()
-			local first =
-				rotations:claim(ID, "packs:0", "starter_pack", 1, { playerId = 7, idempotencyKey = "same" })
-			local again =
-				rotations:claim(ID, "packs:0", "starter_pack", 1, { playerId = 7, idempotencyKey = "same" })
-			check(
-				first.ok
-					and again.ok
-					and Json.encode(first.value) == Json.encode(again.value)
-					and again.value.remaining == 19
-					and not again.value.transaction.replayed
-			)
+			check(c.fields:rotations():current("weather").ok)
+			s.runtime.wait(61)
+			check(ok(c.fields:rotations():current("weather")).version == 1 and f.count() == 2)
+			s.runtime.wait(2000)
+			local ended = c.fields:rotations():current("weather")
+			check(not ended.ok and ended.error.code == "rotation_not_found" and f.count() == 3)
 		end)
-		check(f.count() == 2)
 		c:destroy()
 	end)
-	test("closed helpers and malformed gameplay inputs fail before transport", function()
+	test("an unknown rotation is a plain not-found error with the server's code", function()
+		local s = Scheduler.new()
+		local c = client(
+			s,
+			{ { status = 404, body = '{"code":"rotation_not_found","message":"rotation_not_found"}' } }
+		)
+		s.run(function()
+			local result = c.fields:rotations():current("missing")
+			check(
+				not result.ok
+					and result.error.kind == "NotFound"
+					and result.error.code == "rotation_not_found"
+			)
+		end)
+		c:destroy()
+	end)
+	test("bad names, counts and closed clients fail before any request", function()
 		local s = Scheduler.new()
 		local c, f = client(s, {})
-		local r, g = c.fields:rotations(), c.fields:generators()
+		local rotations = c.fields:rotations()
 		s.run(function()
-			for _, key in { "", "../unsafe", "a/b", string.rep("x", 101) } do
-				check(not r:get(key).ok)
-				check(not g:roll(key, 7).ok)
-				check(not g:getOdds(key).ok)
+			for _, name in { "", "1abc", "has space", "a/b", string.rep("a", 101) } do
+				local result = rotations:current(name)
+				check(not result.ok and result.error.code == "invalid_request", name)
+				check(not rotations:upcoming(name).ok)
+				check(not pcall(rotations.watch, rotations, name, function() end))
 			end
-			for _, count in { 0, 11, 1.5, math.huge } do
-				check(not g:roll("pack", 7, { count = count }).ok)
-				check(not g:preview("pack", 7, count).ok)
+			for _, count in { 0, 51, 1.5, -1 } do
+				check(not rotations:upcoming("weather", count).ok)
 			end
-			check(not g:roll("pack", 0).ok and not g:getOdds("pack", -1).ok)
-			check(not g:roll("pack", 7, { idempotencyKey = "bad key" }).ok)
-			check(not g:roll("pack", 7, { unknown = true } :: any).ok)
-			check(not r:getStock("not-a-uuid").ok)
-			check(not r:claim(ID, "slot", "entry", 0, { playerId = 7 }).ok)
-			check(not r:claim(ID, "slot", "entry", 101, { playerId = 7 }).ok)
-			check(not r:claim(ID, "slot", "entry", 1, { playerId = 0 }).ok)
-			check(not r:claim(ID, "slot", "entry", 1, { playerId = 7, idempotencyKey = "bad key" }).ok)
-			check(not r:claim(ID, "slot", "entry", 1, { playerId = 7, unknown = true } :: any).ok)
+			check(not pcall(rotations.watch, rotations, "weather", nil :: any))
 			c:destroy()
-			check(not r:get("weather").ok and not r:getAll().ok and not g:roll("pack", 7).ok)
+			local closed = rotations:current("weather")
+			check(not closed.ok and closed.error.kind == "Cancelled")
 		end)
 		check(f.count() == 0)
 	end)
-	test("GetAll catalog fallback and partial failure use actual active endpoints", function()
+	test("upcoming converts every period and sends the count", function()
 		local s = Scheduler.new()
-		local c, f = client(s, {
-			{ body = s.json({ { kind = "ROTATION", key = "weather", version = 1, definition = {} } }) },
-			{ body = s.json(V.active) },
-			{ status = 403 },
+		local c = client(s, {
+			{
+				body = s.json(V.schedule),
+				check = function(request: Core.HttpRequest)
+					check(string.find(request.Url, "/weather/schedule?count=3", 1, true) ~= nil)
+				end,
+			},
+			{
+				body = s.json(V.schedule),
+				check = function(request: Core.HttpRequest)
+					check(
+						string.find(request.Url, "schedule", 1, true) ~= nil
+							and string.find(request.Url, "count", 1, true) == nil
+					)
+				end,
+			},
 		})
 		s.run(function()
-			local all = c.fields:rotations():getAll()
-			check(all.ok and #all.value == 1)
-			check(not c.fields:rotations():getAll().ok)
+			local periods: { SDK.RotationPeriod } = ok(c.fields:rotations():upcoming("weather", 3))
+			check(#periods == 3)
+			local first, second = periods[1], periods[2]
+			check(
+				first.items[1].id == "rain"
+					and first.endsAt == second.startsAt
+					and second.endsAt - second.startsAt == 3600
+			)
+			check(c.fields:rotations():upcoming("weather").ok)
 		end)
-		check(f.count() == 3)
 		c:destroy()
 	end)
-	test("UTC remaining time handles epoch, leap centuries, fractions and expired edges", function()
-		check(Instant.unix("1970-01-01T00:00:00Z") == 0)
-		check(Instant.unix("2000-02-29T00:00:00Z") == 951782400)
-		check(Instant.unix("1900-02-29T00:00:00Z") == nil)
-		check(Instant.unix("2023-11-14T22:13:20.5Z") == 1700000000.5)
+	test("a response with unusable instants is a validation error, not a crash", function()
 		local s = Scheduler.new()
-		local c = client(s, {})
-		local r = c.fields:rotations()
-		check(
-			r:timeRemaining(active("one", "2023-11-14T22:13:21.5Z").current :: Wire.RotationInstance) == 1.5
-		)
-		check(r:timeRemaining(active("one", "2023-11-14T22:13:19Z").current :: Wire.RotationInstance) == 0)
+		local bad = current(1, "a", "tomorrow", T1, T2)
+		local c = client(s, { { body = s.json(bad) } })
+		s.run(function()
+			local result = c.fields:rotations():current("weather")
+			check(not result.ok and result.error.kind == "Validation")
+		end)
 		c:destroy()
 	end)
-	test("Watch fallback schedules one refresh at endsAt+jitter and never loops on expired heads", function()
+	test("watch fires now, again at each period edge, and again when the list is edited", function()
 		local s = Scheduler.new()
-		local one, two = active("one", "2023-11-14T22:13:21Z"), active("two", "2023-11-14T22:13:21Z")
-		local c, f = client(s, { { body = s.json(one) }, { body = s.json(two) } })
-		local ids: { string } = {}
-		local watch = c.fields:rotations():watch("weather", function(instance)
-			table.insert(ids, instance.id)
+		local edge = "2023-11-14T22:13:50Z"
+		local c, f = client(s, {
+			{ body = s.json(current(1, "a", T0, edge, T1)) },
+			{ body = s.json(current(1, "b", edge, T1, T2)) },
+			{ body = s.json(current(1, "b", edge, T1, T2)) },
+			{ body = s.json(current(2, "c", edge, T1, T2)) },
+		})
+		local seen: { string } = {}
+		local watch = c.fields:rotations():watch("weather", function(value)
+			table.insert(seen, value.items[1].id)
 		end)
 		s.run(function()
-			s.runtime.wait(1.1)
-			check(f.count() == 1 and #ids == 1)
-			s.runtime.wait(0.6)
-			check(f.count() == 2 and #ids == 2)
-			s.runtime.wait(100)
-			check(f.count() == 2)
+			s.runtime.wait(1)
+			check(#seen == 1 and seen[1] == "a" and f.count() == 1)
+			s.runtime.wait(32)
+			check(#seen == 2 and seen[2] == "b" and f.count() == 2, "period edge")
+			s.runtime.wait(61)
+			check(#seen == 2 and f.count() == 3, "unchanged answers are not repeated")
+			s.runtime.wait(61)
+			check(#seen == 3 and seen[3] == "c" and f.count() == 4, "edited list")
+			watch:disconnect()
+			local before = f.count()
+			s.runtime.wait(500)
+			check(f.count() == before and #seen == 3, "disconnect stops everything")
+			c:destroy()
+		end)
+		check(s.pending() == 0)
+	end)
+	test("watch survives errors, records lastError and recovers", function()
+		local s = Scheduler.new()
+		local c, f = client(s, {
+			{ status = 404, body = '{"code":"rotation_not_found"}' },
+			{ body = s.json(current(1, "a", T0, T1, T2)) },
+		})
+		local seen = 0
+		local watch = c.fields:rotations():watch("weather", function()
+			seen += 1
+		end)
+		s.run(function()
+			s.runtime.wait(1)
+			check(seen == 0 and watch.lastError ~= nil and watch.lastError.code == "rotation_not_found")
+			s.runtime.wait(25)
+			check(seen == 1 and watch.lastError == nil and f.count() == 2)
 			watch:disconnect()
 			c:destroy()
 		end)
 		check(s.pending() == 0)
 	end)
-	test(
-		"Watch snapshot mode costs zero extra HTTP, handles same-version ETag changes, 304 and dedup",
-		function()
-			local s = Scheduler.new()
-			local one, two = active("one", "2023-11-14T22:13:21Z"), active("two", "2023-11-14T22:13:22Z")
-			local c, f = client(s, {
-				{ body = s.json(snapshot({ one })), headers = { ETag = '"a"' } },
-				{ status = 304 },
-				{ body = s.json(snapshot({ two })), headers = { ETag = '"b"' } },
-				{ body = s.json(snapshot({ two }, 2)), headers = { ETag = '"c"' } },
-				{ body = s.json(snapshot({}, 3)), headers = { ETag = '"d"' } },
-			})
-			local cache = c:runtimeSnapshot(0.5)
-			check(cache == c:runtimeSnapshot(0.5))
-			local ids: { string } = {}
-			local r = c.fields:rotations()
-			local watch = r:watch("weather", function(instance)
-				table.insert(ids, instance.id)
-			end)
-			cache.changed:connect(function(_value)
-				error("Isolate unrelated listener")
-			end)
-			s.run(function()
-				s.runtime.wait(0.6)
-				check(#ids == 1 and ids[1] == "one")
-				local all = r:getAll()
-				check(all.ok and #all.value == 1 and f.count() == 1)
-				s.runtime.wait(1)
-				check(#ids == 1 and f.count() == 2)
-				s.runtime.wait(1)
-				check(#ids == 2 and ids[2] == "two" and f.count() == 3)
-				s.runtime.wait(1)
-				check(#ids == 2 and f.count() == 4)
-				s.runtime.wait(1)
-				check(#ids == 2 and f.count() == 5)
-				local empty = r:getAll()
-				check(empty.ok and #empty.value == 0 and f.count() == 5)
-				watch:disconnect()
-				c:destroy()
-			end)
-			check(s.pending() == 0)
-		end
-	)
-	test(
-		"Watch legacy snapshot omits rotations: unrelated snapshot changes do not add active polls",
-		function()
-			local s = Scheduler.new()
-			local one = active("one", "2023-11-14T22:13:25Z")
-			local c, f = client(s, {
-				{ body = s.json(snapshot(nil)) },
-				{ body = s.json(one) },
-				{ body = s.json(snapshot(nil, 2)) },
-			})
-			c:runtimeSnapshot(1)
-			local n = 0
-			local watch = c.fields:rotations():watch("weather", function(_instance)
-				n += 1
-			end)
-			s.run(function()
-				s.runtime.wait(2.2)
-				check(n == 1 and f.count() == 3)
-				watch:disconnect()
-				c:destroy()
-			end)
-		end
-	)
-	test(
-		"Watch switches fallback to a later snapshot, resumes on snapshot destroy and disconnect cancels timers",
-		function()
-			local s = Scheduler.new()
-			local one = active("one", "2023-11-14T22:13:25Z")
-			local c, f = client(
-				s,
-				{ { body = s.json(one) }, { body = s.json(snapshot({ one })) }, { body = s.json(one) } }
-			)
-			local n = 0
-			local watch = c.fields:rotations():watch("weather", function(_instance)
-				n += 1
-				error("Isolated callback")
-			end)
-			s.run(function()
-				s.runtime.wait(0.6)
-				local cache = c:runtimeSnapshot(10)
-				s.runtime.wait(0.6)
-				check(n == 1 and f.count() == 2)
-				cache:destroy()
-				s.runtime.wait(0.6)
-				check(n == 1 and f.count() == 3)
-				watch:disconnect()
-				watch:disconnect()
-				s.runtime.wait(20)
-				check(f.count() == 3)
-				c:destroy()
-			end)
-		end
-	)
-	test(
-		"Watch error/disabled refresh stops until explicit retry; client destroy cancels in-flight callbacks",
-		function()
-			local s = Scheduler.new()
-			local c, f = client(s, {
-				{ status = 409, body = s.json({ code = "rotation_clock_regressed" }) },
-				{ body = s.json({ enabled = false, current = Json.null, next = Json.null }) },
-				{ body = s.json(V.active), delay = 1 },
-			})
-			local n = 0
-			local watch = c.fields:rotations():watch("weather", function(_instance)
-				n += 1
-			end)
-			s.run(function()
-				s.runtime.wait(1)
-				check(watch.lastError ~= nil and f.count() == 1)
-				watch:refresh()
-				s.runtime.wait(1)
-				check(watch.lastError == nil and f.count() == 2 and n == 0)
-				watch:refresh()
-				s.runtime.wait(0.6)
-				c:destroy()
-				s.runtime.wait(2)
-				check(n == 0 and f.count() == 3)
-			end)
-			check(s.pending() == 0)
-		end
-	)
-	test("all randomness history page helpers preserve opaque cursors and terminate on null", function()
-		for _, name in
-			{ "randomDefinitionHistory", "rotationHistory", "playerRollHistory", "playerClaimHistory" }
-		do
-			local s = Scheduler.new()
-			local c, f = client(s, {
-				{ body = s.json({ items = Json.array({}), nextCursor = "opaque /?" }) },
-				{
-					body = s.json({ items = Json.array({}), nextCursor = Json.null }),
-					check = function(request)
-						check(string.find(request.Url, "cursor=opaque%20%2F%3F", 1, true) ~= nil)
-					end,
-				},
-			})
-			s.run(function()
-				local facade: any = c.fields
-				local pages = facade[name .. "Pages"](facade, {
-					path = if string.sub(name, 1, 6) == "player"
-						then { playerId = 7 }
-						else { key = "weather" },
-				})
-				local first, second = pages(), pages()
-				check(first and first.ok and second and second.ok and pages() == nil)
-			end)
-			check(f.count() == 2)
-			c:destroy()
-		end
-	end)
-	test("roll replay keeps original grants/pity and roll conflicts do not retry", function()
+	test("a throwing callback does not break the watch", function()
 		local s = Scheduler.new()
 		local c, f = client(s, {
-			{ body = s.json(V.roll) },
-			{ body = s.json(V.roll) },
-			{ status = 409, body = s.json({ code = "insufficient_funds" }) },
+			{ body = s.json(current(1, "a", T0, "2023-11-14T22:13:50Z", T1)) },
+			{ body = s.json(current(1, "b", "2023-11-14T22:13:50Z", T1, T2)) },
 		})
-		s.run(function()
-			local g = c.fields:generators()
-			local first = g:roll("card_pack", 7, { idempotencyKey = "persisted" })
-			local replay = g:roll("card_pack", 7, { idempotencyKey = "persisted" })
-			check(first.ok and replay.ok and Json.encode(first.value) == Json.encode(replay.value))
-			local failed = g:roll("card_pack", 7)
-			check(not failed.ok and failed.error.code == "insufficient_funds")
-		end)
-		check(f.count() == 3)
-		c:destroy()
-	end)
-	test("GetAll fails on individual head error instead of returning a partial catalog", function()
-		local s = Scheduler.new()
-		local c, f = client(s, {
-			{ body = s.json({ { kind = "ROTATION", key = "weather", version = 1, definition = {} } }) },
-			{ status = 404, body = s.json({ code = "rotation_definition_not_found" }) },
-		})
-		s.run(function()
-			local result = c.fields:rotations():getAll()
-			check(not result.ok and result.error.code == "rotation_definition_not_found")
-		end)
-		check(f.count() == 2)
-		c:destroy()
-	end)
-	test("Watch snapshot errors retain last head without extra requests or fallback timers", function()
-		local s = Scheduler.new()
-		local c, f = client(s, {
-			{
-				body = s.json(snapshot({ active("one", "2023-11-14T22:13:21Z") })),
-				headers = {
-					ETag = '"one"',
-				},
-			},
-			{ status = 400 },
-			{ status = 304 },
-		})
-		local cache = c:runtimeSnapshot(1)
 		local calls = 0
-		local watch = c.fields:rotations():watch("weather", function(_instance)
+		local watch = c.fields:rotations():watch("weather", function()
 			calls += 1
+			error("boom")
 		end)
 		s.run(function()
-			s.runtime.wait(2.2)
-			check(calls == 1 and cache.lastError ~= nil and f.count() == 2)
-			s.runtime.wait(1.5)
-			check(calls == 1 and cache.lastError == nil and f.count() == 3)
+			s.runtime.wait(35)
+			check(calls == 2 and f.count() == 2)
 			watch:disconnect()
 			c:destroy()
 		end)
 	end)
-	test("disconnect before first response and same-ID refresh never dispatch duplicate callbacks", function()
+	test("destroying the client stops watches", function()
 		local s = Scheduler.new()
-		local one = active("one", "2023-11-14T22:13:25Z")
-		local c, f =
-			client(s, { { body = s.json(one) }, { body = s.json(one) }, { body = s.json(one), delay = 1 } })
-		local calls = 0
-		local watch = c.fields:rotations():watch("weather", function(_instance)
-			calls += 1
-		end)
+		local c, f = client(s, { { body = s.json(current(1, "a", T0, T1, T2)) } })
+		local watch = c.fields:rotations():watch("weather", function() end)
 		s.run(function()
-			s.runtime.wait(0.6)
-			watch:refresh()
-			s.runtime.wait(0.6)
-			check(calls == 1)
-			watch:refresh()
-			s.runtime.wait(0.6)
-			watch:disconnect()
-			s.runtime.wait(2)
-			check(calls == 1 and f.count() == 3)
+			s.runtime.wait(1)
 			c:destroy()
+			local before = f.count()
+			s.runtime.wait(1000)
+			check(f.count() == before)
+			watch:disconnect()
 		end)
+		check(s.pending() == 0)
 	end)
 end

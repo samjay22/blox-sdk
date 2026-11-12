@@ -50,14 +50,6 @@ Rotations helpers for this client's universe; server authorization remains autho
 Service.rotations(self: Service): Rotations.Client
 ```
 
-### `Service.generators`
-
-Generators helpers for this client's universe; server authorization remains authoritative.
-
-```luau
-Service.generators(self: Service): Generators.Client
-```
-
 ### `Service.operations`
 
 Build a subject-free list for read-only static validation.
@@ -580,102 +572,6 @@ Service.updateFlag(
 ): Core.Result<Types.UpdateFlagResultValue>
 ```
 
-### `Service.listGenerators`
-
-GET /fields-service/api/fields/universes/{universeId}/generators via gateway; access: READ.
-
-```luau
-Service.listGenerators(
-	self: Service,
-	req: Types.ListGeneratorsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.ListGeneratorsResultValue>
-```
-
-### `Service.createGenerator`
-
-POST /fields-service/api/fields/universes/{universeId}/generators via gateway; access: READ_WRITE.
-
-```luau
-Service.createGenerator(
-	self: Service,
-	req: Types.CreateGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateGeneratorResultValue>
-```
-
-### `Service.previewGenerator`
-
-POST /fields-service/api/fields/universes/{universeId}/generators/preview via gateway; access: READ.
-
-```luau
-Service.previewGenerator(
-	self: Service,
-	req: Types.PreviewGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PreviewGeneratorResultValue>
-```
-
-### `Service.rollGenerator`
-
-POST /fields-service/api/fields/universes/{universeId}/generators/roll via gateway; access: READ_WRITE.
-
-```luau
-Service.rollGenerator(
-	self: Service,
-	req: Types.RollGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RollGeneratorResultValue>
-```
-
-### `Service.simulateGenerator`
-
-POST /fields-service/api/fields/universes/{universeId}/generators/simulate via gateway; access: READ.
-
-```luau
-Service.simulateGenerator(
-	self: Service,
-	req: Types.SimulateGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.SimulateGeneratorResultValue>
-```
-
-### `Service.deleteGenerator`
-
-DELETE /fields-service/api/fields/universes/{universeId}/generators/{key} via gateway; access: READ_WRITE.
-
-```luau
-Service.deleteGenerator(
-	self: Service,
-	req: Types.DeleteGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteGeneratorResultValue>
-```
-
-### `Service.getGenerator`
-
-GET /fields-service/api/fields/universes/{universeId}/generators/{key} via gateway; access: READ.
-
-```luau
-Service.getGenerator(
-	self: Service,
-	req: Types.GetGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetGeneratorResultValue>
-```
-
-### `Service.putGenerator`
-
-PUT /fields-service/api/fields/universes/{universeId}/generators/{key} via gateway; access: READ_WRITE.
-
-```luau
-Service.putGenerator(
-	self: Service,
-	req: Types.PutGeneratorCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PutGeneratorResultValue>
-```
-
 ### `Service.healthSummary`
 
 GET /fields-service/api/fields/universes/{universeId}/health/summary via gateway; access: READ.
@@ -978,56 +874,6 @@ Service.searchPlayersPages(
 ): () -> Core.Result<Types.SearchPlayersResultValue>?
 ```
 
-### `Service.playerClaimHistory`
-
-GET /fields-service/api/fields/universes/{universeId}/players/{playerId}/randomness/claims via gateway; access: READ.
-
-```luau
-Service.playerClaimHistory(
-	self: Service,
-	req: Types.PlayerClaimHistoryCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PlayerClaimHistoryResultValue>
-```
-
-### `Service.playerClaimHistoryPages`
-
-Lazily iterate cursor pages, preserving filters and surfacing errors.
-
-```luau
-Service.playerClaimHistoryPages(
-	self: Service,
-	req: Types.PlayerClaimHistoryCall,
-	opts: Core.CallOptions?,
-	maximum: number?
-): () -> Core.Result<Types.PlayerClaimHistoryResultValue>?
-```
-
-### `Service.playerRollHistory`
-
-GET /fields-service/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls via gateway; access: READ.
-
-```luau
-Service.playerRollHistory(
-	self: Service,
-	req: Types.PlayerRollHistoryCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PlayerRollHistoryResultValue>
-```
-
-### `Service.playerRollHistoryPages`
-
-Lazily iterate cursor pages, preserving filters and surfacing errors.
-
-```luau
-Service.playerRollHistoryPages(
-	self: Service,
-	req: Types.PlayerRollHistoryCall,
-	opts: Core.CallOptions?,
-	maximum: number?
-): () -> Core.Result<Types.PlayerRollHistoryResultValue>?
-```
-
 ### `Service.deletePlayer`
 
 DELETE /fields-service/api/fields/universes/{universeId}/players/{userId} via gateway; access: ADMIN.
@@ -1320,139 +1166,6 @@ Service.putProduct(
 ): Core.Result<Types.PutProductResultValue>
 ```
 
-### `Service.listRandomTables`
-
-GET /fields-service/api/fields/universes/{universeId}/random-tables via gateway; access: READ.
-
-```luau
-Service.listRandomTables(
-	self: Service,
-	req: Types.ListRandomTablesCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.ListRandomTablesResultValue>
-```
-
-### `Service.createRandomTable`
-
-POST /fields-service/api/fields/universes/{universeId}/random-tables via gateway; access: READ_WRITE.
-
-```luau
-Service.createRandomTable(
-	self: Service,
-	req: Types.CreateRandomTableCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateRandomTableResultValue>
-```
-
-### `Service.deleteRandomTable`
-
-DELETE /fields-service/api/fields/universes/{universeId}/random-tables/{key} via gateway; access: READ_WRITE.
-
-```luau
-Service.deleteRandomTable(
-	self: Service,
-	req: Types.DeleteRandomTableCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.DeleteRandomTableResultValue>
-```
-
-### `Service.getRandomTable`
-
-GET /fields-service/api/fields/universes/{universeId}/random-tables/{key} via gateway; access: READ.
-
-```luau
-Service.getRandomTable(
-	self: Service,
-	req: Types.GetRandomTableCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GetRandomTableResultValue>
-```
-
-### `Service.putRandomTable`
-
-PUT /fields-service/api/fields/universes/{universeId}/random-tables/{key} via gateway; access: READ_WRITE.
-
-```luau
-Service.putRandomTable(
-	self: Service,
-	req: Types.PutRandomTableCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.PutRandomTableResultValue>
-```
-
-### `Service.tableOdds`
-
-GET /fields-service/api/fields/universes/{universeId}/random-tables/{key}/odds via gateway; access: READ.
-
-```luau
-Service.tableOdds(
-	self: Service,
-	req: Types.TableOddsCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.TableOddsResultValue>
-```
-
-### `Service.eraseRandomness`
-
-DELETE /fields-service/api/fields/universes/{universeId}/randomness via gateway; access: ADMIN.
-
-```luau
-Service.eraseRandomness(
-	self: Service,
-	req: Types.EraseRandomnessCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.EraseRandomnessResultValue>
-```
-
-### `Service.randomDefinitionHistory`
-
-GET /fields-service/api/fields/universes/{universeId}/randomness/definitions/{key}/history via gateway; access: READ.
-
-```luau
-Service.randomDefinitionHistory(
-	self: Service,
-	req: Types.RandomDefinitionHistoryCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RandomDefinitionHistoryResultValue>
-```
-
-### `Service.randomDefinitionHistoryPages`
-
-Lazily iterate cursor pages, preserving filters and surfacing errors.
-
-```luau
-Service.randomDefinitionHistoryPages(
-	self: Service,
-	req: Types.RandomDefinitionHistoryCall,
-	opts: Core.CallOptions?,
-	maximum: number?
-): () -> Core.Result<Types.RandomDefinitionHistoryResultValue>?
-```
-
-### `Service.randomnessFields`
-
-GET /fields-service/api/fields/universes/{universeId}/randomness/fields via gateway; access: READ.
-
-```luau
-Service.randomnessFields(
-	self: Service,
-	req: Types.RandomnessFieldsCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.RandomnessFieldsResultValue>
-```
-
-### `Service.randomnessSchema`
-
-GET /fields-service/api/fields/universes/{universeId}/randomness/schema via gateway; access: READ.
-
-```luau
-Service.randomnessSchema(
-	self: Service,
-	req: Types.RandomnessSchemaCall?,
-	opts: Core.CallOptions?
-): Core.Result<Types.RandomnessSchemaResultValue>
-```
-
 ### `Service.purchase`
 
 POST /fields-service/api/fields/universes/{universeId}/receipts via gateway; access: READ_WRITE.
@@ -1562,40 +1275,16 @@ Service.listRotations(
 ): Core.Result<Types.ListRotationsResultValue>
 ```
 
-### `Service.createRotation`
+### `Service.previewRotation`
 
-POST /fields-service/api/fields/universes/{universeId}/rotations via gateway; access: READ_WRITE.
-
-```luau
-Service.createRotation(
-	self: Service,
-	req: Types.CreateRotationCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CreateRotationResultValue>
-```
-
-### `Service.claimRotation`
-
-POST /fields-service/api/fields/universes/{universeId}/rotations/claim via gateway; access: READ_WRITE.
+POST /fields-service/api/fields/universes/{universeId}/rotations/preview via gateway; access: READ.
 
 ```luau
-Service.claimRotation(
+Service.previewRotation(
 	self: Service,
-	req: Types.ClaimRotationCall,
+	req: Types.PreviewRotationCall,
 	opts: Core.CallOptions?
-): Core.Result<Types.ClaimRotationResultValue>
-```
-
-### `Service.rotationStock`
-
-GET /fields-service/api/fields/universes/{universeId}/rotations/instances/{id}/stock via gateway; access: READ.
-
-```luau
-Service.rotationStock(
-	self: Service,
-	req: Types.RotationStockCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RotationStockResultValue>
+): Core.Result<Types.PreviewRotationResultValue>
 ```
 
 ### `Service.deleteRotation`
@@ -1634,65 +1323,28 @@ Service.putRotation(
 ): Core.Result<Types.PutRotationResultValue>
 ```
 
-### `Service.activeRotation`
+### `Service.currentRotation`
 
-GET /fields-service/api/fields/universes/{universeId}/rotations/{key}/active via gateway; access: READ.
+GET /fields-service/api/fields/universes/{universeId}/rotations/{key}/current via gateway; access: READ.
 
 ```luau
-Service.activeRotation(
+Service.currentRotation(
 	self: Service,
-	req: Types.ActiveRotationCall,
+	req: Types.CurrentRotationCall,
 	opts: Core.CallOptions?
-): Core.Result<Types.ActiveRotationResultValue>
+): Core.Result<Types.CurrentRotationResultValue>
 ```
 
-### `Service.advanceRotation`
+### `Service.rotationSchedule`
 
-POST /fields-service/api/fields/universes/{universeId}/rotations/{key}/advance via gateway; access: ADMIN.
+GET /fields-service/api/fields/universes/{universeId}/rotations/{key}/schedule via gateway; access: READ.
 
 ```luau
-Service.advanceRotation(
+Service.rotationSchedule(
 	self: Service,
-	req: Types.AdvanceRotationCall,
+	req: Types.RotationScheduleCall,
 	opts: Core.CallOptions?
-): Core.Result<Types.AdvanceRotationResultValue>
-```
-
-### `Service.rotationHistory`
-
-GET /fields-service/api/fields/universes/{universeId}/rotations/{key}/history via gateway; access: READ.
-
-```luau
-Service.rotationHistory(
-	self: Service,
-	req: Types.RotationHistoryCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RotationHistoryResultValue>
-```
-
-### `Service.rotationHistoryPages`
-
-Lazily iterate cursor pages, preserving filters and surfacing errors.
-
-```luau
-Service.rotationHistoryPages(
-	self: Service,
-	req: Types.RotationHistoryCall,
-	opts: Core.CallOptions?,
-	maximum: number?
-): () -> Core.Result<Types.RotationHistoryResultValue>?
-```
-
-### `Service.rerollRotation`
-
-POST /fields-service/api/fields/universes/{universeId}/rotations/{key}/reroll via gateway; access: ADMIN.
-
-```luau
-Service.rerollRotation(
-	self: Service,
-	req: Types.RerollRotationCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RerollRotationResultValue>
+): Core.Result<Types.RotationScheduleResultValue>
 ```
 
 ### `Service.runtimeSnapshot`
@@ -2476,65 +2128,6 @@ export type FlagVariant = { name: string, value: Core.Json, weightPct: number }
 
 export type FlagVariantRead = { name: string, value: Core.Json, weightPct: number }
 
-export type Generated = {
-	cost: { FieldTypes.PlayerOperation },
-	picks: { GeneratorPick },
-	pityAfter: number | Core.Null,
-}
-
-export type GeneratorPick = {
-	durationSeconds: number | Core.Null,
-	entryId: string,
-	grants: { FieldTypes.PlayerOperation },
-	index: number,
-	path: { string },
-	payload: Core.Json | Core.Null,
-	rolls: { [string]: number },
-	slot: string,
-	table: string,
-	tags: { string },
-}
-
-export type GeneratorPreviewInput = {
-	count: number?,
-	generator: string,
-	playerId: number?,
-	universeId: number?,
-}
-
-export type GeneratorRollInput = {
-	count: number?,
-	generator: string,
-	idempotencyKey: string?,
-	playerId: number,
-	universeId: number?,
-}
-
-export type GeneratorRollResult = {
-	createdAt: string,
-	definitionVersions: { [string]: number },
-	generator: string,
-	id: string,
-	playerId: number,
-	results: { Generated },
-	transaction: Result,
-}
-
-export type GeneratorSimulationInput = {
-	generator: string,
-	iterations: number?,
-	playerId: number?,
-	universeId: number?,
-}
-
-export type GeneratorSimulationResult = {
-	appearanceProbabilities: { [string]: number },
-	entryCounts: { [string]: number },
-	iterations: number,
-	picks: number,
-	pityMode: string,
-}
-
 export type HealthComponent = { status: string }
 
 export type HealthResponse = Core.HealthResponse
@@ -2767,27 +2360,6 @@ export type ProductInput = {
 	universeId: number?,
 }
 
-export type RandomAction = { reason: string, universeId: number? }
-
-export type RandomDefinition = { definition: Core.Json, key: string, kind: RotationKind, version: number }
-
-export type RandomDefinitionInput = {
-	applyNow: boolean?,
-	definition: Core.Json,
-	expectedVersion: number?,
-	key: string?,
-	reason: string,
-	universeId: number?,
-}
-
-export type RandomEditorField = { field: string, path: string, type: FieldTypes.TypeExpr, validOps: { string } }
-
-export type RandomErase = { confirmUniverseId: number, reason: string, universeId: number? }
-
-export type RandomHistory = { counter: number, data: Core.Json }
-
-export type RandomOdds = { entryProbabilities: { [string]: number }, probabilities: { [string]: number } }
-
 export type Receipt = {
 	createdAt: (string | Core.Null)?,
 	productId: number,
@@ -2878,51 +2450,54 @@ export type ResultItem = {
 	version: number,
 }
 
-export type RotationActive = {
-	current: RotationInstance | Core.Null,
-	enabled: boolean,
-	next: RotationInstance | Core.Null,
+export type Rotation = {
+	current: RotationPeriod,
+	every: string,
+	items: { RotationItemRead },
+	key: string,
+	order: RotationOrder,
+	show: number,
+	startsAt: string,
+	updatedAt: string,
+	version: number,
 }
 
-export type RotationClaimInput = {
-	entryId: string,
-	idempotencyKey: string?,
-	instanceId: string,
-	playerId: number,
-	quantity: number,
-	slot: string,
+export type RotationCurrent = { current: RotationPeriod, key: string, next: RotationPeriod, version: number }
+
+export type RotationInput = {
+	every: string,
+	expectedVersion: number?,
+	items: { RotationItem },
+	order: RotationOrder?,
+	show: number?,
+	startsAt: string?,
 	universeId: number?,
 }
 
-export type RotationClaimResult = {
-	createdAt: string,
-	entryId: string,
-	id: string,
-	instanceId: string,
-	quantity: number,
-	remaining: number,
-	slot: string,
-	transaction: Result,
-}
+export type RotationItem = { data: Core.Json?, id: string }
 
-export type RotationInstance = {
-	definitionVersions: { [string]: number },
-	endsAt: string,
-	id: string,
+export type RotationItemRead = { data: (Core.Json | Core.Null)?, id: string }
+
+export type RotationOrder = "inOrder" | "shuffled"
+
+export type RotationPeriod = { endsAt: string, items: { RotationItemRead }, startsAt: string }
+
+export type RotationPreviewInput = {
+	count: number?,
+	every: string,
+	items: { RotationItem },
 	key: string,
-	result: Generated,
-	sequence: number,
-	startsAt: string,
+	order: RotationOrder?,
+	show: number?,
+	startsAt: string?,
+	universeId: number?,
 }
 
-export type RotationKind = "TABLE" | "GENERATOR" | "ROTATION"
-
-export type RotationStock = { entryId: string, remaining: number, slot: string }
+export type RotationSchedule = { periods: { RotationPeriod } }
 
 export type RuntimeSnapshot = {
 	flags: ({ FlagDefinition } | Core.Null)?,
 	maintenance: (MaintenanceState | Core.Null)?,
-	rotations: ({ RotationActive } | Core.Null)?,
 	version: number,
 }
 
@@ -3246,41 +2821,6 @@ export type UpdateFlagCall = { path: { universeId: (string | number)?, key: stri
 
 export type UpdateFlagResultValue = FlagDefinition
 
-export type ListGeneratorsCall = { path: { universeId: (string | number)? }? }
-
-export type ListGeneratorsResultValue = { RandomDefinition }
-
-export type CreateGeneratorCall = RandomDefinitionInput
-
-export type CreateGeneratorResultValue = RandomDefinition
-
-export type PreviewGeneratorCall = GeneratorPreviewInput
-
-export type PreviewGeneratorResultValue = { Generated }
-
-export type RollGeneratorCall = GeneratorRollInput
-
-export type RollGeneratorResultValue = GeneratorRollResult
-
-export type SimulateGeneratorCall = GeneratorSimulationInput
-
-export type SimulateGeneratorResultValue = GeneratorSimulationResult
-
-export type DeleteGeneratorCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
-
-export type DeleteGeneratorResultValue = boolean
-
-export type GetGeneratorCall = { path: { universeId: (string | number)?, key: string } }
-
-export type GetGeneratorResultValue = RandomDefinition
-
-export type PutGeneratorCall = {
-	path: { universeId: (string | number)?, key: string },
-	body: RandomDefinitionInput,
-}
-
-export type PutGeneratorResultValue = RandomDefinition
-
 export type HealthSummaryCall = { path: { universeId: (string | number)? }? }
 
 export type HealthSummaryResultValue = HealthSummary
@@ -3399,20 +2939,6 @@ export type SearchPlayersCall = {
 }
 
 export type SearchPlayersResultValue = PlayerSearchPage
-
-export type PlayerClaimHistoryCall = {
-	path: { universeId: (string | number)?, playerId: string | number },
-	query: { cursor: string?, limit: number? }?,
-}
-
-export type PlayerClaimHistoryResultValue = CursorPage<RandomHistory>
-
-export type PlayerRollHistoryCall = {
-	path: { universeId: (string | number)?, playerId: string | number },
-	query: { cursor: string?, limit: number? }?,
-}
-
-export type PlayerRollHistoryResultValue = CursorPage<RandomHistory>
 
 export type DeletePlayerCall = {
 	path: { universeId: (string | number)?, userId: string | number },
@@ -3533,58 +3059,6 @@ export type PutProductCall = {
 
 export type PutProductResultValue = Product
 
-export type ListRandomTablesCall = { path: { universeId: (string | number)? }? }
-
-export type ListRandomTablesResultValue = { RandomDefinition }
-
-export type CreateRandomTableCall = RandomDefinitionInput
-
-export type CreateRandomTableResultValue = RandomDefinition
-
-export type DeleteRandomTableCall = {
-	path: { universeId: (string | number)?, key: string },
-	body: RandomAction,
-}
-
-export type DeleteRandomTableResultValue = boolean
-
-export type GetRandomTableCall = { path: { universeId: (string | number)?, key: string } }
-
-export type GetRandomTableResultValue = RandomDefinition
-
-export type PutRandomTableCall = {
-	path: { universeId: (string | number)?, key: string },
-	body: RandomDefinitionInput,
-}
-
-export type PutRandomTableResultValue = RandomDefinition
-
-export type TableOddsCall = {
-	path: { universeId: (string | number)?, key: string },
-	query: { playerId: (string | number)? }?,
-}
-
-export type TableOddsResultValue = RandomOdds
-
-export type EraseRandomnessCall = RandomErase
-
-export type EraseRandomnessResultValue = boolean
-
-export type RandomDefinitionHistoryCall = {
-	path: { universeId: (string | number)?, key: string },
-	query: { cursor: string?, limit: number? }?,
-}
-
-export type RandomDefinitionHistoryResultValue = CursorPage<RandomHistory>
-
-export type RandomnessFieldsCall = { path: { universeId: (string | number)? }? }
-
-export type RandomnessFieldsResultValue = { RandomEditorField }
-
-export type RandomnessSchemaCall = { path: { universeId: (string | number)? }? }
-
-export type RandomnessSchemaResultValue = Core.Json
-
 export type PurchaseCall = ReceiptInput
 
 export type PurchaseResultValue = ReceiptResult
@@ -3626,53 +3100,34 @@ export type PutReferencesResultValue = nil
 
 export type ListRotationsCall = { path: { universeId: (string | number)? }? }
 
-export type ListRotationsResultValue = { RandomDefinition }
+export type ListRotationsResultValue = { Rotation }
 
-export type CreateRotationCall = RandomDefinitionInput
+export type PreviewRotationCall = RotationPreviewInput
 
-export type CreateRotationResultValue = RandomDefinition
+export type PreviewRotationResultValue = RotationSchedule
 
-export type ClaimRotationCall = RotationClaimInput
-
-export type ClaimRotationResultValue = RotationClaimResult
-
-export type RotationStockCall = { path: { universeId: (string | number)?, id: string } }
-
-export type RotationStockResultValue = { RotationStock }
-
-export type DeleteRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
+export type DeleteRotationCall = { path: { universeId: (string | number)?, key: string } }
 
 export type DeleteRotationResultValue = boolean
 
 export type GetRotationCall = { path: { universeId: (string | number)?, key: string } }
 
-export type GetRotationResultValue = RandomDefinition
+export type GetRotationResultValue = Rotation
 
-export type PutRotationCall = {
+export type PutRotationCall = { path: { universeId: (string | number)?, key: string }, body: RotationInput }
+
+export type PutRotationResultValue = Rotation
+
+export type CurrentRotationCall = { path: { universeId: (string | number)?, key: string } }
+
+export type CurrentRotationResultValue = RotationCurrent
+
+export type RotationScheduleCall = {
 	path: { universeId: (string | number)?, key: string },
-	body: RandomDefinitionInput,
+	query: { count: number? }?,
 }
 
-export type PutRotationResultValue = RandomDefinition
-
-export type ActiveRotationCall = { path: { universeId: (string | number)?, key: string } }
-
-export type ActiveRotationResultValue = RotationActive
-
-export type AdvanceRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
-
-export type AdvanceRotationResultValue = RotationActive
-
-export type RotationHistoryCall = {
-	path: { universeId: (string | number)?, key: string },
-	query: { cursor: string?, limit: number? }?,
-}
-
-export type RotationHistoryResultValue = CursorPage<RandomHistory>
-
-export type RerollRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
-
-export type RerollRotationResultValue = RotationActive
+export type RotationScheduleResultValue = RotationSchedule
 
 export type RuntimeSnapshotCall = { etag: string?, path: { universeId: (string | number)? }? }
 

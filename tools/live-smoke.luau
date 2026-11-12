@@ -204,8 +204,8 @@ check("leaderboard submit", function()
 	})
 end)
 local rotation = process.env.BLOX_ROTATION or "weather"
-check("rotation get", function()
-	return client.fields:rotations():get(rotation)
+check("rotation current", function()
+	return client.fields:rotations():current(rotation)
 end)
 check("rotation watch once", function()
 	local observed = false
@@ -225,13 +225,10 @@ check("rotation watch once", function()
 				kind = "Timeout",
 				code = "sdk_timeout",
 				message = "Watch timed out",
-				endpoint = "fields.activeRotation",
+				endpoint = "fields.currentRotation",
 				attempts = 1,
 			},
 		}
-end)
-check("generator preview", function()
-	return client.fields:generators():preview(process.env.BLOX_GENERATOR or "card_pack", playerId, 1)
 end)
 if process.env.BLOX_CODE and process.env.BLOX_CODE ~= "" then
 	check("code redeem", function()

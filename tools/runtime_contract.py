@@ -27,8 +27,6 @@ def wire_type(value: str, owner: str = '') -> str:
 def curate(endpoints: list[dict], definitions: dict) -> None:
     """Apply reviewed runtime JSON, requiredness, response and naming contracts in place."""
     from fields_contract import record
-    # Additive runtime rotations may be absent on older deployed servers.
-    definitions['RuntimeSnapshot']['fields']['rotations'] = {'java':'List<RotationActive>', 'required':False}
     # Java imports are unqualified; explicit aliases keep the shared schema namespace closed.
     for name in ('FlagInput',):
         for field in definitions[name]['fields'].values():
@@ -42,7 +40,6 @@ def curate(endpoints: list[dict], definitions: dict) -> None:
     definitions['PlayerRevertInput'] = record(reason='String', ledgerEntryIds='List<UUID>')
     for name in ('RuntimeSnapshot','MaintenanceState','FlagDefinition','FlagMatch','FlagRule','FlagVariant','FlagEvaluationValue'):
         for field in definitions[name]['fields'].values(): field['required'] = True
-    definitions['RuntimeSnapshot']['fields']['rotations']['required'] = False
     for name, fields in {'FlagRule':['match'], 'FlagDefinition':['rolloutPct'], 'FlagEvaluationValue':['variant']}.items():
         for field in fields:
             definitions[name]['fields'][field]['nullable'] = True

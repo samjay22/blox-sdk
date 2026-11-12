@@ -61,7 +61,7 @@ class RuntimeContractTests(unittest.TestCase):
             self.assertTrue((ROOT / tree / 'Configs/Namespace.luau').exists())
         coverage = (ROOT / 'SDK_COVERAGE.md').read_text()
         self.assertNotIn('TODO: Fields generic Rotations', coverage)
-        self.assertIn('fields:activeRotation', coverage)
+        self.assertIn('fields:currentRotation', coverage)
         self.assertIn('current Party controller/DTO parity is unverified', coverage)
 
     def test_nullable_records_do_not_weaken_request_contracts(self) -> None:

@@ -137,10 +137,6 @@ function Snapshot.refresh(self: Snapshot): boolean
 	end
 	return true
 end
---- Read active heads from the last good snapshot; nil means the server has not supplied rotations.
-function Snapshot.getRotations(self: Snapshot): { Types.RotationActive }?
-	return if not self._signal.cancelled and self._value then self._value.rotations else nil
-end
 --- Expose lifecycle state without requiring a polling task.
 function Snapshot.isDestroyed(self: Snapshot): boolean
 	return self._signal.cancelled

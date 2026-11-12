@@ -22,8 +22,7 @@ Provision these fixtures first (the runner never creates definitions):
 |---|---|---|
 | BLOX_FIELD_ID | Smoke.Counter | Active, stored PLAYER field present in the document; write permitted |
 | BLOX_BOARD | sdk_smoke | Dedicated test leaderboard; score 0 must be legal |
-| BLOX_ROTATION | weather | Enabled rotation with a current instance |
-| BLOX_GENERATOR | card_pack | Valid generator accepting read-only preview |
+| BLOX_ROTATION | weather | A saved rotation to read with `current` |
 | BLOX_CODE | absent | Only when supplied: redeem this test code for BLOX_PLAYER_ID |
 
 The field transaction records history/sequence even though its value is unchanged; version conditions

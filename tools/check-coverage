@@ -123,11 +123,45 @@ def assert_controller_coverage(actual: set[tuple[str,str,str]]) -> None:
     # The checked-in fields-service tree predates the move of game values to config-service; these routes are gone.
     retired = {('fields', 'GET', '/api/fields/universes/{universeId}/game-values/{fieldPath}/history'),
                ('fields', 'POST', '/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback')}
+    # Likewise the old tree still has tables, generators, rolls, claims, stock and history: rotations were simplified to a list on a clock.
+    retired |= {
+        ('fields', 'DELETE', '/api/fields/universes/{universeId}/generators/{key}'),
+        ('fields', 'DELETE', '/api/fields/universes/{universeId}/random-tables/{key}'),
+        ('fields', 'DELETE', '/api/fields/universes/{universeId}/randomness'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/generators'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/generators/{key}'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/players/{playerId}/randomness/claims'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/random-tables'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/random-tables/{key}'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/random-tables/{key}/odds'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/randomness/definitions/{key}/history'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/randomness/fields'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/randomness/schema'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/rotations/instances/{id}/stock'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/active'),
+        ('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/history'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/generators'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/generators/preview'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/generators/roll'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/generators/simulate'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/random-tables'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/rotations'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/rotations/claim'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/rotations/{key}/advance'),
+        ('fields', 'POST', '/api/fields/universes/{universeId}/rotations/{key}/reroll'),
+        ('fields', 'PUT', '/api/fields/universes/{universeId}/generators/{key}'),
+        ('fields', 'PUT', '/api/fields/universes/{universeId}/random-tables/{key}'),
+    }
     missing = (controller_routes() - retired | framework) - actual - internal
     assert not missing, f'Missing controller routes: {sorted(missing)}'
     # Only documented framework endpoints and the explicitly unverified Party snapshot
     # may exist without a controller; stale speculative domain APIs must fail too.
-    extra = {r for r in actual - controller_routes() - SCALE_ROUTES
+    # Routes that exist only in the current fields-service-redis tree (the scanned tree predates the rotations rewrite).
+    added = {('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/current'),
+             ('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/schedule'),
+             ('fields', 'POST', '/api/fields/universes/{universeId}/rotations/preview')}
+    extra = {r for r in actual - controller_routes() - SCALE_ROUTES - added
              if r[0] != 'party' and (r[1], r[2]) not in {('GET','/metrics'),('GET','/info')}}
     assert not extra, f'Removed or fabricated routes: {sorted(extra)}'
 

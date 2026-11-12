@@ -1,6 +1,6 @@
 # Endpoint reference
 
-391 endpoints. `routes.json` coverage is checked independently.
+367 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -170,14 +170,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/fields/universes/{universeId}/flags/{key}` | `fields.deleteFlag` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/flags/{key}` | `fields.flag` | READ | 200 | yes | yes |
 | PUT | `/api/fields/universes/{universeId}/flags/{key}` | `fields.updateFlag` | READ_WRITE | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/generators` | `fields.listGenerators` | READ | 200 | yes | no |
-| POST | `/api/fields/universes/{universeId}/generators` | `fields.createGenerator` | READ_WRITE | 200 | no | no |
-| POST | `/api/fields/universes/{universeId}/generators/preview` | `fields.previewGenerator` | READ | 200 | yes | no |
-| POST | `/api/fields/universes/{universeId}/generators/roll` | `fields.rollGenerator` | READ_WRITE | 200 | keyed | no |
-| POST | `/api/fields/universes/{universeId}/generators/simulate` | `fields.simulateGenerator` | READ | 200 | yes | no |
-| DELETE | `/api/fields/universes/{universeId}/generators/{key}` | `fields.deleteGenerator` | READ_WRITE | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/generators/{key}` | `fields.getGenerator` | READ | 200 | yes | no |
-| PUT | `/api/fields/universes/{universeId}/generators/{key}` | `fields.putGenerator` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/health/summary` | `fields.healthSummary` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/import` | `fields.import` | ADMIN | 200 | keyed apply / dry-run | no |
 | GET | `/api/fields/universes/{universeId}/jobs` | `fields.jobs` | ADMIN | 200 | yes | no |
@@ -201,8 +193,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/fields/universes/{universeId}/players/changes/batch` | `fields.changesBatch` | READ | 200 | yes | no |
 | GET | `/api/fields/universes/{universeId}/players/sample` | `fields.samplePlayers` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/search` | `fields.searchPlayers` | READ | 200 | yes | yes |
-| GET | `/api/fields/universes/{universeId}/players/{playerId}/randomness/claims` | `fields.playerClaimHistory` | READ | 200 | yes | no |
-| GET | `/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls` | `fields.playerRollHistory` | READ | 200 | yes | no |
 | DELETE | `/api/fields/universes/{universeId}/players/{userId}` | `fields.deletePlayer` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/changes` | `fields.changes` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/document` | `fields.document` | READ | 200 | yes | yes |
@@ -223,16 +213,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/fields/universes/{universeId}/products/{id}` | `fields.deleteProduct` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/products/{id}` | `fields.product` | READ | 200 | yes | yes |
 | PUT | `/api/fields/universes/{universeId}/products/{id}` | `fields.putProduct` | ADMIN | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/random-tables` | `fields.listRandomTables` | READ | 200 | yes | no |
-| POST | `/api/fields/universes/{universeId}/random-tables` | `fields.createRandomTable` | READ_WRITE | 200 | no | no |
-| DELETE | `/api/fields/universes/{universeId}/random-tables/{key}` | `fields.deleteRandomTable` | READ_WRITE | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/random-tables/{key}` | `fields.getRandomTable` | READ | 200 | yes | no |
-| PUT | `/api/fields/universes/{universeId}/random-tables/{key}` | `fields.putRandomTable` | READ_WRITE | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/random-tables/{key}/odds` | `fields.tableOdds` | READ | 200 | yes | no |
-| DELETE | `/api/fields/universes/{universeId}/randomness` | `fields.eraseRandomness` | ADMIN | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/randomness/definitions/{key}/history` | `fields.randomDefinitionHistory` | READ | 200 | yes | no |
-| GET | `/api/fields/universes/{universeId}/randomness/fields` | `fields.randomnessFields` | READ | 200 | yes | no |
-| GET | `/api/fields/universes/{universeId}/randomness/schema` | `fields.randomnessSchema` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/receipts` | `fields.purchase` | READ_WRITE | 200 | keyed | no |
 | GET | `/api/fields/universes/{universeId}/receipts/{purchaseId}` | `fields.receipt` | READ | 200 | yes | yes |
 | POST | `/api/fields/universes/{universeId}/receipts/{purchaseId}/refund` | `fields.refund` | ADMIN | 200 | keyed | no |
@@ -241,16 +221,12 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.deleteReferences` | READ_WRITE | 204 | yes | no |
 | PUT | `/api/fields/universes/{universeId}/references/{consumerType}/{consumerId}` | `fields.putReferences` | READ_WRITE | 204 | yes | no |
 | GET | `/api/fields/universes/{universeId}/rotations` | `fields.listRotations` | READ | 200 | yes | no |
-| POST | `/api/fields/universes/{universeId}/rotations` | `fields.createRotation` | READ_WRITE | 200 | no | no |
-| POST | `/api/fields/universes/{universeId}/rotations/claim` | `fields.claimRotation` | READ_WRITE | 200 | keyed | no |
-| GET | `/api/fields/universes/{universeId}/rotations/instances/{id}/stock` | `fields.rotationStock` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/rotations/preview` | `fields.previewRotation` | READ | 200 | yes | no |
 | DELETE | `/api/fields/universes/{universeId}/rotations/{key}` | `fields.deleteRotation` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/rotations/{key}` | `fields.getRotation` | READ | 200 | yes | no |
 | PUT | `/api/fields/universes/{universeId}/rotations/{key}` | `fields.putRotation` | READ_WRITE | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/rotations/{key}/active` | `fields.activeRotation` | READ | 200 | yes | no |
-| POST | `/api/fields/universes/{universeId}/rotations/{key}/advance` | `fields.advanceRotation` | ADMIN | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/rotations/{key}/history` | `fields.rotationHistory` | READ | 200 | yes | no |
-| POST | `/api/fields/universes/{universeId}/rotations/{key}/reroll` | `fields.rerollRotation` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/rotations/{key}/current` | `fields.currentRotation` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/rotations/{key}/schedule` | `fields.rotationSchedule` | READ | 200 | yes | no |
 | GET | `/api/fields/universes/{universeId}/runtime/snapshot` | `fields.runtimeSnapshot` | READ | 200, 304 | yes | no |
 | GET | `/api/fields/universes/{universeId}/schedules` | `fields.schedules` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/schedules` | `fields.createSchedule` | ADMIN | 200 | keyed | no |

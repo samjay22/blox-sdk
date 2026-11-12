@@ -155,10 +155,8 @@ local function run(
 				results = Json.array({}),
 				seq = { ["7"] = 1 },
 			}
-		elseif string.find(url, "/active", 1, true) then
-			payload = V.active
-		elseif string.find(url, "/preview", 1, true) then
-			payload = { V.roll.results[1] }
+		elseif string.find(url, "/current", 1, true) then
+			payload = V.current
 		elseif string.find(url, "/redeem", 1, true) then
 			redeems += 1
 			payload = {

@@ -1,5 +1,24 @@
 # Migrating BloxSDK
 
+## 6.0.0 to 7.0.0 — rotations simplified
+
+Rotations are now one idea: a named list of items that take turns on a fixed clock. Tables, generators, rolls, stock and
+claims are gone, with no aliases. If a game needs gacha rolls or limited stock, build it on Fields transactions.
+
+| Before | After |
+|---|---|
+| Save a table, a generator and a rotation (three JSON definitions with a save reason each) | `fields:putRotation{ path = { key = "daily_shop" }, body = { items = { { id = "sword", data = { price = 100 } } }, every = "1d" } }` |
+| `rotations:get(name)` -> `RotationActive` (`current.result.picks[1].payload`) | `rotations:current(name)` -> `{ items, endsAt, next }`; `items[1].data` is what the pick's `payload` was |
+| `rotations:timeRemaining(instance)` | `rotations:secondsLeft(current)` |
+| `rotations:watch(key, function(instance, active) ... end)` (snapshot-backed) | `rotations:watch(name, function(current) ... end)`; no `client:runtimeSnapshot` needed, the runtime snapshot no longer carries rotations |
+| `rotations:getAll()` / `getStock` / `claim`, `fields:advanceRotation` / `rerollRotation` / `rotationHistory` | removed; list with `fields:listRotations`, preview with `fields:previewRotation` |
+| `client.fields:generators():roll/preview/getOdds`, tables and odds, pity | removed |
+| Weighted outcomes (70/25/5 weather) | removed: every item gets an equal turn, in list order or `shuffled` |
+| Cadence `INTERVAL { everySeconds }` / `ENTRY_DURATION` | `every = "30m"` (`m`, `h`, `d`, `w`); every item lasts the same time |
+| Error codes `rotation_definition_not_found`, `rotation_out_of_stock`, ... | `rotation_not_found`, `rotation_version_conflict`; definition problems are `invalid_definition` with a message |
+
+`BloxSDK.version` is `7.0.0` and the SDK has 367 endpoints. Existing rotation data was empty, so nothing needed converting.
+
 ## 5.0.0 to 6.0.0 — configs split out of Fields
 
 Game configuration moved out of Fields into `client.configs`. No aliases remain.

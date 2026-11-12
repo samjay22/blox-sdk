@@ -305,58 +305,6 @@ export type FlagRule = { match: (FlagMatch | Core.Null)?, rolloutPct: number, va
 export type FlagRuleRead = { match: (FlagMatchRead | Core.Null)?, rolloutPct: number, value: Core.Json }
 export type FlagVariant = { name: string, value: Core.Json, weightPct: number }
 export type FlagVariantRead = { name: string, value: Core.Json, weightPct: number }
-export type Generated = {
-	cost: { FieldTypes.PlayerOperation },
-	picks: { GeneratorPick },
-	pityAfter: number | Core.Null,
-}
-export type GeneratorPick = {
-	durationSeconds: number | Core.Null,
-	entryId: string,
-	grants: { FieldTypes.PlayerOperation },
-	index: number,
-	path: { string },
-	payload: Core.Json | Core.Null,
-	rolls: { [string]: number },
-	slot: string,
-	table: string,
-	tags: { string },
-}
-export type GeneratorPreviewInput = {
-	count: number?,
-	generator: string,
-	playerId: number?,
-	universeId: number?,
-}
-export type GeneratorRollInput = {
-	count: number?,
-	generator: string,
-	idempotencyKey: string?,
-	playerId: number,
-	universeId: number?,
-}
-export type GeneratorRollResult = {
-	createdAt: string,
-	definitionVersions: { [string]: number },
-	generator: string,
-	id: string,
-	playerId: number,
-	results: { Generated },
-	transaction: Result,
-}
-export type GeneratorSimulationInput = {
-	generator: string,
-	iterations: number?,
-	playerId: number?,
-	universeId: number?,
-}
-export type GeneratorSimulationResult = {
-	appearanceProbabilities: { [string]: number },
-	entryCounts: { [string]: number },
-	iterations: number,
-	picks: number,
-	pityMode: string,
-}
 export type HealthComponent = { status: string }
 export type HealthResponse = Core.HealthResponse
 export type HealthSummary = { openAlerts: OpenAlertCounts, runningJobs: number, upcomingSchedules: number }
@@ -541,20 +489,6 @@ export type ProductInput = {
 	sku: string,
 	universeId: number?,
 }
-export type RandomAction = { reason: string, universeId: number? }
-export type RandomDefinition = { definition: Core.Json, key: string, kind: RotationKind, version: number }
-export type RandomDefinitionInput = {
-	applyNow: boolean?,
-	definition: Core.Json,
-	expectedVersion: number?,
-	key: string?,
-	reason: string,
-	universeId: number?,
-}
-export type RandomEditorField = { field: string, path: string, type: FieldTypes.TypeExpr, validOps: { string } }
-export type RandomErase = { confirmUniverseId: number, reason: string, universeId: number? }
-export type RandomHistory = { counter: number, data: Core.Json }
-export type RandomOdds = { entryProbabilities: { [string]: number }, probabilities: { [string]: number } }
 export type Receipt = {
 	createdAt: (string | Core.Null)?,
 	productId: number,
@@ -629,45 +563,45 @@ export type ResultItem = {
 	subject: number,
 	version: number,
 }
-export type RotationActive = {
-	current: RotationInstance | Core.Null,
-	enabled: boolean,
-	next: RotationInstance | Core.Null,
+export type Rotation = {
+	current: RotationPeriod,
+	every: string,
+	items: { RotationItemRead },
+	key: string,
+	order: RotationOrder,
+	show: number,
+	startsAt: string,
+	updatedAt: string,
+	version: number,
 }
-export type RotationClaimInput = {
-	entryId: string,
-	idempotencyKey: string?,
-	instanceId: string,
-	playerId: number,
-	quantity: number,
-	slot: string,
+export type RotationCurrent = { current: RotationPeriod, key: string, next: RotationPeriod, version: number }
+export type RotationInput = {
+	every: string,
+	expectedVersion: number?,
+	items: { RotationItem },
+	order: RotationOrder?,
+	show: number?,
+	startsAt: string?,
 	universeId: number?,
 }
-export type RotationClaimResult = {
-	createdAt: string,
-	entryId: string,
-	id: string,
-	instanceId: string,
-	quantity: number,
-	remaining: number,
-	slot: string,
-	transaction: Result,
-}
-export type RotationInstance = {
-	definitionVersions: { [string]: number },
-	endsAt: string,
-	id: string,
+export type RotationItem = { data: Core.Json?, id: string }
+export type RotationItemRead = { data: (Core.Json | Core.Null)?, id: string }
+export type RotationOrder = "inOrder" | "shuffled"
+export type RotationPeriod = { endsAt: string, items: { RotationItemRead }, startsAt: string }
+export type RotationPreviewInput = {
+	count: number?,
+	every: string,
+	items: { RotationItem },
 	key: string,
-	result: Generated,
-	sequence: number,
-	startsAt: string,
+	order: RotationOrder?,
+	show: number?,
+	startsAt: string?,
+	universeId: number?,
 }
-export type RotationKind = "TABLE" | "GENERATOR" | "ROTATION"
-export type RotationStock = { entryId: string, remaining: number, slot: string }
+export type RotationSchedule = { periods: { RotationPeriod } }
 export type RuntimeSnapshot = {
 	flags: ({ FlagDefinition } | Core.Null)?,
 	maintenance: (MaintenanceState | Core.Null)?,
-	rotations: ({ RotationActive } | Core.Null)?,
 	version: number,
 }
 export type ScheduleActionResult = {
@@ -890,25 +824,6 @@ export type FlagCall = { path: { universeId: (string | number)?, key: string } }
 export type FlagResultValue = FlagDefinition
 export type UpdateFlagCall = { path: { universeId: (string | number)?, key: string }, body: FlagInput }
 export type UpdateFlagResultValue = FlagDefinition
-export type ListGeneratorsCall = { path: { universeId: (string | number)? }? }
-export type ListGeneratorsResultValue = { RandomDefinition }
-export type CreateGeneratorCall = RandomDefinitionInput
-export type CreateGeneratorResultValue = RandomDefinition
-export type PreviewGeneratorCall = GeneratorPreviewInput
-export type PreviewGeneratorResultValue = { Generated }
-export type RollGeneratorCall = GeneratorRollInput
-export type RollGeneratorResultValue = GeneratorRollResult
-export type SimulateGeneratorCall = GeneratorSimulationInput
-export type SimulateGeneratorResultValue = GeneratorSimulationResult
-export type DeleteGeneratorCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
-export type DeleteGeneratorResultValue = boolean
-export type GetGeneratorCall = { path: { universeId: (string | number)?, key: string } }
-export type GetGeneratorResultValue = RandomDefinition
-export type PutGeneratorCall = {
-	path: { universeId: (string | number)?, key: string },
-	body: RandomDefinitionInput,
-}
-export type PutGeneratorResultValue = RandomDefinition
 export type HealthSummaryCall = { path: { universeId: (string | number)? }? }
 export type HealthSummaryResultValue = HealthSummary
 export type ImportCall = {
@@ -982,16 +897,6 @@ export type SearchPlayersCall = {
 	query: { cursor: string?, limit: number?, q: string },
 }
 export type SearchPlayersResultValue = PlayerSearchPage
-export type PlayerClaimHistoryCall = {
-	path: { universeId: (string | number)?, playerId: string | number },
-	query: { cursor: string?, limit: number? }?,
-}
-export type PlayerClaimHistoryResultValue = CursorPage<RandomHistory>
-export type PlayerRollHistoryCall = {
-	path: { universeId: (string | number)?, playerId: string | number },
-	query: { cursor: string?, limit: number? }?,
-}
-export type PlayerRollHistoryResultValue = CursorPage<RandomHistory>
 export type DeletePlayerCall = {
 	path: { universeId: (string | number)?, userId: string | number },
 	body: PlayerEraseInput,
@@ -1071,38 +976,6 @@ export type PutProductCall = {
 	body: ProductInput,
 }
 export type PutProductResultValue = Product
-export type ListRandomTablesCall = { path: { universeId: (string | number)? }? }
-export type ListRandomTablesResultValue = { RandomDefinition }
-export type CreateRandomTableCall = RandomDefinitionInput
-export type CreateRandomTableResultValue = RandomDefinition
-export type DeleteRandomTableCall = {
-	path: { universeId: (string | number)?, key: string },
-	body: RandomAction,
-}
-export type DeleteRandomTableResultValue = boolean
-export type GetRandomTableCall = { path: { universeId: (string | number)?, key: string } }
-export type GetRandomTableResultValue = RandomDefinition
-export type PutRandomTableCall = {
-	path: { universeId: (string | number)?, key: string },
-	body: RandomDefinitionInput,
-}
-export type PutRandomTableResultValue = RandomDefinition
-export type TableOddsCall = {
-	path: { universeId: (string | number)?, key: string },
-	query: { playerId: (string | number)? }?,
-}
-export type TableOddsResultValue = RandomOdds
-export type EraseRandomnessCall = RandomErase
-export type EraseRandomnessResultValue = boolean
-export type RandomDefinitionHistoryCall = {
-	path: { universeId: (string | number)?, key: string },
-	query: { cursor: string?, limit: number? }?,
-}
-export type RandomDefinitionHistoryResultValue = CursorPage<RandomHistory>
-export type RandomnessFieldsCall = { path: { universeId: (string | number)? }? }
-export type RandomnessFieldsResultValue = { RandomEditorField }
-export type RandomnessSchemaCall = { path: { universeId: (string | number)? }? }
-export type RandomnessSchemaResultValue = Core.Json
 export type PurchaseCall = ReceiptInput
 export type PurchaseResultValue = ReceiptResult
 export type ReceiptCall = { path: { universeId: (string | number)?, purchaseId: string } }
@@ -1129,33 +1002,22 @@ export type PutReferencesCall = {
 }
 export type PutReferencesResultValue = nil
 export type ListRotationsCall = { path: { universeId: (string | number)? }? }
-export type ListRotationsResultValue = { RandomDefinition }
-export type CreateRotationCall = RandomDefinitionInput
-export type CreateRotationResultValue = RandomDefinition
-export type ClaimRotationCall = RotationClaimInput
-export type ClaimRotationResultValue = RotationClaimResult
-export type RotationStockCall = { path: { universeId: (string | number)?, id: string } }
-export type RotationStockResultValue = { RotationStock }
-export type DeleteRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
+export type ListRotationsResultValue = { Rotation }
+export type PreviewRotationCall = RotationPreviewInput
+export type PreviewRotationResultValue = RotationSchedule
+export type DeleteRotationCall = { path: { universeId: (string | number)?, key: string } }
 export type DeleteRotationResultValue = boolean
 export type GetRotationCall = { path: { universeId: (string | number)?, key: string } }
-export type GetRotationResultValue = RandomDefinition
-export type PutRotationCall = {
+export type GetRotationResultValue = Rotation
+export type PutRotationCall = { path: { universeId: (string | number)?, key: string }, body: RotationInput }
+export type PutRotationResultValue = Rotation
+export type CurrentRotationCall = { path: { universeId: (string | number)?, key: string } }
+export type CurrentRotationResultValue = RotationCurrent
+export type RotationScheduleCall = {
 	path: { universeId: (string | number)?, key: string },
-	body: RandomDefinitionInput,
+	query: { count: number? }?,
 }
-export type PutRotationResultValue = RandomDefinition
-export type ActiveRotationCall = { path: { universeId: (string | number)?, key: string } }
-export type ActiveRotationResultValue = RotationActive
-export type AdvanceRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
-export type AdvanceRotationResultValue = RotationActive
-export type RotationHistoryCall = {
-	path: { universeId: (string | number)?, key: string },
-	query: { cursor: string?, limit: number? }?,
-}
-export type RotationHistoryResultValue = CursorPage<RandomHistory>
-export type RerollRotationCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
-export type RerollRotationResultValue = RotationActive
+export type RotationScheduleResultValue = RotationSchedule
 export type RuntimeSnapshotCall = { etag: string?, path: { universeId: (string | number)? }? }
 export type RuntimeSnapshotResultValue = RuntimeSnapshot | nil
 export type SchedulesCall = { path: { universeId: (string | number)? }? }

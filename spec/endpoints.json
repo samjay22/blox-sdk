@@ -7366,441 +7366,6 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.listGenerators",
-      "idempotent": true,
-      "javaResponse": "Mono<List<Definition>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "listGenerators",
-      "path": "/api/fields/universes/{universeId}/generators",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "List<RandomDefinition>",
-      "responseType": "ListGeneratorsResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomDefinitionInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.createGenerator",
-      "idempotent": false,
-      "javaResponse": "Mono<Definition>",
-      "method": "POST",
-      "minimumLevel": "READ_WRITE",
-      "name": "createGenerator",
-      "path": "/api/fields/universes/{universeId}/generators",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "CreateGeneratorResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "GeneratorPreviewInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.previewGenerator",
-      "idempotent": true,
-      "javaResponse": "Mono<List<Generated>>",
-      "method": "POST",
-      "minimumLevel": "READ",
-      "name": "previewGenerator",
-      "path": "/api/fields/universes/{universeId}/generators/preview",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "List<Generated>",
-      "responseType": "PreviewGeneratorResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "GeneratorRollInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.rollGenerator",
-      "idempotencyField": "idempotencyKey",
-      "idempotent": true,
-      "javaResponse": "Mono<JsonNode>",
-      "method": "POST",
-      "minimumLevel": "READ_WRITE",
-      "name": "rollGenerator",
-      "path": "/api/fields/universes/{universeId}/generators/roll",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "GeneratorRollResult",
-      "responseType": "RollGeneratorResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "GeneratorSimulationInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.simulateGenerator",
-      "idempotent": true,
-      "javaResponse": "Mono<JsonNode>",
-      "method": "POST",
-      "minimumLevel": "READ",
-      "name": "simulateGenerator",
-      "path": "/api/fields/universes/{universeId}/generators/simulate",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "GeneratorSimulationResult",
-      "responseType": "SimulateGeneratorResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomAction",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.deleteGenerator",
-      "idempotent": false,
-      "javaResponse": "Mono<Boolean>",
-      "method": "DELETE",
-      "minimumLevel": "READ_WRITE",
-      "name": "deleteGenerator",
-      "path": "/api/fields/universes/{universeId}/generators/{key}",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "boolean",
-      "responseType": "DeleteGeneratorResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.getGenerator",
-      "idempotent": true,
-      "javaResponse": "Mono<Definition>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "getGenerator",
-      "path": "/api/fields/universes/{universeId}/generators/{key}",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "GetGeneratorResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomDefinitionInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.putGenerator",
-      "idempotent": false,
-      "javaResponse": "Mono<Definition>",
-      "method": "PUT",
-      "minimumLevel": "READ_WRITE",
-      "name": "putGenerator",
-      "path": "/api/fields/universes/{universeId}/generators/{key}",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "PutGeneratorResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
       "errorStatuses": [
         400,
@@ -9189,150 +8754,6 @@
         "custom",
         "scoped"
       ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.playerClaimHistory",
-      "idempotent": true,
-      "javaResponse": "Mono<Models.Page<History>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "playerClaimHistory",
-      "path": "/api/fields/universes/{universeId}/players/{playerId}/randomness/claims",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "long",
-          "name": "playerId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [
-        {
-          "java": "String",
-          "name": "cursor",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "default": "50",
-          "java": "int",
-          "name": "limit",
-          "required": false,
-          "type": "number"
-        }
-      ],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "CursorPage<RandomHistory>",
-      "responseType": "PlayerClaimHistoryResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.playerRollHistory",
-      "idempotent": true,
-      "javaResponse": "Mono<Models.Page<History>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "playerRollHistory",
-      "path": "/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "long",
-          "name": "playerId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [
-        {
-          "java": "String",
-          "name": "cursor",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "default": "50",
-          "java": "int",
-          "name": "limit",
-          "required": false,
-          "type": "number"
-        }
-      ],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "CursorPage<RandomHistory>",
-      "responseType": "PlayerRollHistoryResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
       "bodyRequired": true,
       "bodyType": "PlayerEraseInput",
       "cacheable": false,
@@ -10599,577 +10020,6 @@
         "custom",
         "scoped"
       ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.listRandomTables",
-      "idempotent": true,
-      "javaResponse": "Mono<List<Definition>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "listRandomTables",
-      "path": "/api/fields/universes/{universeId}/random-tables",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "List<RandomDefinition>",
-      "responseType": "ListRandomTablesResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomDefinitionInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.createRandomTable",
-      "idempotent": false,
-      "javaResponse": "Mono<Definition>",
-      "method": "POST",
-      "minimumLevel": "READ_WRITE",
-      "name": "createRandomTable",
-      "path": "/api/fields/universes/{universeId}/random-tables",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "CreateRandomTableResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomAction",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.deleteRandomTable",
-      "idempotent": false,
-      "javaResponse": "Mono<Boolean>",
-      "method": "DELETE",
-      "minimumLevel": "READ_WRITE",
-      "name": "deleteRandomTable",
-      "path": "/api/fields/universes/{universeId}/random-tables/{key}",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "boolean",
-      "responseType": "DeleteRandomTableResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.getRandomTable",
-      "idempotent": true,
-      "javaResponse": "Mono<Definition>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "getRandomTable",
-      "path": "/api/fields/universes/{universeId}/random-tables/{key}",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "GetRandomTableResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomDefinitionInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.putRandomTable",
-      "idempotent": false,
-      "javaResponse": "Mono<Definition>",
-      "method": "PUT",
-      "minimumLevel": "READ_WRITE",
-      "name": "putRandomTable",
-      "path": "/api/fields/universes/{universeId}/random-tables/{key}",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "PutRandomTableResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.tableOdds",
-      "idempotent": true,
-      "javaResponse": "Mono<JsonNode>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "tableOdds",
-      "path": "/api/fields/universes/{universeId}/random-tables/{key}/odds",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [
-        {
-          "java": "Long",
-          "name": "playerId",
-          "required": false,
-          "type": "id"
-        }
-      ],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomOdds",
-      "responseType": "TableOddsResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomErase",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "fields.eraseRandomness",
-      "idempotent": false,
-      "javaResponse": "Mono<Boolean>",
-      "method": "DELETE",
-      "minimumLevel": "ADMIN",
-      "name": "eraseRandomness",
-      "path": "/api/fields/universes/{universeId}/randomness",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "boolean",
-      "responseType": "EraseRandomnessResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.randomDefinitionHistory",
-      "idempotent": true,
-      "javaResponse": "Mono<Models.Page<History>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "randomDefinitionHistory",
-      "path": "/api/fields/universes/{universeId}/randomness/definitions/{key}/history",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [
-        {
-          "java": "String",
-          "name": "cursor",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "default": "50",
-          "java": "int",
-          "name": "limit",
-          "required": false,
-          "type": "number"
-        }
-      ],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "CursorPage<RandomHistory>",
-      "responseType": "RandomDefinitionHistoryResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.randomnessFields",
-      "idempotent": true,
-      "javaResponse": "Mono<List<RotationEditor.Field>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "randomnessFields",
-      "path": "/api/fields/universes/{universeId}/randomness/fields",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "List<RandomEditorField>",
-      "responseType": "RandomnessFieldsResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.randomnessSchema",
-      "idempotent": true,
-      "javaResponse": "Mono<JsonNode>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "randomnessSchema",
-      "path": "/api/fields/universes/{universeId}/randomness/schema",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "JsonNode",
-      "responseType": "RandomnessSchemaResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
       "bodyRequired": true,
       "bodyType": "ReceiptInput",
       "cacheable": false,
@@ -11603,7 +10453,7 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -11619,7 +10469,7 @@
       "guard": "hasRole('SERVICE_READ')",
       "id": "fields.listRotations",
       "idempotent": true,
-      "javaResponse": "Mono<List<Definition>>",
+      "javaResponse": "Mono<List<Rotation>>",
       "method": "GET",
       "minimumLevel": "READ",
       "name": "listRotations",
@@ -11635,7 +10485,7 @@
       "queryParams": [],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "List<RandomDefinition>",
+      "responseJava": "List<Rotation>",
       "responseType": "ListRotationsResultValue",
       "retryable": true,
       "service": "fields",
@@ -11653,9 +10503,9 @@
         "scoped"
       ],
       "bodyRequired": true,
-      "bodyType": "RandomDefinitionInput",
+      "bodyType": "RotationPreviewInput",
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -11668,67 +10518,14 @@
         500,
         503
       ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.createRotation",
-      "idempotent": false,
-      "javaResponse": "Mono<Definition>",
-      "method": "POST",
-      "minimumLevel": "READ_WRITE",
-      "name": "createRotation",
-      "path": "/api/fields/universes/{universeId}/rotations",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RandomDefinition",
-      "responseType": "CreateRotationResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RotationClaimInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_WRITE')",
-      "id": "fields.claimRotation",
-      "idempotencyField": "idempotencyKey",
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.previewRotation",
       "idempotent": true,
-      "javaResponse": "Mono<JsonNode>",
+      "javaResponse": "Mono<RotationSchedule>",
       "method": "POST",
-      "minimumLevel": "READ_WRITE",
-      "name": "claimRotation",
-      "path": "/api/fields/universes/{universeId}/rotations/claim",
+      "minimumLevel": "READ",
+      "name": "previewRotation",
+      "path": "/api/fields/universes/{universeId}/rotations/preview",
       "pathParams": [
         {
           "java": "long",
@@ -11740,8 +10537,8 @@
       "queryParams": [],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "RotationClaimResult",
-      "responseType": "ClaimRotationResultValue",
+      "responseJava": "RotationSchedule",
+      "responseType": "PreviewRotationResultValue",
       "retryable": true,
       "service": "fields",
       "serviceName": "FieldsService",
@@ -11760,65 +10557,7 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.rotationStock",
-      "idempotent": true,
-      "javaResponse": "Mono<List<JsonNode>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "rotationStock",
-      "path": "/api/fields/universes/{universeId}/rotations/instances/{id}/stock",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "UUID",
-          "name": "id",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "List<RotationStock>",
-      "responseType": "RotationStockResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomAction",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -11834,7 +10573,7 @@
       "guard": "hasRole('SERVICE_WRITE')",
       "id": "fields.deleteRotation",
       "idempotent": false,
-      "javaResponse": "Mono<Boolean>",
+      "javaResponse": "Mono<boolean>",
       "method": "DELETE",
       "minimumLevel": "READ_WRITE",
       "name": "deleteRotation",
@@ -11876,7 +10615,7 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -11892,7 +10631,7 @@
       "guard": "hasRole('SERVICE_READ')",
       "id": "fields.getRotation",
       "idempotent": true,
-      "javaResponse": "Mono<Definition>",
+      "javaResponse": "Mono<Rotation>",
       "method": "GET",
       "minimumLevel": "READ",
       "name": "getRotation",
@@ -11914,7 +10653,7 @@
       "queryParams": [],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "RandomDefinition",
+      "responseJava": "Rotation",
       "responseType": "GetRotationResultValue",
       "retryable": true,
       "service": "fields",
@@ -11932,9 +10671,9 @@
         "scoped"
       ],
       "bodyRequired": true,
-      "bodyType": "RandomDefinitionInput",
+      "bodyType": "RotationInput",
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -11950,7 +10689,7 @@
       "guard": "hasRole('SERVICE_WRITE')",
       "id": "fields.putRotation",
       "idempotent": false,
-      "javaResponse": "Mono<Definition>",
+      "javaResponse": "Mono<Rotation>",
       "method": "PUT",
       "minimumLevel": "READ_WRITE",
       "name": "putRotation",
@@ -11972,7 +10711,7 @@
       "queryParams": [],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "RandomDefinition",
+      "responseJava": "Rotation",
       "responseType": "PutRotationResultValue",
       "retryable": false,
       "service": "fields",
@@ -11992,7 +10731,7 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -12006,13 +10745,13 @@
         503
       ],
       "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.activeRotation",
+      "id": "fields.currentRotation",
       "idempotent": true,
-      "javaResponse": "Mono<Active>",
+      "javaResponse": "Mono<RotationCurrent>",
       "method": "GET",
       "minimumLevel": "READ",
-      "name": "activeRotation",
-      "path": "/api/fields/universes/{universeId}/rotations/{key}/active",
+      "name": "currentRotation",
+      "path": "/api/fields/universes/{universeId}/rotations/{key}/current",
       "pathParams": [
         {
           "java": "long",
@@ -12030,67 +10769,9 @@
       "queryParams": [],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "RotationActive",
-      "responseType": "ActiveRotationResultValue",
+      "responseJava": "RotationCurrent",
+      "responseType": "CurrentRotationResultValue",
       "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomAction",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "fields.advanceRotation",
-      "idempotent": false,
-      "javaResponse": "Mono<Active>",
-      "method": "POST",
-      "minimumLevel": "ADMIN",
-      "name": "advanceRotation",
-      "path": "/api/fields/universes/{universeId}/rotations/{key}/advance",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RotationActive",
-      "responseType": "AdvanceRotationResultValue",
-      "retryable": false,
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
@@ -12108,7 +10789,7 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
+      "errorStatusNote": "Fields API_CONTRACT.md Rotations; server rules are authoritative.",
       "errorStatuses": [
         400,
         401,
@@ -12122,13 +10803,13 @@
         503
       ],
       "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.rotationHistory",
+      "id": "fields.rotationSchedule",
       "idempotent": true,
-      "javaResponse": "Mono<Models.Page<History>>",
+      "javaResponse": "Mono<RotationSchedule>",
       "method": "GET",
       "minimumLevel": "READ",
-      "name": "rotationHistory",
-      "path": "/api/fields/universes/{universeId}/rotations/{key}/history",
+      "name": "rotationSchedule",
+      "path": "/api/fields/universes/{universeId}/rotations/{key}/schedule",
       "pathParams": [
         {
           "java": "long",
@@ -12145,82 +10826,17 @@
       ],
       "queryParams": [
         {
-          "java": "String",
-          "name": "cursor",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "default": "50",
-          "java": "int",
-          "name": "limit",
+          "java": "Integer",
+          "name": "count",
           "required": false,
           "type": "number"
         }
       ],
       "requiredRole": null,
       "responseFormat": "json",
-      "responseJava": "CursorPage<RandomHistory>",
-      "responseType": "RotationHistoryResultValue",
+      "responseJava": "RotationSchedule",
+      "responseType": "RotationScheduleResultValue",
       "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "RandomAction",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md Rotations & Generators; server rules are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "fields.rerollRotation",
-      "idempotent": false,
-      "javaResponse": "Mono<Active>",
-      "method": "POST",
-      "minimumLevel": "ADMIN",
-      "name": "rerollRotation",
-      "path": "/api/fields/universes/{universeId}/rotations/{key}/reroll",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "key",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "RotationActive",
-      "responseType": "RerollRotationResultValue",
-      "retryable": false,
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/RotationsController.java",
@@ -21502,15 +20118,7 @@
     "svc/fields-service/src/main/java/sam/tech/fields/jobs/WebhookSender.java": "fa96745ede3f955120c0bf6396c2a247eb9275ed9eb58b538d770775c53da620",
     "svc/fields-service/src/main/java/sam/tech/fields/openapi/OpenApiController.java": "fd0434a8a512e5d7aab28186c3d93d120754c6620d6d623ad5df14cfb4011708",
     "svc/fields-service/src/main/java/sam/tech/fields/openapi/OpenApiGenerator.java": "b5cb28323cd0ba73007de946dbda927d2a4b7abafaf1d45c90007de7d83effdc",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/GeneratorEngine.java": "7e327f864d59588eaf44187464a9ae183c91720eafcf491de40a17fe472a6170",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationEditor.java": "1bbe8eddb018cd3ff8bbf1f3a278a2ef5569a3b283ec1d49d1ff509039b9bacd",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationFieldLocks.java": "80e8b65ab3519962f5e2f568cbdba8c6543d0fbaf9344bab4a4e2ef66c498b1a",
     "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationModels.java": "a184d169ce5a7b8a5c83fbeea5c124bf3d1c19bfa8702bea54d43fc63c5fe2b6",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationRepository.java": "044cb74aa99eb86f593c4a331cf6f917ba585cfbefabd41de552d26c8b4f28d0",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationRules.java": "60180bbbf332928e9ceda2dc8df8edfd997a34baa46e5a1e9c8b902257a11b56",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationService.java": "9188c9f04f9ad375c0e62b00872020cb1023e0bee802d5bab83730fa1d3ff3f2",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationValidator.java": "0bc4410c9c4e8126e07722c95bfc0e41adddff6b5e1bab55679e257138926049",
-    "svc/fields-service/src/main/java/sam/tech/fields/rotations/RotationWorker.java": "0b6644241b6e94ad414677da4f993567e954268f4132ed2dae391b7a35385a3a",
     "svc/fields-service/src/main/java/sam/tech/filter/DefinitionEnvironmentFilter.java": "76548165dd34427619625c33b95639e15a0b8d475432e93bb8db3f14c0ac0931",
     "svc/fields-service/src/main/java/sam/tech/filter/JwtAuthenticationFilter.java": "f89362a61ce0437358762e347b1074d6ecb22cf9698f603435b9d8efa7652740",
     "svc/fields-service/src/main/java/sam/tech/filter/PathExclusionMatcher.java": "2ecf41c86456763bd3e32a4eca4863d989a8aefab8bd841c1d0ac6a1418c8d58",
@@ -26677,189 +25285,6 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/flags/FlagModels.java"
       },
-      "Generated": {
-        "fields": {
-          "cost": {
-            "java": "List<Fields.PlayerOperation>",
-            "required": true
-          },
-          "picks": {
-            "java": "List<GeneratorPick>",
-            "required": true
-          },
-          "pityAfter": {
-            "java": "Long",
-            "nullable": true,
-            "required": true
-          }
-        }
-      },
-      "GeneratorPick": {
-        "fields": {
-          "durationSeconds": {
-            "java": "Long",
-            "nullable": true,
-            "required": true
-          },
-          "entryId": {
-            "java": "String",
-            "required": true
-          },
-          "grants": {
-            "java": "List<Fields.PlayerOperation>",
-            "required": true
-          },
-          "index": {
-            "java": "int",
-            "required": true
-          },
-          "path": {
-            "java": "List<String>",
-            "required": true
-          },
-          "payload": {
-            "java": "JsonNode",
-            "nullable": true,
-            "required": true
-          },
-          "rolls": {
-            "java": "Map<String,Long>",
-            "required": true
-          },
-          "slot": {
-            "java": "String",
-            "required": true
-          },
-          "table": {
-            "java": "String",
-            "required": true
-          },
-          "tags": {
-            "java": "List<String>",
-            "required": true
-          }
-        }
-      },
-      "GeneratorPreviewInput": {
-        "fields": {
-          "count": {
-            "java": "Integer",
-            "required": false
-          },
-          "generator": {
-            "java": "String",
-            "required": true
-          },
-          "playerId": {
-            "java": "Long",
-            "required": false
-          },
-          "universeId": {
-            "java": "Long",
-            "required": false
-          }
-        }
-      },
-      "GeneratorRollInput": {
-        "fields": {
-          "count": {
-            "java": "Integer",
-            "required": false
-          },
-          "generator": {
-            "java": "String",
-            "required": true
-          },
-          "idempotencyKey": {
-            "java": "String",
-            "required": false
-          },
-          "playerId": {
-            "java": "long",
-            "required": true
-          },
-          "universeId": {
-            "java": "Long",
-            "required": false
-          }
-        }
-      },
-      "GeneratorRollResult": {
-        "fields": {
-          "createdAt": {
-            "java": "Instant",
-            "required": true
-          },
-          "definitionVersions": {
-            "java": "Map<String,Long>",
-            "required": true
-          },
-          "generator": {
-            "java": "String",
-            "required": true
-          },
-          "id": {
-            "java": "UUID",
-            "required": true
-          },
-          "playerId": {
-            "java": "long",
-            "required": true
-          },
-          "results": {
-            "java": "List<Generated>",
-            "required": true
-          },
-          "transaction": {
-            "java": "Result",
-            "required": true
-          }
-        }
-      },
-      "GeneratorSimulationInput": {
-        "fields": {
-          "generator": {
-            "java": "String",
-            "required": true
-          },
-          "iterations": {
-            "java": "Integer",
-            "required": false
-          },
-          "playerId": {
-            "java": "Long",
-            "required": false
-          },
-          "universeId": {
-            "java": "Long",
-            "required": false
-          }
-        }
-      },
-      "GeneratorSimulationResult": {
-        "fields": {
-          "appearanceProbabilities": {
-            "java": "Map<String,Double>",
-            "required": true
-          },
-          "entryCounts": {
-            "java": "Map<String,Long>",
-            "required": true
-          },
-          "iterations": {
-            "java": "int",
-            "required": true
-          },
-          "picks": {
-            "java": "long",
-            "required": true
-          },
-          "pityMode": {
-            "java": "String",
-            "required": true
-          }
-        }
-      },
       "HealthComponent": {
         "fields": {
           "status": {
@@ -28313,126 +26738,6 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/CommerceModels.java"
       },
-      "RandomAction": {
-        "fields": {
-          "reason": {
-            "java": "String",
-            "required": true
-          },
-          "universeId": {
-            "java": "Long",
-            "required": false
-          }
-        }
-      },
-      "RandomDefinition": {
-        "fields": {
-          "definition": {
-            "java": "JsonNode",
-            "required": true
-          },
-          "key": {
-            "java": "String",
-            "required": true
-          },
-          "kind": {
-            "java": "RotationKind",
-            "required": true
-          },
-          "version": {
-            "java": "long",
-            "required": true
-          }
-        }
-      },
-      "RandomDefinitionInput": {
-        "fields": {
-          "applyNow": {
-            "java": "Boolean",
-            "required": false
-          },
-          "definition": {
-            "java": "JsonNode",
-            "required": true
-          },
-          "expectedVersion": {
-            "java": "Long",
-            "required": false
-          },
-          "key": {
-            "java": "String",
-            "required": false
-          },
-          "reason": {
-            "java": "String",
-            "required": true
-          },
-          "universeId": {
-            "java": "Long",
-            "required": false
-          }
-        }
-      },
-      "RandomEditorField": {
-        "fields": {
-          "field": {
-            "java": "String",
-            "required": true
-          },
-          "path": {
-            "java": "String",
-            "required": true
-          },
-          "type": {
-            "java": "Fields.TypeExpr",
-            "required": true
-          },
-          "validOps": {
-            "java": "List<String>",
-            "required": true
-          }
-        }
-      },
-      "RandomErase": {
-        "fields": {
-          "confirmUniverseId": {
-            "java": "long",
-            "required": true
-          },
-          "reason": {
-            "java": "String",
-            "required": true
-          },
-          "universeId": {
-            "java": "Long",
-            "required": false
-          }
-        }
-      },
-      "RandomHistory": {
-        "fields": {
-          "counter": {
-            "java": "long",
-            "required": true
-          },
-          "data": {
-            "java": "JsonNode",
-            "required": true
-          }
-        }
-      },
-      "RandomOdds": {
-        "fields": {
-          "entryProbabilities": {
-            "java": "Map<String,Double>",
-            "required": true
-          },
-          "probabilities": {
-            "java": "Map<String,Double>",
-            "required": true
-          }
-        }
-      },
       "Receipt": {
         "fields": {
           "createdAt": {
@@ -29000,49 +27305,91 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/PlayerAdminModels.java"
       },
-      "RotationActive": {
+      "Rotation": {
         "fields": {
           "current": {
-            "java": "RotationInstance",
-            "nullable": true,
+            "java": "RotationPeriod",
             "required": true
           },
-          "enabled": {
-            "java": "boolean",
+          "every": {
+            "java": "String",
             "required": true
           },
-          "next": {
-            "java": "RotationInstance",
-            "nullable": true,
+          "items": {
+            "java": "List<RotationItem>",
+            "required": true
+          },
+          "key": {
+            "java": "String",
+            "required": true
+          },
+          "order": {
+            "java": "RotationOrder",
+            "required": true
+          },
+          "show": {
+            "java": "int",
+            "required": true
+          },
+          "startsAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "updatedAt": {
+            "java": "Instant",
+            "required": true
+          },
+          "version": {
+            "java": "long",
             "required": true
           }
         }
       },
-      "RotationClaimInput": {
+      "RotationCurrent": {
         "fields": {
-          "entryId": {
+          "current": {
+            "java": "RotationPeriod",
+            "required": true
+          },
+          "key": {
             "java": "String",
             "required": true
           },
-          "idempotencyKey": {
-            "java": "String",
-            "required": false
-          },
-          "instanceId": {
-            "java": "UUID",
+          "next": {
+            "java": "RotationPeriod",
             "required": true
           },
-          "playerId": {
+          "version": {
             "java": "long",
             "required": true
-          },
-          "quantity": {
-            "java": "int",
-            "required": true
-          },
-          "slot": {
+          }
+        }
+      },
+      "RotationInput": {
+        "fields": {
+          "every": {
             "java": "String",
             "required": true
+          },
+          "expectedVersion": {
+            "java": "Long",
+            "required": false
+          },
+          "items": {
+            "java": "List<RotationItem>",
+            "required": true
+          },
+          "order": {
+            "java": "RotationOrder",
+            "required": false
+          },
+          "show": {
+            "java": "Integer",
+            "required": false
+          },
+          "startsAt": {
+            "java": "Instant",
+            "required": false
           },
           "universeId": {
             "java": "Long",
@@ -29050,66 +27397,33 @@
           }
         }
       },
-      "RotationClaimResult": {
+      "RotationItem": {
         "fields": {
-          "createdAt": {
-            "java": "Instant",
-            "required": true
-          },
-          "entryId": {
-            "java": "String",
-            "required": true
+          "data": {
+            "java": "JsonNode",
+            "required": false,
+            "responseNullable": true
           },
           "id": {
-            "java": "UUID",
-            "required": true
-          },
-          "instanceId": {
-            "java": "UUID",
-            "required": true
-          },
-          "quantity": {
-            "java": "int",
-            "required": true
-          },
-          "remaining": {
-            "java": "long",
-            "required": true
-          },
-          "slot": {
             "java": "String",
-            "required": true
-          },
-          "transaction": {
-            "java": "Result",
             "required": true
           }
         }
       },
-      "RotationInstance": {
+      "RotationOrder": {
+        "enum": [
+          "inOrder",
+          "shuffled"
+        ]
+      },
+      "RotationPeriod": {
         "fields": {
-          "definitionVersions": {
-            "java": "Map<String,Long>",
-            "required": true
-          },
           "endsAt": {
             "java": "Instant",
             "required": true
           },
-          "id": {
-            "java": "UUID",
-            "required": true
-          },
-          "key": {
-            "java": "String",
-            "required": true
-          },
-          "result": {
-            "java": "Generated",
-            "required": true
-          },
-          "sequence": {
-            "java": "long",
+          "items": {
+            "java": "List<RotationItem>",
             "required": true
           },
           "startsAt": {
@@ -29118,25 +27432,46 @@
           }
         }
       },
-      "RotationKind": {
-        "enum": [
-          "TABLE",
-          "GENERATOR",
-          "ROTATION"
-        ]
-      },
-      "RotationStock": {
+      "RotationPreviewInput": {
         "fields": {
-          "entryId": {
+          "count": {
+            "java": "Integer",
+            "required": false
+          },
+          "every": {
             "java": "String",
             "required": true
           },
-          "remaining": {
-            "java": "long",
+          "items": {
+            "java": "List<RotationItem>",
             "required": true
           },
-          "slot": {
+          "key": {
             "java": "String",
+            "required": true
+          },
+          "order": {
+            "java": "RotationOrder",
+            "required": false
+          },
+          "show": {
+            "java": "Integer",
+            "required": false
+          },
+          "startsAt": {
+            "java": "Instant",
+            "required": false
+          },
+          "universeId": {
+            "java": "Long",
+            "required": false
+          }
+        }
+      },
+      "RotationSchedule": {
+        "fields": {
+          "periods": {
+            "java": "List<RotationPeriod>",
             "required": true
           }
         }
@@ -29154,12 +27489,6 @@
             "java": "MaintenanceState",
             "notBlank": false,
             "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
-          "rotations": {
-            "java": "List<RotationActive>",
-            "required": false,
             "responseNullable": true,
             "responseRequired": false
           },

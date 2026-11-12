@@ -10,9 +10,9 @@
 | Codes | 14 | Inspected controllers/DTOs |
 | Audit | 13 | Inspected controllers/DTOs |
 | Leaderboards | 28 | Inspected controllers/DTOs |
-| Fields | 144 | Inspected controllers/DTOs, including Rotations/Generators/Tables |
+| Fields | 125 | Inspected controllers/DTOs, including Rotations |
 | Platform | 43 | Inspected controllers/DTOs |
-| **Total** | **372** | Offline evidence only |
+| **Total** | **353** | Offline evidence only |
 
 [SDK_COVERAGE.md](../SDK_COVERAGE.md) maps every discovered endpoint to its SDK method and access.
 Coverage scans all seven available source trees, failing on missing controllers or fabricated domain routes.
@@ -20,7 +20,7 @@ Party sources are absent at `~/work/srv/src-CrossServerPartyService` and `~/buil
 retained methods are a checked-in contract snapshot, not a current server-parity claim.
 Config is ConfigService (`client.configs`), curated from its `docs/API.md` contract rather than parsed from Java. Platform planned flags/LiveOps/environment APIs and Matchmaking environments have
 no controllers in the requested current sources and are not generated. Fields owns runtime
-flags, maintenance, schedule controls and environments. Rotations/Generators/Tables include expanded literal resource routes and reviewed engine response envelopes.
+flags, maintenance, schedule controls and environments. Rotations are seven plain routes (list, get, put, delete, current, schedule, preview).
 
 ## Reviewed exceptions
 

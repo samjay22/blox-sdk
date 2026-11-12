@@ -712,46 +712,6 @@
   {
     "svc": "fields",
     "method": "GET",
-    "path": "/api/fields/universes/{universeId}/generators"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/generators"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/generators/preview"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/generators/roll"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/generators/simulate"
-  },
-  {
-    "svc": "fields",
-    "method": "DELETE",
-    "path": "/api/fields/universes/{universeId}/generators/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/generators/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "PUT",
-    "path": "/api/fields/universes/{universeId}/generators/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
     "path": "/api/fields/universes/{universeId}/health/summary"
   },
   {
@@ -866,16 +826,6 @@
   },
   {
     "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/players/{playerId}/randomness/claims"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/players/{playerId}/randomness/rolls"
-  },
-  {
-    "svc": "fields",
     "method": "DELETE",
     "path": "/api/fields/universes/{universeId}/players/{userId}"
   },
@@ -976,56 +926,6 @@
   },
   {
     "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/random-tables"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/random-tables"
-  },
-  {
-    "svc": "fields",
-    "method": "DELETE",
-    "path": "/api/fields/universes/{universeId}/random-tables/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/random-tables/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "PUT",
-    "path": "/api/fields/universes/{universeId}/random-tables/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/random-tables/{key}/odds"
-  },
-  {
-    "svc": "fields",
-    "method": "DELETE",
-    "path": "/api/fields/universes/{universeId}/randomness"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/randomness/definitions/{key}/history"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/randomness/fields"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/randomness/schema"
-  },
-  {
-    "svc": "fields",
     "method": "POST",
     "path": "/api/fields/universes/{universeId}/receipts"
   },
@@ -1066,21 +966,6 @@
   },
   {
     "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/rotations"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/rotations/claim"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/rotations/instances/{id}/stock"
-  },
-  {
-    "svc": "fields",
     "method": "DELETE",
     "path": "/api/fields/universes/{universeId}/rotations/{key}"
   },
@@ -1093,26 +978,6 @@
     "svc": "fields",
     "method": "PUT",
     "path": "/api/fields/universes/{universeId}/rotations/{key}"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/rotations/{key}/active"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/rotations/{key}/advance"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
-    "path": "/api/fields/universes/{universeId}/rotations/{key}/history"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/rotations/{key}/reroll"
   },
   {
     "svc": "fields",
@@ -1268,6 +1133,21 @@
     "svc": "fields",
     "method": "GET",
     "path": "/v3/api-docs"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}/current"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/rotations/{key}/schedule"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/rotations/preview"
   },
   {
     "svc": "leaderboards",

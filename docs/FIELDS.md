@@ -168,7 +168,7 @@ failed recovery never advances `profile.seq`. Profile sync bypasses cached/coale
 ### Allocation tokens versus sync watermarks (1.1.0)
 
 `subject_seq` was removed by the service. `TransactionResult.seq`, including nested purchase, refund,
-reversal, generator roll and rotation claim transactions, contains **database-wide allocation tokens**.
+reversal transactions, contains **database-wide allocation tokens**.
 They are sparse and are not commit timestamps, per-player write counts or safe sync cursors. Never
 increment them, wait for missing integers, compare cross-field commit order, or copy them into `sinceSeq`
 or `expectedSeq`. Apply a nested result explicitly with `profile:apply(response.transaction)` when needed;
@@ -182,7 +182,7 @@ cross-field commit timeline. Persist cursors only from complete document/snapsho
 Use the watermark of the complete snapshot being saved as `expectedSeq` for `putDocument`; the server
 checks it under whole-player exclusion. An acknowledged local write leaves the previous watermark in
 place, so refresh before saving a full document that incorporates that write. Old snapshot/feed cursors
-remain valid across the service migration. Runtime-config ETags/versions and rotation instance `sequence`
+remain valid across the service migration. Runtime-config ETags/versions
 are separate from player synchronization and are unchanged.
 
 `startPresence(placeId,sessionId?,heartbeatSeconds?)` acquires a session before scheduling heartbeats
@@ -372,9 +372,9 @@ reason, key, scope and conditions; `:commit()` still uses that full check. Multi
 because this endpoint is player-template-only. Neither validation method reserves or writes anything.
 The [Codes builder](CODES.md) composes the same operation builder and TypeSystem.
 
-## Rotations, generators and table odds
+## Rotations
 
-See [Rotations & Generators](ROTATIONS.md) for current/next heads, snapshot-backed Watch, countdowns, live stock, atomic claims, player rolls/previews and explicitly labeled table odds. All use this SDK's shared Result/pipeline and universe/auth lifetime.
+See [Rotations](ROTATIONS.md): a named list of items that take turns on a fixed clock, read with `rotations():current(name)`. It uses this SDK's shared Result/pipeline and universe/auth lifetime.
 
 ## Admin edits & live sync
 
