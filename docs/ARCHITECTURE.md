@@ -1,5 +1,34 @@
 # Architecture
 
+## System overview
+
+```mermaid
+flowchart LR
+  Game[Roblox server + BloxSDK] -->|batches every 0.5 s| GW[Gateway lb1]
+  Portal[Portal: identity token] --> GW
+  GW --> Batch[BatchService]
+  Batch --> Fields[Fields]
+  Batch --> Config[ConfigService]
+  Batch --> LB[Leaderboards]
+  Batch --> Codes[Codes]
+  Batch --> Other[Matchmaking, Party, Audit, Platform, Auth]
+  Fields <--> Redis[(Redis: live player state)]
+  Redis -->|sync every 30 s| PG[(PostgreSQL: durable record)]
+  Fields -->|outbox| LB
+  LB --> Rank[Ranking job every minute]
+  Codes -->|one atomic transaction| Fields
+  Config --> CPG[(PostgreSQL + Redis snapshot cache)]
+```
+
+Every SDK call is a Result and every network call goes through one batching pipeline; see the sections below. A player's
+live document is authoritative in Redis and copied to PostgreSQL by a sync job every 30 seconds, so a commit acknowledged
+by Fields is visible to the next read at once while history and exports can trail by about one interval. A universe whose
+unsynced backlog exceeds its cap (1 GiB by default) receives retryable HTTP 503 `backpressure`. Leaderboards are fed
+through the Fields outbox; configs are versioned in ConfigService and served to servers from a polled, cached copy. See
+[choosing a feature](CHOOSING.md) and [getting started](GETTING-STARTED.md).
+
+## Code generation and runtime layout
+
 ```mermaid
 flowchart TD
   Routes[routes.json: 367 required routes] --> Audit[Controller / DTO / security audit]

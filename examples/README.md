@@ -1,6 +1,6 @@
 # Runnable Roblox server examples
 
-`server/` contains 16 complete Roblox server scripts and one shared Client ModuleScript. They use the
+`server/` contains 19 complete Roblox server scripts and one shared Client ModuleScript. They use the
 real SDK, not fake backends. Root-level `.luau` modules are portable, composable/tested gameplay helpers;
 they are not standalone Scripts. Native scripts are strictly analyzed against the same SDK by replacing
 only Instance require expressions with equivalent portable imports (`tools/verify-examples.py`).
@@ -25,6 +25,9 @@ only Instance require expressions with equivalent portable imports (`tools/verif
 | flags | `double_xp` flag; authoritative player evaluation |
 | live-events | enabled `live_event` rotation with current head |
 | weather | `weather` rotation; each item's data carries weather values RAIN/METEOR/CLEAR; `watch` applies it |
+| daily-reward | PLAYER int fields `Currency.Gems`, `Daily.LastClaimDay`, `Daily.Streak`; child `ClaimDaily` BindableFunction claims once per UTC day |
+| currency-shop | `Currency.Gems`, map `Inventory.Items`, config `Shop.Prices`; child `Buy` BindableFunction spends gems for an item |
+| live-tuning | config namespace `Tuning` (`XpMultiplier`, `EventBanner`); reacts to changes, warns when stale, child `GetTuning` BindableFunction |
 | daily-shop | `daily_shop` rotation; `current` for the offers and a countdown (server: child GetShopOffers BindableFunction) |
 | leaderboard | dedicated `sdk_smoke` board; reads around/top |
 | ratings | discovers configured rating scopes; no untrusted rating deltas |

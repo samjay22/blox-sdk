@@ -1,0 +1,61 @@
+# Troubleshooting
+
+Start with `result.error.code` and `result.error.kind`; branch on those, never on message text. Then check:
+`game.GameId` matches the key's universe; the key has Gateway and the service level; the Roblox secret is allowed for
+`lb1.blox-api.com`; Allow HTTP Requests is on.
+
+## Connection and credentials
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `sdk_unauthorized` (401) | Key missing, revoked, expired | Rotate and store as a secret |
+| `sdk_forbidden` (403) | No Gateway or service level, or another universe | Fix grants and universe |
+| `sdk_local` naming a permission | `levels` in `BloxSDK.new` omit what the call needs | Add the level or drop the call |
+| `sdk_rate_limited` | Local budget or gateway quota | Reduce calls, back off with jitter |
+| `sdk_timeout` / `sdk_network` | Backend or network | Retry safe calls with jitter; keep the same idempotency key |
+| `sdk_circuit_open` | Repeated failures opened the breaker (10 s) | Wait; the SDK probes again |
+
+## Fields
+
+| Symptom | Fix |
+|---|---|
+| `unknown_field` | Create the field or fix the spelling |
+| `below_min` / `above_max` / `max_delta_exceeded` | The write breaks the field's limits |
+| `precondition_failed` | The value changed since you checked: reload and decide again |
+| `idempotency_conflict` | Same key, different request: reuse a key only for the identical action |
+| `lease_lost` | Another server holds the player: let them rejoin |
+| HTTP 503 `backpressure` | Unsynced backlog full: retry later; tell an operator if it persists |
+| Write missing in Players | Buffered write pending: wait about 5 s or use `immediate()` |
+
+## Configs
+
+| Symptom | Fix |
+|---|---|
+| Always the default | `waitReady(10)`, then `isReady()`, `has(key)`, `version()`; check the key spelling |
+| `isStale()` | Read `lastError()`; check ConfigService READ and the universe |
+| `version_conflict` | Re-read, merge and retry with the new `expectedVersion` |
+| `validation_failed` | Bad name, null value or over 64 KiB; delete instead of writing null |
+| `limit_exceeded` | Over 1000 keys, 1 MiB or 100 namespaces |
+| Slow edits | Lower `pollInterval` (minimum 1 s) or call `refresh()` |
+
+## Leaderboards
+
+| Symptom | Fix |
+|---|---|
+| Empty after linking | Wait a minute; Total gained boards count only new changes |
+| Score changed, rank did not | Ranks refresh every minute; delivery is asynchronous; ask an operator to check the outbox |
+| `leaderboard_board_mismatch` (422) | Align order/reset/aggregation or pick a new board name |
+| `leaderboard_unavailable` (503) | Retry later; the field definition was not saved |
+
+## Codes and rotations
+
+| Symptom | Fix |
+|---|---|
+| `redeem` returns `invalid` | Unknown, disabled, deleted or malformed code |
+| `redeem` returns `failed` | Read `error.code`: missing Fields write permission or an award that no longer matches the schema |
+| `redeem` returns `retry` | Call again; it cannot double grant |
+| `rotation_not_found` | No rotation by that name |
+| `invalid_definition` | Duplicate item id, `show` above the list size, or a bad `every` |
+| Rotation unchanged | Its period has not ended; use `secondsLeft` or `upcoming` |
+
+See [errors](ERRORS.md), [fault tolerance](FAULT-TOLERANCE.md), and the [FAQ](FAQ.md).

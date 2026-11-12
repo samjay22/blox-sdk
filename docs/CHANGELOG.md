@@ -15,6 +15,7 @@
 - 367 endpoints (the 31 rotation/generator/table routes became 7), regenerated Roblox projection, docs
   ([ROTATIONS.md](ROTATIONS.md)), examples (weather, daily-shop) and tests.
 - See [migration](../MIGRATION.md).
+- Docs: [getting started](GETTING-STARTED.md), [feature guide](CHOOSING.md), [recipes](RECIPES.md), [FAQ](FAQ.md), [troubleshooting](TROUBLESHOOTING.md), [glossary](GLOSSARY.md), an architecture overview, an expanded [leaderboards guide](LEADERBOARDS.md) and three runnable examples (daily reward, currency shop, live tuning).
 
 ## 6.0.0 (local, not published)
 
