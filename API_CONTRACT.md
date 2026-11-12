@@ -1,4 +1,4 @@
-# BloxSDK 3.1.0 session contract
+# BloxSDK 4.0.0 session contract
 
 Binding wire authority: `../scale/CONTRACT.md` v1, sections 1, 2 and 6. No compatibility aliases or wire extensions. Four new Fields POST operations use the existing BatchService envelope and internal paths `/api/fields/universes/{universeId}/…`:
 
@@ -20,7 +20,7 @@ Renew returns ordered `{items:[{userId,status:"renewed"|"lost",expiresAt?}]}`; r
 
 ## Lifecycle and scheduling
 
-- Native server clients with `universeId` subscribe to PlayerAdded (including existing players). Loads share the schema fetch and queue acquire on the normal 0.5-second batch clock. Explicit `fields:loadProfile(universeId,userId)` joins a concurrent load or returns the same ready handle. Injected runtimes use explicit loads and removal calls in tests.
+- Native server clients with `universeId` subscribe to PlayerAdded (including existing players). Loads share the schema fetch and queue acquire on the normal 0.5-second batch clock. Explicit `fields:loadProfile(userId)` joins a concurrent load or returns the same ready handle. Injected runtimes use explicit loads and removal calls in tests.
 - Readiness requires a granted lease **and a validated coherent snapshot**. Held acquisitions honor backoff (at least 0.5 s), request `steal:true` after 15 s, and stop after `sessions.acquireTimeout` (default 60 s). Cancellation after an in-flight acquire releases a late grant. Default load-failure kick is configurable.
 - `profile:add`, `profile:set`, and `profile:mutate(ops)` validate and apply locally without yielding; success means **buffered, not durable**. Only adjacent ADDs at identical field/path targets coalesce; SETs and other operations retain order. Local state never carries authoritative version increments.
 - One server coordinator detaches immutable per-player buffers every `sessions.flushInterval` (default 5 s). One commit operation rides the normal batch. A module-wide monotonic counter prevents ID collisions across SDK clients in the same VM: `JobId:counter`. Retries retain the same ID and exact body; later writes use fresh buffers. Even an application timeout cannot permit a replacement commit until native HTTP has physically completed.

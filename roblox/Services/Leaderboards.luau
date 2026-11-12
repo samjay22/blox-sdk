@@ -38,7 +38,7 @@ function Service.ratingMatch(
 	req: Types.RatingMatchCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.RatingMatchResultValue>
-	return self._invoke(Endpoints["leaderboards.ratingMatch"], req, opts, self._universe)
+	return self._invoke(Endpoints["leaderboards.ratingMatch"], { body = req }, opts, self._universe)
 end
 --- GET /leaderboard-service/api/leaderboards/ratings/universes/{universeId}/ratings via gateway; access: READ.
 function Service.ratingScopes(
@@ -161,7 +161,7 @@ function Service.create(
 	req: Types.CreateCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateResultValue>
-	return self._invoke(Endpoints["leaderboards.create"], req, opts, self._universe)
+	return self._invoke(Endpoints["leaderboards.create"], { body = req }, opts, self._universe)
 end
 --- DELETE /leaderboard-service/api/leaderboards/universes/{universeId}/boards/{name} via gateway; access: ADMIN.
 function Service.archive(

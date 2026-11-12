@@ -2574,21 +2574,17 @@ local data: any = Json.object({
 				["endpoint"] = "fields.createRandomTable",
 				["method"] = "POST",
 				["request"] = Json.object({
-					["body"] = Json.object({
-						["definition"] = Json.object({
-							["entries"] = Json.array({
-								Json.object({
-									["durationSeconds"] = Json.object(
-										{ ["max"] = 600, ["min"] = 600 } :: any
-									),
-									["id"] = "clear",
-								} :: any),
-							} :: { any }),
-							["mode"] = "UNIFORM",
-						} :: any),
-						["key"] = "weather",
-						["reason"] = "Initial weather setup",
+					["definition"] = Json.object({
+						["entries"] = Json.array({
+							Json.object({
+								["durationSeconds"] = Json.object({ ["max"] = 600, ["min"] = 600 } :: any),
+								["id"] = "clear",
+							} :: any),
+						} :: { any }),
+						["mode"] = "UNIFORM",
 					} :: any),
+					["key"] = "weather",
+					["reason"] = "Initial weather setup",
 				} :: any),
 				["response"] = Json.object({
 					["definition"] = Json.object({
@@ -2704,19 +2700,17 @@ local data: any = Json.object({
 				["endpoint"] = "fields.createGenerator",
 				["method"] = "POST",
 				["request"] = Json.object({
-					["body"] = Json.object({
-						["definition"] = Json.object({
-							["slots"] = Json.array({
-								Json.object({
-									["count"] = 1,
-									["key"] = "weather",
-									["table"] = "weather",
-								} :: any),
-							} :: { any }),
-						} :: any),
-						["key"] = "weather",
-						["reason"] = "Initial weather setup",
+					["definition"] = Json.object({
+						["slots"] = Json.array({
+							Json.object({
+								["count"] = 1,
+								["key"] = "weather",
+								["table"] = "weather",
+							} :: any),
+						} :: { any }),
 					} :: any),
+					["key"] = "weather",
+					["reason"] = "Initial weather setup",
 				} :: any),
 				["response"] = Json.object({
 					["definition"] = Json.object({
@@ -2822,15 +2816,13 @@ local data: any = Json.object({
 				["endpoint"] = "fields.createRotation",
 				["method"] = "POST",
 				["request"] = Json.object({
-					["body"] = Json.object({
-						["definition"] = Json.object({
-							["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
-							["enabled"] = true,
-							["table"] = "weather",
-						} :: any),
-						["key"] = "weather",
-						["reason"] = "Initial weather setup",
+					["definition"] = Json.object({
+						["cadence"] = Json.object({ ["type"] = "ENTRY_DURATION" } :: any),
+						["enabled"] = true,
+						["table"] = "weather",
 					} :: any),
+					["key"] = "weather",
+					["reason"] = "Initial weather setup",
 				} :: any),
 				["response"] = Json.object({
 					["definition"] = Json.object({
@@ -2987,11 +2979,9 @@ local data: any = Json.object({
 			Json.object({
 				["endpoint"] = "fields.previewGenerator",
 				["method"] = "POST",
-				["request"] = Json.object({
-					["body"] = Json.object(
-						{ ["count"] = 1, ["generator"] = "card_pack", ["playerId"] = 7 } :: any
-					),
-				} :: any),
+				["request"] = Json.object(
+					{ ["count"] = 1, ["generator"] = "card_pack", ["playerId"] = 7 } :: any
+				),
 				["response"] = Json.array({
 					Json.object({
 						["cost"] = Json.array({
@@ -3123,12 +3113,10 @@ local data: any = Json.object({
 				["endpoint"] = "fields.rollGenerator",
 				["method"] = "POST",
 				["request"] = Json.object({
-					["body"] = Json.object({
-						["count"] = 1,
-						["generator"] = "card_pack",
-						["idempotencyKey"] = "roll-golden",
-						["playerId"] = 7,
-					} :: any),
+					["count"] = 1,
+					["generator"] = "card_pack",
+					["idempotencyKey"] = "roll-golden",
+					["playerId"] = 7,
 				} :: any),
 				["response"] = Json.object({
 					["createdAt"] = "2026-11-08T12:00:00Z",
@@ -3372,14 +3360,12 @@ local data: any = Json.object({
 				["endpoint"] = "fields.claimRotation",
 				["method"] = "POST",
 				["request"] = Json.object({
-					["body"] = Json.object({
-						["entryId"] = "starter_pack",
-						["idempotencyKey"] = "claim-golden",
-						["instanceId"] = "00000000-0000-4000-8000-000000000001",
-						["playerId"] = 7,
-						["quantity"] = 1,
-						["slot"] = "packs:0",
-					} :: any),
+					["entryId"] = "starter_pack",
+					["idempotencyKey"] = "claim-golden",
+					["instanceId"] = "00000000-0000-4000-8000-000000000001",
+					["playerId"] = 7,
+					["quantity"] = 1,
+					["slot"] = "packs:0",
 				} :: any),
 				["response"] = Json.object({
 					["createdAt"] = "2026-11-08T12:01:00Z",
@@ -3828,12 +3814,9 @@ local data: any = Json.object({
 			Json.object({
 				["endpoint"] = "fields.eraseRandomness",
 				["method"] = "DELETE",
-				["request"] = Json.object({
-					["body"] = Json.object({
-						["confirmUniverseId"] = 123,
-						["reason"] = "Confirmed subsystem erasure",
-					} :: any),
-				} :: any),
+				["request"] = Json.object(
+					{ ["confirmUniverseId"] = 123, ["reason"] = "Confirmed subsystem erasure" } :: any
+				),
 				["response"] = true,
 				["status"] = 200,
 				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness",
@@ -3841,11 +3824,9 @@ local data: any = Json.object({
 			Json.object({
 				["endpoint"] = "fields.simulateGenerator",
 				["method"] = "POST",
-				["request"] = Json.object({
-					["body"] = Json.object(
-						{ ["generator"] = "card_pack", ["iterations"] = 1000, ["playerId"] = 7 } :: any
-					),
-				} :: any),
+				["request"] = Json.object(
+					{ ["generator"] = "card_pack", ["iterations"] = 1000, ["playerId"] = 7 } :: any
+				),
 				["response"] = Json.object({
 					["appearanceProbabilities"] = Json.object({ ["cards_common/c01"] = 0.05 } :: any),
 					["entryCounts"] = Json.object({ ["cards_common/c01"] = 50 } :: any),
@@ -4113,14 +4094,12 @@ local data: any = Json.object({
 			["identity"] = false,
 			["method"] = "POST",
 			["request"] = Json.object({
-				["body"] = Json.object({
-					["defaultValue"] = false,
-					["displayName"] = "Double XP",
-					["enabled"] = true,
-					["rules"] = Json.array({} :: { any }),
-					["type"] = "bool",
-					["variants"] = Json.array({} :: { any }),
-				} :: any),
+				["defaultValue"] = false,
+				["displayName"] = "Double XP",
+				["enabled"] = true,
+				["rules"] = Json.array({} :: { any }),
+				["type"] = "bool",
+				["variants"] = Json.array({} :: { any }),
 			} :: any),
 			["response"] = Json.object({
 				["createdAt"] = "2026-11-07T00:00:00Z",
@@ -4204,11 +4183,9 @@ local data: any = Json.object({
 			["identity"] = false,
 			["method"] = "POST",
 			["request"] = Json.object({
-				["body"] = Json.object({
-					["context"] = Json.object({} :: any),
-					["keys"] = Json.array({ "double_xp" } :: { any }),
-					["userId"] = 7,
-				} :: any),
+				["context"] = Json.object({} :: any),
+				["keys"] = Json.array({ "double_xp" } :: { any }),
+				["userId"] = 7,
 			} :: any),
 			["response"] = Json.object({
 				["values"] = Json.object({
@@ -4226,9 +4203,7 @@ local data: any = Json.object({
 			["endpoint"] = "fields.evaluateFlagsBatch",
 			["identity"] = false,
 			["method"] = "POST",
-			["request"] = Json.object(
-				{ ["body"] = Json.object({ ["userIds"] = Json.array({ 7 } :: { any }) } :: any) } :: any
-			),
+			["request"] = Json.object({ ["userIds"] = Json.array({ 7 } :: { any }) } :: any),
 			["response"] = Json.object({
 				["items"] = Json.array({
 					Json.object({
@@ -4267,13 +4242,9 @@ local data: any = Json.object({
 			["endpoint"] = "fields.putMaintenance",
 			["identity"] = false,
 			["method"] = "PUT",
-			["request"] = Json.object({
-				["body"] = Json.object({
-					["allowlistUserIds"] = Json.array({} :: { any }),
-					["enabled"] = false,
-					["message"] = "",
-				} :: any),
-			} :: any),
+			["request"] = Json.object(
+				{ ["allowlistUserIds"] = Json.array({} :: { any }), ["enabled"] = false, ["message"] = "" } :: any
+			),
 			["response"] = Json.object(
 				{ ["allowlistUserIds"] = Json.array({} :: { any }), ["enabled"] = false, ["message"] = "" } :: any
 			),
@@ -4847,10 +4818,8 @@ local data: any = Json.object({
 			["identity"] = false,
 			["method"] = "POST",
 			["request"] = Json.object({
-				["body"] = Json.object({
-					["events"] = Json.array({ "field.changed" } :: { any }),
-					["url"] = "https://webhooks.example/events",
-				} :: any),
+				["events"] = Json.array({ "field.changed" } :: { any }),
+				["url"] = "https://webhooks.example/events",
 			} :: any),
 			["response"] = Json.object({
 				["enabled"] = true,

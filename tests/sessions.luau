@@ -208,7 +208,7 @@ local function harness(config: SDK.Config?): Harness
 end
 --- Load the leased handle or fail the test setup explicitly.
 local function load(h: Harness, user: number): Profile.Profile
-	local result = h.client.fields:loadProfile(123, user)
+	local result = h.client.fields:loadProfile(user)
 	check(result.ok, "Acquire failed")
 	return (result :: any).value
 end
@@ -257,7 +257,7 @@ return function(test: (string, () -> ()) -> ())
 		h.s.run(function()
 			local done = false
 			h.s.runtime.spawn(function()
-				local result = h.client.fields:loadProfile(123, 7)
+				local result = h.client.fields:loadProfile(7)
 				check(not result.ok and result.error.code == "session_acquire_timeout")
 				done = true
 			end)
@@ -505,7 +505,7 @@ return function(test: (string, () -> ()) -> ())
 		h.s.run(function()
 			local result: Core.Result<Profile.Profile>? = nil
 			h.s.runtime.spawn(function()
-				result = h.client.fields:loadProfile(123, 7)
+				result = h.client.fields:loadProfile(7)
 			end)
 			h.s.runtime.wait(1.1)
 			h.client._helpers.sync:cancelLoads(7)
@@ -625,31 +625,27 @@ return function(test: (string, () -> ()) -> ())
 						},
 					}
 				do
-					check(not h.client.fields:acquireSessions({ body = body } :: any).ok)
+					check(not h.client.fields:acquireSessions(body :: any).ok)
 				end
 				check(not h.client.fields:commitSession({
-					body = {
-						serverId = "job",
-						commitId = "job:1",
-						players = {
-							{
-								userId = 7,
-								epoch = 0,
-								ops = { { field = "Score", op = "ADD", delta = 1 } },
-							},
+					serverId = "job",
+					commitId = "job:1",
+					players = {
+						{
+							userId = 7,
+							epoch = 0,
+							ops = { { field = "Score", op = "ADD", delta = 1 } },
 						},
 					},
 				}).ok)
 				check(not h.client.fields:commitSession({
-					body = {
-						serverId = "job",
-						commitId = "wrong:1",
-						players = {
-							{
-								userId = 7,
-								epoch = 1,
-								ops = { { field = "Score", op = "ADD", delta = 1 } },
-							},
+					serverId = "job",
+					commitId = "wrong:1",
+					players = {
+						{
+							userId = 7,
+							epoch = 1,
+							ops = { { field = "Score", op = "ADD", delta = 1 } },
 						},
 					},
 				}).ok)
@@ -681,7 +677,7 @@ return function(test: (string, () -> ()) -> ())
 				kicks += 1
 			end
 			h.s.run(function()
-				check(not h.client.fields:loadProfile(123, 7).ok)
+				check(not h.client.fields:loadProfile(7).ok)
 				h.s.runtime.wait(1.1)
 				check(kicks == 1 and #h.releases == 1)
 				h.client:destroy()

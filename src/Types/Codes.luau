@@ -29,7 +29,7 @@ export type BulkCreateCodesRequest = {
 	name: string,
 	prefix: string?,
 	startsAt: string?,
-	universeId: number,
+	universeId: number?,
 }
 export type BulkCreateCodesResponse = { batchId: string, codes: { BulkCode }, count: number }
 export type CodeDto = {

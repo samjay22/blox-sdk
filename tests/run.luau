@@ -623,7 +623,7 @@ test(
 					or id == "codes.createCode"
 					or id == "codes.bulkCreateCodes"
 				then
-					local cached = c.fields:schemaCache(1)
+					local cached = c:withUniverse(1).fields:schemaCache()
 					cached._version = 1
 					cached._definitions["Currency.Gems"] = {
 						universeId = 1,
@@ -638,14 +638,19 @@ test(
 					}
 				end
 				s.run(function()
-					local facade = (c :: any)[spec.service]
 					local name = string.match(id, "%.(.+)$") :: string
-					local argument = if spec.bodyType
-							and #spec.pathParams == 0
-							and #spec.queryParams == 0
-							and not spec.idempotencyHeader
-						then request.body
-						else request
+					-- A path that names only the universe is filled by the client, so the call takes its body directly.
+					local scopedOnly = spec.service ~= "auth"
+					for _, p in spec.pathParams do
+						scopedOnly = scopedOnly and (p.name == "universeId" or p.name == "robloxUniverseId")
+					end
+					local direct = spec.bodyType ~= nil
+						and (#spec.pathParams == 0 or scopedOnly)
+						and #spec.queryParams == 0
+						and not spec.idempotencyHeader
+					local owner = if direct and #spec.pathParams > 0 then c:withUniverse(1) else c
+					local facade = (owner :: any)[spec.service]
+					local argument = if direct then request.body else request
 					local r = facade[name](facade, argument)
 					check(r.ok, "Endpoint failed " .. id)
 				end)
@@ -1038,6 +1043,7 @@ require("./platform")(test)
 require("./service_contracts")(test)
 require("./rotations")(test)
 require("./batching")(test)
+require("./universe")(test)
 GatewayTests.register(test)
 require("./release")(test)
 print("PASS " .. tostring(passed) .. " test groups")

@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "3.1.0"
+SDK.version = "4.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -537,7 +537,10 @@ export type Endpoint = {
 	idempotencyItems: string?,
 	conditional: boolean?,
 	optionalKey: boolean?,
+	bodyUniverse: { string }?,
 }
+
+export type User = number | { UserId: number }
 
 export type Request = {
 	idempotencyKey: string?,

@@ -574,7 +574,7 @@ export type ReadinessCall = {}
 
 export type ReadinessResultValue = HealthComponent
 
-export type RatingMatchCall = { path: { universeId: (string | number)? }?, body: MatchInput }
+export type RatingMatchCall = MatchInput
 
 export type RatingMatchResultValue = MatchResult
 
@@ -627,7 +627,7 @@ export type ListCall = {
 
 export type ListResultValue = CursorPage<Board>
 
-export type CreateCall = { path: { universeId: (string | number)? }?, body: CreateBoard }
+export type CreateCall = CreateBoard
 
 export type CreateResultValue = Board
 

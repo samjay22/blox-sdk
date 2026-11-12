@@ -3,13 +3,8 @@ local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Profile = require("../src/Fields/Profile")
 --- Mirror a field into a caller-owned leaderstat; release the returned profile when finished.
-return function(
-	client: SDK.Client,
-	universeId: number,
-	userId: number,
-	gemsStat: { Value: number }
-): Core.Result<Profile.Profile>
-	local loaded = client.fields:loadProfile(universeId, userId)
+return function(client: SDK.Client, userId: number, gemsStat: { Value: number }): Core.Result<Profile.Profile>
+	local loaded = client.fields:loadProfile(userId)
 	if not loaded.ok then
 		return loaded
 	end

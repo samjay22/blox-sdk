@@ -482,22 +482,20 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables",
       "status": 200,
       "request": {
-        "body": {
-          "key": "weather",
-          "definition": {
-            "mode": "UNIFORM",
-            "entries": [
-              {
-                "id": "clear",
-                "durationSeconds": {
-                  "min": 600,
-                  "max": 600
-                }
+        "key": "weather",
+        "definition": {
+          "mode": "UNIFORM",
+          "entries": [
+            {
+              "id": "clear",
+              "durationSeconds": {
+                "min": 600,
+                "max": 600
               }
-            ]
-          },
-          "reason": "Initial weather setup"
-        }
+            }
+          ]
+        },
+        "reason": "Initial weather setup"
       },
       "response": {
         "kind": "TABLE",
@@ -630,19 +628,17 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators",
       "status": 200,
       "request": {
-        "body": {
-          "key": "weather",
-          "definition": {
-            "slots": [
-              {
-                "table": "weather",
-                "count": 1,
-                "key": "weather"
-              }
-            ]
-          },
-          "reason": "Initial weather setup"
-        }
+        "key": "weather",
+        "definition": {
+          "slots": [
+            {
+              "table": "weather",
+              "count": 1,
+              "key": "weather"
+            }
+          ]
+        },
+        "reason": "Initial weather setup"
       },
       "response": {
         "kind": "GENERATOR",
@@ -762,17 +758,15 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations",
       "status": 200,
       "request": {
-        "body": {
-          "key": "weather",
-          "definition": {
-            "table": "weather",
-            "cadence": {
-              "type": "ENTRY_DURATION"
-            },
-            "enabled": true
+        "key": "weather",
+        "definition": {
+          "table": "weather",
+          "cadence": {
+            "type": "ENTRY_DURATION"
           },
-          "reason": "Initial weather setup"
-        }
+          "enabled": true
+        },
+        "reason": "Initial weather setup"
       },
       "response": {
         "kind": "ROTATION",
@@ -962,11 +956,9 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/preview",
       "status": 200,
       "request": {
-        "body": {
-          "generator": "card_pack",
-          "playerId": 7,
-          "count": 1
-        }
+        "generator": "card_pack",
+        "playerId": 7,
+        "count": 1
       },
       "response": [
         {
@@ -1128,12 +1120,10 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/roll",
       "status": 200,
       "request": {
-        "body": {
-          "generator": "card_pack",
-          "playerId": 7,
-          "count": 1,
-          "idempotencyKey": "roll-golden"
-        }
+        "generator": "card_pack",
+        "playerId": 7,
+        "count": 1,
+        "idempotencyKey": "roll-golden"
       },
       "response": {
         "id": "636b3dbf-e042-4c91-b5a5-e844a78585a6",
@@ -1422,14 +1412,12 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/rotations/claim",
       "status": 200,
       "request": {
-        "body": {
-          "instanceId": "00000000-0000-4000-8000-000000000001",
-          "slot": "packs:0",
-          "entryId": "starter_pack",
-          "quantity": 1,
-          "playerId": 7,
-          "idempotencyKey": "claim-golden"
-        }
+        "instanceId": "00000000-0000-4000-8000-000000000001",
+        "slot": "packs:0",
+        "entryId": "starter_pack",
+        "quantity": 1,
+        "playerId": 7,
+        "idempotencyKey": "claim-golden"
       },
       "response": {
         "id": "52a25291-02d5-49a4-8053-03432614619f",
@@ -1949,10 +1937,8 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/randomness",
       "status": 200,
       "request": {
-        "body": {
-          "confirmUniverseId": 123,
-          "reason": "Confirmed subsystem erasure"
-        }
+        "confirmUniverseId": 123,
+        "reason": "Confirmed subsystem erasure"
       },
       "response": true
     },
@@ -1962,11 +1948,9 @@
       "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/generators/simulate",
       "status": 200,
       "request": {
-        "body": {
-          "generator": "card_pack",
-          "playerId": 7,
-          "iterations": 1000
-        }
+        "generator": "card_pack",
+        "playerId": 7,
+        "iterations": 1000
       },
       "response": {
         "iterations": 1000,

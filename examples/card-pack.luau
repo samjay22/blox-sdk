@@ -9,12 +9,11 @@ export type UI = {
 --- Open one configured five-card pack and supply accurate, explicitly labeled table odds UI data.
 return function(
 	client: SDK.Client,
-	universeId: number,
 	playerId: number,
 	openingId: string,
 	ui: UI
 ): Core.Result<Wire.GeneratorRollResult>
-	local generators = client.fields:generators(universeId)
+	local generators = client.fields:generators()
 	-- This is the example's root table, not a fabricated generator-odds endpoint.
 	local odds = generators:getOdds("rarity", playerId)
 	if not odds.ok then

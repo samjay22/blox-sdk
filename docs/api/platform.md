@@ -582,7 +582,7 @@ export type PlatformEvent = {
 	occurredAt: string,
 	orgId: string,
 	type: string,
-	universeId: number,
+	universeId: number?,
 }
 
 export type RateLimit = { burst: number, dailyRequests: number, requestsPerSecond: number }
@@ -704,7 +704,7 @@ export type UpdateIncidentCall = { path: { id: string }, body: IncidentInput }
 
 export type UpdateIncidentResultValue = Core.Json
 
-export type BackfillAnalyticsCall = { path: { universeId: (string | number)? }?, body: DateRange }
+export type BackfillAnalyticsCall = DateRange
 
 export type BackfillAnalyticsResultValue = { [string]: Core.Json }
 
@@ -739,7 +739,7 @@ export type WebhooksCall = {
 
 export type WebhooksResultValue = { Core.Json }
 
-export type CreateWebhookCall = { path: { universeId: (string | number)? }?, body: WebhookInput }
+export type CreateWebhookCall = WebhookInput
 
 export type CreateWebhookResultValue = Core.Json
 

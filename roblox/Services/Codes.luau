@@ -4,6 +4,7 @@
 local Core = require(script.Parent.Parent.Types.Core)
 local Helpers = require(script.Parent.Parent.Fields.Client)
 local Award = require(script.Parent.Parent.Codes.Award)
+local Universe = require(script.Parent.Parent.Core.Universe)
 local Types = require(script.Parent.Parent.Types.Codes)
 local Endpoints = require(script.Parent.Parent.Core.Endpoints)
 local Service = {}
@@ -16,9 +17,9 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?, helpers: Helpers.State?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe, _fields = helpers }, Service)
 end
---- Create a typed subject-free award builder over the loaded universe schema.
-function Service.award(self: Service, universeId: string | number): Award.Builder
-	return Award.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Create a typed subject-free award builder over this client's universe schema.
+function Service.award(self: Service): Award.Builder
+	return Award.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
 --- GET /code-service/actuator/health/liveness via gateway; access: public/authenticated.
 function Service.liveness(

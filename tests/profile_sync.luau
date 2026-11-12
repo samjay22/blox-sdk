@@ -232,7 +232,7 @@ local function harness(options: SDK.Config?, inbox: boolean?): Harness
 end
 --- Load a profile or fail the test at its setup boundary.
 local function load(h: Harness, user: number): Profile.Profile
-	local result = h.client.fields:loadProfile(123, user)
+	local result = h.client.fields:loadProfile(user)
 	check(result.ok, "Profile load failed")
 	return (result :: any).value
 end
@@ -260,14 +260,11 @@ return function(test: (string, () -> ()) -> ())
 					{ players = { { userId = 7, sinceSeq = 0 } }, maxEntries = 0 },
 				}
 			do
-				local result = c.fields:changesBatch({ path = { universeId = 123 }, body = body } :: any)
+				local result = c.fields:changesBatch(body :: any)
 				check(not result.ok and result.error.kind == "Validation")
 			end
 			check(fake.count() == 0)
-			check(c.fields:changesBatch({
-				path = { universeId = 123 },
-				body = { players = { { userId = 7, sinceSeq = 0 } } },
-			}).ok)
+			check(c.fields:changesBatch({ players = { { userId = 7, sinceSeq = 0 } } }).ok)
 			check(fake.count() == 1)
 			c:destroy()
 		end)
@@ -316,7 +313,7 @@ return function(test: (string, () -> ()) -> ())
 				load(h, user)
 			end
 			local scoped = h.client:withUniverse(123)
-			check(scoped.fields:loadProfile(123, 1).ok and scoped.ProfileChanged == h.client.ProfileChanged)
+			check(scoped.fields:loadProfile(1).ok and scoped.ProfileChanged == h.client.ProfileChanged)
 			h.client._helpers.sync._enabled = true
 			assert(h.client._helpers.sync.wake, "Missing batch wake")()
 			h.s.runtime.wait(0.6)
@@ -542,7 +539,7 @@ return function(test: (string, () -> ()) -> ())
 			h.s.run(function()
 				local result: Core.Result<Profile.Profile>? = nil
 				h.s.runtime.spawn(function()
-					result = h.client.fields:loadProfile(123, 7)
+					result = h.client.fields:loadProfile(7)
 				end)
 				h.s.runtime.wait(0.1)
 				h.client._helpers.sync:removePlayer(7)

@@ -161,13 +161,13 @@ return function(test: (string, () -> ()) -> ())
 			})
 			s.run(function()
 				code(
-					c.fields:validateOps({ body = { ops = { { field = "Currency.Gems", op = "RESET" } } } }),
+					c.fields:validateOps({ ops = { { field = "Currency.Gems", op = "RESET" } } }),
 					"schema_unavailable"
 				)
 				check(f.count() == 0)
-				check(c.fields:schemaCache(123):load().ok)
+				check(c.fields:schemaCache():load().ok)
 				local invalid = c.fields:validateOps({
-					body = { ops = { { field = "Missing", op = "RESET" }, { field = "Old", op = "RESET" } } },
+					ops = { { field = "Missing", op = "RESET" }, { field = "Old", op = "RESET" } },
 				})
 				check(
 					invalid.ok
@@ -176,7 +176,7 @@ return function(test: (string, () -> ()) -> ())
 						and f.count() == 1
 				)
 				local valid = c.fields
-					:operations(123)
+					:operations()
 					:add("Currency.Gems", -1)
 					:mapAdd("Inventory.Items", "SWORD", 1)
 					:validate()
@@ -188,11 +188,9 @@ return function(test: (string, () -> ()) -> ())
 				)
 				code(
 					c.fields:validateOps({
-						body = {
-							universeId = 124,
-							ops = {
-								{ field = "Currency.Gems", op = "RESET" },
-							},
+						universeId = 124,
+						ops = {
+							{ field = "Currency.Gems", op = "RESET" },
 						},
 					}),
 					"invalid_request"
@@ -210,13 +208,13 @@ return function(test: (string, () -> ()) -> ())
 			{ body = s.json(receipt()) },
 		})
 		s.run(function()
-			check(c.fields:schemaCache(123):load().ok)
-			local tx = c.fields:transactionBuilder(123, 7):add("Currency.Gems", 1)
+			check(c.fields:schemaCache():load().ok)
+			local tx = c.fields:transactionBuilder(7):add("Currency.Gems", 1)
 			local key = tx:idempotencyKey()
 			check(tx:validate().ok and not tx._sealed and tx:idempotencyKey() == key)
 			check(tx:add("Currency.Gems", 1):reason("Admin reward"):commit().ok)
 			code(
-				c.fields:multiTransactionBuilder(123):subject(7):add("Currency.Gems", 1):validate(),
+				c.fields:multiTransactionBuilder():subject(7):add("Currency.Gems", 1):validate(),
 				"invalid_request"
 			)
 			check(f.count() == 3)
@@ -254,8 +252,8 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.fields:schemaCache(123):load().ok)
-			local builder = c.codes:award(123):add("Currency.Gems", 10):setAdd("Tags", {}):reset("Optional")
+			check(c.fields:schemaCache():load().ok)
+			local builder = c.codes:award():add("Currency.Gems", 10):setAdd("Tags", {}):reset("Optional")
 			local built = builder:build()
 			check(built.ok)
 			if not built.ok then
@@ -313,7 +311,7 @@ return function(test: (string, () -> ()) -> ())
 					check(
 						System.equal(
 							JsonDecode.decode(request.Body :: string),
-							{ code = "WELCOME", robloxUserId = 7 }
+							{ code = "WELCOME", universeId = 123, robloxUserId = 7 }
 						)
 					)
 				end,

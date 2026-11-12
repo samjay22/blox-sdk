@@ -69,7 +69,7 @@ return function(client: SDK.Client, response: Codes.BulkCreateCodesResponse)
             try:
                 for extra, valid in (
                     ('', True),
-                    ('client.codes:bulkCreateCodes({body={count=1,name="Campaign",award={}}})', False),
+                    ('client.codes:bulkCreateCodes({body={count=1,name="Campaign",award={}}})', True),
                     ('client.codes:bulkCreateCodes({body={universeId=123,count=1,award={}}})', False),
                     ('client.codes:bulkCreateCodes({body={universeId=123,count="1",name="Campaign",award={}}})', False),
                     ('client.codes:bulkCreateCodes({body={universeId=123,count=1,name="Campaign",award={}},idempotencyKey=1})', False),

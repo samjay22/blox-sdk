@@ -764,7 +764,7 @@ export type CriteriaSimulationRequest = {
 	criteria: { MatchmakingCriteriaDTO },
 	placeId: string?,
 	sampleSize: number,
-	universeId: string,
+	universeId: string?,
 }
 
 export type CriteriaSimulationResponse = {
@@ -877,7 +877,7 @@ export type MatchmakingCriteriaDTORead = {
 export type MultiQueueRequest = {
 	gameModeNames: { string } | string,
 	partyId: string?,
-	robloxUniverseId: string,
+	robloxUniverseId: string?,
 	robloxUserId: string?,
 	robloxUserIds: ({ string } | string)?,
 }
@@ -938,7 +938,7 @@ export type QueueMetricsResponse = {
 export type QueueRequest = {
 	gameModeName: string,
 	partyId: string?,
-	robloxUniverseId: string,
+	robloxUniverseId: string?,
 	robloxUserId: string?,
 	robloxUserIds: ({ string } | string)?,
 }
@@ -1080,7 +1080,7 @@ export type GetBannedPlayersByUniverseCall = { path: { universeId: string? }? }
 
 export type GetBannedPlayersByUniverseResultValue = UniverseBanListResponse
 
-export type BulkUnbanPlayersCall = { path: { universeId: string? }?, body: { string } }
+export type BulkUnbanPlayersCall = { string }
 
 export type BulkUnbanPlayersResultValue = BulkUnbanResponse
 
@@ -1227,7 +1227,7 @@ export type CheckApiKeyExistsCall = { path: { universeId: string? }? }
 
 export type CheckApiKeyExistsResultValue = nil
 
-export type UpdateApiKeyCall = { path: { universeId: string? }?, body: UpdateRobloxApiKeyRequest }
+export type UpdateApiKeyCall = UpdateRobloxApiKeyRequest
 
 export type UpdateApiKeyResultValue = ApiKeyResponse
 

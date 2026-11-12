@@ -58,14 +58,12 @@
     "method": "POST",
     "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags",
     "request": {
-      "body": {
-        "displayName": "Double XP",
-        "type": "bool",
-        "defaultValue": false,
-        "enabled": true,
-        "rules": [],
-        "variants": []
-      }
+      "displayName": "Double XP",
+      "type": "bool",
+      "defaultValue": false,
+      "enabled": true,
+      "rules": [],
+      "variants": []
     },
     "response": {
       "key": "double_xp",
@@ -158,13 +156,11 @@
     "method": "POST",
     "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate",
     "request": {
-      "body": {
-        "userId": 7,
-        "keys": [
-          "double_xp"
-        ],
-        "context": {}
-      }
+      "userId": 7,
+      "keys": [
+        "double_xp"
+      ],
+      "context": {}
     },
     "response": {
       "values": {
@@ -191,11 +187,9 @@
     "method": "POST",
     "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/flags/evaluate-batch",
     "request": {
-      "body": {
-        "userIds": [
-          7
-        ]
-      }
+      "userIds": [
+        7
+      ]
     },
     "response": {
       "items": [
@@ -240,11 +234,9 @@
     "method": "PUT",
     "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/maintenance",
     "request": {
-      "body": {
-        "enabled": false,
-        "message": "",
-        "allowlistUserIds": []
-      }
+      "enabled": false,
+      "message": "",
+      "allowlistUserIds": []
     },
     "response": {
       "enabled": false,
@@ -947,12 +939,10 @@
     "method": "POST",
     "url": "https://lb1.blox-api.com/platform-service/api/universes/123/webhooks",
     "request": {
-      "body": {
-        "url": "https://webhooks.example/events",
-        "events": [
-          "field.changed"
-        ]
-      }
+      "url": "https://webhooks.example/events",
+      "events": [
+        "field.changed"
+      ]
     },
     "response": {
       "id": "00000000-0000-4000-8000-000000000001",

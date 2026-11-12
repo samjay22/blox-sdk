@@ -7,7 +7,7 @@ local client = require(script.Parent.Client)
 local marketplace = game:GetService("MarketplaceService")
 -- This must be the experience's only ProcessReceipt handler. Provision Fields product grants first.
 marketplace.ProcessReceipt = function(receipt: any)
-	local result = client.fields:processReceipt(game.GameId, {
+	local result = client.fields:processReceipt({
 		purchaseId = receipt.PurchaseId,
 		userId = receipt.PlayerId,
 		productId = receipt.ProductId,

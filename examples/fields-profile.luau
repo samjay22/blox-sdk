@@ -3,13 +3,8 @@ local SDK = require("../src/BloxSDK")
 local Core = require("../src/Types/Core")
 local Profile = require("../src/Fields/Profile")
 --- Load the document, acquire presence, and commit a trusted reward before returning the profile.
-return function(
-	client: SDK.Client,
-	universeId: number,
-	userId: number,
-	placeId: number
-): Core.Result<Profile.Profile>
-	local loaded = client.fields:loadProfile(universeId, userId)
+return function(client: SDK.Client, userId: number, placeId: number): Core.Result<Profile.Profile>
+	local loaded = client.fields:loadProfile(userId)
 	if not loaded.ok then
 		return loaded
 	end

@@ -1,5 +1,24 @@
 # Migrating BloxSDK
 
+## 3.1.0 to 4.0.0 — one universe, stated once
+
+Delete the universe argument from every helper call and from request bodies; the client supplies it.
+
+| Before | After |
+|---|---|
+| `BloxSDK.new({ secretName = s, universeId = game.GameId })` | `BloxSDK.new({ secretName = s })` on Roblox; `universeId` is still accepted |
+| `client.fields:loadProfile(game.GameId, player.UserId)` | `client.fields:loadProfile(player)` |
+| `client.fields:transactionBuilder(id, userId)` | `client.fields:transactionBuilder(userId)` |
+| `client.fields:schemaCache(id)`, `:rotations(id)`, `:generators(id)`, `:jobClient(id)` ... | the same call with no argument |
+| `client.fields:processReceipt(id, receipt)` | `client.fields:processReceipt(receipt)` |
+| `client.codes:award(id)` | `client.codes:award()` |
+| `client.fields:createFlag({ path = { universeId = id }, body = flag })` | `client.fields:createFlag(flag)` |
+| `joinQueue({ robloxUniverseId = tostring(game.GameId), ... })` | `joinQueue({ ... })` |
+
+Calls with other path or query parameters keep `{ path = ..., query = ..., body = ... }`; their universe was
+already optional. To work on another universe, call `client:withUniverse(id)` and use the facade it returns.
+A helper called on a client that has no universe raises an error naming the fix instead of guessing.
+
 ## 3.0.0 to 3.1.0 — inbox-driven profile sync
 
 Deploy a Fields service that serves `POST /api/fields/universes/{u}/sessions/poll` before upgrading; no

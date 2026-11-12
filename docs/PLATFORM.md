@@ -36,9 +36,7 @@ provided sources. Speculative SDK methods were removed, not redirected or shimme
 environments, schedules, flags and runtime snapshots where those APIs exist. Fields [Rotations & Generators](ROTATIONS.md) provide gameplay rotation/roll helpers.
 
 ```luau
-local result = client.fields:evaluateFlags({
-    body = { userId = player.UserId, keys = { "double_xp" } },
-})
+local result = client.fields:evaluateFlags({ userId = player.UserId, keys = { "double_xp" } })
 if result.ok then
     local flag = result.value.values.double_xp
     -- Apply the service-authoritative value; no exposure endpoint is invented.

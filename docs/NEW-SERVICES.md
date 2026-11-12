@@ -80,7 +80,7 @@ used for these requests.
 `:get(key)` reads a literal UNIVERSE field ID from `gameValues` and returns an immutable value or nil;
 `:isEnabled(flag)` returns the cached **master enabled
 switch only**, false when missing/unloaded. It does **not** evaluate user-specific rollout percentage,
-attributes or rules. Use `client.fields:evaluateFlags({body={userId=7,keys={"double_xp"}}})` or
+attributes or rules. Use `client.fields:evaluateFlags({userId=7,keys={"double_xp"}})` or
 `evaluateFlagsBatch({body={userIds={7,8}}})` for service-authoritative decisions. These read-only POSTs
 are conservatively single-attempt. `fields:maintenance()` / `putMaintenance` handle independent
 maintenance policy; writes require ADMIN. `flags` / `flag` read definitions; `createFlag` / `updateFlag`

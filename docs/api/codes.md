@@ -12,10 +12,10 @@ Source: [src/Services/Codes.luau](../../src/Services/Codes.luau)
 
 ### `Service.award`
 
-Create a typed subject-free award builder over the loaded universe schema.
+Create a typed subject-free award builder over this client's universe schema.
 
 ```luau
-Service.award(self: Service, universeId: string | number): Award.Builder
+Service.award(self: Service): Award.Builder
 ```
 
 ### `Service.liveness`
@@ -229,7 +229,7 @@ export type BulkCreateCodesRequest = {
 	name: string,
 	prefix: string?,
 	startsAt: string?,
-	universeId: number,
+	universeId: number?,
 }
 
 export type BulkCreateCodesResponse = { batchId: string, codes: { BulkCode }, count: number }

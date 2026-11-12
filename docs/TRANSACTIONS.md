@@ -1,6 +1,6 @@
 # Transactions, products and purchases
 
-Load a schema cache or `fields:loadProfile(universeId, userId)` first. Transactions are built with
+Load a schema cache or `fields:loadProfile(userId)` first. Transactions are built with
 `fields:transactionBuilder(...)` or `profile:immediate()`. Chain `set`, `add`, `expect`, `reason`,
 `key`, then `commit`. Every write is validated; no automatic schema fetch hides an invalid transaction.
 `validateLocal()` checks a complete transaction locally; `validate()` is the backend operation-only dry run.

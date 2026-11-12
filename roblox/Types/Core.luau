@@ -116,7 +116,10 @@ export type Endpoint = {
 	idempotencyItems: string?,
 	conditional: boolean?,
 	optionalKey: boolean?,
+	bodyUniverse: { string }?,
 }
+--- A Roblox user: a numeric user ID, or anything carrying UserId such as a Player.
+export type User = number | { UserId: number }
 export type Request = {
 	idempotencyKey: string?,
 	etag: string?,

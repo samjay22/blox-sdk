@@ -228,7 +228,7 @@ function Service.backfillAnalytics(
 	req: Types.BackfillAnalyticsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.BackfillAnalyticsResultValue>
-	return self._invoke(Endpoints["platform.backfillAnalytics"], req, opts, self._universe)
+	return self._invoke(Endpoints["platform.backfillAnalytics"], { body = req }, opts, self._universe)
 end
 --- GET /platform-service/api/universes/{universeId}/analytics/economy via gateway; access: READ.
 function Service.analyticsEconomy(
@@ -268,7 +268,7 @@ function Service.createWebhook(
 	req: Types.CreateWebhookCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateWebhookResultValue>
-	return self._invoke(Endpoints["platform.createWebhook"], req, opts, self._universe)
+	return self._invoke(Endpoints["platform.createWebhook"], { body = req }, opts, self._universe)
 end
 --- DELETE /platform-service/api/universes/{universeId}/webhooks/{id} via gateway; access: READ_WRITE.
 function Service.deleteWebhook(

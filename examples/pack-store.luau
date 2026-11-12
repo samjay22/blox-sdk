@@ -20,10 +20,9 @@ export type Store = {
 	destroy: () -> (),
 }
 --- Show the configured store; the game's existing UI heartbeat calls tick, which never performs HTTP.
-return function(client: SDK.Client, universeId: number, ui: UI): Store
-	local scoped = client:withUniverse(universeId)
-	scoped:runtimeSnapshot(30)
-	local rotations = scoped.fields:rotations(universeId)
+return function(client: SDK.Client, ui: UI): Store
+	client:runtimeSnapshot(30)
+	local rotations = client.fields:rotations()
 	local current: Wire.RotationInstance? = nil
 	local listings: { Listing } = {}
 	local watch = rotations:watch("pack_store", function(instance)

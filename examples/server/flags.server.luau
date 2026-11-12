@@ -5,8 +5,7 @@ if script:GetAttribute("Enabled") ~= true then
 end
 local client = require(script.Parent.Client)
 game:GetService("Players").PlayerAdded:Connect(function(player: any)
-	local evaluated =
-		client.fields:evaluateFlags({ body = { userId = player.UserId, keys = { "double_xp" } } })
+	local evaluated = client.fields:evaluateFlags({ userId = player.UserId, keys = { "double_xp" } })
 	if not evaluated.ok then
 		warn(evaluated.error.code)
 		return

@@ -37,8 +37,8 @@ it can differ from the list at the instant the mutation was rejected. Registry r
 
 ## Durable jobs and live-ops
 
-`client.fields:bulkBuilder(universeId)`, `:scheduleClient(universeId)` and `:jobClient(universeId)` compose typed
-administrative requests; `:healthClient(universeId):summary()` exposes compact READ-level health. Bulk ops
+`client.fields:bulkBuilder()`, `:scheduleClient()` and `:jobClient()` compose typed
+administrative requests; `:healthClient():summary()` exposes compact READ-level health. Bulk ops
 reuse the existing operation builder and TypeSystem; target filters and import records validate locally
 against an explicitly loaded schema before submission. `Jobs:waitFor` observes durable server work with
 a total timeout and bounded backoff; it never cancels, retries or compensates the job automatically.
@@ -52,7 +52,7 @@ undo, and a SUCCEEDED job may have individual failures. Read the [durable jobs g
 ## Runtime schema and validation
 
 ```luau
-local cache = client.fields:schemaCache(universeId)
+local cache = client.fields:schemaCache()
 local loaded = cache:load() -- Initial synchronous GET /schema; check loaded.ok.
 local definitions = cache:definitions() -- Immutable, includes archived/shared/computed definitions.
 local validator = cache:validator("Currency.Gems")
@@ -66,7 +66,7 @@ refreshes. Equal `schemaVersion` reuses compiled validators; malformed, failed o
 keep the last good generation. `refresh`, `version`, `get`, and `lastError` expose its state. Shared
 `flush`/`destroy` stops pollers; requiring/constructing the SDK makes no requests.
 
-The internal TypeSystem is not a root export in 1.0. Load `fields:schemaCache(universeId):load()`
+The internal TypeSystem is not a root export in 1.0. Load `fields:schemaCache():load()`
 and obtain a cached validator with `:validator(fieldId)`. Its `validate(value)` / `default(explicit?)`
 functions return typed Results. Use the transaction and operation builders for validated writes.
 
@@ -96,7 +96,7 @@ functions return typed Results. Use the transaction and operation builders for v
 ## Validated transactions
 
 ```luau
-local result = client.fields:transactionBuilder(universeId, userId)
+local result = client.fields:transactionBuilder(userId)
     :add("Currency.Gems", -50)
     :mapAdd("Inventory.Items", "SWORD", 1)
     :expect("Inventory.Items", {exists=false}, {"SWORD"})
@@ -129,7 +129,7 @@ replace an uncertain key. Raw `putDocument` retries **only if an explicit key wa
 key is invented for document saves. Other required-key wrappers generate omitted keys before retry.
 
 ```luau
-local transfer = client.fields:multiTransactionBuilder(universeId)
+local transfer = client.fields:multiTransactionBuilder()
     :subject(senderId):add("Currency.Gems", -10)
     :subject(receiverId):add("Currency.Gems", 10)
     :subject(0):add("Global.Trades", 1) -- UNIVERSE field
@@ -142,7 +142,7 @@ transactions reject UNIVERSE fields. Multi-subject defaults to subject zero unti
 
 ## Profile and presence
 
-`fields:loadProfile(universeId,userId)` returns `Result<Profile>` after schema + session acquire grants a validated coherent snapshot. Concurrent loads share one handle; native PlayerAdded starts them automatically. See [3.0 binding contract](../API_CONTRACT.md).
+`fields:loadProfile(userId)` returns `Result<Profile>` after schema + session acquire grants a validated coherent snapshot. Concurrent loads share one handle; native PlayerAdded starts them automatically. See [3.0 binding contract](../API_CONTRACT.md).
 
 `profile:add/set/mutate` apply optimistically and buffer operations until the next five-second commit. Buffered success is not durability. `LeaseLost` drops all ops and invalidates the handle (kick by default); `CommitRejected` drops the rejected detached ops and re-syncs, retaining later pending writes. Configure `sessions` for TTL, flush interval, acquisition timeout and kicks.
 `profile:get(id)` returns an immutable wire-shaped value and throws a value-free code for unknown,
@@ -298,8 +298,8 @@ remove leaderboard bindings. Removing/archiving/purging fields never deletes the
 
 ### ADMIN preview and saved bindings
 
-`client.fields:previewBoard({body={id="Stats.TotalWins",type={kind="int",min=0,max=100},
-binding={board="wins",submit="VALUE",keep="BEST",reset="WEEKLY"}}})` posts to
+`client.fields:previewBoard({id="Stats.TotalWins",type={kind="int",min=0,max=100},
+binding={board="wins",submit="VALUE",keep="BEST",reset="WEEKLY"}})` posts to
 `/api/fields/universes/{universeId}/definitions/preview-board`. Use a scoped client or supply `path`;
 optional body `universeId` must match. Optional scope defaults PLAYER. No reason or idempotency key.
 
@@ -348,9 +348,9 @@ fixtures verify accessor typing. No live database, gateway, Roblox purchase or S
 
 ## Subject-free operation dry runs
 
-Load `client.fields:schemaCache(universeId):load()` first. Then call
-`client.fields:validateOps({path={universeId=universeId},body={ops=ops}})` or use
-`client.fields:operations(universeId):add("Currency.Gems",100):validate()`.
+Load `client.fields:schemaCache():load()` first. Then call
+`client.fields:validateOps({ops=ops})` or use
+`client.fields:operations():add("Currency.Gems",100):validate()`.
 A scoped client may omit `path`. The optional body `universeId` must match the path.
 Requests accept only `ops` (1–100) and optional `universeId`; operations must omit `subject`, including null.
 No reason, conditions, ref or idempotency key is accepted. READ is sufficient even for ADMIN-write fields.
@@ -427,7 +427,7 @@ recovery succeeds `tryGet` can report `profile_stale`; failures retain the curso
 ### Reacting to changes
 
 ```luau
-local loaded = client.fields:loadProfile(game.GameId, player.UserId)
+local loaded = client.fields:loadProfile(player.UserId)
 if loaded.ok then
     local profile = loaded.value
     profile.Changed:connect(function(change)

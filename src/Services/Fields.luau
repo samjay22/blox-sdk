@@ -14,6 +14,7 @@ local Schema = require("../Fields/Schema")
 local Transaction = require("../Fields/Transaction")
 local Profile = require("../Fields/Profile")
 local OpBuilder = require("../Fields/OpBuilder")
+local Universe = require("../Core/Universe")
 local Types = require("../Types/Fields")
 local Endpoints = require("../Core/Endpoints")
 local Service = {}
@@ -26,66 +27,72 @@ export type Service = typeof(setmetatable(
 function Service.new(invoke: Core.Invoke, universe: (string | number)?, helpers: Helpers.State?): Service
 	return setmetatable({ _invoke = invoke, _universe = universe, _fields = helpers }, Service)
 end
---- Bind Bulk helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.bulkBuilder(self: Service, universeId: string | number): Bulk.Builder
-	return Bulk.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Bulk helpers for this client's universe; control-plane mutations require a server ADMIN key.
+function Service.bulkBuilder(self: Service): Bulk.Builder
+	return Bulk.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
---- Bind Schedules helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.scheduleClient(self: Service, universeId: string | number): Schedules.Client
-	return Schedules.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Schedules helpers for this client's universe; control-plane mutations require a server ADMIN key.
+function Service.scheduleClient(self: Service): Schedules.Client
+	return Schedules.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
---- Bind Jobs helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.jobClient(self: Service, universeId: string | number): Jobs.Client
-	return Jobs.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Jobs helpers for this client's universe; control-plane mutations require a server ADMIN key.
+function Service.jobClient(self: Service): Jobs.Client
+	return Jobs.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
---- Bind Health helpers to an explicit universe; control-plane mutations require a server ADMIN key.
-function Service.healthClient(self: Service, universeId: string | number): Health.Client
-	return Health.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Health helpers for this client's universe; control-plane mutations require a server ADMIN key.
+function Service.healthClient(self: Service): Health.Client
+	return Health.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
---- Bind Rotations helpers to an explicit universe; server authorization remains authoritative.
-function Service.rotations(self: Service, universeId: string | number): Rotations.Client
-	return Rotations.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Rotations helpers for this client's universe; server authorization remains authoritative.
+function Service.rotations(self: Service): Rotations.Client
+	return Rotations.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
---- Bind Generators helpers to an explicit universe; server authorization remains authoritative.
-function Service.generators(self: Service, universeId: string | number): Generators.Client
-	return Generators.new(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- Generators helpers for this client's universe; server authorization remains authoritative.
+function Service.generators(self: Service): Generators.Client
+	return Generators.new(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
 --- Build a subject-free list for read-only static validation.
-function Service.operations(self: Service, universeId: string | number): OpBuilder.Builder
-	return Helpers.operations(assert(self._fields, "Fields helpers unavailable"), universeId)
+function Service.operations(self: Service): OpBuilder.Builder
+	return Helpers.operations(
+		assert(self._fields, "Fields helpers unavailable"),
+		Universe.bound(self._universe)
+	)
 end
---- Resolve the lazy schema cache for an explicit universe.
-function Service.schemaCache(self: Service, universeId: string | number): Schema.Schema
-	return Helpers.schema(assert(self._fields, "Fields helpers unavailable"), universeId)
+--- The lazy schema cache for this client's universe.
+function Service.schemaCache(self: Service): Schema.Schema
+	return Helpers.schema(assert(self._fields, "Fields helpers unavailable"), Universe.bound(self._universe))
 end
 --- Create a validated player transaction; load Schema first or use LoadProfile.
-function Service.transactionBuilder(
-	self: Service,
-	universeId: string | number,
-	userId: number
-): Transaction.Transaction
-	return Helpers.transaction(assert(self._fields, "Fields helpers unavailable"), universeId, userId)
+function Service.transactionBuilder(self: Service, user: Core.User): Transaction.Transaction
+	return Helpers.transaction(
+		assert(self._fields, "Fields helpers unavailable"),
+		Universe.bound(self._universe),
+		(assert(Universe.user(user), "Invalid user"))
+	)
 end
 --- Create an atomic multi-subject builder; select subjects with Subject(id).
-function Service.multiTransactionBuilder(self: Service, universeId: string | number): Transaction.Transaction
-	return Helpers.transaction(assert(self._fields, "Fields helpers unavailable"), universeId, nil)
+function Service.multiTransactionBuilder(self: Service): Transaction.Transaction
+	return Helpers.transaction(
+		assert(self._fields, "Fields helpers unavailable"),
+		Universe.bound(self._universe),
+		nil
+	)
 end
---- Fetch a typed player document with owned presence/refresh lifecycle.
-function Service.loadProfile(
-	self: Service,
-	universeId: string | number,
-	userId: number
-): Core.Result<Profile.Profile>
-	return Helpers.loadProfile(assert(self._fields, "Fields helpers unavailable"), universeId, userId)
+--- Claim a player for this server and load their document; accepts a user ID or a Player.
+function Service.loadProfile(self: Service, user: Core.User): Core.Result<Profile.Profile>
+	return Helpers.loadProfile(
+		assert(self._fields, "Fields helpers unavailable"),
+		Universe.bound(self._universe),
+		Universe.user(user) or 0
+	)
 end
 --- Submit a trusted receipt; the server deduplicates purchaseId across calls and restarts.
 function Service.processReceipt(
 	self: Service,
-	universeId: string | number,
 	receipt: Types.ReceiptInput,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ReceiptResult>
-	return self:purchase({ path = { universeId = universeId }, body = receipt }, opts)
+	return self:purchase(receipt, opts)
 end
 --- GET /fields-service/actuator/health/liveness via gateway; access: public/authenticated.
 function Service.liveness(
@@ -125,7 +132,7 @@ function Service.putAlertConfig(
 	req: Types.PutAlertConfigCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PutAlertConfigResultValue>
-	return self._invoke(Endpoints["fields.putAlertConfig"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.putAlertConfig"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/alerts/webhook/test via gateway; access: ADMIN.
 function Service.testWebhook(
@@ -157,7 +164,7 @@ function Service.bulk(
 	req: Types.BulkCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.BulkResultValue>
-	return self._invoke(Endpoints["fields.bulk"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.bulk"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/bulk/definitions via gateway; access: ADMIN.
 function Service.createBulkDefinition(
@@ -165,7 +172,7 @@ function Service.createBulkDefinition(
 	req: Types.CreateBulkDefinitionCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateBulkDefinitionResultValue>
-	return self._invoke(Endpoints["fields.createBulkDefinition"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createBulkDefinition"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/bulk/definitions/{id} via gateway; access: ADMIN.
 function Service.bulkDefinition(
@@ -181,7 +188,7 @@ function Service.bulkPreview(
 	req: Types.BulkPreviewCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.BulkPreviewResultValue>
-	return self._invoke(Endpoints["fields.bulkPreview"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.bulkPreview"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/bulk/{id}/reverse via gateway; access: ADMIN.
 function Service.reverseBulk(
@@ -197,7 +204,7 @@ function Service.commitSession(
 	req: Types.CommitSessionCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CommitSessionResultValue>
-	return self._invoke(Endpoints["fields.commitSession"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.commitSession"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/definitions via gateway; access: READ.
 function Service.definitions(
@@ -230,7 +237,7 @@ function Service.create(
 	req: Types.CreateCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateResultValue>
-	return self._invoke(Endpoints["fields.create"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.create"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/definitions/preview-board via gateway; access: ADMIN.
 function Service.previewBoard(
@@ -238,7 +245,7 @@ function Service.previewBoard(
 	req: Types.PreviewBoardCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PreviewBoardResultValue>
-	return self._invoke(Endpoints["fields.previewBoard"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.previewBoard"], { body = req }, opts, self._universe)
 end
 --- DELETE /fields-service/api/fields/universes/{universeId}/definitions/{id} via gateway; access: ADMIN.
 function Service.purge(
@@ -351,7 +358,7 @@ function Service.export(
 	req: Types.ExportCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ExportResultValue>
-	return self._invoke(Endpoints["fields.export"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.export"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/fields/batch-get via gateway; access: READ.
 function Service.batch(
@@ -359,7 +366,7 @@ function Service.batch(
 	req: Types.BatchCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.BatchResultValue>
-	return self._invoke(Endpoints["fields.batch"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.batch"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/flags via gateway; access: READ.
 function Service.flags(
@@ -375,7 +382,7 @@ function Service.createFlag(
 	req: Types.CreateFlagCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateFlagResultValue>
-	return self._invoke(Endpoints["fields.createFlag"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createFlag"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/flags/evaluate via gateway; access: READ.
 function Service.evaluateFlags(
@@ -383,7 +390,7 @@ function Service.evaluateFlags(
 	req: Types.EvaluateFlagsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.EvaluateFlagsResultValue>
-	return self._invoke(Endpoints["fields.evaluateFlags"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.evaluateFlags"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/flags/evaluate-batch via gateway; access: READ.
 function Service.evaluateFlagsBatch(
@@ -391,7 +398,7 @@ function Service.evaluateFlagsBatch(
 	req: Types.EvaluateFlagsBatchCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.EvaluateFlagsBatchResultValue>
-	return self._invoke(Endpoints["fields.evaluateFlagsBatch"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.evaluateFlagsBatch"], { body = req }, opts, self._universe)
 end
 --- DELETE /fields-service/api/fields/universes/{universeId}/flags/{key} via gateway; access: ADMIN.
 function Service.deleteFlag(
@@ -464,7 +471,7 @@ function Service.createGenerator(
 	req: Types.CreateGeneratorCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateGeneratorResultValue>
-	return self._invoke(Endpoints["fields.createGenerator"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createGenerator"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/generators/preview via gateway; access: READ.
 function Service.previewGenerator(
@@ -472,7 +479,7 @@ function Service.previewGenerator(
 	req: Types.PreviewGeneratorCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PreviewGeneratorResultValue>
-	return self._invoke(Endpoints["fields.previewGenerator"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.previewGenerator"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/generators/roll via gateway; access: READ_WRITE.
 function Service.rollGenerator(
@@ -480,7 +487,7 @@ function Service.rollGenerator(
 	req: Types.RollGeneratorCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.RollGeneratorResultValue>
-	return self._invoke(Endpoints["fields.rollGenerator"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.rollGenerator"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/generators/simulate via gateway; access: READ.
 function Service.simulateGenerator(
@@ -488,7 +495,7 @@ function Service.simulateGenerator(
 	req: Types.SimulateGeneratorCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.SimulateGeneratorResultValue>
-	return self._invoke(Endpoints["fields.simulateGenerator"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.simulateGenerator"], { body = req }, opts, self._universe)
 end
 --- DELETE /fields-service/api/fields/universes/{universeId}/generators/{key} via gateway; access: READ_WRITE.
 function Service.deleteGenerator(
@@ -632,7 +639,7 @@ function Service.putMaintenance(
 	req: Types.PutMaintenanceCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PutMaintenanceResultValue>
-	return self._invoke(Endpoints["fields.putMaintenance"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.putMaintenance"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/migrations/{id}/cancel via gateway; access: ADMIN.
 function Service.cancelMigration(
@@ -656,11 +663,10 @@ function Service.validateOps(
 	req: Types.ValidateOpsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ValidateOpsResultValue>
-	local scope = (req.path and req.path.universeId) or self._universe
 	return Helpers.validateOps(
 		assert(self._fields, "Fields helpers unavailable"),
-		scope :: string | number,
-		req.body,
+		Universe.bound(self._universe),
+		req,
 		opts
 	)
 end
@@ -703,7 +709,7 @@ function Service.changesBatch(
 	req: Types.ChangesBatchCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ChangesBatchResultValue>
-	return self._invoke(Endpoints["fields.changesBatch"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.changesBatch"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/players/sample via gateway; access: READ.
 function Service.samplePlayers(
@@ -965,7 +971,7 @@ function Service.presenceBatch(
 	req: Types.PresenceBatchCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PresenceBatchResultValue>
-	return self._invoke(Endpoints["fields.presenceBatch"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.presenceBatch"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/products via gateway; access: READ.
 function Service.products(
@@ -1030,7 +1036,7 @@ function Service.createRandomTable(
 	req: Types.CreateRandomTableCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateRandomTableResultValue>
-	return self._invoke(Endpoints["fields.createRandomTable"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createRandomTable"], { body = req }, opts, self._universe)
 end
 --- DELETE /fields-service/api/fields/universes/{universeId}/random-tables/{key} via gateway; access: READ_WRITE.
 function Service.deleteRandomTable(
@@ -1070,7 +1076,7 @@ function Service.eraseRandomness(
 	req: Types.EraseRandomnessCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.EraseRandomnessResultValue>
-	return self._invoke(Endpoints["fields.eraseRandomness"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.eraseRandomness"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/randomness/definitions/{key}/history via gateway; access: READ.
 function Service.randomDefinitionHistory(
@@ -1119,7 +1125,7 @@ function Service.purchase(
 	req: Types.PurchaseCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PurchaseResultValue>
-	return self._invoke(Endpoints["fields.purchase"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.purchase"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/receipts/{purchaseId} via gateway; access: READ.
 function Service.receipt(
@@ -1200,7 +1206,7 @@ function Service.createRotation(
 	req: Types.CreateRotationCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateRotationResultValue>
-	return self._invoke(Endpoints["fields.createRotation"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createRotation"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/rotations/claim via gateway; access: READ_WRITE.
 function Service.claimRotation(
@@ -1208,7 +1214,7 @@ function Service.claimRotation(
 	req: Types.ClaimRotationCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ClaimRotationResultValue>
-	return self._invoke(Endpoints["fields.claimRotation"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.claimRotation"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/rotations/instances/{id}/stock via gateway; access: READ.
 function Service.rotationStock(
@@ -1313,7 +1319,7 @@ function Service.createSchedule(
 	req: Types.CreateScheduleCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateScheduleResultValue>
-	return self._invoke(Endpoints["fields.createSchedule"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createSchedule"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/schedules/preview via gateway; access: ADMIN.
 function Service.schedulePreview(
@@ -1321,7 +1327,7 @@ function Service.schedulePreview(
 	req: Types.SchedulePreviewCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.SchedulePreviewResultValue>
-	return self._invoke(Endpoints["fields.schedulePreview"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.schedulePreview"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/schedules/{id} via gateway; access: ADMIN.
 function Service.schedule(
@@ -1409,7 +1415,7 @@ function Service.acquireSessions(
 	req: Types.AcquireSessionsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.AcquireSessionsResultValue>
-	return self._invoke(Endpoints["fields.acquireSessions"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.acquireSessions"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/sessions/poll via gateway; access: READ_WRITE.
 function Service.pollSessions(
@@ -1417,7 +1423,7 @@ function Service.pollSessions(
 	req: Types.PollSessionsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PollSessionsResultValue>
-	return self._invoke(Endpoints["fields.pollSessions"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.pollSessions"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/sessions/release via gateway; access: READ_WRITE.
 function Service.releaseSessions(
@@ -1425,7 +1431,7 @@ function Service.releaseSessions(
 	req: Types.ReleaseSessionsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ReleaseSessionsResultValue>
-	return self._invoke(Endpoints["fields.releaseSessions"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.releaseSessions"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/sessions/renew via gateway; access: READ_WRITE.
 function Service.renewSessions(
@@ -1433,7 +1439,7 @@ function Service.renewSessions(
 	req: Types.RenewSessionsCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.RenewSessionsResultValue>
-	return self._invoke(Endpoints["fields.renewSessions"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.renewSessions"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/snapshots via gateway; access: ADMIN.
 function Service.snapshots(
@@ -1466,7 +1472,7 @@ function Service.createSnapshot(
 	req: Types.CreateSnapshotCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.CreateSnapshotResultValue>
-	return self._invoke(Endpoints["fields.createSnapshot"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.createSnapshot"], { body = req }, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/snapshots/policy via gateway; access: ADMIN.
 function Service.snapshotPolicy(
@@ -1482,7 +1488,7 @@ function Service.putSnapshotPolicy(
 	req: Types.PutSnapshotPolicyCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.PutSnapshotPolicyResultValue>
-	return self._invoke(Endpoints["fields.putSnapshotPolicy"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.putSnapshotPolicy"], { body = req }, opts, self._universe)
 end
 --- DELETE /fields-service/api/fields/universes/{universeId}/snapshots/{id} via gateway; access: ADMIN.
 function Service.deleteSnapshot(
@@ -1531,7 +1537,7 @@ function Service.multiTransaction(
 	req: Types.MultiTransactionCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.MultiTransactionResultValue>
-	return self._invoke(Endpoints["fields.multiTransaction"], req, opts, self._universe)
+	return self._invoke(Endpoints["fields.multiTransaction"], { body = req }, opts, self._universe)
 end
 --- POST /fields-service/api/fields/universes/{universeId}/transactions/{txId}/reverse via gateway; access: ADMIN.
 function Service.reverseTransaction(

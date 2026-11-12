@@ -818,7 +818,7 @@ export type AlertsCall = { path: { universeId: (string | number)? }?, query: { l
 export type AlertsResultValue = { Alert }
 export type AlertConfigCall = { path: { universeId: (string | number)? }? }
 export type AlertConfigResultValue = AlertConfigResponse
-export type PutAlertConfigCall = { path: { universeId: (string | number)? }?, body: AlertConfigInput }
+export type PutAlertConfigCall = AlertConfigInput
 export type PutAlertConfigResultValue = AlertConfigResponse
 export type TestWebhookCall = { path: { universeId: (string | number)? }? }
 export type TestWebhookResultValue = JobReceipt
@@ -826,29 +826,29 @@ export type AckAlertCall = { path: { universeId: (string | number)?, id: string 
 export type AckAlertResultValue = AlertAcknowledgement
 export type DailyAnalyticsCall = { path: { universeId: (string | number)? }?, query: { day: string } }
 export type DailyAnalyticsResultValue = Core.Json
-export type BulkCall = { path: { universeId: (string | number)? }?, body: BulkInput }
+export type BulkCall = BulkInput
 export type BulkResultValue = JobReceipt
-export type CreateBulkDefinitionCall = { path: { universeId: (string | number)? }?, body: BulkInput }
+export type CreateBulkDefinitionCall = BulkInput
 export type CreateBulkDefinitionResultValue = BulkDefinitionCreated
 export type BulkDefinitionCall = { path: { universeId: (string | number)?, id: string } }
 export type BulkDefinitionResultValue = BulkInputRead
-export type BulkPreviewCall = { path: { universeId: (string | number)? }?, body: BulkPreviewInput }
+export type BulkPreviewCall = BulkPreviewInput
 export type BulkPreviewResultValue = BulkPreview
 export type ReverseBulkCall = {
 	path: { universeId: (string | number)?, id: string },
 	body: KeyedJobActionInput,
 }
 export type ReverseBulkResultValue = JobReceipt
-export type CommitSessionCall = { path: { universeId: (string | number)? }?, body: CommitInput }
+export type CommitSessionCall = CommitInput
 export type CommitSessionResultValue = CommitResponse
 export type DefinitionsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { cursor: string?, limit: number?, prefix: string?, scope: string?, status: string? }?,
 }
 export type DefinitionsResultValue = CursorPage<Definition>
-export type CreateCall = { path: { universeId: (string | number)? }?, body: DefinitionInput }
+export type CreateCall = DefinitionInput
 export type CreateResultValue = Definition
-export type PreviewBoardCall = { path: { universeId: (string | number)? }?, body: PreviewBoardInput }
+export type PreviewBoardCall = PreviewBoardInput
 export type PreviewBoardResultValue = Preview
 export type PurgeCall = {
 	path: { universeId: (string | number)?, id: string },
@@ -896,17 +896,17 @@ export type ReplaceEnvironmentResourcesCall = {
 	body: EnvironmentReplaceInput,
 }
 export type ReplaceEnvironmentResourcesResultValue = { [string]: Core.Json }
-export type ExportCall = { path: { universeId: (string | number)? }?, body: ExportInput }
+export type ExportCall = ExportInput
 export type ExportResultValue = JobReceipt
-export type BatchCall = { path: { universeId: (string | number)? }?, body: Batch }
+export type BatchCall = Batch
 export type BatchResultValue = BatchResponse
 export type FlagsCall = { path: { universeId: (string | number)? }? }
 export type FlagsResultValue = { FlagDefinition }
-export type CreateFlagCall = { path: { universeId: (string | number)? }?, body: FlagInput }
+export type CreateFlagCall = FlagInput
 export type CreateFlagResultValue = FlagDefinition
-export type EvaluateFlagsCall = { path: { universeId: (string | number)? }?, body: FlagEvaluateInput }
+export type EvaluateFlagsCall = FlagEvaluateInput
 export type EvaluateFlagsResultValue = FlagEvaluation
-export type EvaluateFlagsBatchCall = { path: { universeId: (string | number)? }?, body: FlagEvaluateBatchInput }
+export type EvaluateFlagsBatchCall = FlagEvaluateBatchInput
 export type EvaluateFlagsBatchResultValue = FlagBatchEvaluation
 export type DeleteFlagCall = { path: { universeId: (string | number)?, key: string } }
 export type DeleteFlagResultValue = nil
@@ -926,16 +926,13 @@ export type RollbackGameValueCall = {
 export type RollbackGameValueResultValue = Result
 export type ListGeneratorsCall = { path: { universeId: (string | number)? }? }
 export type ListGeneratorsResultValue = { RandomDefinition }
-export type CreateGeneratorCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateGeneratorCall = RandomDefinitionInput
 export type CreateGeneratorResultValue = RandomDefinition
-export type PreviewGeneratorCall = { path: { universeId: (string | number)? }?, body: GeneratorPreviewInput }
+export type PreviewGeneratorCall = GeneratorPreviewInput
 export type PreviewGeneratorResultValue = { Generated }
-export type RollGeneratorCall = { path: { universeId: (string | number)? }?, body: GeneratorRollInput }
+export type RollGeneratorCall = GeneratorRollInput
 export type RollGeneratorResultValue = GeneratorRollResult
-export type SimulateGeneratorCall = {
-	path: { universeId: (string | number)? }?,
-	body: GeneratorSimulationInput,
-}
+export type SimulateGeneratorCall = GeneratorSimulationInput
 export type SimulateGeneratorResultValue = GeneratorSimulationResult
 export type DeleteGeneratorCall = { path: { universeId: (string | number)?, key: string }, body: RandomAction }
 export type DeleteGeneratorResultValue = boolean
@@ -988,7 +985,7 @@ export type ReverseEntryCall = { path: { universeId: (string | number)?, entryId
 export type ReverseEntryResultValue = Result
 export type MaintenanceCall = { path: { universeId: (string | number)? }? }
 export type MaintenanceResultValue = MaintenanceState
-export type PutMaintenanceCall = { path: { universeId: (string | number)? }?, body: MaintenanceInput }
+export type PutMaintenanceCall = MaintenanceInput
 export type PutMaintenanceResultValue = MaintenanceState
 export type CancelMigrationCall = { path: { universeId: (string | number)?, id: string }, body: JobActionInput }
 export type CancelMigrationResultValue = JobReceipt
@@ -998,7 +995,7 @@ export type RollbackMigrationCall = {
 	body: KeyedJobActionInput,
 }
 export type RollbackMigrationResultValue = JobReceipt
-export type ValidateOpsCall = { path: { universeId: (string | number)? }?, body: OpsValidationInput }
+export type ValidateOpsCall = OpsValidationInput
 export type ValidateOpsResultValue = OpsValidationResult
 export type OutboxCall = {
 	path: { universeId: (string | number)? }?,
@@ -1007,7 +1004,7 @@ export type OutboxCall = {
 export type OutboxResultValue = CursorPage<Item>
 export type RetryOutboxCall = { path: { universeId: (string | number)?, id: string } }
 export type RetryOutboxResultValue = Item
-export type ChangesBatchCall = { path: { universeId: (string | number)? }?, body: BatchChangesInput }
+export type ChangesBatchCall = BatchChangesInput
 export type ChangesBatchResultValue = BatchChangesResponse
 export type SamplePlayersCall = {
 	path: { universeId: (string | number)? }?,
@@ -1092,7 +1089,7 @@ export type TransactionCall = {
 	body: TransactionInput,
 }
 export type TransactionResultValue = Result
-export type PresenceBatchCall = { path: { universeId: (string | number)? }?, body: PresenceBatch }
+export type PresenceBatchCall = PresenceBatch
 export type PresenceBatchResultValue = PresenceResponse
 export type ProductsCall = {
 	path: { universeId: (string | number)? }?,
@@ -1110,7 +1107,7 @@ export type PutProductCall = {
 export type PutProductResultValue = Product
 export type ListRandomTablesCall = { path: { universeId: (string | number)? }? }
 export type ListRandomTablesResultValue = { RandomDefinition }
-export type CreateRandomTableCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateRandomTableCall = RandomDefinitionInput
 export type CreateRandomTableResultValue = RandomDefinition
 export type DeleteRandomTableCall = {
 	path: { universeId: (string | number)?, key: string },
@@ -1129,7 +1126,7 @@ export type TableOddsCall = {
 	query: { playerId: (string | number)? }?,
 }
 export type TableOddsResultValue = RandomOdds
-export type EraseRandomnessCall = { path: { universeId: (string | number)? }?, body: RandomErase }
+export type EraseRandomnessCall = RandomErase
 export type EraseRandomnessResultValue = boolean
 export type RandomDefinitionHistoryCall = {
 	path: { universeId: (string | number)?, key: string },
@@ -1140,7 +1137,7 @@ export type RandomnessFieldsCall = { path: { universeId: (string | number)? }? }
 export type RandomnessFieldsResultValue = { RandomEditorField }
 export type RandomnessSchemaCall = { path: { universeId: (string | number)? }? }
 export type RandomnessSchemaResultValue = Core.Json
-export type PurchaseCall = { path: { universeId: (string | number)? }?, body: ReceiptInput }
+export type PurchaseCall = ReceiptInput
 export type PurchaseResultValue = ReceiptResult
 export type ReceiptCall = { path: { universeId: (string | number)?, purchaseId: string } }
 export type ReceiptResultValue = Receipt
@@ -1167,9 +1164,9 @@ export type PutReferencesCall = {
 export type PutReferencesResultValue = nil
 export type ListRotationsCall = { path: { universeId: (string | number)? }? }
 export type ListRotationsResultValue = { RandomDefinition }
-export type CreateRotationCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateRotationCall = RandomDefinitionInput
 export type CreateRotationResultValue = RandomDefinition
-export type ClaimRotationCall = { path: { universeId: (string | number)? }?, body: RotationClaimInput }
+export type ClaimRotationCall = RotationClaimInput
 export type ClaimRotationResultValue = RotationClaimResult
 export type RotationStockCall = { path: { universeId: (string | number)?, id: string } }
 export type RotationStockResultValue = { RotationStock }
@@ -1197,9 +1194,9 @@ export type RuntimeSnapshotCall = { etag: string?, path: { universeId: (string |
 export type RuntimeSnapshotResultValue = RuntimeSnapshot | nil
 export type SchedulesCall = { path: { universeId: (string | number)? }? }
 export type SchedulesResultValue = { ScheduleSummary }
-export type CreateScheduleCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
+export type CreateScheduleCall = ScheduleInput
 export type CreateScheduleResultValue = JobReceipt
-export type SchedulePreviewCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
+export type SchedulePreviewCall = ScheduleInput
 export type SchedulePreviewResultValue = SchedulePreview
 export type ScheduleCall = { path: { universeId: (string | number)?, id: string } }
 export type ScheduleResultValue = JobReceipt
@@ -1227,24 +1224,24 @@ export type LuauCall = { path: { universeId: (string | number)? }? }
 export type LuauResultValue = string
 export type TypescriptCall = { path: { universeId: (string | number)? }? }
 export type TypescriptResultValue = string
-export type AcquireSessionsCall = { path: { universeId: (string | number)? }?, body: AcquireInput }
+export type AcquireSessionsCall = AcquireInput
 export type AcquireSessionsResultValue = SessionResponse
-export type PollSessionsCall = { path: { universeId: (string | number)? }?, body: PollInput }
+export type PollSessionsCall = PollInput
 export type PollSessionsResultValue = PollResponse
-export type ReleaseSessionsCall = { path: { universeId: (string | number)? }?, body: ReleaseInput }
+export type ReleaseSessionsCall = ReleaseInput
 export type ReleaseSessionsResultValue = SessionResponse
-export type RenewSessionsCall = { path: { universeId: (string | number)? }?, body: RenewInput }
+export type RenewSessionsCall = RenewInput
 export type RenewSessionsResultValue = SessionResponse
 export type SnapshotsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { cursor: string?, limit: number?, scope: string?, userId: (string | number)? }?,
 }
 export type SnapshotsResultValue = CursorPage<Snapshot>
-export type CreateSnapshotCall = { path: { universeId: (string | number)? }?, body: SnapshotInput }
+export type CreateSnapshotCall = SnapshotInput
 export type CreateSnapshotResultValue = Snapshot
 export type SnapshotPolicyCall = { path: { universeId: (string | number)? }? }
 export type SnapshotPolicyResultValue = Policy
-export type PutSnapshotPolicyCall = { path: { universeId: (string | number)? }?, body: PolicyInput }
+export type PutSnapshotPolicyCall = PolicyInput
 export type PutSnapshotPolicyResultValue = Policy
 export type DeleteSnapshotCall = { path: { universeId: (string | number)?, id: string } }
 export type DeleteSnapshotResultValue = SnapshotDeleted
@@ -1255,7 +1252,7 @@ export type SnapshotCall = {
 export type SnapshotResultValue = SnapshotDetail
 export type RestoreSnapshotCall = { path: { universeId: (string | number)?, id: string }, body: RestoreInput }
 export type RestoreSnapshotResultValue = RestoreResponse
-export type MultiTransactionCall = { path: { universeId: (string | number)? }?, body: TransactionInput }
+export type MultiTransactionCall = TransactionInput
 export type MultiTransactionResultValue = Result
 export type ReverseTransactionCall = { path: { universeId: (string | number)?, txId: string }, body: Action }
 export type ReverseTransactionResultValue = Result

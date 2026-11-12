@@ -1,5 +1,21 @@
 # BloxSDK changelog
 
+## 4.0.0 (local, not published)
+
+- Breaking: the universe is stated once, in `BloxSDK.new`. On Roblox it defaults to `game.GameId`, so
+  `BloxSDK.new({ secretName = "..." })` is a complete setup. No helper takes a universe argument any more:
+  `loadProfile(user)`, `transactionBuilder(user)`, `multiTransactionBuilder()`, `schemaCache()`,
+  `processReceipt(receipt)`, `bulkBuilder()`, `scheduleClient()`, `jobClient()`, `healthClient()`,
+  `rotations()`, `generators()`, `operations()` and `codes:award()`.
+- Breaking: a call whose path names only the universe takes its body directly, like every other body-only
+  call: `client.fields:createFlag({ ... })`, not `{ path = { universeId = id }, body = { ... } }`. This
+  applies to 40 endpoints outside Auth.
+- Request bodies that carry a universe (`robloxUniverseId` in Matchmaking, `universeId` in Codes, Audit,
+  Platform events) are filled from the client when omitted; those fields are now optional in the types.
+- `loadProfile` and `transactionBuilder` accept a user ID or anything with `UserId`, such as a `Player`.
+- `client:withUniverse(id)` remains the one way to address a different universe. Auth endpoints are
+  unchanged because the universe is their subject, not their scope. No aliases for the old signatures.
+
 ## 3.1.0 (local, not published)
 
 - Profile sync now polls a per-server inbox: each batch tick sends one `sessions/poll` for the server and

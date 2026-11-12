@@ -6,14 +6,13 @@ local Types = require("../src/Types/Matchmaking")
 --- Join once, poll at bounded cadence, then remove on cancellation. Handle actual teleport assignment separately.
 return function(
 	client: SDK.Client,
-	universeId: string,
 	userId: string,
 	mode: string,
 	signal: Core.Signal,
 	wait: (number) -> ()
 ): Core.Result<Types.JoinQueueResultValue>
 	local joined = client.matchmaking:joinQueue(
-		{ robloxUniverseId = universeId, robloxUserIds = { userId }, gameModeName = mode },
+		{ robloxUserIds = { userId }, gameModeName = mode },
 		{ priority = "critical", signal = signal }
 	)
 	if not joined.ok then
@@ -21,7 +20,7 @@ return function(
 	end
 	while not signal.cancelled do
 		local status = client.matchmaking:getPlayerQueueStatus(
-			{ query = { userId = userId, universeId = universeId } },
+			{ query = { userId = userId } },
 			{ signal = signal }
 		)
 		if not status.ok or not status.value.inQueue then
@@ -31,7 +30,7 @@ return function(
 	end
 	-- Cleanup needs a fresh, uncancelled request. Never retry join blindly after an uncertain network failure.
 	client.matchmaking:removePlayerPost(
-		{ robloxUserId = userId, robloxUniverseId = universeId, gameModeName = mode },
+		{ robloxUserId = userId, gameModeName = mode },
 		{ priority = "critical" }
 	)
 	return joined

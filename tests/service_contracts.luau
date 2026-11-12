@@ -200,7 +200,7 @@ return function(test: (string, () -> ()) -> ())
 				reason = "Weekend XP",
 				recurrence = { type = "DAILY", daysOfWeek = {}, timezone = "America/Chicago" },
 			}
-			local schedules = c.fields:scheduleClient(123)
+			local schedules = c.fields:scheduleClient()
 			local built = schedules:build(input)
 			check(built.ok and string.find(Json.encode(built.value), '"daysOfWeek":[]', 1, true))
 			input.recurrence.type = "WEEKLY"

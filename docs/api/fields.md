@@ -12,50 +12,50 @@ Source: [src/Services/Fields.luau](../../src/Services/Fields.luau)
 
 ### `Service.bulkBuilder`
 
-Bind Bulk helpers to an explicit universe; control-plane mutations require a server ADMIN key.
+Bulk helpers for this client's universe; control-plane mutations require a server ADMIN key.
 
 ```luau
-Service.bulkBuilder(self: Service, universeId: string | number): Bulk.Builder
+Service.bulkBuilder(self: Service): Bulk.Builder
 ```
 
 ### `Service.scheduleClient`
 
-Bind Schedules helpers to an explicit universe; control-plane mutations require a server ADMIN key.
+Schedules helpers for this client's universe; control-plane mutations require a server ADMIN key.
 
 ```luau
-Service.scheduleClient(self: Service, universeId: string | number): Schedules.Client
+Service.scheduleClient(self: Service): Schedules.Client
 ```
 
 ### `Service.jobClient`
 
-Bind Jobs helpers to an explicit universe; control-plane mutations require a server ADMIN key.
+Jobs helpers for this client's universe; control-plane mutations require a server ADMIN key.
 
 ```luau
-Service.jobClient(self: Service, universeId: string | number): Jobs.Client
+Service.jobClient(self: Service): Jobs.Client
 ```
 
 ### `Service.healthClient`
 
-Bind Health helpers to an explicit universe; control-plane mutations require a server ADMIN key.
+Health helpers for this client's universe; control-plane mutations require a server ADMIN key.
 
 ```luau
-Service.healthClient(self: Service, universeId: string | number): Health.Client
+Service.healthClient(self: Service): Health.Client
 ```
 
 ### `Service.rotations`
 
-Bind Rotations helpers to an explicit universe; server authorization remains authoritative.
+Rotations helpers for this client's universe; server authorization remains authoritative.
 
 ```luau
-Service.rotations(self: Service, universeId: string | number): Rotations.Client
+Service.rotations(self: Service): Rotations.Client
 ```
 
 ### `Service.generators`
 
-Bind Generators helpers to an explicit universe; server authorization remains authoritative.
+Generators helpers for this client's universe; server authorization remains authoritative.
 
 ```luau
-Service.generators(self: Service, universeId: string | number): Generators.Client
+Service.generators(self: Service): Generators.Client
 ```
 
 ### `Service.operations`
@@ -63,15 +63,15 @@ Service.generators(self: Service, universeId: string | number): Generators.Clien
 Build a subject-free list for read-only static validation.
 
 ```luau
-Service.operations(self: Service, universeId: string | number): OpBuilder.Builder
+Service.operations(self: Service): OpBuilder.Builder
 ```
 
 ### `Service.schemaCache`
 
-Resolve the lazy schema cache for an explicit universe.
+The lazy schema cache for this client's universe.
 
 ```luau
-Service.schemaCache(self: Service, universeId: string | number): Schema.Schema
+Service.schemaCache(self: Service): Schema.Schema
 ```
 
 ### `Service.transactionBuilder`
@@ -79,11 +79,7 @@ Service.schemaCache(self: Service, universeId: string | number): Schema.Schema
 Create a validated player transaction; load Schema first or use LoadProfile.
 
 ```luau
-Service.transactionBuilder(
-	self: Service,
-	universeId: string | number,
-	userId: number
-): Transaction.Transaction
+Service.transactionBuilder(self: Service, user: Core.User): Transaction.Transaction
 ```
 
 ### `Service.multiTransactionBuilder`
@@ -91,19 +87,15 @@ Service.transactionBuilder(
 Create an atomic multi-subject builder; select subjects with Subject(id).
 
 ```luau
-Service.multiTransactionBuilder(self: Service, universeId: string | number): Transaction.Transaction
+Service.multiTransactionBuilder(self: Service): Transaction.Transaction
 ```
 
 ### `Service.loadProfile`
 
-Fetch a typed player document with owned presence/refresh lifecycle.
+Claim a player for this server and load their document; accepts a user ID or a Player.
 
 ```luau
-Service.loadProfile(
-	self: Service,
-	universeId: string | number,
-	userId: number
-): Core.Result<Profile.Profile>
+Service.loadProfile(self: Service, user: Core.User): Core.Result<Profile.Profile>
 ```
 
 ### `Service.processReceipt`
@@ -113,7 +105,6 @@ Submit a trusted receipt; the server deduplicates purchaseId across calls and re
 ```luau
 Service.processReceipt(
 	self: Service,
-	universeId: string | number,
 	receipt: Types.ReceiptInput,
 	opts: Core.CallOptions?
 ): Core.Result<Types.ReceiptResult>
@@ -3156,7 +3147,7 @@ export type AlertConfigCall = { path: { universeId: (string | number)? }? }
 
 export type AlertConfigResultValue = AlertConfigResponse
 
-export type PutAlertConfigCall = { path: { universeId: (string | number)? }?, body: AlertConfigInput }
+export type PutAlertConfigCall = AlertConfigInput
 
 export type PutAlertConfigResultValue = AlertConfigResponse
 
@@ -3172,11 +3163,11 @@ export type DailyAnalyticsCall = { path: { universeId: (string | number)? }?, qu
 
 export type DailyAnalyticsResultValue = Core.Json
 
-export type BulkCall = { path: { universeId: (string | number)? }?, body: BulkInput }
+export type BulkCall = BulkInput
 
 export type BulkResultValue = JobReceipt
 
-export type CreateBulkDefinitionCall = { path: { universeId: (string | number)? }?, body: BulkInput }
+export type CreateBulkDefinitionCall = BulkInput
 
 export type CreateBulkDefinitionResultValue = BulkDefinitionCreated
 
@@ -3184,7 +3175,7 @@ export type BulkDefinitionCall = { path: { universeId: (string | number)?, id: s
 
 export type BulkDefinitionResultValue = BulkInputRead
 
-export type BulkPreviewCall = { path: { universeId: (string | number)? }?, body: BulkPreviewInput }
+export type BulkPreviewCall = BulkPreviewInput
 
 export type BulkPreviewResultValue = BulkPreview
 
@@ -3195,7 +3186,7 @@ export type ReverseBulkCall = {
 
 export type ReverseBulkResultValue = JobReceipt
 
-export type CommitSessionCall = { path: { universeId: (string | number)? }?, body: CommitInput }
+export type CommitSessionCall = CommitInput
 
 export type CommitSessionResultValue = CommitResponse
 
@@ -3206,11 +3197,11 @@ export type DefinitionsCall = {
 
 export type DefinitionsResultValue = CursorPage<Definition>
 
-export type CreateCall = { path: { universeId: (string | number)? }?, body: DefinitionInput }
+export type CreateCall = DefinitionInput
 
 export type CreateResultValue = Definition
 
-export type PreviewBoardCall = { path: { universeId: (string | number)? }?, body: PreviewBoardInput }
+export type PreviewBoardCall = PreviewBoardInput
 
 export type PreviewBoardResultValue = Preview
 
@@ -3282,11 +3273,11 @@ export type ReplaceEnvironmentResourcesCall = {
 
 export type ReplaceEnvironmentResourcesResultValue = { [string]: Core.Json }
 
-export type ExportCall = { path: { universeId: (string | number)? }?, body: ExportInput }
+export type ExportCall = ExportInput
 
 export type ExportResultValue = JobReceipt
 
-export type BatchCall = { path: { universeId: (string | number)? }?, body: Batch }
+export type BatchCall = Batch
 
 export type BatchResultValue = BatchResponse
 
@@ -3294,15 +3285,15 @@ export type FlagsCall = { path: { universeId: (string | number)? }? }
 
 export type FlagsResultValue = { FlagDefinition }
 
-export type CreateFlagCall = { path: { universeId: (string | number)? }?, body: FlagInput }
+export type CreateFlagCall = FlagInput
 
 export type CreateFlagResultValue = FlagDefinition
 
-export type EvaluateFlagsCall = { path: { universeId: (string | number)? }?, body: FlagEvaluateInput }
+export type EvaluateFlagsCall = FlagEvaluateInput
 
 export type EvaluateFlagsResultValue = FlagEvaluation
 
-export type EvaluateFlagsBatchCall = { path: { universeId: (string | number)? }?, body: FlagEvaluateBatchInput }
+export type EvaluateFlagsBatchCall = FlagEvaluateBatchInput
 
 export type EvaluateFlagsBatchResultValue = FlagBatchEvaluation
 
@@ -3336,22 +3327,19 @@ export type ListGeneratorsCall = { path: { universeId: (string | number)? }? }
 
 export type ListGeneratorsResultValue = { RandomDefinition }
 
-export type CreateGeneratorCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateGeneratorCall = RandomDefinitionInput
 
 export type CreateGeneratorResultValue = RandomDefinition
 
-export type PreviewGeneratorCall = { path: { universeId: (string | number)? }?, body: GeneratorPreviewInput }
+export type PreviewGeneratorCall = GeneratorPreviewInput
 
 export type PreviewGeneratorResultValue = { Generated }
 
-export type RollGeneratorCall = { path: { universeId: (string | number)? }?, body: GeneratorRollInput }
+export type RollGeneratorCall = GeneratorRollInput
 
 export type RollGeneratorResultValue = GeneratorRollResult
 
-export type SimulateGeneratorCall = {
-	path: { universeId: (string | number)? }?,
-	body: GeneratorSimulationInput,
-}
+export type SimulateGeneratorCall = GeneratorSimulationInput
 
 export type SimulateGeneratorResultValue = GeneratorSimulationResult
 
@@ -3440,7 +3428,7 @@ export type MaintenanceCall = { path: { universeId: (string | number)? }? }
 
 export type MaintenanceResultValue = MaintenanceState
 
-export type PutMaintenanceCall = { path: { universeId: (string | number)? }?, body: MaintenanceInput }
+export type PutMaintenanceCall = MaintenanceInput
 
 export type PutMaintenanceResultValue = MaintenanceState
 
@@ -3456,7 +3444,7 @@ export type RollbackMigrationCall = {
 
 export type RollbackMigrationResultValue = JobReceipt
 
-export type ValidateOpsCall = { path: { universeId: (string | number)? }?, body: OpsValidationInput }
+export type ValidateOpsCall = OpsValidationInput
 
 export type ValidateOpsResultValue = OpsValidationResult
 
@@ -3471,7 +3459,7 @@ export type RetryOutboxCall = { path: { universeId: (string | number)?, id: stri
 
 export type RetryOutboxResultValue = Item
 
-export type ChangesBatchCall = { path: { universeId: (string | number)? }?, body: BatchChangesInput }
+export type ChangesBatchCall = BatchChangesInput
 
 export type ChangesBatchResultValue = BatchChangesResponse
 
@@ -3596,7 +3584,7 @@ export type TransactionCall = {
 
 export type TransactionResultValue = Result
 
-export type PresenceBatchCall = { path: { universeId: (string | number)? }?, body: PresenceBatch }
+export type PresenceBatchCall = PresenceBatch
 
 export type PresenceBatchResultValue = PresenceResponse
 
@@ -3626,7 +3614,7 @@ export type ListRandomTablesCall = { path: { universeId: (string | number)? }? }
 
 export type ListRandomTablesResultValue = { RandomDefinition }
 
-export type CreateRandomTableCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateRandomTableCall = RandomDefinitionInput
 
 export type CreateRandomTableResultValue = RandomDefinition
 
@@ -3655,7 +3643,7 @@ export type TableOddsCall = {
 
 export type TableOddsResultValue = RandomOdds
 
-export type EraseRandomnessCall = { path: { universeId: (string | number)? }?, body: RandomErase }
+export type EraseRandomnessCall = RandomErase
 
 export type EraseRandomnessResultValue = boolean
 
@@ -3674,7 +3662,7 @@ export type RandomnessSchemaCall = { path: { universeId: (string | number)? }? }
 
 export type RandomnessSchemaResultValue = Core.Json
 
-export type PurchaseCall = { path: { universeId: (string | number)? }?, body: ReceiptInput }
+export type PurchaseCall = ReceiptInput
 
 export type PurchaseResultValue = ReceiptResult
 
@@ -3717,11 +3705,11 @@ export type ListRotationsCall = { path: { universeId: (string | number)? }? }
 
 export type ListRotationsResultValue = { RandomDefinition }
 
-export type CreateRotationCall = { path: { universeId: (string | number)? }?, body: RandomDefinitionInput }
+export type CreateRotationCall = RandomDefinitionInput
 
 export type CreateRotationResultValue = RandomDefinition
 
-export type ClaimRotationCall = { path: { universeId: (string | number)? }?, body: RotationClaimInput }
+export type ClaimRotationCall = RotationClaimInput
 
 export type ClaimRotationResultValue = RotationClaimResult
 
@@ -3771,11 +3759,11 @@ export type SchedulesCall = { path: { universeId: (string | number)? }? }
 
 export type SchedulesResultValue = { ScheduleSummary }
 
-export type CreateScheduleCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
+export type CreateScheduleCall = ScheduleInput
 
 export type CreateScheduleResultValue = JobReceipt
 
-export type SchedulePreviewCall = { path: { universeId: (string | number)? }?, body: ScheduleInput }
+export type SchedulePreviewCall = ScheduleInput
 
 export type SchedulePreviewResultValue = SchedulePreview
 
@@ -3825,19 +3813,19 @@ export type TypescriptCall = { path: { universeId: (string | number)? }? }
 
 export type TypescriptResultValue = string
 
-export type AcquireSessionsCall = { path: { universeId: (string | number)? }?, body: AcquireInput }
+export type AcquireSessionsCall = AcquireInput
 
 export type AcquireSessionsResultValue = SessionResponse
 
-export type PollSessionsCall = { path: { universeId: (string | number)? }?, body: PollInput }
+export type PollSessionsCall = PollInput
 
 export type PollSessionsResultValue = PollResponse
 
-export type ReleaseSessionsCall = { path: { universeId: (string | number)? }?, body: ReleaseInput }
+export type ReleaseSessionsCall = ReleaseInput
 
 export type ReleaseSessionsResultValue = SessionResponse
 
-export type RenewSessionsCall = { path: { universeId: (string | number)? }?, body: RenewInput }
+export type RenewSessionsCall = RenewInput
 
 export type RenewSessionsResultValue = SessionResponse
 
@@ -3848,7 +3836,7 @@ export type SnapshotsCall = {
 
 export type SnapshotsResultValue = CursorPage<Snapshot>
 
-export type CreateSnapshotCall = { path: { universeId: (string | number)? }?, body: SnapshotInput }
+export type CreateSnapshotCall = SnapshotInput
 
 export type CreateSnapshotResultValue = Snapshot
 
@@ -3856,7 +3844,7 @@ export type SnapshotPolicyCall = { path: { universeId: (string | number)? }? }
 
 export type SnapshotPolicyResultValue = Policy
 
-export type PutSnapshotPolicyCall = { path: { universeId: (string | number)? }?, body: PolicyInput }
+export type PutSnapshotPolicyCall = PolicyInput
 
 export type PutSnapshotPolicyResultValue = Policy
 
@@ -3875,7 +3863,7 @@ export type RestoreSnapshotCall = { path: { universeId: (string | number)?, id: 
 
 export type RestoreSnapshotResultValue = RestoreResponse
 
-export type MultiTransactionCall = { path: { universeId: (string | number)? }?, body: TransactionInput }
+export type MultiTransactionCall = TransactionInput
 
 export type MultiTransactionResultValue = Result
 

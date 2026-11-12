@@ -483,6 +483,14 @@ function Pipeline.call(
 			body.universeId = tonumber(universe)
 		end
 	end
+	-- Bodies that name their universe take it from the client, so callers state it once at construction.
+	local fill = spec.bodyUniverse
+	if fill and universe ~= nil and type(request.body) == "table" then
+		local body = request.body :: { [string]: any }
+		if body[fill[1]] == nil then
+			body[fill[1]] = if fill[2] == "string" then tostring(universe) else tonumber(universe)
+		end
+	end
 	local accessError = Access.check(auth, spec, request, universe)
 	if accessError then
 		return Errors.make("Local", spec.id, 0, accessError)

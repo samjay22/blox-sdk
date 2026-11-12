@@ -23,7 +23,7 @@ local Fields = require("./src/Types/Fields")
 return function(client: SDK.Client, response: Fields.Preview)
  local value: Types.LeaderboardBinding = {board="wins",submit="VALUE",keep="BEST",order="ASC",reset="WEEKLY",displayName="Wins"}
  local delta: Types.LeaderboardBinding = {board="wins",submit="DELTA"}
- local _result = client.fields:previewBoard({body={id="Stats.Wins",type={kind="int"},binding=value}})
+ local _result = client.fields:previewBoard({id="Stats.Wins",type={kind="int"},binding=value})
  local _bindings: Types.Bindings = {leaderboards={value,delta}}
  if response.effectiveSettings and response.effectiveSettings ~= SDK.null then
    local _min: number = (response.effectiveSettings :: Fields.BoardSettings).minScore
@@ -41,7 +41,7 @@ return function(client: SDK.Client, response: Fields.Preview)
                     ('local bad: Types.LeaderboardBinding = {board="wins",submit="VALUE",order="desc"}',False),
                     ('local bad: Types.LeaderboardBinding = {board="wins",submit="VALUE",reset="YEARLY"}',False),
                     ('local bad: Types.LeaderboardBinding = {board="wins",submit="VALUE",displayName=3}',False),
-                    ('client.fields:previewBoard({body={id="Stats.Wins",type={kind="int"}}})',False),
+                    ('client.fields:previewBoard({id="Stats.Wins",type={kind="int"}})',False),
                     ('local bad: string = response.effectiveSettings.minScore',False),
                 ):
                     path.write_text(prelude+extra+'\nend\n')
@@ -102,7 +102,7 @@ local Core = require("./src/Types/Core")
 --- Compile only; no client is constructed or requests sent.
 return function(client: SDK.Client, receipt: Codes.RedeemCodeResponse)
  local operation: Fields.PlayerOperation = {field="Currency.Gems",op="ADD",delta=10}
- local award = client.codes:award(123):add("Currency.Gems",10):mapAdd("Inventory.Items","SWORD",1)
+ local award = client.codes:award():add("Currency.Gems",10):mapAdd("Inventory.Items","SWORD",1)
  local _built = award:build()
  local _result = client.codes:createCode({code="WELCOME",award={operation}})
  if receipt.transaction and receipt.transaction ~= SDK.null then

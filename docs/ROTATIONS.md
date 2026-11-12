@@ -6,8 +6,8 @@ Definitions are server-authoritative Tables, Generators and Rotations—not sepa
 The Fields service `API_CONTRACT.md` and `RotationsController` are the wire source of truth.
 
 ```luau
-local rotations = client.fields:rotations(game.GameId)
-local generators = client.fields:generators(game.GameId)
+local rotations = client.fields:rotations()
+local generators = client.fields:generators()
 local active = rotations:get("weather") -- Result<RotationActive>: enabled, current, next
 local all = rotations:getAll() -- Result<{RotationActive}>
 local snapshot = client:runtimeSnapshot(30) -- start/reuse the universe's ETag poller

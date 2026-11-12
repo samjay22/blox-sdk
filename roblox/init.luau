@@ -200,11 +200,16 @@ function SDK.new(config: Config): Client
 	local backend = config.backend or Roblox.backend(http :: Roblox.HttpService)
 	local auth: Types.AuthProvider
 	local session: UserSession.Session? = nil
+	-- The universe is stated once here; on Roblox it defaults to the running experience.
+	local universeId: (string | number)? = config.universeId
+	if universeId == nil and config.runtime == nil then
+		universeId = Roblox.universe()
+	end
 	if config.key or config.secretName then
-		assert(config.universeId ~= nil, "Service accounts require universeId")
+		assert(universeId ~= nil, "Service accounts require universeId")
 		local key: string | Types.Secret = config.key
 			or (http :: Roblox.HttpService):GetSecret(config.secretName :: string)
-		auth = ServiceAccount.new(key, config.universeId, config.levels)
+		auth = ServiceAccount.new(key, universeId, config.levels)
 	elseif config.userSession then
 		session = UserSession.new(runtime, config.userSession.store, config.userSession.role)
 		auth = session :: UserSession.Session
@@ -339,9 +344,9 @@ function SDK.new(config: Config): Client
 		end
 	end, sync, sessions)
 	table.insert(helpers.fieldStates, helpers.fields :: FieldsHelpers.State)
-	client = facade(state, invoke, config.universeId or auth.universeId, session, helpers)
-	if helpers.lifecycle.native and config.universeId then
-		local universe = config.universeId
+	client = facade(state, invoke, universeId or auth.universeId, session, helpers)
+	if helpers.lifecycle.native and universeId then
+		local universe = universeId
 		helpers.addedCleanup = Roblox.playerAdded(function(userId)
 			runtime.spawn(function()
 				FieldsHelpers.loadProfile(helpers.fields :: FieldsHelpers.State, universe, userId)
@@ -541,7 +546,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "3.1.0"
+SDK.version = "4.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

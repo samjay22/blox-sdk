@@ -98,7 +98,7 @@ function Service.bulkUnbanPlayers(
 	req: Types.BulkUnbanPlayersCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.BulkUnbanPlayersResultValue>
-	return self._invoke(Endpoints["matchmaking.bulkUnbanPlayers"], req, opts, self._universe)
+	return self._invoke(Endpoints["matchmaking.bulkUnbanPlayers"], { body = req }, opts, self._universe)
 end
 --- GET /matchmaking-service/api/bans/universe/{universeId}/permanent via gateway; access: READ.
 function Service.getPermanentBans(
@@ -408,7 +408,7 @@ function Service.updateApiKey(
 	req: Types.UpdateApiKeyCall,
 	opts: Core.CallOptions?
 ): Core.Result<Types.UpdateApiKeyResultValue>
-	return self._invoke(Endpoints["matchmaking.updateApiKey"], req, opts, self._universe)
+	return self._invoke(Endpoints["matchmaking.updateApiKey"], { body = req }, opts, self._universe)
 end
 --- GET /matchmaking-service/api/universes/getAllUniverses via gateway; access: SUPER_ADMIN.
 function Service.getAllUniverses(

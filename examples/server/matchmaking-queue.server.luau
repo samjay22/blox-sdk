@@ -16,14 +16,13 @@ players.PlayerAdded:Connect(function(player: any)
 	local signal = { cancelled = false }
 	signals[player.UserId] = signal
 	local joined = client.matchmaking:joinQueue({
-		robloxUniverseId = tostring(game.GameId),
 		robloxUserIds = { tostring(player.UserId) },
 		gameModeName = "ranked",
 	}, { signal = signal, timeout = 5 })
 	if joined.ok then
 		while not signal.cancelled do
 			local status = client.matchmaking:getPlayerQueueStatus(
-				{ query = { userId = tostring(player.UserId), universeId = tostring(game.GameId) } },
+				{ query = { userId = tostring(player.UserId) } },
 				{ signal = signal }
 			)
 			if not status.ok or not status.value.inQueue then
@@ -36,7 +35,6 @@ players.PlayerAdded:Connect(function(player: any)
 	end
 	client.matchmaking:removePlayerPost({
 		robloxUserId = tostring(player.UserId),
-		robloxUniverseId = tostring(game.GameId),
 		gameModeName = "ranked",
 	}, { timeout = 5 })
 	signals[player.UserId] = nil

@@ -139,7 +139,7 @@ client.CommitRejected:connect(function(_event)
 end)
 local smokeProfile: SDK.Profile? = nil
 check("session acquire snapshot", function()
-	local loaded = client.fields:loadProfile(universeId, playerId)
+	local loaded = client.fields:loadProfile(playerId)
 	if loaded.ok then
 		smokeProfile = loaded.value
 	end
@@ -205,11 +205,11 @@ check("leaderboard submit", function()
 end)
 local rotation = process.env.BLOX_ROTATION or "weather"
 check("rotation get", function()
-	return client.fields:rotations(universeId):get(rotation)
+	return client.fields:rotations():get(rotation)
 end)
 check("rotation watch once", function()
 	local observed = false
-	local watch = client.fields:rotations(universeId):watch(rotation, function()
+	local watch = client.fields:rotations():watch(rotation, function()
 		observed = true
 	end)
 	local deadline = os.clock() + 10
@@ -231,9 +231,7 @@ check("rotation watch once", function()
 		}
 end)
 check("generator preview", function()
-	return client.fields
-		:generators(universeId)
-		:preview(process.env.BLOX_GENERATOR or "card_pack", playerId, 1)
+	return client.fields:generators():preview(process.env.BLOX_GENERATOR or "card_pack", playerId, 1)
 end)
 if process.env.BLOX_CODE and process.env.BLOX_CODE ~= "" then
 	check("code redeem", function()

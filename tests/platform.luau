@@ -46,7 +46,7 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			local result = c.fields:evaluateFlags({ body = { userId = 7, keys = { "double_xp" } } })
+			local result = c.fields:evaluateFlags({ userId = 7, keys = { "double_xp" } })
 			check(result.ok and result.value.values.double_xp.value == true)
 		end)
 		check(f.count() == 1)

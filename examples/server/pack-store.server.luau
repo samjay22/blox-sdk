@@ -4,7 +4,7 @@ if script:GetAttribute("Enabled") ~= true then
 	return
 end
 local client = require(script.Parent.Client)
-local rotations = client.fields:rotations(game.GameId)
+local rotations = client.fields:rotations()
 local purchase = Instance.new("BindableFunction")
 purchase.Name = "PurchasePack"
 purchase.Parent = script

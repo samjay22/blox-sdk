@@ -84,7 +84,7 @@ return function(test: (string, () -> ()) -> ())
 			{ body = s.json({ V.roll.results[1] }) },
 			{ body = s.json(V.odds) },
 		})
-		local rotations, generators = c.fields:rotations(123), c.fields:generators(123)
+		local rotations, generators = c.fields:rotations(), c.fields:generators()
 		s.run(function()
 			local got = rotations:get("weather")
 			check(got.ok and got.value.current ~= Json.null)
@@ -132,9 +132,9 @@ return function(test: (string, () -> ()) -> ())
 					local options = { playerId = 7, idempotencyKey = if supplied then "saved-key" else nil }
 					s.run(function()
 						local result = if claim
-							then c.fields:rotations(123):claim(ID, "packs:0", "starter_pack", 1, options)
+							then c.fields:rotations():claim(ID, "packs:0", "starter_pack", 1, options)
 							else c.fields
-								:generators(123)
+								:generators()
 								:roll("card_pack", 7, { idempotencyKey = options.idempotencyKey })
 						check(result.ok)
 					end)
@@ -156,8 +156,7 @@ return function(test: (string, () -> ()) -> ())
 				{ { status = 409, body = s.json({ code = code, message = "Do not expose this" }) } }
 			)
 			s.run(function()
-				local result =
-					c.fields:rotations(123):claim(ID, "packs:0", "starter_pack", 1, { playerId = 7 })
+				local result = c.fields:rotations():claim(ID, "packs:0", "starter_pack", 1, { playerId = 7 })
 				check(
 					not result.ok
 						and result.error.code == code
@@ -174,7 +173,7 @@ return function(test: (string, () -> ()) -> ())
 		local s = Scheduler.new()
 		local c, f = client(s, { { body = s.json(V.claim) }, { body = s.json(V.claim) } })
 		s.run(function()
-			local rotations = c.fields:rotations(123)
+			local rotations = c.fields:rotations()
 			local first =
 				rotations:claim(ID, "packs:0", "starter_pack", 1, { playerId = 7, idempotencyKey = "same" })
 			local again =
@@ -193,7 +192,7 @@ return function(test: (string, () -> ()) -> ())
 	test("closed helpers and malformed gameplay inputs fail before transport", function()
 		local s = Scheduler.new()
 		local c, f = client(s, {})
-		local r, g = c.fields:rotations(123), c.fields:generators(123)
+		local r, g = c.fields:rotations(), c.fields:generators()
 		s.run(function()
 			for _, key in { "", "../unsafe", "a/b", string.rep("x", 101) } do
 				check(not r:get(key).ok)
@@ -226,9 +225,9 @@ return function(test: (string, () -> ()) -> ())
 			{ status = 403 },
 		})
 		s.run(function()
-			local all = c.fields:rotations(123):getAll()
+			local all = c.fields:rotations():getAll()
 			check(all.ok and #all.value == 1)
-			check(not c.fields:rotations(123):getAll().ok)
+			check(not c.fields:rotations():getAll().ok)
 		end)
 		check(f.count() == 3)
 		c:destroy()
@@ -240,7 +239,7 @@ return function(test: (string, () -> ()) -> ())
 		check(Instant.unix("2023-11-14T22:13:20.5Z") == 1700000000.5)
 		local s = Scheduler.new()
 		local c = client(s, {})
-		local r = c.fields:rotations(123)
+		local r = c.fields:rotations()
 		check(
 			r:timeRemaining(active("one", "2023-11-14T22:13:21.5Z").current :: Wire.RotationInstance) == 1.5
 		)
@@ -252,7 +251,7 @@ return function(test: (string, () -> ()) -> ())
 		local one, two = active("one", "2023-11-14T22:13:21Z"), active("two", "2023-11-14T22:13:21Z")
 		local c, f = client(s, { { body = s.json(one) }, { body = s.json(two) } })
 		local ids: { string } = {}
-		local watch = c.fields:rotations(123):watch("weather", function(instance)
+		local watch = c.fields:rotations():watch("weather", function(instance)
 			table.insert(ids, instance.id)
 		end)
 		s.run(function()
@@ -282,7 +281,7 @@ return function(test: (string, () -> ()) -> ())
 			local cache = c:runtimeSnapshot(0.5)
 			check(cache == c:runtimeSnapshot(0.5))
 			local ids: { string } = {}
-			local r = c.fields:rotations(123)
+			local r = c.fields:rotations()
 			local watch = r:watch("weather", function(instance)
 				table.insert(ids, instance.id)
 			end)
@@ -322,7 +321,7 @@ return function(test: (string, () -> ()) -> ())
 			})
 			c:runtimeSnapshot(1)
 			local n = 0
-			local watch = c.fields:rotations(123):watch("weather", function(_instance)
+			local watch = c.fields:rotations():watch("weather", function(_instance)
 				n += 1
 			end)
 			s.run(function()
@@ -343,7 +342,7 @@ return function(test: (string, () -> ()) -> ())
 				{ { body = s.json(one) }, { body = s.json(snapshot({ one })) }, { body = s.json(one) } }
 			)
 			local n = 0
-			local watch = c.fields:rotations(123):watch("weather", function(_instance)
+			local watch = c.fields:rotations():watch("weather", function(_instance)
 				n += 1
 				error("Isolated callback")
 			end)
@@ -373,7 +372,7 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json(V.active), delay = 1 },
 			})
 			local n = 0
-			local watch = c.fields:rotations(123):watch("weather", function(_instance)
+			local watch = c.fields:rotations():watch("weather", function(_instance)
 				n += 1
 			end)
 			s.run(function()
@@ -427,7 +426,7 @@ return function(test: (string, () -> ()) -> ())
 			{ status = 409, body = s.json({ code = "insufficient_funds" }) },
 		})
 		s.run(function()
-			local g = c.fields:generators(123)
+			local g = c.fields:generators()
 			local first = g:roll("card_pack", 7, { idempotencyKey = "persisted" })
 			local replay = g:roll("card_pack", 7, { idempotencyKey = "persisted" })
 			check(first.ok and replay.ok and Json.encode(first.value) == Json.encode(replay.value))
@@ -444,7 +443,7 @@ return function(test: (string, () -> ()) -> ())
 			{ status = 404, body = s.json({ code = "rotation_definition_not_found" }) },
 		})
 		s.run(function()
-			local result = c.fields:rotations(123):getAll()
+			local result = c.fields:rotations():getAll()
 			check(not result.ok and result.error.code == "rotation_definition_not_found")
 		end)
 		check(f.count() == 2)
@@ -464,7 +463,7 @@ return function(test: (string, () -> ()) -> ())
 		})
 		local cache = c:runtimeSnapshot(1)
 		local calls = 0
-		local watch = c.fields:rotations(123):watch("weather", function(_instance)
+		local watch = c.fields:rotations():watch("weather", function(_instance)
 			calls += 1
 		end)
 		s.run(function()
@@ -482,7 +481,7 @@ return function(test: (string, () -> ()) -> ())
 		local c, f =
 			client(s, { { body = s.json(one) }, { body = s.json(one) }, { body = s.json(one), delay = 1 } })
 		local calls = 0
-		local watch = c.fields:rotations(123):watch("weather", function(_instance)
+		local watch = c.fields:rotations():watch("weather", function(_instance)
 			calls += 1
 		end)
 		s.run(function()

@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
 
-**379 typed endpoints, version 3.1.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**379 typed endpoints, version 4.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@3.1.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@4.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@3.1.0"
+BloxSDK = "blox-api/blox-sdk@4.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -39,7 +39,6 @@ Enable outbound HTTP and configure a Roblox secret permitted for `lb1.blox-api.c
 local BloxSDK = require(game.ServerScriptService.BloxSDK)
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
-    universeId = game.GameId,
     levels = { -- Optional deployment metadata, not an authorization grant.
         FieldsService = "READ_WRITE",
         MatchmakingService = "READ_WRITE",
@@ -48,7 +47,7 @@ local client = BloxSDK.new({
     },
 })
 
-local loaded = client.fields:loadProfile(game.GameId, 123456)
+local loaded = client.fields:loadProfile(123456)
 if loaded.ok then
     local profile = loaded.value
     local committed = profile:immediate():add("Currency.Gems", 10):reason("Quest reward"):commit()
@@ -69,7 +68,7 @@ end)
 Native clients with `universeId` load joining/existing players automatically. Explicit loads join that work:
 
 ```luau
-local loaded = client.fields:loadProfile(game.GameId, player.UserId)
+local loaded = client.fields:loadProfile(player)
 if loaded.ok then
     local profile = loaded.value -- Ready only after acquire grants a validated snapshot.
     local queued = profile:add("Currency.Coins", 5) -- Immediate local update; not durable yet.
@@ -95,15 +94,14 @@ and [migration](MIGRATION.md). Live backend support must be deployed separately.
 The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes award builder and the scoped-token cache are hand-written. Config is retired: game configuration lives in Fields, with no compatibility facade or fallback.
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
-- Mixed endpoints take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
+- Endpoints with other path or query parameters take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
 - Optional requests can be omitted: `client.codes:searchCodes()`.
-- `client:withUniverse(id)` shares the original client's auth, queue, rate budget, breakers, cache, and lifetime. It fills **declared path/query universe parameters** and implied Audit event universes, not arbitrary body fields. Supply other required body universe fields explicitly. Universe IDs must be positive exact integers. A service key cannot switch universes.
+- The universe comes from `BloxSDK.new` (on Roblox it defaults to `game.GameId`) and is filled into every path, query and body that declares one. A path that names only the universe disappears from the call, so those endpoints take their body directly. `client:withUniverse(id)` returns a facade for a different universe that shares the original client's auth, queue, rate budget, breakers, cache and lifetime.
 - `client:health()` queues `/health` for all eight services in one batch and returns `{result, latency}` per service. HTTP status is on `result.status` or `result.error.status`; backend health is in `result.value`.
 - `client:metrics()` returns an immutable counter/histogram snapshot.
 
 ```luau
 local joined = client.matchmaking:joinQueue({
-    robloxUniverseId = tostring(game.GameId),
     robloxUserIds = { tostring(player.UserId) },
     gameModeName = "ranked",
 }, { priority = "critical", deadline = os.clock() + 5 })
@@ -135,14 +133,14 @@ See [new-service guide](docs/NEW-SERVICES.md) and the Fields examples for lifecy
 
 ## Fields validation and Code awards
 
-`client.fields:validateOps({body={ops=...}})` accepts 1–100 subject-free operations after explicitly
-loading `client.fields:schemaCache(universeId):load()`. It pre-validates through TypeSystem, collects every
+`client.fields:validateOps({ops=...})` accepts 1–100 subject-free operations after explicitly
+loading `client.fields:schemaCache():load()`. It pre-validates through TypeSystem, collects every
 failing op with zero-based `opIndex/field/path/code`, and sends locally valid lists to Fields for current
-validation. `client.fields:operations(universeId):add("Currency.Gems",100):validate()` and player
+validation. `client.fields:operations():add("Currency.Gems",100):validate()` and player
 transaction `:validate()` provide dry runs without a reason, key or commit. No player state is read.
 
 Codes now take `award` directly as a list of Fields operations. Use
-`client.codes:award(universeId):add("Currency.Gems",100):build()` for a typed canonical snapshot;
+`client.codes:award():add("Currency.Gems",100):build()` for a typed canonical snapshot;
 `createCode` also pre-validates raw lists. Redemption returns `transaction`, `replayed`, `redeemedAt`;
 CodeService applies one atomic transaction using `code-<codeId>-<userId>`. The per-user maximum must be 1.
 See [Codes guide](docs/CODES.md), [award example](examples/code-award.luau), and [Fields guide](docs/FIELDS.md).
@@ -267,8 +265,8 @@ This is an offline-verified implementation, **not a live-deployment certificatio
 
 All SDK methods/properties use **lowerCamelCase** (native Roblox APIs retain engine casing).
 Route DTO wire names/enums are unchanged. Helper names are distinct from route calls:
-`fields:schema()` fetches a wire response; `fields:schemaCache(id)` owns a schema cache;
-`fields:transactionBuilder(id, user)` creates a builder; `fields:transaction(request)` submits a wire DTO.
+`fields:schema()` fetches a wire response; `fields:schemaCache()` owns a schema cache;
+`fields:transactionBuilder(user)` creates a builder; `fields:transaction(request)` submits a wire DTO.
 Underscore members and `Core`, `Services`, `Auth`, `Testing` modules are private, unsupported implementation details.
 The root exports no internal module tables. `Types/*` and `Fields/Types` are public type-contract modules.
 

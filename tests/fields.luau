@@ -323,20 +323,20 @@ return function(test: (string, () -> ()) -> ())
 			local c, f = client(s, { { body = s.json(schema()) } })
 			s.run(function()
 				code(
-					c.fields:transactionBuilder(123, 7):add("Currency.Gems", 1):reason("reward"):commit(),
+					c.fields:transactionBuilder(7):add("Currency.Gems", 1):reason("reward"):commit(),
 					"schema_unavailable"
 				)
 				check(f.count() == 0)
-				check(c.fields:schemaCache(123):load().ok)
+				check(c.fields:schemaCache():load().ok)
 				local cases = {
-					c.fields:transactionBuilder(123, 7):add("Currency.Gems", 100001),
-					c.fields:transactionBuilder(123, 7):set("Currency.Gems", "wrong"),
-					c.fields:transactionBuilder(123, 7):add("Missing", 1),
-					c.fields:transactionBuilder(123, 7):add("Old", 1),
-					c.fields:transactionBuilder(123, 7):add("Shared", 1),
-					c.fields:transactionBuilder(123, 7):append("Currency.Gems", { 1 }),
-					c.fields:transactionBuilder(123, 7):mapAdd("Inventory.Items", "BOW", 1),
-					c.fields:transactionBuilder(123, 7):set("Settings", { Wrong = true }),
+					c.fields:transactionBuilder(7):add("Currency.Gems", 100001),
+					c.fields:transactionBuilder(7):set("Currency.Gems", "wrong"),
+					c.fields:transactionBuilder(7):add("Missing", 1),
+					c.fields:transactionBuilder(7):add("Old", 1),
+					c.fields:transactionBuilder(7):add("Shared", 1),
+					c.fields:transactionBuilder(7):append("Currency.Gems", { 1 }),
+					c.fields:transactionBuilder(7):mapAdd("Inventory.Items", "BOW", 1),
+					c.fields:transactionBuilder(7):set("Settings", { Wrong = true }),
 				}
 				local expected = {
 					"max_delta_exceeded",
@@ -354,7 +354,7 @@ return function(test: (string, () -> ()) -> ())
 					check(not result.ok and result.error.opIndex == 0)
 				end
 				local late = c.fields
-					:transactionBuilder(123, 7)
+					:transactionBuilder(7)
 					:add("Currency.Gems", 1)
 					:set("Currency.Gems", "wrong")
 					:reason("reward")
@@ -362,7 +362,7 @@ return function(test: (string, () -> ()) -> ())
 				check(not late.ok and late.error.opIndex == 1)
 				code(
 					c.fields
-						:transactionBuilder(123, 7)
+						:transactionBuilder(7)
 						:add("Currency.Gems", 1)
 						:expect("Currency.Gems", { version = -1 })
 						:reason("reward")
@@ -388,9 +388,9 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json(receipt(1, 1)), check = capture },
 			})
 			s.run(function()
-				check(c.fields:schemaCache(123):load().ok)
+				check(c.fields:schemaCache():load().ok)
 				local tx = c.fields
-					:transactionBuilder(123, 7)
+					:transactionBuilder(7)
 					:set("Characters", {})
 					:append("Characters", { { Id = 1 } })
 					:set("Currency.Gems", 4)
@@ -425,8 +425,8 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.fields:schemaCache(123):load().ok)
-			local tx = c.fields:transactionBuilder(123, 7):add("Currency.Gems", 1):reason("reward")
+			check(c.fields:schemaCache():load().ok)
+			local tx = c.fields:transactionBuilder(7):add("Currency.Gems", 1):reason("reward")
 			check(not tx:commit({ retry = 0 }).ok)
 			check(tx:commit({ retry = 0 }).ok and bodies[1] == bodies[2])
 			check(f.count() == 3)
@@ -446,10 +446,10 @@ return function(test: (string, () -> ()) -> ())
 			},
 		})
 		s.run(function()
-			check(c.fields:schemaCache(123):load().ok)
+			check(c.fields:schemaCache():load().ok)
 			check(
 				c.fields
-					:multiTransactionBuilder(123)
+					:multiTransactionBuilder()
 					:subject(7)
 					:add("Currency.Gems", 1)
 					:subject(0)
@@ -458,8 +458,7 @@ return function(test: (string, () -> ()) -> ())
 					:commit().ok
 			)
 			check(string.find(body, '"subject":0', 1, true) and string.find(body, '"subject":7', 1, true))
-			local tx =
-				c.fields:multiTransactionBuilder(123):reason("reward"):subject(1):add("Currency.Gems", 1)
+			local tx = c.fields:multiTransactionBuilder():reason("reward"):subject(1):add("Currency.Gems", 1)
 			for user = 2, 11 do
 				tx:subject(user):expect("Currency.Gems", { exists = true })
 			end
@@ -491,7 +490,7 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json(document(4000, 20, 2)) },
 			})
 			s.run(function()
-				local loaded = c.fields:loadProfile(123, 7)
+				local loaded = c.fields:loadProfile(7)
 				check(loaded.ok)
 				if not loaded.ok then
 					return
@@ -527,7 +526,7 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json(document(10, 0)) },
 			})
 			s.run(function()
-				local loaded = c.fields:loadProfile(123, 7)
+				local loaded = c.fields:loadProfile(7)
 				check(loaded.ok)
 				if not loaded.ok then
 					return
@@ -579,7 +578,7 @@ return function(test: (string, () -> ()) -> ())
 			table.insert(steps, { body = s.json(recovered) })
 			local c, f = client(s, steps)
 			s.run(function()
-				local loaded = c.fields:loadProfile(123, 7)
+				local loaded = c.fields:loadProfile(7)
 				check(loaded.ok)
 				if not loaded.ok then
 					return
@@ -600,7 +599,7 @@ return function(test: (string, () -> ()) -> ())
 				elseif gap == "missing_results" then
 					broken.results = nil
 				else
-					check(c.fields:schemaCache(123):refresh().ok)
+					check(c.fields:schemaCache():refresh().ok)
 				end
 				check(not profile:apply(broken), gap)
 				code(profile:tryGet("Currency.Gems"), "profile_stale")
@@ -627,7 +626,7 @@ return function(test: (string, () -> ()) -> ())
 			{ body = s.json(coins), delay = 0.01 },
 		})
 		s.run(function()
-			local loaded = c.fields:loadProfile(123, 7)
+			local loaded = c.fields:loadProfile(7)
 			check(loaded.ok)
 			if not loaded.ok then
 				return
@@ -659,7 +658,7 @@ return function(test: (string, () -> ()) -> ())
 			{ body = s.json(document(10, 0)), delay = 0.1 },
 		})
 		s.run(function()
-			local loaded = c.fields:loadProfile(123, 7)
+			local loaded = c.fields:loadProfile(7)
 			check(loaded.ok)
 			if not loaded.ok then
 				return
@@ -686,7 +685,7 @@ return function(test: (string, () -> ()) -> ())
 		})
 		s.run(function()
 			check(c.fields:document({ path = { userId = 7 } }, { cacheTtl = 60 }).ok)
-			local loaded = c.fields:loadProfile(123, 7)
+			local loaded = c.fields:loadProfile(7)
 			check(loaded.ok)
 			if not loaded.ok then
 				return
@@ -724,7 +723,7 @@ return function(test: (string, () -> ()) -> ())
 		(doc.versions :: { [string]: number }).Total = 0
 		local c, f = client(s, { { body = s.json(contract) }, { body = s.json(doc) } })
 		s.run(function()
-			local loaded = c.fields:loadProfile(123, 7)
+			local loaded = c.fields:loadProfile(7)
 			check(loaded.ok)
 			if not loaded.ok then
 				return
@@ -767,7 +766,7 @@ return function(test: (string, () -> ()) -> ())
 				{ body = s.json({ items = { { userId = 7, status = "released" } } }) },
 			})
 			s.run(function()
-				local loaded = c.fields:loadProfile(123, 7)
+				local loaded = c.fields:loadProfile(7)
 				check(loaded.ok)
 				if not loaded.ok then
 					return
@@ -818,10 +817,7 @@ return function(test: (string, () -> ()) -> ())
 					body = { reason = "save", idempotencyKey = "save-1", data = { Currency = { Gems = 1 } } },
 				}).ok)
 				check(
-					c.fields:processReceipt(
-						123,
-						{ purchaseId = "p1", userId = 7, productId = 1, robuxSpent = 25 }
-					).ok
+					c.fields:processReceipt({ purchaseId = "p1", userId = 7, productId = 1, robuxSpent = 25 }).ok
 				)
 				check(bodies[1] == bodies[2] and bodies[3] == bodies[4] and s.time() >= 1)
 				c:destroy()

@@ -108,7 +108,7 @@ export type LivenessCall = {}
 export type LivenessResultValue = HealthComponent
 export type ReadinessCall = {}
 export type ReadinessResultValue = HealthComponent
-export type RatingMatchCall = { path: { universeId: (string | number)? }?, body: MatchInput }
+export type RatingMatchCall = MatchInput
 export type RatingMatchResultValue = MatchResult
 export type RatingScopesCall = {
 	path: { universeId: (string | number)? }?,
@@ -143,7 +143,7 @@ export type ListCall = {
 	query: { cursor: string?, limit: number? }?,
 }
 export type ListResultValue = CursorPage<Board>
-export type CreateCall = { path: { universeId: (string | number)? }?, body: CreateBoard }
+export type CreateCall = CreateBoard
 export type CreateResultValue = Board
 export type ArchiveCall = { path: { universeId: (string | number)?, name: string } }
 export type ArchiveResultValue = nil

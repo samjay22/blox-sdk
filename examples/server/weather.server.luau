@@ -6,7 +6,7 @@ end
 local client = require(script.Parent.Client)
 client:runtimeSnapshot(30)
 local lighting = game:GetService("Lighting")
-local watch = client.fields:rotations(game.GameId):watch("weather", function(instance)
+local watch = client.fields:rotations():watch("weather", function(instance)
 	for _, pick in instance.result.picks do
 		local payload = pick.payload
 		if type(payload) == "table" then

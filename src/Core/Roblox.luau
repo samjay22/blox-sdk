@@ -60,6 +60,13 @@ function Roblox.playerRemoving(callback: (number) -> ()): () -> ()
 		connection:Disconnect()
 	end
 end
+--- The running experience's universe, or nil outside Roblox and in unpublished places.
+function Roblox.universe(): number?
+	if game == nil or type(game.GameId) ~= "number" or game.GameId <= 0 then
+		return nil
+	end
+	return game.GameId
+end
 --- Observe existing and joining players; loading is cooperative and never blocks the native event.
 function Roblox.playerAdded(callback: (number) -> ()): () -> ()
 	local players = game:GetService("Players")

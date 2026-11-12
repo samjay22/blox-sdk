@@ -85,12 +85,12 @@ return function(test: (string, () -> ()) -> ())
 				for k, v in change do
 					body[k] = v
 				end
-				local preview = c.fields:previewBoard({ body = body })
+				local preview = c.fields:previewBoard(body)
 				check(not preview.ok and preview.error.kind == "Validation")
 				body.bindings = { leaderboards = { body.binding } }
 				body.binding = nil
 				body.reason = "Provision wins"
-				local create = c.fields:create({ body = body })
+				local create = c.fields:create(body)
 				check(not create.ok and create.error.kind == "Validation")
 				body.expectedDefinitionVersion = 1
 				local update = c.fields:update({ path = { id = "Stats.TotalWins" }, body = body })
@@ -102,7 +102,7 @@ return function(test: (string, () -> ()) -> ())
 				reason = "Invalid computed binding",
 				bindings = { leaderboards = { base.binding } },
 			}
-			check(not c.fields:create({ body = computed }).ok)
+			check(not c.fields:create(computed).ok)
 		end)
 		check(f.count() == 0)
 		c:destroy()
@@ -160,16 +160,14 @@ return function(test: (string, () -> ()) -> ())
 				})
 				s.run(function()
 					local result = c:withUniverse(123).fields:previewBoard({
-						body = {
-							id = "Stats.TotalWins",
-							type = { kind = "int", min = 0, max = 100 },
-							binding = {
-								board = "wins",
-								submit = "VALUE",
-								keep = "BEST",
-								reset = "WEEKLY",
-								order = "DESC",
-							},
+						id = "Stats.TotalWins",
+						type = { kind = "int", min = 0, max = 100 },
+						binding = {
+							board = "wins",
+							submit = "VALUE",
+							keep = "BEST",
+							reset = "WEEKLY",
+							order = "DESC",
 						},
 					})
 					assert(result.ok, "Preview request failed")
@@ -289,7 +287,7 @@ return function(test: (string, () -> ()) -> ())
 						local fields: any = c.fields
 						local result = fields[method](
 							fields,
-							{ path = if method == "update" then { id = body.id } else nil, body = body },
+							if method == "update" then { path = { id = body.id }, body = body } else body,
 							{ retry = 3 }
 						)
 						check(

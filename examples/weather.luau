@@ -32,11 +32,10 @@ local function apply(lighting: Lighting, instance: Wire.RotationInstance)
 	end
 end
 --- Start once on the server with game:GetService("Lighting"); disconnect when the system unloads.
-return function(client: SDK.Client, universeId: number, lighting: Lighting): Rotations.Watch
-	local scoped = client:withUniverse(universeId)
+return function(client: SDK.Client, lighting: Lighting): Rotations.Watch
 	-- Reuses this facade's existing ETag poller; do not create a second loop for weather.
-	scoped:runtimeSnapshot(30)
-	return scoped.fields:rotations(universeId):watch("weather", function(instance)
+	client:runtimeSnapshot(30)
+	return client.fields:rotations():watch("weather", function(instance)
 		apply(lighting, instance)
 	end)
 end

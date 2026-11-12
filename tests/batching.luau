@@ -507,13 +507,11 @@ return function(test: (string, () -> ()) -> ())
 		s.run(function()
 			s.runtime.spawn(function()
 				check(c.fields:multiTransaction({
-					body = {
-						ops = {
-							{ subject = 7, field = "Score", op = "SET", value = 1 },
-							{ subject = 8, field = "Score", op = "SET", value = 1 },
-						},
-						reason = "test",
+					ops = {
+						{ subject = 7, field = "Score", op = "SET", value = 1 },
+						{ subject = 8, field = "Score", op = "SET", value = 1 },
 					},
+					reason = "test",
 				}).ok)
 			end)
 			for _, user in { 8, 9 } do

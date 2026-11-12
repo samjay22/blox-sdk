@@ -35,7 +35,7 @@ export type PlatformEvent = {
 	occurredAt: string,
 	orgId: string,
 	type: string,
-	universeId: number,
+	universeId: number?,
 }
 export type RateLimit = { burst: number, dailyRequests: number, requestsPerSecond: number }
 export type UsageBatch = { batchId: string, events: { UsageEvent } }
@@ -100,7 +100,7 @@ export type DeleteIncidentCall = { path: { id: string } }
 export type DeleteIncidentResultValue = nil
 export type UpdateIncidentCall = { path: { id: string }, body: IncidentInput }
 export type UpdateIncidentResultValue = Core.Json
-export type BackfillAnalyticsCall = { path: { universeId: (string | number)? }?, body: DateRange }
+export type BackfillAnalyticsCall = DateRange
 export type BackfillAnalyticsResultValue = { [string]: Core.Json }
 export type AnalyticsEconomyCall = {
 	path: { universeId: (string | number)? }?,
@@ -125,7 +125,7 @@ export type WebhooksCall = {
 	query: { after: string?, limit: number? }?,
 }
 export type WebhooksResultValue = { Core.Json }
-export type CreateWebhookCall = { path: { universeId: (string | number)? }?, body: WebhookInput }
+export type CreateWebhookCall = WebhookInput
 export type CreateWebhookResultValue = Core.Json
 export type DeleteWebhookCall = { path: { universeId: (string | number)?, id: string } }
 export type DeleteWebhookResultValue = nil

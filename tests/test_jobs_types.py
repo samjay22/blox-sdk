@@ -21,17 +21,17 @@ local Wire = require("./src/Types/Fields")
 --- Compile only; no client, transport or application is started.
 return function(client: SDK.Client, receipt: Wire.JobReceipt)
  local target: Types.BulkTarget = {kind="WHERE",where={op="GE",field="Currency.Gems",value=100}}
- local bulk = client.fields:bulkBuilder(123):target(target):reason("Event reward"):idempotencyKey("reward-1")
+ local bulk = client.fields:bulkBuilder():target(target):reason("Event reward"):idempotencyKey("reward-1")
  bulk.ops:add("Currency.Gems",10):set("Settings",false,{"Sound"})
  local _built = bulk:build()
- local _schedule = client.fields:scheduleClient(123):build({name="Event",start="2026-12-01T12:00:00Z",
+ local _schedule = client.fields:scheduleClient():build({name="Event",start="2026-12-01T12:00:00Z",
    startActions={{kind="ENABLE_FLAG",key="event"}},reason="Event start",idempotencyKey="event-1"})
- local jobs = client.fields:jobClient(123)
+ local jobs = client.fields:jobClient()
  local _import = jobs:buildImport({{subject=7,field="Currency.Gems",op="ADD",delta=1}})
  local _result = jobs:waitFor(receipt.id,{timeout=30,onProgress=function(job: Wire.JobReceipt)
    local _failed: number = job.failed
  end})
- local _health = client.fields:healthClient(123):summary()
+ local _health = client.fields:healthClient():summary()
  local _failed: number = receipt.failed
 '''
         cases = (

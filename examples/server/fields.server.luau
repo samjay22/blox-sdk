@@ -5,7 +5,7 @@ if script:GetAttribute("Enabled") ~= true then
 end
 local client = require(script.Parent.Client)
 game:GetService("Players").PlayerAdded:Connect(function(player: any)
-	local loaded = client.fields:loadProfile(game.GameId, player.UserId)
+	local loaded = client.fields:loadProfile(player)
 	if not loaded.ok then
 		warn(loaded.error.code)
 		return
