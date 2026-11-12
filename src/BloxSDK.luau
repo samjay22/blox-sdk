@@ -36,6 +36,8 @@ local Audit = require("./Services/Audit")
 local Leaderboards = require("./Services/Leaderboards")
 local Fields = require("./Services/Fields")
 local Platform = require("./Services/Platform")
+local ConfigService = require("./Services/Config")
+local NamespaceModule = require("./Configs/Namespace")
 local FieldsHelpers = require("./Fields/Client")
 local ProfileSync = require("./Fields/ProfileSync")
 local Sessions = require("./Fields/Sessions")
@@ -71,6 +73,14 @@ export type MatchmakingClient = Matchmaking.Service
 export type LeaderboardsClient = Leaderboards.Service
 export type AuditClient = Audit.Service
 export type PlatformClient = Platform.Service
+export type ConfigsClient = ConfigService.Service
+export type ConfigNamespace = NamespaceModule.Namespace
+export type ConfigChange = NamespaceModule.Change
+export type ConfigSnapshot = NamespaceModule.Snapshot
+export type ConfigPollOptions = NamespaceModule.Options
+export type ConfigWriteOptions = NamespaceModule.WriteOptions
+export type ConfigChanges = NamespaceModule.Changes
+export type ConfigsConfig = Config.ConfigsConfig
 export type Snapshot = SnapshotCache.Snapshot
 export type AuditWriter = AuditWriter.Writer
 export type Metrics = Pipeline.Counters
@@ -112,6 +122,8 @@ type Helpers = {
 	addedCleanup: (() -> ())?,
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
+	configs: { [string]: NamespaceModule.Namespace },
+	configDefaults: Config.ConfigsConfig?,
 	fields: FieldsHelpers.State?,
 	fieldStates: { FieldsHelpers.State },
 	scopes: { [string]: ScopeBinding },
@@ -130,6 +142,7 @@ export type Client = typeof(setmetatable(
 		leaderboards: Leaderboards.Service,
 		fields: Fields.Service,
 		platform: Platform.Service,
+		configs: ConfigService.Service,
 		_helpers: Helpers,
 		_state: Pipeline.State,
 		_invoke: Types.Invoke,
@@ -162,7 +175,28 @@ local function facade(
 	helpers: Helpers,
 	provider: Types.AuthProvider?
 ): Client
-	return setmetatable({
+	local created: Client? = nil
+	local host: ConfigService.Host = {
+		runtime = state.config.runtime,
+		handles = helpers.configs,
+		defaults = helpers.configDefaults,
+		closing = function(): boolean
+			return state.closing or state.destroyed
+		end,
+		onUse = function()
+			if helpers.lifecycle.native and not helpers.lifecycle.bound then
+				helpers.lifecycle.bound = true
+				Roblox.bindToClose(function()
+					local current = created
+					if current then
+						current:flush(20)
+						current:destroy()
+					end
+				end)
+			end
+		end,
+	}
+	local client: Client = setmetatable({
 		ProfileChanged = helpers.sync.Changed,
 		LeaseLost = helpers.sessions.LeaseLost,
 		CommitRejected = helpers.sessions.CommitRejected,
@@ -179,7 +213,10 @@ local function facade(
 		leaderboards = Leaderboards.new(invoke, universe),
 		fields = Fields.new(invoke, universe, helpers.fields),
 		platform = Platform.new(invoke, universe),
+		configs = ConfigService.new(invoke, universe, host),
 	}, Client)
+	created = client
+	return client
 end
 --- Create one server-side SDK client; invalid configuration fails before any network activity.
 function SDK.new(config: Config): Client
@@ -321,6 +358,8 @@ function SDK.new(config: Config): Client
 		addedCleanup = nil,
 		writers = {},
 		snapshots = {},
+		configs = {},
+		configDefaults = config.configs,
 		fields = nil,
 		fieldStates = {},
 		scopes = {},
@@ -414,9 +453,9 @@ end
 function Client.health(self: Client): HealthReport
 	local results: HealthReport = {}
 	local runtime = self._state.config.runtime
-	for _, service in
-		{ "auth", "matchmaking", "party", "codes", "audit", "leaderboards", "fields", "platform" }
-	do
+	local services =
+		{ "auth", "matchmaking", "party", "codes", "audit", "leaderboards", "fields", "platform", "config" }
+	for _, service in services do
 		runtime.spawn(function()
 			local start = runtime.now()
 			local result = self._invoke(
@@ -433,7 +472,7 @@ function Client.health(self: Client): HealthReport
 		for _ in results do
 			count += 1
 		end
-		if count == 8 then
+		if count == #services then
 			break
 		end
 		runtime.wait(0.01)
@@ -471,6 +510,9 @@ function Client.flush(self: Client, timeout: number?): boolean
 	for _, snapshot in self._helpers.snapshots do
 		snapshot:destroy()
 	end
+	for _, handle in table.clone(self._helpers.configs) do
+		handle:destroy()
+	end
 	for _, writer in self._helpers.writers do
 		if not writer:close(math.max(0, deadline - runtime.now())) then
 			drained = false
@@ -494,6 +536,9 @@ function Client.destroy(self: Client)
 	end
 	for _, snapshot in self._helpers.snapshots do
 		snapshot:destroy()
+	end
+	for _, handle in table.clone(self._helpers.configs) do
+		handle:destroy()
 	end
 	for _, fields in self._helpers.fieldStates do
 		FieldsHelpers.destroy(fields)
@@ -548,7 +593,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "5.0.0"
+SDK.version = "6.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

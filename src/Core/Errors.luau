@@ -80,6 +80,15 @@ local authCodes: { [string]: boolean } = table.freeze({
 	SERVICE_CONFLICT = true,
 	INTERNAL_ERROR = true,
 })
+-- ConfigService error codes; the 409 `version_conflict` means an expectedVersion check failed.
+local configCodes: { [string]: boolean } = table.freeze({
+	namespace_not_found = true,
+	key_not_found = true,
+	version_not_found = true,
+	version_conflict = true,
+	validation_failed = true,
+	limit_exceeded = true,
+})
 local codes = table.freeze({
 	rotation_definition_not_found = true,
 	rotation_table_not_found = true,
@@ -121,8 +130,6 @@ local codes = table.freeze({
 	filter_schema_changed = true,
 	flag_not_found = true,
 	flag_version_conflict = true,
-	game_field_not_found = true,
-	game_version_not_found = true,
 	invalid_job_input = true,
 	invalid_ops = true,
 	job_download_expired = true,
@@ -165,7 +172,6 @@ local codes = table.freeze({
 	field_exists = true,
 	field_prefix_conflict = true,
 	definition_version_conflict = true,
-	scope_immutable = true,
 	incompatible_type = true,
 	incompatible_member = true,
 	member_removed = true,
@@ -204,7 +210,7 @@ local codes = table.freeze({
 	purchase_id_conflict = true,
 	field_archived = true,
 	field_computed = true,
-	field_scope_mismatch = true,
+	invalid_subject = true,
 	unknown_field = true,
 	below_min = true,
 	above_max = true,
@@ -295,6 +301,13 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 			if #list > 0 then
 				result.error.errors = list
 			end
+		end
+		if
+			string.sub(endpoint, 1, 7) == "config."
+			and type(body.code) == "string"
+			and configCodes[body.code]
+		then
+			result.error.code = body.code
 		end
 		if endpoint == "codes.redeem" and status == 409 and type(body.message) == "string" then
 			result.error.code = redeemRefusals[body.message] or result.error.code

@@ -196,7 +196,7 @@ Source: [src/Fields/Transaction.luau](../../src/Fields/Transaction.luau)
 
 ### `Transaction.subject`
 
-Select a subject for subsequent multi-subject operations and conditions; zero means shared fields.
+Select the player (a positive user ID) that subsequent multi-subject operations and conditions apply to.
 
 ```luau
 Transaction.subject(self: Transaction, subject: number): Transaction
@@ -1192,7 +1192,7 @@ export type LeaderboardBinding = {
 export type Bindings = {
 	leaderboards: { LeaderboardBinding }?,
 	audit: ("NONE" | "ADMIN_ONLY" | "ALL")?,
-	runtime: { enabledFlag: string?, maxDeltaConfigKey: string? }?,
+	runtime: { enabledFlag: string? }?,
 }
 type OperationShape<S> =
 	{
@@ -1275,11 +1275,7 @@ export type BulkTarget =
 	| { kind: "WHERE", where: Filter }
 
 export type ScheduleAction =
-	{ kind: "SET_CONFIG", key: string, type: "STRING", value: string }
-	| { kind: "SET_CONFIG", key: string, type: "NUMBER", value: number }
-	| { kind: "SET_CONFIG", key: string, type: "BOOLEAN", value: boolean }
-	| { kind: "SET_CONFIG", key: string, type: "JSON", value: Core.Json }
-	| { kind: "ENABLE_FLAG" | "DISABLE_FLAG", key: string }
+	{ kind: "ENABLE_FLAG" | "DISABLE_FLAG", key: string }
 	| { kind: "RUN_BULK", bulkDefinitionId: string }
 
 export type Converter =
@@ -1331,14 +1327,6 @@ Expose lifecycle state without requiring a polling task.
 
 ```luau
 Snapshot.isDestroyed(self: Snapshot): boolean
-```
-
-### `Snapshot.get`
-
-Return an immutable config value, or nil before initial success / for an unknown key.
-
-```luau
-Snapshot.get(self: Snapshot, key: string): Core.Json?
 ```
 
 ### `Snapshot.isEnabled`

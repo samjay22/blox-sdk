@@ -59,7 +59,6 @@ local function client(
 		universeId = 123,
 		id = "Currency.Gems",
 		description = "",
-		scope = "PLAYER",
 		status = "ACTIVE",
 		type = { kind = "int" },
 		definitionVersion = 1,

@@ -100,7 +100,7 @@ function Schedules.build(self: Client, input: Wire.ScheduleInput): Core.Result<W
 				return System.failure("invalid_request")
 			end
 			if action.kind ~= "RUN_BULK" then
-				local key = (if action.kind == "SET_CONFIG" then "entry:" else "flag:") .. action.key
+				local key = action.key
 				if keys[key] then
 					return System.failure("invalid_request")
 				end

@@ -22,7 +22,7 @@ public final class FieldsVectors {
             result.put("name", test.path("name").asText());
             try {
                 if ("bindings".equals(test.path("action").asText())) {
-                    IntegrationBindings.validate(test.get("bindings"), Models.Scope.valueOf(test.path("scope").asText("PLAYER")),
+                    IntegrationBindings.validate(test.get("bindings"),
                             test.get("type"), test.path("computed").asBoolean(false));
                     result.put("value", true);
                     continue;

@@ -81,14 +81,11 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `field_not_archived` |
 | `field_not_found` |
 | `field_prefix_conflict` |
-| `field_scope_mismatch` |
 | `fields_unavailable` |
 | `filter_schema_changed` |
 | `flag_not_found` |
 | `flag_version_conflict` |
 | `forbidden` |
-| `game_field_not_found` |
-| `game_version_not_found` |
 | `idempotency_conflict` |
 | `idempotency_data_deleted` |
 | `incompatible_member` |
@@ -117,6 +114,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `invalid_schema` |
 | `invalid_schema_scope` |
 | `invalid_service_account` |
+| `invalid_subject` |
 | `invalid_token` |
 | `invalid_token_type` |
 | `invalid_version` |
@@ -126,6 +124,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `job_not_failed` |
 | `job_not_found` |
 | `job_not_reversible` |
+| `key_not_found` |
 | `last_owner` |
 | `leaderboard_board_archived` |
 | `leaderboard_board_mismatch` |
@@ -133,6 +132,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `leaderboard_score_range` |
 | `leaderboard_unavailable` |
 | `lease_lost` |
+| `limit_exceeded` |
 | `maintenance` |
 | `max_delta_exceeded` |
 | `member_exists` |
@@ -144,6 +144,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `migration_unconverted` |
 | `missing_member` |
 | `missing_value` |
+| `namespace_not_found` |
 | `new_member_requires_default` |
 | `non_finite_number` |
 | `not_found` |
@@ -205,7 +206,6 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `schedule_not_found` |
 | `schema_closed` |
 | `schema_unavailable` |
-| `scope_immutable` |
 | `seq_conflict` |
 | `service_account_conflict` |
 | `service_account_not_found` |
@@ -231,7 +231,10 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `unsafe_integer` |
 | `username_exists` |
 | `validation_error` |
+| `validation_failed` |
 | `value_too_large` |
+| `version_conflict` |
+| `version_not_found` |
 | `weak_password` |
 | `webhook_delivery_failed` |
 | `webhook_not_configured` |

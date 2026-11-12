@@ -11,7 +11,6 @@
         "maxDelta": 100000
       },
       "universeId": 123,
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "writeLevel": "READ_WRITE",
       "definitionVersion": 1,
@@ -28,7 +27,6 @@
         "max": 1000000000
       },
       "universeId": 123,
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "writeLevel": "READ_WRITE",
       "definitionVersion": 1,
@@ -56,7 +54,6 @@
         "pruneZero": true
       },
       "universeId": 123,
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "writeLevel": "READ_WRITE",
       "definitionVersion": 1,
@@ -101,7 +98,6 @@
         }
       },
       "universeId": 123,
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "writeLevel": "READ_WRITE",
       "definitionVersion": 1,
@@ -135,7 +131,6 @@
         }
       },
       "universeId": 123,
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "writeLevel": "READ_WRITE",
       "definitionVersion": 1,
@@ -167,7 +162,6 @@
         }
       },
       "universeId": 123,
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "writeLevel": "READ_WRITE",
       "definitionVersion": 1,
@@ -177,7 +171,6 @@
     },
     {
       "id": "Tags",
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "type": {
         "kind": "set",
@@ -188,7 +181,6 @@
     },
     {
       "id": "Ranks",
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "type": {
         "kind": "map",
@@ -202,7 +194,6 @@
     },
     {
       "id": "Optional",
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "type": {
         "kind": "nullable",
@@ -213,7 +204,6 @@
     },
     {
       "id": "Total",
-      "scope": "PLAYER",
       "status": "ACTIVE",
       "computed": {
         "expression": "Currency.Gems + Currency.Coins",
@@ -222,16 +212,7 @@
     },
     {
       "id": "Old",
-      "scope": "PLAYER",
       "status": "ARCHIVED",
-      "type": {
-        "kind": "int"
-      }
-    },
-    {
-      "id": "Shared",
-      "scope": "UNIVERSE",
-      "status": "ACTIVE",
       "type": {
         "kind": "int"
       }

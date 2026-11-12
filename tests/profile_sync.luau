@@ -39,7 +39,6 @@ local function schema(): Wire.SchemaResponse
 			universeId = 123,
 			id = id,
 			description = "",
-			scope = "PLAYER",
 			status = "ACTIVE",
 			type = { kind = "int" },
 			default = 0,

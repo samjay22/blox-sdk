@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 379 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 391 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 379 endpoints]
+  Audit --> Spec[spec/endpoints.json: 391 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
@@ -42,6 +42,14 @@ Profiles reconcile acknowledged after-subvalues by per-field version, never by s
 Only coherent documents advance profile watermarks; feeds drain via nextSinceSeq before snapshot recovery
 for real version/schema gaps, NONE history and hash-only values. Sync reads bypass stale caches/coalescing.
 Shared helper state owns caches, presence timers and bounded close work. See [Fields](FIELDS.md).
+
+## Configs ownership
+
+`Services/Config` and `Configs/Namespace` are hand-written over the generated `config.*` endpoint metadata (ConfigService
+is its own service, separate from Fields). A namespace handle owns one cached snapshot and one serial poller: a low-priority
+conditional `GET .../snapshot` through the ordinary Pipeline, so batching, access checks, retries and rate limits are shared.
+Polling reuses the runtime timer (`delay`/`cancel`) exactly as the Fields runtime snapshot does; a failed refresh keeps the last
+good snapshot, and `flush`/`destroy` stop every poller. Reads are memory-only. See [configs](CONFIGS.md).
 
 ## Shared operation templates
 

@@ -120,7 +120,7 @@ function Profile._notify(self: Profile, old: { [string]: Core.Json }, source: "e
 	local ids: { string } = {}
 	local values: { [string]: Core.Json } = {}
 	for id, definition in self._schema:definitions() do
-		if definition.scope == "PLAYER" and definition.status == "ACTIVE" then
+		if definition.status == "ACTIVE" then
 			local value = read(self._data, id)
 			if value ~= nil and not System.equal(read(old, id), value) then
 				table.insert(ids, id)
@@ -258,7 +258,7 @@ function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<bo
 	end
 	local data: { [string]: Core.Json } = {}
 	for id, definition in self._schema:definitions() do
-		if definition.status == "ACTIVE" and definition.scope == "PLAYER" then
+		if definition.status == "ACTIVE" then
 			local value = read(document.data, id)
 			local validator = self._schema:validator(id)
 			if validator then
@@ -321,9 +321,6 @@ function Profile.tryGet(self: Profile, id: string): Core.Result<Core.Json>
 	if definition.status == "ARCHIVED" then
 		return System.failure("field_archived", nil, id)
 	end
-	if definition.scope ~= "PLAYER" then
-		return System.failure("field_scope_mismatch", nil, id)
-	end
 	if self._stale and not self._optimisticRecovery then
 		return System.failure("profile_stale", nil, id)
 	end
@@ -368,7 +365,6 @@ function Profile.apply(self: Profile, result: Wire.Result, source: ("external" |
 				or (definition.type :: any) == Json.null
 				or type(item.field) ~= "string"
 				or definition.status ~= "ACTIVE"
-				or definition.scope ~= "PLAYER"
 				or not counter(item.version)
 				or item.version == 0
 				or not counter(self.versions[item.field])
@@ -420,7 +416,6 @@ function Profile.apply(self: Profile, result: Wire.Result, source: ("external" |
 	for _, definition in self._schema:definitions() do
 		if
 			definition.status == "ACTIVE"
-			and definition.scope == "PLAYER"
 			and definition.computed
 			and (definition.computed :: any) ~= Json.null
 		then

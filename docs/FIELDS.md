@@ -132,13 +132,11 @@ key is invented for document saves. Other required-key wrappers generate omitted
 local transfer = client.fields:multiTransactionBuilder()
     :subject(senderId):add("Currency.Gems", -10)
     :subject(receiverId):add("Currency.Gems", 10)
-    :subject(0):add("Global.Trades", 1) -- UNIVERSE field
     :reason("Player-approved trade")
     :commit()
 ```
 
-The limit of ten subjects includes conditions. At most 100 ops and 100 conditions. Single-player
-transactions reject UNIVERSE fields. Multi-subject defaults to subject zero until Subject is selected.
+The limit of ten subjects includes conditions. At most 100 ops and 100 conditions. Every op and condition needs a selected positive subject; Fields has no universe-wide values (see [configs](CONFIGS.md)).
 
 ## Profile and presence
 
@@ -265,7 +263,7 @@ reconciliation never repairs. Every cursor route has `<method>Pages` (including 
 Iterators retain scope/filters, stop on null nextCursor and yield errors once; never change filters mid-page.
 ## Field-owned leaderboard boards
 
-Only stored **int PLAYER** fields may bind leaderboards, not `number`, computed or UNIVERSE fields.
+Only stored **int PLAYER** fields may bind leaderboards, not `number` or computed fields.
 Create/update definitions with ADMIN credentials; **Fields provisions boards server-side**. Do not create
 the board first or also submit the same score from game code. Field writes produce durable outbox entries;
 provisioning does not backfill existing values. See [setup example](../examples/fields-leaderboard.luau).

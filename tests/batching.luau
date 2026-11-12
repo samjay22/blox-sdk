@@ -420,19 +420,29 @@ return function(test: (string, () -> ()) -> ())
 			end)
 		end
 	end)
-	test("health coalesces all eight services and maps leaderboard singular", function()
+	test("health coalesces all nine services and maps leaderboard singular", function()
 		local s = Scheduler.new()
 		local calls = 0
 		local c = client(s, function(request)
 			local ops = envelope(request).ops
-			check(#ops == 8)
+			check(#ops == 9)
 			local services: { [string]: boolean } = {}
 			for _, op in ops do
 				check(op.path == "/health")
 				services[op.service] = true
 			end
 			for _, service in
-				{ "fields", "leaderboard", "codes", "matchmaking", "party", "audit", "platform", "auth" }
+				{
+					"fields",
+					"leaderboard",
+					"codes",
+					"matchmaking",
+					"party",
+					"audit",
+					"platform",
+					"auth",
+					"config",
+				}
 			do
 				check(services[service])
 			end

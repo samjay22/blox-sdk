@@ -111,7 +111,6 @@ function Control.target(schema: Schema.Schema, target: Types.BulkTarget): Core.R
 		local validator = schema:validator(node.field)
 		if
 			not d
-			or d.scope ~= "PLAYER"
 			or not d.type
 			or (d.type :: any) == Json.null
 			or not validator
@@ -199,7 +198,7 @@ end
 --- Validate one closed Fields-owned runtime action, never arbitrary executable input.
 function Control.action(action: Types.ScheduleAction): boolean
 	local a: any = action
-	if not Control.object(a, { "kind", "key", "type", "value", "bulkDefinitionId" }) then
+	if not Control.object(a, { "kind", "key", "bulkDefinitionId" }) then
 		return false
 	end
 	if a.kind == "RUN_BULK" then
@@ -208,32 +207,6 @@ function Control.action(action: Types.ScheduleAction): boolean
 	if type(a.key) ~= "string" or #a.key > 100 or not string.match(a.key, "^[A-Za-z0-9_.-]+$") then
 		return false
 	end
-	if a.kind == "ENABLE_FLAG" or a.kind == "DISABLE_FLAG" then
-		return Control.object(a, { "kind", "key" })
-	end
-	if
-		a.kind ~= "SET_CONFIG"
-		or not Control.object(a, { "kind", "key", "type", "value" })
-		or a.value == nil
-	then
-		return false
-	end
-	if a.type == "STRING" then
-		if type(a.value) ~= "string" then
-			return false
-		end
-	elseif a.type == "NUMBER" then
-		if type(a.value) ~= "number" or a.value ~= a.value or math.abs(a.value) == math.huge then
-			return false
-		end
-	elseif a.type == "BOOLEAN" then
-		if type(a.value) ~= "boolean" then
-			return false
-		end
-	elseif a.type ~= "JSON" then
-		return false
-	end
-	local ok, encoded = pcall(Json.encode, a.value)
-	return ok and #encoded <= 65536
+	return (a.kind == "ENABLE_FLAG" or a.kind == "DISABLE_FLAG") and Control.object(a, { "kind", "key" })
 end
 return table.freeze(Control)

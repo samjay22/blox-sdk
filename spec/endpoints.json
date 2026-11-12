@@ -4439,6 +4439,816 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": true,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.liveness",
+      "idempotent": true,
+      "javaResponse": "HealthComponent",
+      "method": "GET",
+      "minimumLevel": null,
+      "name": "liveness",
+      "path": "/actuator/health/liveness",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "HealthComponent",
+      "responseType": "LivenessResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ProbeController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "none",
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": true,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.readiness",
+      "idempotent": true,
+      "javaResponse": "HealthComponent",
+      "method": "GET",
+      "minimumLevel": null,
+      "name": "readiness",
+      "path": "/actuator/health/readiness",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "HealthComponent",
+      "responseType": "ReadinessResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ProbeController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.namespaces",
+      "idempotent": true,
+      "javaResponse": "CursorPage<Namespace>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "namespaces",
+      "path": "/api/config/universes/{universeId}/namespaces",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [
+        {
+          "java": "String",
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "50",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "CursorPage<Namespace>",
+      "responseType": "NamespacesResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.namespace",
+      "idempotent": true,
+      "javaResponse": "Namespace",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "namespace",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Namespace",
+      "responseType": "NamespaceResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.entries",
+      "idempotent": true,
+      "javaResponse": "CursorPage<Entry>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "entries",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "java": "String",
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "50",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "CursorPage<Entry>",
+      "responseType": "EntriesResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ChangeSet",
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.changeEntries",
+      "idempotent": false,
+      "javaResponse": "Namespace",
+      "method": "PATCH",
+      "minimumLevel": "ADMIN",
+      "name": "changeEntries",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Namespace",
+      "responseType": "ChangeEntriesResultValue",
+      "retryable": false,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.deleteEntry",
+      "idempotent": false,
+      "javaResponse": "Void",
+      "method": "DELETE",
+      "minimumLevel": "ADMIN",
+      "name": "deleteEntry",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "String",
+          "name": "key",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Void",
+      "responseType": "DeleteEntryResultValue",
+      "retryable": false,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        204
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.entry",
+      "idempotent": true,
+      "javaResponse": "Entry",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "entry",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "String",
+          "name": "key",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Entry",
+      "responseType": "EntryResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "EntryPut",
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.putEntry",
+      "idempotent": false,
+      "javaResponse": "Entry",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "putEntry",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "String",
+          "name": "key",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Entry",
+      "responseType": "PutEntryResultValue",
+      "retryable": false,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.history",
+      "idempotent": true,
+      "javaResponse": "CursorPage<History>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "history",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/history",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "java": "String",
+          "name": "cursor",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "default": "50",
+          "java": "int",
+          "name": "limit",
+          "required": false,
+          "type": "number"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "CursorPage<History>",
+      "responseType": "HistoryResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.version",
+      "idempotent": true,
+      "javaResponse": "VersionState",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "version",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/history/{version}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "long",
+          "name": "version",
+          "required": true,
+          "type": "id"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "VersionState",
+      "responseType": "VersionResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "Rollback",
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.rollback",
+      "idempotent": false,
+      "javaResponse": "Namespace",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "rollback",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/rollback",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Namespace",
+      "responseType": "RollbackResultValue",
+      "retryable": false,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "conditional": true,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.snapshot",
+      "idempotent": true,
+      "javaResponse": "Snapshot|Void",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "snapshot",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/snapshot",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Snapshot|Void",
+      "responseType": "SnapshotResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200,
+        304
+      ]
+    },
+    {
+      "authKinds": [
+        "none",
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": true,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.healthProxy",
+      "idempotent": true,
+      "javaResponse": "HealthResponse",
+      "method": "GET",
+      "minimumLevel": null,
+      "name": "healthProxy",
+      "path": "/health",
+      "pathParams": [],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "HealthResponse",
+      "responseType": "HealthProxyResultValue",
+      "retryable": true,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/HealthController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "none",
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": true,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
       "errorStatuses": [
         400,
@@ -5235,12 +6045,6 @@
         {
           "java": "String",
           "name": "prefix",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "java": "Scope",
-          "name": "scope",
           "required": false,
           "type": "string"
         },
@@ -6548,136 +7352,6 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FlagsController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": true,
-      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_READ')",
-      "id": "fields.gameValueHistory",
-      "idempotent": true,
-      "javaResponse": "Mono<Models.Page<Models.GameValueChange>>",
-      "method": "GET",
-      "minimumLevel": "READ",
-      "name": "gameValueHistory",
-      "path": "/api/fields/universes/{universeId}/game-values/{fieldPath}/history",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "fieldPath",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [
-        {
-          "java": "String",
-          "name": "cursor",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "default": "50",
-          "java": "int",
-          "name": "limit",
-          "required": false,
-          "type": "number"
-        }
-      ],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "CursorPage<GameValueChange>",
-      "responseType": "GameValueHistoryResultValue",
-      "retryable": true,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/GameValueHistoryController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount",
-        "user",
-        "custom",
-        "scoped"
-      ],
-      "bodyRequired": true,
-      "bodyType": "GameValueRollbackInput",
-      "cacheable": false,
-      "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        423,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "fields.rollbackGameValue",
-      "idempotent": false,
-      "javaResponse": "Mono<Models.Result>",
-      "method": "POST",
-      "minimumLevel": "ADMIN",
-      "name": "rollbackGameValue",
-      "path": "/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback",
-      "pathParams": [
-        {
-          "java": "long",
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        },
-        {
-          "java": "String",
-          "name": "fieldPath",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "Result",
-      "responseType": "RollbackGameValueResultValue",
-      "retryable": false,
-      "service": "fields",
-      "serviceName": "FieldsService",
-      "source": "svc/fields-service/src/main/java/sam/tech/controller/GameValueHistoryController.java",
       "statuses": [
         200
       ]
@@ -12619,7 +13293,7 @@
           "type": "number"
         },
         {
-          "java": "Models.Scope",
+          "java": "SnapshotScope",
           "name": "scope",
           "required": false,
           "type": "string"
@@ -20706,6 +21380,11 @@
     "svc/audit-service/src/main/java/sam/tech/service/RedisRateLimiter.java": "cfbff2d0f8e9057e249e84c80ac0f0131eb538cc27ef1d0539cebf98cb3a547a",
     "svc/audit-service/src/main/java/sam/tech/util/LogSanitizer.java": "bc87fd0909f9b55c7ff50b6f9e58776948e69db6bbe662c7a96f89a9542ffa2c",
     "svc/audit-service/src/main/resources/application.properties": "d4c650a2b0da198782d7bcc4f023b8c1587813d6feee7e457084a12042e2e91d",
+    "svc/config-service/docs/API.md": "7e2f5d8f3b7b34b41cc0705618019b64a7efbee7b0610a7ea580d078b5ce6197",
+    "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java": "b02347306167cccc8199faa7af65c942607c90ae450c6ab88fedcd23fb9ede1c",
+    "svc/config-service/src/main/java/sam/tech/controller/HealthController.java": "47487ca4e774fa76a088edf9d54310d9b5797741ea85413d8861efbc270cf778",
+    "svc/config-service/src/main/java/sam/tech/controller/ProbeController.java": "7f41f2a4ccc1ca0b39393506bb0273c623d2125f1bc633a1412be48f2af3d172",
+    "svc/config-service/src/main/java/sam/tech/dto/ConfigModels.java": "fd4a4365cce22edd345dee4b4d13a10c823d118fcd16ed7c7ea762be4ff2254c",
     "svc/fields-service/API_CONTRACT.md": "2a172a2bcf7ad8781c9064bb22bfad77de31d44d814cef1374c67ac449c7c80a",
     "svc/fields-service/LOCKING.md": "71976a575d01731a19e1755fdf351e9a40aa58808e3744a84f20aaeb0d43ca4c",
     "svc/fields-service/README.md": "6ba15d917ea7de273fb6e83008c93c54f3cf715105bbfe3425ef08239b7c5d82",
@@ -20726,7 +21405,6 @@
     "svc/fields-service/src/main/java/sam/tech/controller/EnvironmentDefinitionsController.java": "f54c8f807d0731b79dea8af27e5ed91ae58343303ca708b5ad58ba9d8fbdc18c",
     "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java": "b7a42fb0c4d2f191420ef6ed67a1666be3eb71b586a46b29a8754e4eb6b0dd5c",
     "svc/fields-service/src/main/java/sam/tech/controller/FlagsController.java": "802819e7e936f17dd7322c0b7474ce28ad848bca0b598653f187b150c5a3fddf",
-    "svc/fields-service/src/main/java/sam/tech/controller/GameValueHistoryController.java": "5bf63787d00544876b19e01ea354daefa7beb4711e15c890de1325ee6613e58d",
     "svc/fields-service/src/main/java/sam/tech/controller/HealthController.java": "fe9c6fa979c4a46bd1c0fa8807b2d90a00783d0ef95bdd7dbdf9e72338f2d81e",
     "svc/fields-service/src/main/java/sam/tech/controller/JobsController.java": "168a9ddea0d453589b8d1b5dc4a236c02bbf3bede0d1d0e0be32f6b0eaf0977a",
     "svc/fields-service/src/main/java/sam/tech/controller/MaintenanceController.java": "39eee465b0c896a735dfa03ddaf27720a6dcfc7fc1f2edf3e70d44edf6e59eac",
@@ -20754,7 +21432,6 @@
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsException.java": "5ef6672bc29020fd603d611ce8a29cebaa2026719941fedb6fb5a381a56c7eb0",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsService.java": "5771fb5bf4a2ace9b81fb7178cf4370994ef37ff00662ddcb8f81e9879279b19",
     "svc/fields-service/src/main/java/sam/tech/fields/FieldsStore.java": "a410669807271c6d28f631acfbbc4213db8ad0fa867e46fb5516a82bd6fb559f",
-    "svc/fields-service/src/main/java/sam/tech/fields/GameValueHistoryService.java": "e3fdebd57cafcf457aab408e5c26c51e6354ab5360fcf73497ac99436d07fb52",
     "svc/fields-service/src/main/java/sam/tech/fields/JsonSupport.java": "576a7d100a81f2426e98cf8c89b87f0f591efc0175b10056106c2babb8b790ac",
     "svc/fields-service/src/main/java/sam/tech/fields/LuauGenerator.java": "0b77a5e63e878735170f401e8357cc0324503d13cc506e19415a79d3272010d1",
     "svc/fields-service/src/main/java/sam/tech/fields/MaintenanceRepository.java": "8255cb9311834e5b0b8818821ed6840b916b071b57df72017c0a97c54f65a150",
@@ -23679,6 +24356,276 @@
         "source": "srv/src-roblox-code-service/src/main/java/sam/tech/dto/UpdateCodeRequest.java"
       }
     },
+    "config": {
+      "ChangeSet": {
+        "fields": {
+          "delete": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": false
+          },
+          "expectedVersion": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "set": {
+            "java": "Map<String, EntryPut>",
+            "notBlank": false,
+            "required": false
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "ChangedKeys": {
+        "fields": {
+          "deleted": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": true
+          },
+          "set": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "Entry": {
+        "fields": {
+          "description": {
+            "java": "String",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true
+          },
+          "key": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "universeId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "updatedAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": true
+          },
+          "updatedBy": {
+            "java": "String",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": true
+          },
+          "version": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "EntryPut": {
+        "fields": {
+          "description": {
+            "java": "String",
+            "notBlank": false,
+            "required": false
+          },
+          "expectedVersion": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false
+          },
+          "value": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "HealthComponent": {
+        "fields": {
+          "status": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        }
+      },
+      "HealthResponse": {
+        "fields": {
+          "status": {
+            "java": "String",
+            "required": true
+          }
+        }
+      },
+      "History": {
+        "fields": {
+          "changedAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": true
+          },
+          "changedBy": {
+            "java": "String",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true
+          },
+          "changes": {
+            "java": "ChangedKeys",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "op": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "rolledBackTo": {
+            "java": "Long",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true
+          },
+          "universeId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "version": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "Namespace": {
+        "fields": {
+          "createdAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": true
+          },
+          "entryCount": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "universeId": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "updatedAt": {
+            "java": "Instant",
+            "notBlank": false,
+            "required": true
+          },
+          "updatedBy": {
+            "java": "String",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true
+          },
+          "version": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "Rollback": {
+        "fields": {
+          "toVersion": {
+            "java": "Long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "Snapshot": {
+        "fields": {
+          "entries": {
+            "java": "Map<String, JsonNode>",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "version": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "StoredEntry": {
+        "fields": {
+          "description": {
+            "java": "String",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true
+          },
+          "value": {
+            "java": "JsonNode",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
+      "VersionState": {
+        "fields": {
+          "entries": {
+            "java": "Map<String, StoredEntry>",
+            "notBlank": false,
+            "required": true
+          },
+          "history": {
+            "java": "History",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      }
+    },
     "fields": {
       "AcquireInput": {
         "fields": {
@@ -23747,7 +24694,6 @@
       },
       "ActionKind": {
         "enum": [
-          "SET_CONFIG",
           "ENABLE_FLAG",
           "DISABLE_FLAG",
           "RUN_BULK"
@@ -24561,15 +25507,6 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
-      "ConfigType": {
-        "enum": [
-          "STRING",
-          "NUMBER",
-          "BOOLEAN",
-          "JSON"
-        ],
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/jobs/JobModels.java"
-      },
       "Configuration": {
         "fields": {
           "definitions": {
@@ -24714,13 +25651,6 @@
             "responseNullable": true,
             "responseRequired": false
           },
-          "scope": {
-            "java": "Scope",
-            "notBlank": false,
-            "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
           "status": {
             "java": "Status",
             "notBlank": false,
@@ -24854,11 +25784,6 @@
             "java": "String",
             "notBlank": true,
             "required": true
-          },
-          "scope": {
-            "java": "Scope",
-            "notBlank": false,
-            "required": false
           },
           "status": {
             "java": "Status",
@@ -25752,55 +26677,6 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/flags/FlagModels.java"
       },
-      "GameValueChange": {
-        "fields": {
-          "actor": {
-            "java": "String",
-            "notBlank": false,
-            "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
-          "newValue": {
-            "java": "JsonNode",
-            "notBlank": false,
-            "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
-          "previousValue": {
-            "java": "JsonNode",
-            "notBlank": false,
-            "nullable": true,
-            "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
-          "time": {
-            "java": "Instant",
-            "notBlank": false,
-            "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
-          "version": {
-            "java": "long",
-            "notBlank": false,
-            "required": true
-          }
-        },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
-      },
-      "GameValueRollbackInput": {
-        "fields": {
-          "version": {
-            "java": "Long",
-            "notBlank": false,
-            "required": true
-          }
-        },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/GameValueHistoryService.java"
-      },
       "Generated": {
         "fields": {
           "cost": {
@@ -25814,10 +26690,6 @@
           "pityAfter": {
             "java": "Long",
             "nullable": true,
-            "required": true
-          },
-          "resolvedConfig": {
-            "java": "Map<String,JsonNode>",
             "required": true
           }
         }
@@ -27362,11 +28234,6 @@
             "notBlank": true,
             "required": true
           },
-          "scope": {
-            "java": "Scope",
-            "notBlank": false,
-            "required": false
-          },
           "type": {
             "java": "Fields.TypeExpr",
             "notBlank": false,
@@ -27512,15 +28379,7 @@
             "java": "String",
             "required": true
           },
-          "numericGameValue": {
-            "java": "boolean",
-            "required": true
-          },
           "path": {
-            "java": "String",
-            "required": true
-          },
-          "scope": {
             "java": "String",
             "required": true
           },
@@ -27570,10 +28429,6 @@
           },
           "probabilities": {
             "java": "Map<String,Double>",
-            "required": true
-          },
-          "resolvedConfig": {
-            "java": "Map<String,JsonNode>",
             "required": true
           }
         }
@@ -28295,13 +29150,6 @@
             "responseNullable": true,
             "responseRequired": false
           },
-          "gameValues": {
-            "java": "Map<String, JsonNode>",
-            "notBlank": false,
-            "required": true,
-            "responseNullable": true,
-            "responseRequired": false
-          },
           "maintenance": {
             "java": "MaintenanceState",
             "notBlank": false,
@@ -28323,21 +29171,6 @@
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/RuntimeSnapshotService.java"
       },
-      "RuntimeSnapshotKey": {
-        "fields": {
-          "universe": {
-            "java": "long",
-            "notBlank": false,
-            "required": true
-          },
-          "version": {
-            "java": "long",
-            "notBlank": false,
-            "required": true
-          }
-        },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/RuntimeSnapshotService.java"
-      },
       "RuntimeSnapshotResult": {
         "fields": {
           "body": {
@@ -28347,21 +29180,6 @@
           },
           "etag": {
             "java": "String",
-            "notBlank": false,
-            "required": false
-          }
-        },
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/RuntimeSnapshotService.java"
-      },
-      "RuntimeValue": {
-        "fields": {
-          "path": {
-            "java": "String",
-            "notBlank": false,
-            "required": false
-          },
-          "value": {
-            "java": "JsonNode",
             "notBlank": false,
             "required": false
           }
@@ -28442,16 +29260,6 @@
           },
           "kind": {
             "java": "ActionKind",
-            "notBlank": false,
-            "required": false
-          },
-          "type": {
-            "java": "ConfigType",
-            "notBlank": false,
-            "required": false
-          },
-          "value": {
-            "java": "JsonNode",
             "notBlank": false,
             "required": false
           }
@@ -28763,13 +29571,6 @@
           }
         }
       },
-      "Scope": {
-        "enum": [
-          "PLAYER",
-          "UNIVERSE"
-        ],
-        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
-      },
       "ScopedToken": {
         "fields": {
           "access": {
@@ -28953,7 +29754,7 @@
             "responseRequired": false
           },
           "scope": {
-            "java": "Scope",
+            "java": "SnapshotScope",
             "notBlank": false,
             "required": true,
             "responseNullable": true,
@@ -29020,7 +29821,7 @@
             "required": true
           },
           "scope": {
-            "java": "Models.Scope",
+            "java": "SnapshotScope",
             "notBlank": false,
             "required": true
           },
@@ -29065,6 +29866,13 @@
           }
         },
         "source": "svc/fields-service/src/main/java/sam/tech/fields/SafetyModels.java"
+      },
+      "SnapshotScope": {
+        "enum": [
+          "PLAYER",
+          "UNIVERSE"
+        ],
+        "source": "svc/fields-service/src/main/java/sam/tech/fields/Models.java"
       },
       "State": {
         "enum": [

@@ -143,8 +143,6 @@ def extract(service: str, root: Path) -> tuple[list[dict], dict]:
 def refresh(doc: dict) -> dict:
     """Refresh local contracts, retaining reviewed map-built Matchmaking envelopes."""
     from consumer_contracts import refresh_consumers
-    doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] != 'config']
-    doc['types'].pop('config', None)
     refresh_consumers(doc)
     records_only = {k:v for k,v in SOURCES.items() if k not in ('codes','matchmaking')}
     doc['endpoints'] = [e for e in doc['endpoints'] if e['service'] not in records_only]
@@ -169,6 +167,9 @@ def refresh(doc: dict) -> dict:
     doc['sourceHashes'] = provenance
     from simulate_contract import curate_simulation
     curate_simulation(doc)
+    import config_contract
+    config_contract.retire_universe_scope(doc)
+    config_contract.apply(doc, SOURCE_ROOT)
     for endpoint in doc['endpoints']:
         if endpoint['service'] != 'auth':
             # Legacy downstream global-ADMIN guards still exist, but GAS now gives

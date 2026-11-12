@@ -43,10 +43,10 @@ local function settings(): Fields.BoardSettings
 end
 --- Register binding grammar, routing, wire-shape and failure-boundary regressions.
 return function(test: (string, () -> ()) -> ())
-	test("Fields bindings: 103 shared Java/Luau grammar and context vectors", function()
+	test("Fields bindings: 102 shared Java/Luau grammar and context vectors", function()
 		local count = 0
 		for _, v in Vectors.bindings do
-			local result = Bindings.validate(v.bindings, v.scope, v.type, v.computed == true)
+			local result = Bindings.validate(v.bindings, v.type, v.computed == true)
 			if v.code then
 				check(not result.ok and result.error.code == v.code, v.name)
 			else
@@ -54,7 +54,7 @@ return function(test: (string, () -> ()) -> ())
 			end
 			count += 1
 		end
-		check(count == 103)
+		check(count == 102)
 		check(not Bindings.grammar({ leaderboards = { [2] = { board = "wins", submit = "VALUE" } } }))
 		check(not Bindings.grammar({ leaderboards = { extra = true } }))
 		check(not Bindings.board({ board = "wins", submit = "VALUE", displayName = "\255" }))
@@ -76,7 +76,6 @@ return function(test: (string, () -> ()) -> ())
 					{ type = { kind = "number" } },
 					{ type = { kind = "int", min = 1.5 } },
 					{ type = { kind = "int", max = 9007199254740992 } },
-					{ scope = "UNIVERSE" },
 					{ type = Json.null },
 					{ binding = Json.null },
 				} :: { any }
@@ -192,7 +191,6 @@ return function(test: (string, () -> ()) -> ())
 		local definition: any = {
 			universeId = 123,
 			id = "Stats.TotalWins",
-			scope = "PLAYER",
 			type = { kind = "int" },
 			status = "ACTIVE",
 			definitionVersion = 2,

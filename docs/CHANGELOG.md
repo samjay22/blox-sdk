@@ -1,5 +1,26 @@
 # Changelog
 
+## 6.0.0 (local, not published)
+
+- Breaking: dynamic game configuration is its own service, `client.configs`, backed by ConfigService. A namespace is
+  a named group of JSON values under the client's universe (never passed per call): `client.configs:namespace("Shop")`
+  returns a handle with instant cached reads `get(key, default?)`, `getString`, `getNumber`, `getBoolean`, `has`,
+  `keys`, `snapshot`, plus `version`, `isReady`, `waitReady`, `lastRefreshedAt`, `isStale`, `lastError` and a `Changed`
+  signal carrying the new version and changed keys.
+- The cache is refreshed by one jittered, ETag-conditional poller per namespace (default 30 s, `configs = { pollInterval,
+  jitter, staleAfter }`); a failed refresh keeps the last good snapshot. `client:destroy()`/`flush()` stop every poller.
+- Admin calls on the handle: `set`, `setMany` (atomic), `delete`, `info`, `entries`, `entry`, `history`, `at`, `rollback`,
+  and `client.configs:namespaces()`. Per-key and namespace `expectedVersion` guards; ConfigService error codes
+  `namespace_not_found`, `key_not_found`, `version_not_found`, `version_conflict`, `validation_failed`,
+  `limit_exceeded` are preserved.
+- Breaking: Fields no longer has universe-scoped values. Removed: UNIVERSE scope and `scope` on definitions,
+  `fields:gameValueHistory`/`rollbackGameValue`, `gameValues` in the runtime snapshot (and `snapshot:get`), subject `0`,
+  the `SET_CONFIG` schedule action, `maxDeltaConfigKey` bindings, `resolvedConfig`/`numericGameValue` and the
+  `game_field_not_found`, `game_version_not_found`, `scope_immutable` and `field_scope_mismatch` codes.
+- Health reports nine services; `ServiceLevels` gains `ConfigService`. The batch `op.service` for configs is `config`.
+- 391 endpoints (14 new `config.*`), regenerated Roblox projection, docs ([CONFIGS.md](CONFIGS.md)), examples and tests.
+- See [migration](../MIGRATION.md).
+
 ## 5.0.0 (local, not published)
 
 - Breaking: `client.codes` is rewritten around the task. Redeeming is `client.codes:redeem(player, code)`, which

@@ -125,9 +125,9 @@ is a manifest ordinal (subject ID for bulk), not universally an import line numb
 UTC `start` and optional `end`, 1–32 startActions, at most 32 endActions, reason and idempotency key.
 Helpers accept the explicit UTC subset `YYYY-MM-DDTHH:mm:ss[.1-9 digits]Z`; the service's Instant parser
 may accept broader representations. Unsupported forms fail local preflight rather than being coerced.
-Use `["end"]=...` in Luau because `end` is reserved. Actions: SET_CONFIG `{key,type,value}`, ENABLE_FLAG
-or DISABLE_FLAG `{key}`, RUN_BULK `{bulkDefinitionId}`. Config types STRING/NUMBER/BOOLEAN/JSON are
-schedule scalar labels, **not Fields TypeExpr**. Actions operate on Fields-owned runtime state.
+Use `["end"]=...` in Luau because `end` is reserved. Actions: ENABLE_FLAG
+or DISABLE_FLAG `{key}`, RUN_BULK `{bulkDefinitionId}`. Actions operate on Fields-owned runtime state;
+for dynamic configuration use [`client.configs`](CONFIGS.md).
 Referenced resources must already exist; keys within each
 edge must be unique within their config-entry or flag namespace. An entry and flag with the same name
 are valid together. There is no runtime-definition rebinding or arbitrary script action.

@@ -36,7 +36,6 @@ local function definition(): Wire.Definition
 	return {
 		universeId = 123,
 		id = "Rating",
-		scope = "PLAYER",
 		type = { kind = "int" },
 		default = 0,
 		history = "LEDGER",

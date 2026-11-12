@@ -1,3 +1,5 @@
+Current migration: [5.0.0 to 6.0.0, configs split out of Fields](../MIGRATION.md#500-to-600--configs-split-out-of-fields).
+
 # 3.0 leased profiles
 
 See the binding [2.0 to 3.0 migration](../MIGRATION.md#200-to-300--leased-profiles-and-optimistic-writes). The historical tenant-auth context below does not override 3.0 lifecycle, buffering or HTTP limits.

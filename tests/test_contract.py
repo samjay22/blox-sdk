@@ -136,7 +136,7 @@ class ContractTests(unittest.TestCase):
             self.assertFalse(route.get('idempotencyField'))
         types=self.doc['types']['fields']
         candidate=types['PreviewBoardInput']['fields']
-        self.assertEqual(set(candidate), {'universeId','id','scope','type','binding'})
+        self.assertEqual(set(candidate), {'universeId','id','type','binding'})
         self.assertEqual({k for k,v in candidate.items() if v['required']}, {'id','type','binding'})
         self.assertEqual(candidate['type']['java'], 'Fields.TypeExpr')
         self.assertEqual(candidate['binding']['java'], 'Fields.LeaderboardBinding')

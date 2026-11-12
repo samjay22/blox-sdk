@@ -7,10 +7,6 @@
         "op": "RESET"
       },
       {
-        "field": "Shared",
-        "op": "RESET"
-      },
-      {
         "field": "Total",
         "op": "RESET"
       },
@@ -28,18 +24,12 @@
       },
       {
         "opIndex": 1,
-        "field": "Shared",
-        "code": "field_scope_mismatch",
-        "path": []
-      },
-      {
-        "opIndex": 2,
         "field": "Total",
         "code": "field_computed",
         "path": []
       },
       {
-        "opIndex": 3,
+        "opIndex": 2,
         "field": "Old",
         "code": "field_archived",
         "path": []

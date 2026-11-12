@@ -83,7 +83,6 @@ local function run(
 						universeId = 123,
 						id = "Smoke.Counter",
 						type = { kind = "int", min = 0 },
-						scope = "PLAYER",
 						status = "ACTIVE",
 						history = "LEDGER",
 						writeLevel = "READ_WRITE",

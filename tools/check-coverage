@@ -3,11 +3,12 @@
 from __future__ import annotations
 import json
 import re
-from service_contracts import SOURCES
+from service_contracts import SOURCES, SOURCE_ROOT
 from collections import Counter
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SOURCES = dict(SOURCES)
+SOURCES['config'] = SOURCE_ROOT / 'svc' / 'config-service'
 ALIASES={'mm':'matchmaking','code':'codes'}
 # Independent deployment contract: do not import the generator's routing declarations.
 GATEWAY='https://lb1.blox-api.com'
@@ -16,11 +17,16 @@ PREFIXES={
     'party':'/party-service', 'codes':'/code-service', 'audit':'/audit-service',
     'leaderboards':'/leaderboard-service',
     'fields':'/fields-service', 'platform':'/platform-service',
+    'config':'/remote-config-service',
 }
 # Documented Boot routes have no annotated controller; keep them independently required.
 # CodeService is a hand-written facade; its methods are named for the task, not the controller.
 HANDWRITTEN={'codes.redeem':'redeem','codes.createCode':'create','codes.bulkCreateCodes':'createBatch','codes.exportBatch':'exportBatch',
     'codes.searchCodes':'list','codes.getCode':'get','codes.updateCode':'update','codes.deleteCode':'delete','codes.listRedemptions':'redemptions'}
+# ConfigService is hand-written too: its admin calls live on the namespace handle (src/Configs/Namespace.luau).
+CONFIG_METHODS={'config.namespaces':'Service.namespaces','config.namespace':'Namespace.info','config.snapshot':'Namespace.refresh',
+    'config.entries':'Namespace.entries','config.entry':'Namespace.entry','config.putEntry':'Namespace.set','config.deleteEntry':'Namespace.delete',
+    'config.changeEntries':'Namespace.setMany','config.history':'Namespace.history','config.version':'Namespace.at','config.rollback':'Namespace.rollback'}
 BOOT_SERVICES = {'audit', 'leaderboards', 'fields', 'platform', 'codes'}
 
 # Exact contract additions may land before parallel backend controller implementations.
@@ -114,7 +120,10 @@ def assert_controller_coverage(actual: set[tuple[str,str,str]]) -> None:
     """Fail if even a route absent from the checked-in inventory is absent from the SDK."""
     framework = {(service, 'GET', '/'+name) for service in BOOT_SERVICES for name in ('metrics','info')}
     internal = {('fields', 'POST', '/api/fields/internal/batch'), ('leaderboards', 'POST', '/internal/batch')}
-    missing = (controller_routes() | framework) - actual - internal
+    # The checked-in fields-service tree predates the move of game values to config-service; these routes are gone.
+    retired = {('fields', 'GET', '/api/fields/universes/{universeId}/game-values/{fieldPath}/history'),
+               ('fields', 'POST', '/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback')}
+    missing = (controller_routes() - retired | framework) - actual - internal
     assert not missing, f'Missing controller routes: {sorted(missing)}'
     # Only documented framework endpoints and the explicitly unverified Party snapshot
     # may exist without a controller; stale speculative domain APIs must fail too.
@@ -146,8 +155,10 @@ def main() -> None:
         assert e['minimumLevel'] in (None,'READ','READ_WRITE','ADMIN'),e['id']
         assert not e['cacheable'] or e['method']=='GET',e['id']
         module=(ROOT/'src/Services'/f'{e["service"].capitalize()}.luau').read_text()
+        if e['service']=='config': module+=(ROOT/'src/Configs/Namespace.luau').read_text()
         method=HANDWRITTEN.get(e['id'],e['name'])
-        assert 'function Service.'+method+'(' in module,e['id']
+        qualified=CONFIG_METHODS.get(e['id'],'Service.'+method)
+        assert 'function '+qualified+'(' in module,e['id']
         assert f'--- {e["method"]} {PREFIXES[e["service"]]}{e["path"]} via gateway;' in module,e['id']
         assert f'Endpoints["{e["id"]}"]' in module + ((ROOT/'src/Fields/Client.luau').read_text() if e['id']=='fields.validateOps' else ''),e['id']
     counts=Counter(x[0] for x in expected)

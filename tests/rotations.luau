@@ -41,7 +41,6 @@ end
 local function snapshot(values: { Wire.RotationActive }?, version: number?): any
 	return {
 		version = version or 1,
-		gameValues = {},
 		flags = Json.array({}),
 		maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
 		rotations = if values then Json.array(values) else nil,

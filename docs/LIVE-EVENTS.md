@@ -1,6 +1,6 @@
 # Live events
 
-Live events compose Fields UNIVERSE configuration, flags, schedules and rotations; there is no fabricated
+Live events compose `client.configs` namespaces, Fields flags, schedules and rotations; there is no fabricated
 LiveEvents service. Publish an event definition on the backend, use a `live_event` rotation for its
 current instance, and a feature flag for authoritative player eligibility.
 

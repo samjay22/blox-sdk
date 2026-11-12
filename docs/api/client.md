@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "5.0.0"
+SDK.version = "6.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -238,6 +238,22 @@ export type AuditClient = Audit.Service
 
 export type PlatformClient = Platform.Service
 
+export type ConfigsClient = ConfigService.Service
+
+export type ConfigNamespace = NamespaceModule.Namespace
+
+export type ConfigChange = NamespaceModule.Change
+
+export type ConfigSnapshot = NamespaceModule.Snapshot
+
+export type ConfigPollOptions = NamespaceModule.Options
+
+export type ConfigWriteOptions = NamespaceModule.WriteOptions
+
+export type ConfigChanges = NamespaceModule.Changes
+
+export type ConfigsConfig = Config.ConfigsConfig
+
 export type Snapshot = SnapshotCache.Snapshot
 
 export type AuditWriter = AuditWriter.Writer
@@ -308,6 +324,8 @@ type Helpers = {
 	addedCleanup: (() -> ())?,
 	writers: { AuditWriter.Writer },
 	snapshots: { SnapshotCache.Snapshot },
+	configs: { [string]: NamespaceModule.Namespace },
+	configDefaults: Config.ConfigsConfig?,
 	fields: FieldsHelpers.State?,
 	fieldStates: { FieldsHelpers.State },
 	scopes: { [string]: ScopeBinding },
@@ -364,6 +382,12 @@ export type ProfileSyncConfig = {
 	resyncSeconds: number?,
 }
 
+export type ConfigsConfig = {
+	pollInterval: number?,
+	staleAfter: number?,
+	jitter: number?,
+}
+
 export type SessionConfig = {
 	serverId: string?,
 	ttlMs: number?,
@@ -377,6 +401,7 @@ export type Config = {
 	sessions: SessionConfig?,
 	batch: { intervalSeconds: number? }?,
 	profileSync: ProfileSyncConfig?,
+	configs: ConfigsConfig?,
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,
 	authProvider: Types.AuthProvider?,
@@ -499,6 +524,7 @@ export type ServiceLevels = {
 	LeaderboardService: Level?,
 	FieldsService: Level?,
 	PlatformService: Level?,
+	ConfigService: Level?,
 }
 
 export type AuthProvider = {

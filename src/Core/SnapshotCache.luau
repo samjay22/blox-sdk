@@ -107,8 +107,6 @@ function Snapshot.refresh(self: Snapshot): boolean
 		or (old and value.version < old.version)
 		or not value.flags
 		or (value.flags :: any) == Json.null
-		or not value.gameValues
-		or (value.gameValues :: any) == Json.null
 	then
 		local failure = Errors.make("Validation", "fields.runtimeSnapshot", 0, "Invalid snapshot version")
 		if not failure.ok then
@@ -146,11 +144,6 @@ end
 --- Expose lifecycle state without requiring a polling task.
 function Snapshot.isDestroyed(self: Snapshot): boolean
 	return self._signal.cancelled
-end
---- Return an immutable config value, or nil before initial success / for an unknown key.
-function Snapshot.get(self: Snapshot, key: string): Core.Json?
-	local values = if self._value then self._value.gameValues else nil
-	return if values and (values :: any) ~= Json.null then (values :: { [string]: Core.Json })[key] else nil
 end
 --- Return the cached master switch, not per-user rollout/rules evaluation; use fields:evaluateFlags for that.
 function Snapshot.isEnabled(self: Snapshot, flag: string): boolean

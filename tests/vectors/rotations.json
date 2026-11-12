@@ -34,8 +34,7 @@
           }
         ],
         "cost": [],
-        "pityAfter": null,
-        "resolvedConfig": {}
+        "pityAfter": null
       }
     },
     "next": {
@@ -72,11 +71,7 @@
           }
         ],
         "cost": [],
-        "pityAfter": null,
-        "resolvedConfig": {
-          "Weather.MinDuration": 600,
-          "Weather.MaxDuration": 1200
-        }
+        "pityAfter": null
       }
     },
     "enabled": true
@@ -231,11 +226,7 @@
             "delta": -100
           }
         ],
-        "pityAfter": 1,
-        "resolvedConfig": {
-          "Economy.PackDebit": -100,
-          "Cards.PityThreshold": 50
-        }
+        "pityAfter": 1
       }
     ],
     "definitionVersions": {
@@ -418,8 +409,7 @@
     "probabilities": {
       "cards_common/c01": 0.0875,
       "cards_rare/r01": 0.03125
-    },
-    "resolvedConfig": {}
+    }
   },
   "vectors": [
     {
@@ -875,8 +865,7 @@
               }
             ],
             "cost": [],
-            "pityAfter": null,
-            "resolvedConfig": {}
+            "pityAfter": null
           }
         },
         "next": {
@@ -913,11 +902,7 @@
               }
             ],
             "cost": [],
-            "pityAfter": null,
-            "resolvedConfig": {
-              "Weather.MinDuration": 600,
-              "Weather.MaxDuration": 1200
-            }
+            "pityAfter": null
           }
         },
         "enabled": true
@@ -946,8 +931,7 @@
         "probabilities": {
           "cards_common/c01": 0.0875,
           "cards_rare/r01": 0.03125
-        },
-        "resolvedConfig": {}
+        }
       }
     },
     {
@@ -1106,11 +1090,7 @@
               "delta": -100
             }
           ],
-          "pityAfter": 1,
-          "resolvedConfig": {
-            "Economy.PackDebit": -100,
-            "Cards.PityThreshold": 50
-          }
+          "pityAfter": 1
         }
       ]
     },
@@ -1275,11 +1255,7 @@
                 "delta": -100
               }
             ],
-            "pityAfter": 1,
-            "resolvedConfig": {
-              "Economy.PackDebit": -100,
-              "Cards.PityThreshold": 50
-            }
+            "pityAfter": 1
           }
         ],
         "definitionVersions": {
@@ -1526,8 +1502,7 @@
               }
             ],
             "cost": [],
-            "pityAfter": null,
-            "resolvedConfig": {}
+            "pityAfter": null
           }
         },
         "next": {
@@ -1564,11 +1539,7 @@
               }
             ],
             "cost": [],
-            "pityAfter": null,
-            "resolvedConfig": {
-              "Weather.MinDuration": 600,
-              "Weather.MaxDuration": 1200
-            }
+            "pityAfter": null
           }
         },
         "enabled": true
@@ -1622,8 +1593,7 @@
               }
             ],
             "cost": [],
-            "pityAfter": null,
-            "resolvedConfig": {}
+            "pityAfter": null
           }
         },
         "next": {
@@ -1660,11 +1630,7 @@
               }
             ],
             "cost": [],
-            "pityAfter": null,
-            "resolvedConfig": {
-              "Weather.MinDuration": 600,
-              "Weather.MaxDuration": 1200
-            }
+            "pityAfter": null
           }
         },
         "enabled": true
@@ -1718,8 +1684,7 @@
                   }
                 ],
                 "cost": [],
-                "pityAfter": null,
-                "resolvedConfig": {}
+                "pityAfter": null
               }
             }
           }
@@ -1775,8 +1740,7 @@
                   }
                 ],
                 "cost": [],
-                "pityAfter": null,
-                "resolvedConfig": {}
+                "pityAfter": null
               }
             }
           }
@@ -1832,8 +1796,7 @@
                   }
                 ],
                 "cost": [],
-                "pityAfter": null,
-                "resolvedConfig": {}
+                "pityAfter": null
               }
             }
           }
@@ -1889,8 +1852,7 @@
                   }
                 ],
                 "cost": [],
-                "pityAfter": null,
-                "resolvedConfig": {}
+                "pityAfter": null
               }
             }
           }
@@ -1923,11 +1885,9 @@
             "kind": "int",
             "min": 0
           },
-          "scope": "PLAYER",
           "validOps": [
             "ADD"
-          ],
-          "numericGameValue": false
+          ]
         }
       ]
     },

@@ -712,16 +712,6 @@
   {
     "svc": "fields",
     "method": "GET",
-    "path": "/api/fields/universes/{universeId}/game-values/{fieldPath}/history"
-  },
-  {
-    "svc": "fields",
-    "method": "POST",
-    "path": "/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback"
-  },
-  {
-    "svc": "fields",
-    "method": "GET",
     "path": "/api/fields/universes/{universeId}/generators"
   },
   {
@@ -1893,5 +1883,75 @@
     "svc": "platform",
     "method": "GET",
     "path": "/metrics"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/actuator/health/liveness"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/actuator/health/readiness"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries"
+  },
+  {
+    "svc": "config",
+    "method": "PATCH",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries"
+  },
+  {
+    "svc": "config",
+    "method": "DELETE",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}"
+  },
+  {
+    "svc": "config",
+    "method": "PUT",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/history"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/history/{version}"
+  },
+  {
+    "svc": "config",
+    "method": "POST",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/rollback"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/snapshot"
+  },
+  {
+    "svc": "config",
+    "method": "GET",
+    "path": "/health"
   }
 ]

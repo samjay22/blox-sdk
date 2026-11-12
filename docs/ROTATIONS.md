@@ -34,7 +34,7 @@ when it stops they fall back to active reads. Repeated `runtimeSnapshot(interval
 universe/auth-context's poller; the first interval wins. Head-generation ETag changes are observed
 even if the config `version` is unchanged. 304 and failures preserve last-good state; stock claims do
 not change the snapshot ETag. Snapshot mode freshness is its configured polling interval, not instant
-notification at an edge. Use one shared poller for weather, shop and game config.
+notification at an edge. Use one shared poller for weather, shop and `client.configs` namespaces.
 
 Without a snapshot rotations member (or without a snapshot), Watch reads `/rotations/{key}/active`
 once, then schedules **one** refresh at current `endsAt` plus 50–250ms jitter using injected Unix time.
@@ -92,7 +92,7 @@ local odds = generators:getOdds("rarity", player.UserId)
 
 Count is **packs**, 1–10 (default 1), not card count. All packs succeed together: `GeneratorRollResult`
 contains `results: {Generated}`, each with `picks`, `cost`, `pityAfter` (number or `BloxSDK.null`) and
-`resolvedConfig`; plus `transaction`, `definitionVersions`, ID, generator, player ID and createdAt.
+plus `transaction`, `definitionVersions`, ID, generator, player ID and createdAt.
 Picks expose slot/index/table/entryId/path/tags/payload/rolls/durationSeconds/grants. The transaction
 records the applied costs/grants and final pity writes. Custom payloads/config remain `Core.Json`;
 inspect their structure before using game properties. Results follow existing immutable Result conventions.
@@ -108,7 +108,7 @@ pity-dependent generators may fail; supply the player context. No key is needed 
 All HTTP methods/helpers accept a final `Core.CallOptions` argument for deadlines/retries/cancellation.
 
 **GetOdds takes a table key, not a generator key.** `RandomOdds` includes root `entryProbabilities`,
-terminal-identity `probabilities` and `resolvedConfig`. They are exact analytical hierarchical
+terminal-identity `probabilities`. They are exact analytical hierarchical
 probabilities under current conditions/flags and optional player context. They are **not** final pack
 odds after uniqueness, guarantees or pity. Label in-game odds accordingly; the API has no analytical
 final-generator odds endpoint. The raw `fields:simulateGenerator` is read-only independent-trial

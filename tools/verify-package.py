@@ -101,7 +101,7 @@ local http={
   if fieldsMode then
    local path="https://lb1.blox-api.com/fields-service/api/fields/universes/123"
    if request.Url==path.."/schema" then
-    return {StatusCode=200,Headers={},Body=scheduler.json({universeId=123,schemaVersion=1,definitions={{universeId=123,id="Currency.Gems",type={kind="int",min=0},scope="PLAYER",status="ACTIVE",history="LEDGER",writeLevel="READ_WRITE",definitionVersion=1,description="",createdAt="now",updatedAt="now"}}})}
+    return {StatusCode=200,Headers={},Body=scheduler.json({universeId=123,schemaVersion=1,definitions={{universeId=123,id="Currency.Gems",type={kind="int",min=0},status="ACTIVE",history="LEDGER",writeLevel="READ_WRITE",definitionVersion=1,description="",createdAt="now",updatedAt="now"}}})}
 
    elseif request.Url==path.."/sessions/acquire" then
     return {StatusCode=200,Headers={},Body=scheduler.json({items={{userId=7,status="granted",epoch=7,expiresAt="2030-01-01T00:00:00Z",snapshot={seq=nativeSeq,fields={Currency={Gems=nativeValue}},versions={["Currency.Gems"]=nativeSeq}}}}})}

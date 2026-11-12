@@ -34,7 +34,7 @@ export type LeaderboardBinding = {
 export type Bindings = {
 	leaderboards: { LeaderboardBinding }?,
 	audit: ("NONE" | "ADMIN_ONLY" | "ALL")?,
-	runtime: { enabledFlag: string?, maxDeltaConfigKey: string? }?,
+	runtime: { enabledFlag: string? }?,
 }
 type OperationShape<S> =
 	{
@@ -109,11 +109,7 @@ export type BulkTarget =
 	| { kind: "SUBJECTS", subjects: { number } }
 	| { kind: "WHERE", where: Filter }
 export type ScheduleAction =
-	{ kind: "SET_CONFIG", key: string, type: "STRING", value: string }
-	| { kind: "SET_CONFIG", key: string, type: "NUMBER", value: number }
-	| { kind: "SET_CONFIG", key: string, type: "BOOLEAN", value: boolean }
-	| { kind: "SET_CONFIG", key: string, type: "JSON", value: Core.Json }
-	| { kind: "ENABLE_FLAG" | "DISABLE_FLAG", key: string }
+	{ kind: "ENABLE_FLAG" | "DISABLE_FLAG", key: string }
 	| { kind: "RUN_BULK", bulkDefinitionId: string }
 export type Converter =
 	{

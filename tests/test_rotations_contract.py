@@ -73,7 +73,7 @@ class RotationsContractTests(unittest.TestCase):
 
     def test_authoritative_engine_examples_are_not_abbreviated_or_rewritten(self) -> None:
         """Golden outputs preserve the full five-card pack, nulls and original replay indicator."""
-        source=ROOT.parent/'svc/fields-service/API_CONTRACT.md'
+        source=ROOT.parent/'svc/fields-service-redis/API_CONTRACT.md'
         if not source.is_file(): self.skipTest('Fields source unavailable')
         text=source.read_text()
         for name in ('active','roll','claim'):
@@ -88,7 +88,7 @@ class RotationsContractTests(unittest.TestCase):
         coverage=(ROOT/'SDK_COVERAGE.md').read_text()
         self.assertNotIn('TODO: Fields generic Rotations',coverage)
         self.assertIn('378',coverage)
-        self.assertIn('version = "5.0.0"',(ROOT/'wally.toml').read_text())
+        self.assertIn('version = "6.0.0"',(ROOT/'wally.toml').read_text())
         for file in ('CHANGELOG.md','docs/CHANGELOG.md'):
             text=(ROOT/file).read_text()
             self.assertIn('## 0.3.0',text)

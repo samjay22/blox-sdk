@@ -25,7 +25,6 @@ local function schema(): Wire.SchemaResponse
 			{ id = "Ratio", type = { kind = "number", min = 0, max = 1 } },
 		} :: { any }
 	do
-		definition.scope = "PLAYER"
 		definition.status = "ACTIVE"
 		if definition.id == "Label" then
 			definition.default = "Player"
@@ -86,7 +85,7 @@ local function schedule(): Wire.ScheduleInput
 		name = "Double gems",
 		start = "2026-12-01T12:00:00Z",
 		["end"] = "2026-12-01T14:00:00Z",
-		startActions = { { kind = "SET_CONFIG", key = "fields.gems.maxDelta", type = "NUMBER", value = 200 } },
+		startActions = { { kind = "ENABLE_FLAG", key = "double_gems" } },
 		restorePrevious = true,
 		reason = "Double gems weekend",
 		idempotencyKey = "double-gems-dec1",

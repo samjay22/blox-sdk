@@ -1,8 +1,8 @@
 # BloxSDK
 
-One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, and Platform**.
+One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, Platform, and Configs**.
 
-**379 typed endpoints, version 5.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
+**391 typed endpoints, version 6.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations, Generators and Tables are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@5.0.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@6.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@5.0.0"
+BloxSDK = "blox-api/blox-sdk@6.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -91,7 +91,7 @@ and [migration](MIGRATION.md). Live backend support must be deployed separately.
 
 ## Calls and results
 
-The eight facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.leaderboards`, `.fields`, and `.platform`. All route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes facade and the scoped-token cache are hand-written. Config is retired: game configuration lives in Fields, with no compatibility facade or fallback.
+The nine facades are `client.auth`, `.matchmaking`, `.party`, `.codes`, `.audit`, `.leaderboards`, `.fields`, `.platform` and `.configs`. Route wrappers are generated from `spec/endpoints.json`; Fields gameplay helpers, the Codes and Configs facades and the scoped-token cache are hand-written. Dynamic game configuration is `client.configs` (namespaced JSON values with a cached, ETag-polled copy); Fields no longer has universe-scoped values. See [docs/CONFIGS.md](docs/CONFIGS.md).
 
 - Body-only endpoints take the DTO directly: `client.party:createParty({ownerId=123, placeId=456})`.
 - Endpoints with other path or query parameters take `{path=..., query=..., body=...}`. Path and query values are separately encoded.
@@ -120,7 +120,7 @@ Current Platform methods and Fields-owned player administration are documented i
 ## New service helpers
 
 - `client:auditWriter(...)`: bounded, nonblocking enqueue/flush; max 500 events per batch, interval flush and native Roblox BindToClose integration.
-- `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `get`/`isEnabled`, `Changed` signal, last-good-state retention. `get` reads literal `gameValues` field IDs; `isEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
+- `client:runtimeSnapshot(30)`: Fields conditional snapshot polling with opaque ETags, synchronous `isEnabled`, `Changed` signal, last-good-state retention; `isEnabled` reads the master switch, not per-user rollout rules. Use `client.fields:evaluateFlags` / `evaluateFlagsBatch` for player evaluation. See [runtime example](examples/runtime-config.luau).
 - Cursor endpoints expose `<method>Pages(...)` iterators returning page Results.
 - Fields required-key operations, leaderboard submissions and audit events generate omitted idempotency keys **once per logical call and reuse them across retries**. Persist caller-supplied keys for retries across separate calls/restarts.
 - Loaded profiles automatically share low-priority batch sync (up to 200 players/op) and expose `Profile.Changed` / `client.ProfileChanged` for admin edits. Configure `profileSync` or disable it; see [Admin edits & live sync](docs/FIELDS.md#admin-edits--live-sync).
@@ -281,7 +281,7 @@ Underscore members and `Core`, `Services`, `Auth`, `Testing` modules are private
 The root exports no internal module tables. `Types/*` and `Fields/Types` are public type-contract modules.
 
 - [Generated API and Luau types](docs/api/README.md) — regenerate with `tools/gen-docs`; CI rejects drift.
-- [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [game configuration](docs/GAME-CONFIG.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
+- [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [dynamic configs](docs/CONFIGS.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
 - [Rotations/generators](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
 - [Codes](docs/CODES.md), [party](docs/PARTY.md), [audit](docs/AUDIT.md), [platform](docs/PLATFORM.md), [authentication](docs/AUTH.md).
 - [Error codes](docs/ERRORS.md), [performance/limits](docs/PERFORMANCE.md), [0.x migration](MIGRATION.md), [1.0 changelog](CHANGELOG.md).

@@ -1,5 +1,29 @@
 # Migrating BloxSDK
 
+## 5.0.0 to 6.0.0 — configs split out of Fields
+
+Game configuration moved out of Fields into `client.configs`. No aliases remain.
+
+| Before | After |
+|---|---|
+| UNIVERSE field `Welcome.Text` read with `client:runtimeSnapshot(30):get("Welcome.Text")` | `client.configs:namespace("Game"):getString("WelcomeText", "")` (a namespace plus a key; any JSON value) |
+| `runtimeSnapshot` for flags and maintenance | unchanged, but `snapshot:get` and `gameValues` are gone; `isEnabled`, `version`, `Changed` remain |
+| writing config through a Fields transaction at `:subject(0)` | `client.configs:namespace(n):set(key, value, { expectedVersion = v })` or `:setMany{...}` (admin key) |
+| `fields:gameValueHistory{ path = { fieldPath = k } }` / `gameValueHistoryPages` | `namespace:history(page?)` / `namespace:historyPages()` (per namespace version, not per field) |
+| `fields:rollbackGameValue{ path = { fieldPath = k }, body = { version = v } }` | `namespace:rollback(v)` (restores a whole namespace version as a new version) |
+| `definition.scope = "UNIVERSE"` / `"PLAYER"`, `scope` filter on `fields:definitions` | removed: every definition is per player; omit `scope` |
+| `multiTransactionBuilder():subject(0)...`, conditions on subject 0 | removed: every op and condition needs a positive subject |
+| schedule action `{ kind = "SET_CONFIG", key, type, value }` | removed; schedules enable or disable flags and run bulk jobs only (drive config from your own admin tooling) |
+| `bindings.runtime.maxDeltaConfigKey`, `$config` references, `resolvedConfig`/`numericGameValue` | removed |
+| error codes `game_field_not_found`, `game_version_not_found`, `scope_immutable`, `field_scope_mismatch` | `key_not_found` / `version_not_found` / `namespace_not_found` for configs; `invalid_subject` for subjects |
+| no polling control for config | `configs = { pollInterval = 30, jitter = 0.2, staleAfter = 90 }` in `BloxSDK.new`, or per `namespace(name, opts)` |
+
+Values do not migrate by themselves: recreate game values as namespace entries (for example with `setMany`) using an
+ADMIN key (`levels = { ConfigService = "ADMIN" }`), keeping that key off game servers. Namespace names allow
+`A-Z a-z 0-9 _ -` (up to 64 characters), keys `A-Z a-z 0-9 _ . -` (up to 100), values any non-null JSON up to 64 KiB.
+`BloxSDK.version` is `6.0.0`, health covers nine services, and the batch envelope uses `op.service = "config"`, which the
+batch service must accept before `client.configs` can be used in a deployment.
+
 ## 4.0.0 to 5.0.0 — codes simplified
 
 `client.codes` is reorganized around redeeming and administering codes. No aliases remain.

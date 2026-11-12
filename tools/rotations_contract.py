@@ -17,16 +17,16 @@ def curate(endpoints: list[dict], definitions: dict, raw: list[dict]) -> tuple[l
         'GeneratorSimulationInput': record(universeId='Long?', generator='String', playerId='Long?', iterations='Integer?'),
         'RotationClaimInput': record(universeId='Long?', instanceId='UUID', slot='String', entryId='String', quantity='int', idempotencyKey='String?', playerId='long'),
         'GeneratorPick': record(slot='String', index='int', table='String', entryId='String', path='List<String>', tags='List<String>', payload='JsonNode', rolls='Map<String,Long>', durationSeconds='Long', grants='List<Fields.PlayerOperation>'),
-        'Generated': record(picks='List<GeneratorPick>', cost='List<Fields.PlayerOperation>', pityAfter='Long', resolvedConfig='Map<String,JsonNode>'),
+        'Generated': record(picks='List<GeneratorPick>', cost='List<Fields.PlayerOperation>', pityAfter='Long'),
         'RotationInstance': record(id='UUID', key='String', sequence='long', startsAt='Instant', endsAt='Instant', definitionVersions='Map<String,Long>', result='Generated'),
         'RotationActive': record(current='RotationInstance', next='RotationInstance', enabled='boolean'),
         'GeneratorRollResult': record(id='UUID', generator='String', playerId='long', results='List<Generated>', definitionVersions='Map<String,Long>', transaction='Result', createdAt='Instant'),
         'RotationClaimResult': record(id='UUID', instanceId='UUID', slot='String', entryId='String', quantity='int', remaining='long', transaction='Result', createdAt='Instant'),
         'RotationStock': record(slot='String', entryId='String', remaining='long'),
-        'RandomOdds': record(entryProbabilities='Map<String,Double>', probabilities='Map<String,Double>', resolvedConfig='Map<String,JsonNode>'),
+        'RandomOdds': record(entryProbabilities='Map<String,Double>', probabilities='Map<String,Double>'),
         'GeneratorSimulationResult': record(iterations='int', picks='long', entryCounts='Map<String,Long>', appearanceProbabilities='Map<String,Double>', pityMode='String'),
         'RandomHistory': record(counter='long', data='JsonNode'),
-        'RandomEditorField': record(field='String', path='String', type='Fields.TypeExpr', scope='String', validOps='List<String>', numericGameValue='boolean'),
+        'RandomEditorField': record(field='String', path='String', type='Fields.TypeExpr', validOps='List<String>'),
     })
     for name, fields in {'GeneratorPick':['payload','durationSeconds'], 'Generated':['pityAfter'], 'RotationActive':['current','next']}.items():
         for field in fields: definitions[name]['fields'][field]['nullable'] = True

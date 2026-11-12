@@ -13,6 +13,11 @@ export type ProfileSyncConfig = {
 	maxConcurrentReloads: number?,
 	resyncSeconds: number?,
 }
+export type ConfigsConfig = {
+	pollInterval: number?,
+	staleAfter: number?,
+	jitter: number?,
+}
 export type SessionConfig = {
 	serverId: string?,
 	ttlMs: number?,
@@ -25,6 +30,7 @@ export type Config = {
 	sessions: SessionConfig?,
 	batch: { intervalSeconds: number? }?,
 	profileSync: ProfileSyncConfig?,
+	configs: ConfigsConfig?,
 	backend: Types.Backend?,
 	runtime: Types.Runtime?,
 	authProvider: Types.AuthProvider?,
@@ -52,6 +58,7 @@ local known = table.freeze({
 	sessions = true,
 	batch = true,
 	profileSync = true,
+	configs = true,
 	backend = true,
 	runtime = true,
 	authProvider = true,
@@ -110,6 +117,15 @@ function Config.validate(config: Config)
 			config.profileSync.enabled == nil or type(config.profileSync.enabled) == "boolean",
 			"Invalid profileSync enabled"
 		)
+	end
+	if config.configs ~= nil then
+		assert(type(config.configs) == "table", "configs must be a table")
+		for name in config.configs :: any do
+			assert(table.find({ "pollInterval", "staleAfter", "jitter" }, name), "Unknown configs field")
+		end
+		Config.number(config.configs.pollInterval, 30, 1, 3600, "configs.pollInterval")
+		Config.number(config.configs.jitter, 0.2, 0, 0.5, "configs.jitter")
+		Config.number(config.configs.staleAfter, 90, 1, 86400, "configs.staleAfter")
 	end
 	if config.sessions ~= nil then
 		assert(type(config.sessions) == "table", "sessions must be a table")

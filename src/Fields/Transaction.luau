@@ -71,9 +71,9 @@ local function reject(self: Transaction, code: string)
 		self._error = result.error
 	end
 end
---- Select a subject for subsequent multi-subject operations and conditions; zero means shared fields.
+--- Select the player (a positive user ID) that subsequent multi-subject operations and conditions apply to.
 function Transaction.subject(self: Transaction, subject: number): Transaction
-	if self._sealed or not self._multi or subject ~= 0 and not Universe.valid(subject) then
+	if self._sealed or not self._multi or not Universe.valid(subject) then
 		reject(self, "invalid_request")
 	else
 		self._subject = subject
@@ -98,7 +98,11 @@ local function push(
 	else
 		local value: any = item.value
 		if self._multi then
-			value.subject = self._subject or 0
+			if self._subject == nil then
+				reject(self, "invalid_request")
+				return self
+			end
+			value.subject = self._subject
 		end
 		table.insert(self._ops, value)
 	end
@@ -235,7 +239,11 @@ function Transaction.expect(
 	value.field = id
 	value.path = Copy.copy(path)
 	if self._multi then
-		value.subject = self._subject or 0
+		if self._subject == nil then
+			reject(self, "invalid_request")
+			return self
+		end
+		value.subject = self._subject
 	end
 	table.insert(self._conditions, value)
 	return self
@@ -271,7 +279,7 @@ end
 function Transaction.idempotencyKey(self: Transaction): string
 	return self._key
 end
---- Check field existence/lifecycle/scope without any HTTP call.
+--- Check field existence, lifecycle and the player subject without any HTTP call.
 local function definition(self: Transaction, id: string, subject: number?): Core.Result<Wire.Definition>
 	local def = self._schema:get(id)
 	if not def then
@@ -283,12 +291,9 @@ local function definition(self: Transaction, id: string, subject: number?): Core
 	if def.computed and (def.computed :: any) ~= Json.null then
 		return System.failure("field_computed")
 	end
-	local selected = if self._multi then subject or 0 else self._subject
-	if selected ~= 0 and not Universe.valid(selected) then
+	local selected = if self._multi then subject else self._subject
+	if selected == nil or not Universe.valid(selected) then
 		return System.failure("invalid_request")
-	end
-	if (def.scope == "UNIVERSE") ~= (selected == 0) then
-		return System.failure("field_scope_mismatch")
 	end
 	return { ok = true, value = def }
 end
@@ -325,7 +330,7 @@ function Transaction.validateLocal(self: Transaction): Core.Result<boolean>
 			d.error.path = op.path or {}
 			return d
 		end
-		subjects[op.subject or self._subject or 0] = true
+		subjects[op.subject or self._subject :: number] = true
 		if d.value.writeLevel == "ADMIN" and not text(self._reason, 5, 500) then
 			return System.failure("invalid_request", op.path, op.field, i - 1)
 		end
@@ -352,7 +357,7 @@ function Transaction.validateLocal(self: Transaction): Core.Result<boolean>
 		if not d.ok then
 			return d
 		end
-		subjects[condition.subject or self._subject or 0] = true
+		subjects[condition.subject or self._subject :: number] = true
 		local target = System.targetType(d.value.type :: Types.TypeExpr, condition.path)
 		if not target.ok then
 			return target

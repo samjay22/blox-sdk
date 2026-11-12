@@ -580,43 +580,6 @@ Service.updateFlag(
 ): Core.Result<Types.UpdateFlagResultValue>
 ```
 
-### `Service.gameValueHistory`
-
-GET /fields-service/api/fields/universes/{universeId}/game-values/{fieldPath}/history via gateway; access: READ.
-
-```luau
-Service.gameValueHistory(
-	self: Service,
-	req: Types.GameValueHistoryCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GameValueHistoryResultValue>
-```
-
-### `Service.gameValueHistoryPages`
-
-Lazily iterate cursor pages, preserving filters and surfacing errors.
-
-```luau
-Service.gameValueHistoryPages(
-	self: Service,
-	req: Types.GameValueHistoryCall,
-	opts: Core.CallOptions?,
-	maximum: number?
-): () -> Core.Result<Types.GameValueHistoryResultValue>?
-```
-
-### `Service.rollbackGameValue`
-
-POST /fields-service/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback via gateway; access: ADMIN.
-
-```luau
-Service.rollbackGameValue(
-	self: Service,
-	req: Types.RollbackGameValueCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RollbackGameValueResultValue>
-```
-
 ### `Service.listGenerators`
 
 GET /fields-service/api/fields/universes/{universeId}/generators via gateway; access: READ.
@@ -2336,7 +2299,6 @@ export type Definition = {
 	description: (string | Core.Null)?,
 	history: (History | Core.Null)?,
 	id: (string | Core.Null)?,
-	scope: (Scope | Core.Null)?,
 	status: (Status | Core.Null)?,
 	type: (FieldTypes.TypeExpr | Core.Null)?,
 	universeId: number,
@@ -2364,7 +2326,6 @@ export type DefinitionInput = {
 	history: History?,
 	id: string?,
 	reason: string,
-	scope: Scope?,
 	status: Status?,
 	type: FieldTypes.TypeExpr?,
 	universeId: number?,
@@ -2515,21 +2476,10 @@ export type FlagVariant = { name: string, value: Core.Json, weightPct: number }
 
 export type FlagVariantRead = { name: string, value: Core.Json, weightPct: number }
 
-export type GameValueChange = {
-	actor: (string | Core.Null)?,
-	newValue: (Core.Json | Core.Null)?,
-	previousValue: (Core.Json | Core.Null)?,
-	time: (string | Core.Null)?,
-	version: number,
-}
-
-export type GameValueRollbackInput = { version: number }
-
 export type Generated = {
 	cost: { FieldTypes.PlayerOperation },
 	picks: { GeneratorPick },
 	pityAfter: number | Core.Null,
-	resolvedConfig: { [string]: Core.Json },
 }
 
 export type GeneratorPick = {
@@ -2797,7 +2747,6 @@ export type Preview = {
 export type PreviewBoardInput = {
 	binding: FieldTypes.LeaderboardBinding,
 	id: string,
-	scope: Scope?,
 	type: FieldTypes.TypeExpr,
 	universeId: number?,
 }
@@ -2831,24 +2780,13 @@ export type RandomDefinitionInput = {
 	universeId: number?,
 }
 
-export type RandomEditorField = {
-	field: string,
-	numericGameValue: boolean,
-	path: string,
-	scope: string,
-	type: FieldTypes.TypeExpr,
-	validOps: { string },
-}
+export type RandomEditorField = { field: string, path: string, type: FieldTypes.TypeExpr, validOps: { string } }
 
 export type RandomErase = { confirmUniverseId: number, reason: string, universeId: number? }
 
 export type RandomHistory = { counter: number, data: Core.Json }
 
-export type RandomOdds = {
-	entryProbabilities: { [string]: number },
-	probabilities: { [string]: number },
-	resolvedConfig: { [string]: Core.Json },
-}
+export type RandomOdds = { entryProbabilities: { [string]: number }, probabilities: { [string]: number } }
 
 export type Receipt = {
 	createdAt: (string | Core.Null)?,
@@ -2983,7 +2921,6 @@ export type RotationStock = { entryId: string, remaining: number, slot: string }
 
 export type RuntimeSnapshot = {
 	flags: ({ FlagDefinition } | Core.Null)?,
-	gameValues: ({ [string]: Core.Json } | Core.Null)?,
 	maintenance: (MaintenanceState | Core.Null)?,
 	rotations: ({ RotationActive } | Core.Null)?,
 	version: number,
@@ -3066,8 +3003,6 @@ export type ScheduleSummary = {
 
 export type SchemaResponse = { definitions: { Definition }, schemaVersion: number, universeId: number }
 
-export type Scope = "PLAYER" | "UNIVERSE"
-
 export type ScoreRange = { maxScore: number, minScore: number }
 
 export type SessionItem = {
@@ -3096,7 +3031,7 @@ export type Snapshot = {
 	itemCount: number,
 	kind: (string | Core.Null)?,
 	reason: (string | Core.Null)?,
-	scope: (Scope | Core.Null)?,
+	scope: (SnapshotScope | Core.Null)?,
 	subjectId: (number | Core.Null)?,
 	universeId: number,
 }
@@ -3109,7 +3044,7 @@ export type SnapshotDetail = {
 	nextCursor: (string | Core.Null)?,
 }
 
-export type SnapshotInput = { reason: string, scope: Scope, universeId: number?, userId: number? }
+export type SnapshotInput = { reason: string, scope: SnapshotScope, universeId: number?, userId: number? }
 
 export type SnapshotItem = {
 	field: (string | Core.Null)?,
@@ -3117,6 +3052,8 @@ export type SnapshotItem = {
 	value: (Core.Json | Core.Null)?,
 	version: number,
 }
+
+export type SnapshotScope = "PLAYER" | "UNIVERSE"
 
 export type Status = "ACTIVE" | "ARCHIVED"
 
@@ -3192,7 +3129,7 @@ export type CommitSessionResultValue = CommitResponse
 
 export type DefinitionsCall = {
 	path: { universeId: (string | number)? }?,
-	query: { cursor: string?, limit: number?, prefix: string?, scope: string?, status: string? }?,
+	query: { cursor: string?, limit: number?, prefix: string?, status: string? }?,
 }
 
 export type DefinitionsResultValue = CursorPage<Definition>
@@ -3308,20 +3245,6 @@ export type FlagResultValue = FlagDefinition
 export type UpdateFlagCall = { path: { universeId: (string | number)?, key: string }, body: FlagInput }
 
 export type UpdateFlagResultValue = FlagDefinition
-
-export type GameValueHistoryCall = {
-	path: { universeId: (string | number)?, fieldPath: string },
-	query: { cursor: string?, limit: number? }?,
-}
-
-export type GameValueHistoryResultValue = CursorPage<GameValueChange>
-
-export type RollbackGameValueCall = {
-	path: { universeId: (string | number)?, fieldPath: string },
-	body: GameValueRollbackInput,
-}
-
-export type RollbackGameValueResultValue = Result
 
 export type ListGeneratorsCall = { path: { universeId: (string | number)? }? }
 

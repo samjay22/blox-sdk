@@ -14,8 +14,8 @@ sys.path.insert(0, str(ROOT / 'tools'))
 NEW_METHODS = {
     'auth.assignOwner', 'auth.createMember', 'auth.lookupServiceAccount',
     'fields.createFlag', 'fields.deleteFlag', 'fields.evaluateFlags', 'fields.evaluateFlagsBatch',
-    'fields.flag', 'fields.flags', 'fields.gameValueHistory', 'fields.maintenance',
-    'fields.putMaintenance', 'fields.rollbackGameValue', 'fields.runtimeSnapshot',
+    'fields.flag', 'fields.flags', 'fields.maintenance',
+    'fields.putMaintenance', 'fields.runtimeSnapshot',
     'fields.scheduleDefinition', 'fields.scheduleRuns', 'fields.updateFlag',
     'leaderboards.ratingLabel', 'leaderboards.ratingScopes',
     'platform.createPlan', 'platform.deletePlan', 'platform.incidents', 'platform.info',
@@ -47,17 +47,18 @@ class RuntimeContractTests(unittest.TestCase):
                 self.assertTrue(vector['url'].startswith('https://lb1.blox-api.com/'))
 
     def test_retired_and_speculative_surfaces_are_absent(self) -> None:
-        """No Config compatibility layer, speculative Platform API APIs is exposed."""
-        self.assertNotIn('config', self.types)
-        for endpoint in self.routes.values():
-            self.assertNotEqual(endpoint['service'], 'config')
+        """Config is its own service (not Fields); speculative Platform APIs are not exposed."""
+        self.assertIn('config', self.types)
+        self.assertEqual({e['service'] for e in self.routes.values() if e['service']=='config'}, {'config'})
+        self.assertNotIn('fields.gameValueHistory', self.routes)
+        self.assertNotIn('fields.rollbackGameValue', self.routes)
         for name in ('snapshotEnvironment', 'promoteEnvironment', 'rollbackEnvironment',
                      'liveEvents', 'createLiveEvent', 'evaluateFlags', 'recordExposure'):
             self.assertNotIn('platform.' + name, self.routes)
         self.assertNotIn('matchmaking.environmentResources', self.routes)
         for tree in ('src', 'roblox'):
-            self.assertFalse((ROOT / tree / 'Services/Config.luau').exists())
-            self.assertFalse((ROOT / tree / 'Types/Config.luau').exists())
+            self.assertTrue((ROOT / tree / 'Services/Config.luau').exists())
+            self.assertTrue((ROOT / tree / 'Configs/Namespace.luau').exists())
         coverage = (ROOT / 'SDK_COVERAGE.md').read_text()
         self.assertNotIn('TODO: Fields generic Rotations', coverage)
         self.assertIn('fields:activeRotation', coverage)

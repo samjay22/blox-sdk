@@ -196,8 +196,6 @@ function Operations.validate(
 		local code: string? = nil
 		if not d then
 			code = "unknown_field"
-		elseif d.scope ~= "PLAYER" then
-			code = "field_scope_mismatch"
 		elseif
 			not d.type
 			or (d.type :: any) == Json.null

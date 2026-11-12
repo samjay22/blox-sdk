@@ -203,15 +203,15 @@ function Jobs.buildExport(self: Client, input: Wire.ExportInput): Core.Result<Wi
 				return System.failure("invalid_request")
 			end
 			local d = schema:get(id)
-			if not d or not schema:validator(id) or d.scope ~= "PLAYER" then
+			if not d or not schema:validator(id) then
 				return System.failure("unknown_field")
 			end
 			seen[id] = true
 			table.insert(ids, id)
 		end
 	else
-		for id, d in schema:definitions() do
-			if schema:validator(id) and d.scope == "PLAYER" then
+		for id in schema:definitions() do
+			if schema:validator(id) then
 				table.insert(ids, id)
 			end
 		end

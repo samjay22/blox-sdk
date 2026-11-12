@@ -1,6 +1,6 @@
 # Endpoint reference
 
-379 endpoints. `routes.json` coverage is checked independently.
+391 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -16,6 +16,7 @@ Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 | `leaderboards` | `/leaderboard-service` |
 | `fields` | `/fields-service` |
 | `platform` | `/platform-service` |
+| `config` | `/remote-config-service` |
 
 Paths below are backend-relative operation paths: all wire HTTP uses `POST {gatewayUrl}/batch-service/api/batch`. Service prefixes shown above are gateway inventory, not prefixes on op paths. Direct-host overrides are rejected. See [batch transport](BATCHING.md).
 
@@ -118,6 +119,20 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/health` | `codes.healthProxy` | public / authenticated | 200 | yes | yes |
 | GET | `/info` | `codes.info` | public / authenticated | 200 | yes | yes |
 | GET | `/metrics` | `codes.metrics` | public / authenticated | 200 | yes | yes |
+| GET | `/actuator/health/liveness` | `config.liveness` | public / authenticated | 200 | yes | yes |
+| GET | `/actuator/health/readiness` | `config.readiness` | public / authenticated | 200 | yes | yes |
+| GET | `/api/config/universes/{universeId}/namespaces` | `config.namespaces` | READ | 200 | yes | no |
+| GET | `/api/config/universes/{universeId}/namespaces/{namespace}` | `config.namespace` | READ | 200 | yes | no |
+| GET | `/api/config/universes/{universeId}/namespaces/{namespace}/entries` | `config.entries` | READ | 200 | yes | no |
+| PATCH | `/api/config/universes/{universeId}/namespaces/{namespace}/entries` | `config.changeEntries` | ADMIN | 200 | no | no |
+| DELETE | `/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}` | `config.deleteEntry` | ADMIN | 204 | no | no |
+| GET | `/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}` | `config.entry` | READ | 200 | yes | no |
+| PUT | `/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}` | `config.putEntry` | ADMIN | 200 | no | no |
+| GET | `/api/config/universes/{universeId}/namespaces/{namespace}/history` | `config.history` | READ | 200 | yes | no |
+| GET | `/api/config/universes/{universeId}/namespaces/{namespace}/history/{version}` | `config.version` | READ | 200 | yes | no |
+| POST | `/api/config/universes/{universeId}/namespaces/{namespace}/rollback` | `config.rollback` | ADMIN | 200 | no | no |
+| GET | `/api/config/universes/{universeId}/namespaces/{namespace}/snapshot` | `config.snapshot` | READ | 200, 304 | yes | no |
+| GET | `/health` | `config.healthProxy` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/liveness` | `fields.liveness` | public / authenticated | 200 | yes | yes |
 | GET | `/actuator/health/readiness` | `fields.readiness` | public / authenticated | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/alerts` | `fields.alerts` | ADMIN | 200 | yes | no |
@@ -155,8 +170,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/fields/universes/{universeId}/flags/{key}` | `fields.deleteFlag` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/flags/{key}` | `fields.flag` | READ | 200 | yes | yes |
 | PUT | `/api/fields/universes/{universeId}/flags/{key}` | `fields.updateFlag` | READ_WRITE | 200 | no | no |
-| GET | `/api/fields/universes/{universeId}/game-values/{fieldPath}/history` | `fields.gameValueHistory` | READ | 200 | yes | yes |
-| POST | `/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback` | `fields.rollbackGameValue` | ADMIN | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/generators` | `fields.listGenerators` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/generators` | `fields.createGenerator` | READ_WRITE | 200 | no | no |
 | POST | `/api/fields/universes/{universeId}/generators/preview` | `fields.previewGenerator` | READ | 200 | yes | no |

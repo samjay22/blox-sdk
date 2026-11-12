@@ -21,7 +21,7 @@ only Instance require expressions with equivalent portable imports (`tools/verif
 |---|---|
 | fields | PLAYER int `Smoke.Counter`; increments once per joining player |
 | purchases | Fields products matching Marketplace product IDs; owns the single ProcessReceipt callback |
-| game-config | UNIVERSE field `Welcome.Text`; observes ETag snapshots |
+| configs | namespace `Shop` key `SwordPrice`; observes ETag-polled changes |
 | flags | `double_xp` flag; authoritative player evaluation |
 | live-events | enabled `live_event` rotation with current head |
 | weather | `weather` rotation; picks carry weather values RAIN/METEOR/CLEAR |

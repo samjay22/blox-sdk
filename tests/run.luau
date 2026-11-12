@@ -551,6 +551,42 @@ local function codesCall(facade: any, name: string, request: Core.Request): Core
 	end
 	return facade[name](facade)
 end
+--- ConfigService is hand-written too: admin calls live on the namespace handle, whose poller this test stops
+--- so that each route accounts for exactly one request.
+local function configCall(c: any, name: string, request: Core.Request): Core.Result<any>
+	local path: any = request.path
+	local configs = c.configs
+	if name == "namespaces" then
+		return configs:namespaces(request.query)
+	elseif name == "healthProxy" or name == "liveness" or name == "readiness" then
+		return configs[name](configs)
+	elseif name == "snapshot" then
+		return c._invoke(Endpoints["config.snapshot"], request, nil, 1)
+	end
+	local handle = configs:namespace(path.namespace)
+	handle:destroy()
+	if name == "namespace" then
+		return handle:info()
+	elseif name == "entries" then
+		return handle:entries(request.query)
+	elseif name == "entry" then
+		return handle:entry(path.key)
+	elseif name == "putEntry" then
+		return handle:set(path.key, { enabled = true })
+	elseif name == "deleteEntry" then
+		return handle:delete(path.key)
+	elseif name == "changeEntries" then
+		return handle:setMany({ set = { a = 1 } })
+	elseif name == "history" then
+		return handle:history(request.query)
+	elseif name == "version" then
+		return handle:at(path.version)
+	elseif name == "rollback" then
+		return handle:rollback(1)
+	end
+	error("Unhandled config route " .. name)
+end
+
 test(
 	"all generated endpoints use internal operations through default and custom batch gateways offline",
 	function()
@@ -659,7 +695,6 @@ test(
 						universeId = 1,
 						id = "Currency.Gems",
 						description = "",
-						scope = "PLAYER",
 						status = "ACTIVE",
 						type = { kind = "int" },
 						definitionVersion = 1,
@@ -681,12 +716,14 @@ test(
 					local owner = if (direct and #spec.pathParams > 0)
 							or id == "codes.createCode"
 							or id == "codes.bulkCreateCodes"
+							or spec.service == "config"
 						then c:withUniverse(1)
 						else c
-					local facade = (owner :: any)[spec.service]
+					local facade = if spec.service == "config" then owner else (owner :: any)[spec.service]
 					local argument = if direct then request.body else request
 					local r = if spec.service == "codes"
 						then codesCall(facade, name, request)
+						elseif spec.service == "config" then configCall(facade, name, request)
 						else facade[name](facade, argument)
 					check(r.ok, "Endpoint failed " .. id)
 				end)
@@ -1072,6 +1109,7 @@ require("./operations")(test)
 require("./matchmaking")(test)
 require("./live_responses")(test)
 require("./codes_bulk")(test)
+require("./configs")(test)
 require("./jobs")(test)
 require("./references")(test)
 require("./simulate")(test)

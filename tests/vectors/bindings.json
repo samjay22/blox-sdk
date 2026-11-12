@@ -1630,23 +1630,6 @@
     "code": "leaderboard_requires_int"
   },
   {
-    "name": "universe bound",
-    "action": "bindings",
-    "type": {
-      "kind": "int"
-    },
-    "bindings": {
-      "leaderboards": [
-        {
-          "board": "wins",
-          "submit": "VALUE"
-        }
-      ]
-    },
-    "scope": "UNIVERSE",
-    "code": "invalid_definition"
-  },
-  {
     "name": "computed bound",
     "action": "bindings",
     "type": {
@@ -1685,7 +1668,6 @@
       "leaderboards": []
     },
     "computed": true,
-    "scope": "UNIVERSE",
     "expected": true
   },
   {
@@ -1751,8 +1733,7 @@
     },
     "bindings": {
       "runtime": {
-        "enabledFlag": "enabled",
-        "maxDeltaConfigKey": "limit"
+        "enabledFlag": "enabled"
       }
     },
     "expected": true

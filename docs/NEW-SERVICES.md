@@ -77,7 +77,6 @@ A 304 has no body and retains the cached state. Errors, malformed responses and
 version regressions retain the last good snapshot; `lastError` is observable. No generic TTL cache is
 used for these requests.
 
-`:get(key)` reads a literal UNIVERSE field ID from `gameValues` and returns an immutable value or nil;
 `:isEnabled(flag)` returns the cached **master enabled
 switch only**, false when missing/unloaded. It does **not** evaluate user-specific rollout percentage,
 attributes or rules. Use `client.fields:evaluateFlags({userId=7,keys={"double_xp"}})` or
@@ -86,9 +85,7 @@ are conservatively single-attempt. `fields:maintenance()` / `putMaintenance` han
 maintenance policy; writes require ADMIN. `flags` / `flag` read definitions; `createFlag` / `updateFlag`
 require WRITE, and updates require the current version; `deleteFlag` requires ADMIN.
 
-Game configuration is stored in UNIVERSE-scoped Fields definitions at subject 0. Use Fields transactions
-for writes, `gameValueHistoryPages` to read changes, and ADMIN-only `rollbackGameValue` for an unkeyed
-compensation to a prior version. It is not safe to automatically retry that rollback.
+Dynamic game configuration is not part of Fields: use `client.configs` (see [CONFIGS.md](CONFIGS.md)).
 
 `:version()` reports the last successful generation. `Changed:connect(callback)` returns a connection
 with `:disconnect()`; callbacks run asynchronously on first load and each changed generation, not on

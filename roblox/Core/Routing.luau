@@ -5,6 +5,7 @@ local prefixes: { [string]: string } = table.freeze({
 	["audit"] = "/audit-service",
 	["auth"] = "/auth-service",
 	["codes"] = "/code-service",
+	["config"] = "/remote-config-service",
 	["fields"] = "/fields-service",
 	["leaderboards"] = "/leaderboard-service",
 	["matchmaking"] = "/matchmaking-service",

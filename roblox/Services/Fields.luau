@@ -425,39 +425,6 @@ function Service.updateFlag(
 ): Core.Result<Types.UpdateFlagResultValue>
 	return self._invoke(Endpoints["fields.updateFlag"], req, opts, self._universe)
 end
---- GET /fields-service/api/fields/universes/{universeId}/game-values/{fieldPath}/history via gateway; access: READ.
-function Service.gameValueHistory(
-	self: Service,
-	req: Types.GameValueHistoryCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.GameValueHistoryResultValue>
-	return self._invoke(Endpoints["fields.gameValueHistory"], req, opts, self._universe)
-end
---- Lazily iterate cursor pages, preserving filters and surfacing errors.
-function Service.gameValueHistoryPages(
-	self: Service,
-	req: Types.GameValueHistoryCall,
-	opts: Core.CallOptions?,
-	maximum: number?
-): () -> Core.Result<Types.GameValueHistoryResultValue>?
-	local request: Types.GameValueHistoryCall = Idempotency.copy(req or {})
-	local query = table.clone(request.query or {})
-	request.query = query
-	return Pagination.cursor(function(cursor: string?): Core.Result<Types.GameValueHistoryResultValue>
-		query.cursor = cursor
-		return self.gameValueHistory(self, request, opts)
-	end, function(page: Types.GameValueHistoryResultValue): (string | Core.Null)?
-		return page.nextCursor
-	end, maximum, query.cursor)
-end
---- POST /fields-service/api/fields/universes/{universeId}/game-values/{fieldPath}/rollback via gateway; access: ADMIN.
-function Service.rollbackGameValue(
-	self: Service,
-	req: Types.RollbackGameValueCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.RollbackGameValueResultValue>
-	return self._invoke(Endpoints["fields.rollbackGameValue"], req, opts, self._universe)
-end
 --- GET /fields-service/api/fields/universes/{universeId}/generators via gateway; access: READ.
 function Service.listGenerators(
 	self: Service,

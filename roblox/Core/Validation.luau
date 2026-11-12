@@ -304,12 +304,11 @@ function Validation.body(endpoint: string, value: unknown): boolean
 	end
 	if endpoint == "fields.previewBoard" then
 		return TypeSystem.compile(body.type).ok
-			and Bindings.validate({ leaderboards = { body.binding } }, body.scope, body.type, false).ok
+			and Bindings.validate({ leaderboards = { body.binding } }, body.type, false).ok
 	elseif endpoint == "fields.create" or endpoint == "fields.update" then
 		if
 			not Bindings.validate(
 				body.bindings,
-				body.scope,
 				body.type,
 				body.computed ~= nil and body.computed ~= Json.null
 			).ok

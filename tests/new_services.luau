@@ -397,7 +397,6 @@ return function(test: (string, () -> ()) -> ())
 					body = s.json({
 						version = 1,
 						maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
-						gameValues = { welcome = "Hello" },
 						flags = {
 							flag,
 						},
@@ -411,7 +410,6 @@ return function(test: (string, () -> ()) -> ())
 					body = s.json({
 						version = 2,
 						maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
-						gameValues = { welcome = "Welcome" },
 						flags = Json.array({}),
 					}),
 					check = capture,
@@ -425,18 +423,16 @@ return function(test: (string, () -> ()) -> ())
 			cache.changed:connect(function(_value)
 				error("Synthetic handler failure")
 			end)
-			check(cache:get("welcome") == nil and not cache:isEnabled("double_xp"))
+			check(not cache:isEnabled("double_xp"))
 			s.run(function()
 				s.runtime.wait(0.55)
-				check(
-					cache:get("welcome") == "Hello" and cache:isEnabled("double_xp") and cache:version() == 1
-				)
+				check(cache:isEnabled("double_xp") and cache:version() == 1)
 				s.runtime.wait(0.5)
 				check(cache:version() == 1 and changes == 1)
 				s.runtime.wait(0.5)
-				check(cache:get("welcome") == "Hello" and cache.lastError ~= nil)
+				check(cache:isEnabled("double_xp") and cache.lastError ~= nil)
 				s.runtime.wait(0.5)
-				check(cache:get("welcome") == "Welcome" and not cache:isEnabled("double_xp") and changes == 2)
+				check(not cache:isEnabled("double_xp") and changes == 2)
 				connection:disconnect()
 				c:destroy()
 			end)
@@ -456,7 +452,6 @@ return function(test: (string, () -> ()) -> ())
 			local good = {
 				version = 4,
 				maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
-				gameValues = { n = 2 },
 				flags = Json.array({}),
 			}
 			local c, f = client(s, {
@@ -465,7 +460,6 @@ return function(test: (string, () -> ()) -> ())
 					body = s.json({
 						version = 3,
 						maintenance = { enabled = false, message = "", allowlistUserIds = Json.array({}) },
-						gameValues = {},
 						flags = Json.array({}),
 					}),
 				},
@@ -478,7 +472,7 @@ return function(test: (string, () -> ()) -> ())
 				s.runtime.wait(0.5)
 				check(cache:version() == 4 and cache.lastError ~= nil)
 				s.runtime.wait(0.5)
-				check(cache:get("n") == 2)
+				check(cache:version() == 4)
 				c:withUniverse(123):destroy()
 			end)
 			check(f.count() >= 3 and s.pending() == 0)

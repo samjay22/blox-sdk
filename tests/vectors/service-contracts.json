@@ -259,9 +259,6 @@
     "request": {},
     "response": {
       "version": 1,
-      "gameValues": {
-        "Welcome.Text": "Hello"
-      },
       "flags": [
         {
           "key": "double_xp",
@@ -286,60 +283,6 @@
     },
     "status": 200,
     "body": null,
-    "identity": false,
-    "empty": false
-  },
-  {
-    "endpoint": "fields.gameValueHistory",
-    "method": "GET",
-    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/history?limit=1",
-    "request": {
-      "path": {
-        "fieldPath": "Welcome.Text"
-      },
-      "query": {
-        "limit": 1
-      }
-    },
-    "response": {
-      "items": [
-        {
-          "version": 1,
-          "previousValue": null,
-          "newValue": "Hello",
-          "actor": "server",
-          "time": "2026-11-07T00:00:00Z"
-        }
-      ],
-      "nextCursor": null
-    },
-    "status": 200,
-    "body": null,
-    "identity": false,
-    "empty": false
-  },
-  {
-    "endpoint": "fields.rollbackGameValue",
-    "method": "POST",
-    "url": "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/rollback",
-    "request": {
-      "path": {
-        "fieldPath": "Welcome.Text"
-      },
-      "body": {
-        "version": 1
-      }
-    },
-    "response": {
-      "txId": "00000000-0000-4000-8000-000000000001",
-      "replayed": false,
-      "results": [],
-      "seq": {}
-    },
-    "status": 200,
-    "body": {
-      "version": 1
-    },
     "identity": false,
     "empty": false
   },

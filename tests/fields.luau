@@ -343,7 +343,7 @@ return function(test: (string, () -> ()) -> ())
 					"wrong_type",
 					"unknown_field",
 					"field_archived",
-					"field_scope_mismatch",
+					"unknown_field",
 					"op_not_applicable",
 					"invalid_enum",
 					"unknown_member",
@@ -452,12 +452,12 @@ return function(test: (string, () -> ()) -> ())
 					:multiTransactionBuilder()
 					:subject(7)
 					:add("Currency.Gems", 1)
-					:subject(0)
-					:add("Shared", 1)
+					:subject(8)
+					:add("Currency.Gems", 2)
 					:reason("reward")
 					:commit().ok
 			)
-			check(string.find(body, '"subject":0', 1, true) and string.find(body, '"subject":7', 1, true))
+			check(string.find(body, '"subject":8', 1, true) and string.find(body, '"subject":7', 1, true))
 			local tx = c.fields:multiTransactionBuilder():reason("reward"):subject(1):add("Currency.Gems", 1)
 			for user = 2, 11 do
 				tx:subject(user):expect("Currency.Gems", { exists = true })
@@ -709,7 +709,6 @@ return function(test: (string, () -> ()) -> ())
 		local computed: any = {
 			universeId = 123,
 			id = "Total",
-			scope = "PLAYER",
 			status = "ACTIVE",
 			definitionVersion = 1,
 			description = "",

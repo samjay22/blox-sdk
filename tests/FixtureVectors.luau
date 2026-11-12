@@ -1031,18 +1031,6 @@ local data: any = Json.object({
 				),
 			} :: any),
 			["code"] = "invalid_definition",
-			["name"] = "universe bound",
-			["scope"] = "UNIVERSE",
-			["type"] = Json.object({ ["kind"] = "int" } :: any),
-		} :: any),
-		Json.object({
-			["action"] = "bindings",
-			["bindings"] = Json.object({
-				["leaderboards"] = Json.array(
-					{ Json.object({ ["board"] = "wins", ["submit"] = "VALUE" } :: any) } :: { any }
-				),
-			} :: any),
-			["code"] = "invalid_definition",
 			["computed"] = true,
 			["name"] = "computed bound",
 			["type"] = Json.object({ ["kind"] = "int" } :: any),
@@ -1064,7 +1052,6 @@ local data: any = Json.object({
 			["computed"] = true,
 			["expected"] = true,
 			["name"] = "unbound computed",
-			["scope"] = "UNIVERSE",
 			["type"] = Json.null,
 		} :: any),
 		Json.object({
@@ -1104,11 +1091,9 @@ local data: any = Json.object({
 		} :: any),
 		Json.object({
 			["action"] = "bindings",
-			["bindings"] = Json.object({
-				["runtime"] = Json.object(
-					{ ["enabledFlag"] = "enabled", ["maxDeltaConfigKey"] = "limit" } :: any
-				),
-			} :: any),
+			["bindings"] = Json.object(
+				{ ["runtime"] = Json.object({ ["enabledFlag"] = "enabled" } :: any) } :: any
+			),
 			["expected"] = true,
 			["name"] = "runtime keys",
 			["type"] = Json.object({ ["kind"] = "int" } :: any),
@@ -1354,28 +1339,21 @@ local data: any = Json.object({
 					["path"] = Json.array({} :: { any }),
 				} :: any),
 				Json.object({
-					["code"] = "field_scope_mismatch",
-					["field"] = "Shared",
-					["opIndex"] = 1,
-					["path"] = Json.array({} :: { any }),
-				} :: any),
-				Json.object({
 					["code"] = "field_computed",
 					["field"] = "Total",
-					["opIndex"] = 2,
+					["opIndex"] = 1,
 					["path"] = Json.array({} :: { any }),
 				} :: any),
 				Json.object({
 					["code"] = "field_archived",
 					["field"] = "Old",
-					["opIndex"] = 3,
+					["opIndex"] = 2,
 					["path"] = Json.array({} :: { any }),
 				} :: any),
 			} :: { any }),
 			["name"] = "all eligibility diagnostics",
 			["ops"] = Json.array({
 				Json.object({ ["field"] = "Missing", ["op"] = "RESET" } :: any),
-				Json.object({ ["field"] = "Shared", ["op"] = "RESET" } :: any),
 				Json.object({ ["field"] = "Total", ["op"] = "RESET" } :: any),
 				Json.object({ ["field"] = "Old", ["op"] = "RESET" } :: any),
 			} :: { any }),
@@ -2222,7 +2200,6 @@ local data: any = Json.object({
 						} :: any),
 					} :: { any }),
 					["pityAfter"] = Json.null,
-					["resolvedConfig"] = Json.object({} :: any),
 				} :: any),
 				["sequence"] = 41,
 				["startsAt"] = "2026-11-08T12:00:00Z",
@@ -2252,9 +2229,6 @@ local data: any = Json.object({
 						} :: any),
 					} :: { any }),
 					["pityAfter"] = Json.null,
-					["resolvedConfig"] = Json.object(
-						{ ["Weather.MaxDuration"] = 1200, ["Weather.MinDuration"] = 600 } :: any
-					),
 				} :: any),
 				["sequence"] = 42,
 				["startsAt"] = "2026-11-08T12:07:45Z",
@@ -2303,7 +2277,6 @@ local data: any = Json.object({
 			["probabilities"] = Json.object(
 				{ ["cards_common/c01"] = 0.0875, ["cards_rare/r01"] = 0.03125 } :: any
 			),
-			["resolvedConfig"] = Json.object({} :: any),
 		} :: any),
 		["roll"] = Json.object({
 			["createdAt"] = "2026-11-08T12:00:00Z",
@@ -2431,9 +2404,6 @@ local data: any = Json.object({
 						} :: any),
 					} :: { any }),
 					["pityAfter"] = 1,
-					["resolvedConfig"] = Json.object(
-						{ ["Cards.PityThreshold"] = 50, ["Economy.PackDebit"] = -100 } :: any
-					),
 				} :: any),
 			} :: { any }),
 			["transaction"] = Json.object({
@@ -2910,7 +2880,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = Json.null,
-							["resolvedConfig"] = Json.object({} :: any),
 						} :: any),
 						["sequence"] = 41,
 						["startsAt"] = "2026-11-08T12:00:00Z",
@@ -2945,10 +2914,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = Json.null,
-							["resolvedConfig"] = Json.object({
-								["Weather.MaxDuration"] = 1200,
-								["Weather.MinDuration"] = 600,
-							} :: any),
 						} :: any),
 						["sequence"] = 42,
 						["startsAt"] = "2026-11-08T12:07:45Z",
@@ -2971,7 +2936,6 @@ local data: any = Json.object({
 					["probabilities"] = Json.object(
 						{ ["cards_common/c01"] = 0.0875, ["cards_rare/r01"] = 0.03125 } :: any
 					),
-					["resolvedConfig"] = Json.object({} :: any),
 				} :: any),
 				["status"] = 200,
 				["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/random-tables/weather/odds?playerId=7",
@@ -3101,9 +3065,6 @@ local data: any = Json.object({
 							} :: any),
 						} :: { any }),
 						["pityAfter"] = 1,
-						["resolvedConfig"] = Json.object(
-							{ ["Cards.PityThreshold"] = 50, ["Economy.PackDebit"] = -100 } :: any
-						),
 					} :: any),
 				} :: { any }),
 				["status"] = 200,
@@ -3259,10 +3220,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = 1,
-							["resolvedConfig"] = Json.object({
-								["Cards.PityThreshold"] = 50,
-								["Economy.PackDebit"] = -100,
-							} :: any),
 						} :: any),
 					} :: { any }),
 					["transaction"] = Json.object({
@@ -3457,7 +3414,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = Json.null,
-							["resolvedConfig"] = Json.object({} :: any),
 						} :: any),
 						["sequence"] = 41,
 						["startsAt"] = "2026-11-08T12:00:00Z",
@@ -3492,10 +3448,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = Json.null,
-							["resolvedConfig"] = Json.object({
-								["Weather.MaxDuration"] = 1200,
-								["Weather.MinDuration"] = 600,
-							} :: any),
 						} :: any),
 						["sequence"] = 42,
 						["startsAt"] = "2026-11-08T12:07:45Z",
@@ -3541,7 +3493,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = Json.null,
-							["resolvedConfig"] = Json.object({} :: any),
 						} :: any),
 						["sequence"] = 41,
 						["startsAt"] = "2026-11-08T12:00:00Z",
@@ -3576,10 +3527,6 @@ local data: any = Json.object({
 								} :: any),
 							} :: { any }),
 							["pityAfter"] = Json.null,
-							["resolvedConfig"] = Json.object({
-								["Weather.MaxDuration"] = 1200,
-								["Weather.MinDuration"] = 600,
-							} :: any),
 						} :: any),
 						["sequence"] = 42,
 						["startsAt"] = "2026-11-08T12:07:45Z",
@@ -3625,7 +3572,6 @@ local data: any = Json.object({
 										} :: any),
 									} :: { any }),
 									["pityAfter"] = Json.null,
-									["resolvedConfig"] = Json.object({} :: any),
 								} :: any),
 								["sequence"] = 41,
 								["startsAt"] = "2026-11-08T12:00:00Z",
@@ -3674,7 +3620,6 @@ local data: any = Json.object({
 										} :: any),
 									} :: { any }),
 									["pityAfter"] = Json.null,
-									["resolvedConfig"] = Json.object({} :: any),
 								} :: any),
 								["sequence"] = 41,
 								["startsAt"] = "2026-11-08T12:00:00Z",
@@ -3723,7 +3668,6 @@ local data: any = Json.object({
 										} :: any),
 									} :: { any }),
 									["pityAfter"] = Json.null,
-									["resolvedConfig"] = Json.object({} :: any),
 								} :: any),
 								["sequence"] = 41,
 								["startsAt"] = "2026-11-08T12:00:00Z",
@@ -3772,7 +3716,6 @@ local data: any = Json.object({
 										} :: any),
 									} :: { any }),
 									["pityAfter"] = Json.null,
-									["resolvedConfig"] = Json.object({} :: any),
 								} :: any),
 								["sequence"] = 41,
 								["startsAt"] = "2026-11-08T12:00:00Z",
@@ -3801,9 +3744,7 @@ local data: any = Json.object({
 				["response"] = Json.array({
 					Json.object({
 						["field"] = "Currency.Gems",
-						["numericGameValue"] = false,
 						["path"] = "Currency.Gems",
-						["scope"] = "PLAYER",
 						["type"] = Json.object({ ["kind"] = "int", ["min"] = 0 } :: any),
 						["validOps"] = Json.array({ "ADD" } :: { any }),
 					} :: any),
@@ -3847,7 +3788,6 @@ local data: any = Json.object({
 				["description"] = "",
 				["history"] = "LEDGER",
 				["id"] = "Currency.Gems",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object(
 					{ ["kind"] = "int", ["max"] = 1000000, ["maxDelta"] = 100000, ["min"] = 0 } :: any
@@ -3862,7 +3802,6 @@ local data: any = Json.object({
 				["description"] = "",
 				["history"] = "LEDGER",
 				["id"] = "Currency.Coins",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object({ ["kind"] = "int", ["max"] = 1000000000, ["min"] = 0 } :: any),
 				["universeId"] = 123,
@@ -3875,7 +3814,6 @@ local data: any = Json.object({
 				["description"] = "",
 				["history"] = "LEDGER",
 				["id"] = "Inventory.Items",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object({
 					["key"] = Json.object({
@@ -3896,7 +3834,6 @@ local data: any = Json.object({
 				["description"] = "",
 				["history"] = "LEDGER",
 				["id"] = "Characters",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object({
 					["item"] = Json.object({
@@ -3932,7 +3869,6 @@ local data: any = Json.object({
 				["description"] = "",
 				["history"] = "LEDGER",
 				["id"] = "Settings",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object({
 					["kind"] = "object",
@@ -3960,7 +3896,6 @@ local data: any = Json.object({
 				["description"] = "",
 				["history"] = "NONE",
 				["id"] = "Metrics",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object({
 					["kind"] = "object",
@@ -3981,7 +3916,6 @@ local data: any = Json.object({
 			} :: any),
 			Json.object({
 				["id"] = "Tags",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object(
 					{ ["item"] = Json.object({ ["kind"] = "string" } :: any), ["kind"] = "set" } :: any
@@ -3989,7 +3923,6 @@ local data: any = Json.object({
 			} :: any),
 			Json.object({
 				["id"] = "Ranks",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object({
 					["key"] = Json.object({ ["kind"] = "int" } :: any),
@@ -3999,7 +3932,6 @@ local data: any = Json.object({
 			} :: any),
 			Json.object({
 				["id"] = "Optional",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 				["type"] = Json.object(
 					{ ["kind"] = "nullable", ["of"] = Json.object({ ["kind"] = "int" } :: any) } :: any
@@ -4010,19 +3942,11 @@ local data: any = Json.object({
 					{ ["expression"] = "Currency.Gems + Currency.Coins", ["returns"] = "int" } :: any
 				),
 				["id"] = "Total",
-				["scope"] = "PLAYER",
 				["status"] = "ACTIVE",
 			} :: any),
 			Json.object({
 				["id"] = "Old",
-				["scope"] = "PLAYER",
 				["status"] = "ARCHIVED",
-				["type"] = Json.object({ ["kind"] = "int" } :: any),
-			} :: any),
-			Json.object({
-				["id"] = "Shared",
-				["scope"] = "UNIVERSE",
-				["status"] = "ACTIVE",
 				["type"] = Json.object({ ["kind"] = "int" } :: any),
 			} :: any),
 		} :: { any }),
@@ -4275,7 +4199,6 @@ local data: any = Json.object({
 						["version"] = 1,
 					} :: any),
 				} :: { any }),
-				["gameValues"] = Json.object({ ["Welcome.Text"] = "Hello" } :: any),
 				["maintenance"] = Json.object({
 					["allowlistUserIds"] = Json.array({} :: { any }),
 					["enabled"] = false,
@@ -4285,50 +4208,6 @@ local data: any = Json.object({
 			} :: any),
 			["status"] = 200,
 			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/runtime/snapshot",
-		} :: any),
-		Json.object({
-			["body"] = Json.null,
-			["empty"] = false,
-			["endpoint"] = "fields.gameValueHistory",
-			["identity"] = false,
-			["method"] = "GET",
-			["request"] = Json.object({
-				["path"] = Json.object({ ["fieldPath"] = "Welcome.Text" } :: any),
-				["query"] = Json.object({ ["limit"] = 1 } :: any),
-			} :: any),
-			["response"] = Json.object({
-				["items"] = Json.array({
-					Json.object({
-						["actor"] = "server",
-						["newValue"] = "Hello",
-						["previousValue"] = Json.null,
-						["time"] = "2026-11-07T00:00:00Z",
-						["version"] = 1,
-					} :: any),
-				} :: { any }),
-				["nextCursor"] = Json.null,
-			} :: any),
-			["status"] = 200,
-			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/history?limit=1",
-		} :: any),
-		Json.object({
-			["body"] = Json.object({ ["version"] = 1 } :: any),
-			["empty"] = false,
-			["endpoint"] = "fields.rollbackGameValue",
-			["identity"] = false,
-			["method"] = "POST",
-			["request"] = Json.object({
-				["body"] = Json.object({ ["version"] = 1 } :: any),
-				["path"] = Json.object({ ["fieldPath"] = "Welcome.Text" } :: any),
-			} :: any),
-			["response"] = Json.object({
-				["replayed"] = false,
-				["results"] = Json.array({} :: { any }),
-				["seq"] = Json.object({} :: any),
-				["txId"] = "00000000-0000-4000-8000-000000000001",
-			} :: any),
-			["status"] = 200,
-			["url"] = "https://lb1.blox-api.com/fields-service/api/fields/universes/123/game-values/Welcome.Text/rollback",
 		} :: any),
 		Json.object({
 			["body"] = Json.null,

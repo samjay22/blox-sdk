@@ -11,7 +11,6 @@ RECORD_NAMES: dict[str, dict[str, str]] = {
     'FlagEvaluator': {'Value':'FlagEvaluationValue'},
     'FlagModels': {name:'Flag'+name for name in ('Match','Rule','Variant','Put','Evaluate','Exposure')},
     'EnvironmentDefinitionsService': {'Replace':'EnvironmentReplaceInput'},
-    'GameValueHistoryService': {'RollbackInput':'GameValueRollbackInput'},
 }
 
 
@@ -41,22 +40,20 @@ def curate(endpoints: list[dict], definitions: dict) -> None:
     definitions['PlayerEraseResult'] = record(erased='boolean', tombstoneId='UUID')
     definitions['PlayerEraseInput'] = record(reason='String', confirmUserId='long')
     definitions['PlayerRevertInput'] = record(reason='String', ledgerEntryIds='List<UUID>')
-    for name in ('RuntimeSnapshot','MaintenanceState','FlagDefinition','FlagMatch','FlagRule','FlagVariant','FlagEvaluationValue','GameValueChange'):
+    for name in ('RuntimeSnapshot','MaintenanceState','FlagDefinition','FlagMatch','FlagRule','FlagVariant','FlagEvaluationValue'):
         for field in definitions[name]['fields'].values(): field['required'] = True
     definitions['RuntimeSnapshot']['fields']['rotations']['required'] = False
-    for name, fields in {'FlagRule':['match'], 'FlagDefinition':['rolloutPct'], 'FlagEvaluationValue':['variant'], 'GameValueChange':['previousValue']}.items():
+    for name, fields in {'FlagRule':['match'], 'FlagDefinition':['rolloutPct'], 'FlagEvaluationValue':['variant']}.items():
         for field in fields:
             definitions[name]['fields'][field]['nullable'] = True
             if name in ('FlagRule','FlagDefinition','FlagEvaluationValue'): definitions[name]['fields'][field]['required'] = False
     # Evaluation DTOs have service-level validation rather than Jakarta annotations.
     definitions['FlagEvaluateBatchInput']['fields']['userIds']['required'] = True
-    definitions['GameValueRollbackInput']['fields']['version']['required'] = True
     for field in definitions['EnvironmentReplaceInput']['fields'].values(): field['required'] = True
     names = {
         'RuntimeSnapshotController': {'snapshot':'runtimeSnapshot'},
         'FlagsController': {'list':'flags','get':'flag','create':'createFlag','update':'updateFlag','delete':'deleteFlag','evaluate':'evaluateFlags','evaluateBatch':'evaluateFlagsBatch'},
         'MaintenanceController': {'read':'maintenance','put':'putMaintenance'},
-        'GameValueHistoryController': {'history':'gameValueHistory','rollback':'rollbackGameValue'},
     }
     for e in endpoints:
         owner = e['source'].rsplit('/',1)[-1].removesuffix('.java')

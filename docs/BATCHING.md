@@ -1,6 +1,6 @@
 # Batch-only transport (2.0)
 
-Every operation that needs the network is queued. There is **no direct-call fallback**: all eight
+Every operation that needs the network is queued. There is **no direct-call fallback**: all nine
 facades, health checks, authentication refresh/exchange/logout, pagination, helper writes, and profile
 sync use `POST {gatewayUrl}/batch-service/api/batch`. Cache hits, local validation and singleflight
 followers need no new operation. Requiring or constructing the SDK sends nothing.
@@ -50,6 +50,7 @@ map, body, headers and sequence. Paths contain no gateway prefix. The facade-to-
 | audit | audit |
 | platform | platform |
 | auth | auth |
+| configs | config |
 
 Authorization belongs only on the **outer request**. Service-account strings and opaque Roblox Secrets
 are applied as before; Secrets are never JSON encoded. Public endpoints use the root SDK credential,

@@ -18,8 +18,8 @@
 Coverage scans all seven available source trees, failing on missing controllers or fabricated domain routes.
 Party sources are absent at `~/work/srv/src-CrossServerPartyService` and `~/build/src-CrossServerPartyService`;
 retained methods are a checked-in contract snapshot, not a current server-parity claim.
-Config is retired. Platform planned flags/LiveOps/environment APIs and Matchmaking environments have
-no controllers in the requested current sources and are not generated. Fields owns runtime config,
+Config is ConfigService (`client.configs`), curated from its `docs/API.md` contract rather than parsed from Java. Platform planned flags/LiveOps/environment APIs and Matchmaking environments have
+no controllers in the requested current sources and are not generated. Fields owns runtime
 flags, maintenance, schedule controls and environments. Rotations/Generators/Tables include expanded literal resource routes and reviewed engine response envelopes.
 
 ## Reviewed exceptions
@@ -60,7 +60,7 @@ unknown members recursively; requests reject unknown members. Explicit Fields ex
 binding grammars and enum values remain validated rather than silently accepting invalid semantics.
 Higher-level schema/profile/snapshot helpers guard data they require before publishing a local view.
 
-All eight `healthProxy` methods use one shared `{ status: string }` contract. Actuator `groups`,
+All nine `healthProxy` methods use one shared `{ status: string }` contract. Actuator `groups`,
 `components`, nested details and service-specific additions are not validated. Exact supplied gateway
 health and queue-status JSON bodies are retained in `tests/golden/live-responses/` and projected by
 `tools/gen-vectors.py`; regressions exercise them through Transport offline, including explicit nulls

@@ -28,11 +28,10 @@ class FieldCodegenTests(unittest.TestCase):
         self.assertEqual(files,generate(copy.deepcopy(self.schema),'../../../src'))
 
     def test_lifecycle_selection(self) -> None:
-        """Archived/shared aliases remain visible but player accessors and document omit them."""
+        """Archived aliases remain visible but accessors and document omit them."""
         files=generate(self.schema,'../../../src')
         self.assertIn('export type Field_Old',files['FieldTypes.luau'])
         self.assertNotIn('Accessor_Field_Old',files['Typed.luau'])
-        self.assertNotIn('Accessor_Field_Shared',files['Typed.luau'])
         self.assertNotIn('function Accessor.Set',files['Accessors/Field_Total.luau'])
         self.assertIn('function Accessor.mapAdd',files['Accessors/Field_Inventory_D_Items.luau'])
         self.assertIn('function Accessor.append',files['Accessors/Field_Characters.luau'])

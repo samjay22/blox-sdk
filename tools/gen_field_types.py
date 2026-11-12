@@ -87,7 +87,7 @@ def generate(schema: dict[str, Any], sdk: str, roblox_root: str | None = None) -
         expression={'kind':'nullable','of':{'kind':d['computed']['returns']}} if computed else d['type']
         name=alias(identifier)
         lines.append(f'export type {name} = {typ(expression)}')
-        if d.get('status','ACTIVE')!='ACTIVE' or d.get('scope','PLAYER')!='PLAYER': continue
+        if d.get('status','ACTIVE')!='ACTIVE': continue
         insert(document,identifier,name)
         insert(access,identifier,'Accessor_'+name)
         imports.append(f'local Accessor_{name} = require("./Accessors/{name}")')

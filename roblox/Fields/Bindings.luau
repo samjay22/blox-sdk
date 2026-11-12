@@ -56,13 +56,8 @@ function Bindings.board(value: unknown): boolean
 		and (b.submit ~= "DELTA" or b.keep == nil)
 		and (b.displayName == nil or text(b.displayName, 100))
 end
---- Validate declarations and stored-int PLAYER eligibility, without provisioning or deriving boards.
-function Bindings.validate(
-	input: unknown,
-	scope: string?,
-	expression: unknown,
-	computed: boolean
-): Core.Result<boolean>
+--- Validate declarations and stored-int eligibility, without provisioning or deriving boards.
+function Bindings.validate(input: unknown, expression: unknown, computed: boolean): Core.Result<boolean>
 	local value: any = input
 	if value == nil or value == Json.null then
 		return { ok = true, value = true }
@@ -90,7 +85,7 @@ function Bindings.validate(
 		end
 		if count > 0 then
 			local root: any = expression
-			if computed or (scope ~= nil and scope ~= "PLAYER") or root == nil then
+			if computed or root == nil then
 				return System.failure("invalid_definition")
 			end
 			if type(root) ~= "table" or root.kind ~= "int" then
@@ -106,7 +101,7 @@ function Bindings.validate(
 		end
 	end
 	if value.runtime ~= nil then
-		if not object(value.runtime, { "enabledFlag", "maxDeltaConfigKey" }) then
+		if not object(value.runtime, { "enabledFlag" }) then
 			return System.failure("invalid_definition")
 		end
 		for _, key in value.runtime do
@@ -119,6 +114,6 @@ function Bindings.validate(
 end
 --- Check DTO shape independently of field context so legacy numeric schemas remain readable.
 function Bindings.grammar(value: unknown): boolean
-	return Bindings.validate(value, "PLAYER", { kind = "int" }, false).ok
+	return Bindings.validate(value, { kind = "int" }, false).ok
 end
 return table.freeze(Bindings)

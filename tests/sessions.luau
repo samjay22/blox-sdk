@@ -52,7 +52,6 @@ local function schema(): Wire.SchemaResponse
 				universeId = 123,
 				id = "Score",
 				description = "",
-				scope = "PLAYER",
 				status = "ACTIVE",
 				type = { kind = "int" },
 				default = 0,
