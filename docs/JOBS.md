@@ -34,7 +34,7 @@ local preview = bulk:preview() -- Explicit ADMIN read-only server preview.
 
 Targets: `{kind="ALL"}` selects positive subjects with stored data; `{kind="SUBJECTS",subjects={...}}`
 accepts 1–100000 distinct positive IDs, including never-written players; `{kind="WHERE",where=filter}`
-selects players with data. Subject 0 is never a bulk/import/export target. Operations are the existing
+selects players with data. Every target is a positive player ID. Operations are the existing
 1–100 subject-free `/ops/validate` grammar, including nested paths; no conditions or caller refs.
 
 Filters are closed trees: leaves `{op="EQ"|"NE"|"LT"|"LE"|"GT"|"GE"|"IN"|"EXISTS",field=...,value=...}`;

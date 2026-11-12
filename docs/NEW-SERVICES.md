@@ -31,7 +31,7 @@ failures. Fields keys are universe-wide and durable; Audit deduplication ends wh
 the event. Reusing a key for a different payload is not a safe retry (Fields/Leaderboards return 409).
 
 Only contract-declared safe/idempotent operations retry, using the existing earned budget and full-jitter
-backoff. GETs with side effects remain excluded. Manual leaderboard rollover, game-value rollback and other
+backoff. GETs with side effects remain excluded. Manual leaderboard rollover, config namespace rollback and other
 unkeyed mutations **never** retry automatically, including on 401. Removed `idempotencyHint`
 is rejected, not ignored. Read-only POSTs in the new services are
 conservatively single-attempt. A Network/Timeout result never proves that a write did not commit.

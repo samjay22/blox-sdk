@@ -60,7 +60,7 @@ Initial role templates (operators may replace them; query `listRoleTemplates` fo
 | Role | Initial service grants |
 |---|---|
 | OWNER / ADMIN | ADMIN on every catalog service, including AuthService and Gateway |
-| DEVELOPER | ADMIN on FieldsService, LeaderboardService, CodeService, ConfigService (backend legacy grant; no SDK facade), MatchmakingService, PartyService; READ on AuditService; no AuthService/Gateway |
+| DEVELOPER | ADMIN on FieldsService, LeaderboardService, CodeService, ConfigService (`client.configs`: READ reads namespaces, ADMIN writes them), MatchmakingService, PartyService; READ on AuditService; no AuthService/Gateway |
 | VIEWER | READ on every catalog service except AuthService/Gateway |
 
 New catalog services initially give OWNER/ADMIN ADMIN and VIEWER READ. Explicit member overrides replace levels
