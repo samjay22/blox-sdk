@@ -17,3 +17,76 @@ jobs:
       - name: Strict analysis, formatting, lint, dual-runtime tests, drift, coverage, Rojo
         shell: bash
         run: ./tools/verify
+  release-rbxm:
+    # Publish a Roblox model for every push to main, but only after the full offline suite passed.
+    needs: offline-verification
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # create the release and upload the model; no other job gets write access
+    concurrency:
+      group: release-rbxm
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Resolve version and check it matches the code
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^version *= *"\(.*\)"/\1/p' wally.toml | head -n1)
+          [ -n "$version" ] || { echo "no version in wally.toml" >&2; exit 1; }
+          grep -q "SDK.version = \"$version\"" src/BloxSDK.luau || { echo "wally.toml says $version but src/BloxSDK.luau disagrees" >&2; exit 1; }
+          python3 tools/build-roblox.py --check
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Install the Rojo version pinned in aftman.toml
+        shell: bash
+        run: |
+          set -euo pipefail
+          rojo=$(sed -n 's/^rojo *= *"rojo-rbx\/rojo@\(.*\)"/\1/p' aftman.toml)
+          [ -n "$rojo" ] || { echo "no rojo pin in aftman.toml" >&2; exit 1; }
+          curl -fsSL -o "$RUNNER_TEMP/rojo.zip" "https://github.com/rojo-rbx/rojo/releases/download/v$rojo/rojo-$rojo-linux-x86_64.zip"
+          unzip -q "$RUNNER_TEMP/rojo.zip" -d "$RUNNER_TEMP/rojo"
+          chmod +x "$RUNNER_TEMP/rojo/rojo"
+          "$RUNNER_TEMP/rojo/rojo" --version
+          echo "$RUNNER_TEMP/rojo" >> "$GITHUB_PATH"
+      - name: Build BloxSDK.rbxm
+        shell: bash
+        run: |
+          set -euo pipefail
+          rojo build default.project.json -o BloxSDK.rbxm
+          test -s BloxSDK.rbxm
+          # Release notes: this version's CHANGELOG section, if there is one.
+          awk -v v="${{ steps.meta.outputs.version }}" '
+            $0 ~ "^## " v "( |$)" { on = 1; next }
+            on && /^## / { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "BloxSDK ${{ steps.meta.outputs.version }}" > notes.md
+      - name: Publish the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="v$VERSION"
+          flags=()
+          # First push of a version gets the clean tag. Later pushes at the same version get a
+          # prerelease tagged with the commit, so no tag is ever moved and no asset overwritten.
+          if existing=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null) \
+            && [ "$existing" != "$GITHUB_SHA" ]; then
+            tag="$tag-build.${GITHUB_SHA:0:7}"
+            flags+=(--prerelease)
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            # A re-run of the same commit: refresh the asset only.
+            gh release upload "$tag" BloxSDK.rbxm --clobber
+          else
+            gh release create "$tag" BloxSDK.rbxm --target "$GITHUB_SHA" \
+              --title "BloxSDK $VERSION (${GITHUB_SHA:0:7})" --notes-file notes.md "${flags[@]}"
+          fi
+          echo "Released $tag"
