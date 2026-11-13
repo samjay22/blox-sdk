@@ -212,6 +212,9 @@ local codes = table.freeze({
 	already_refunded = true,
 	refund_blocked = true,
 	idempotency_data_deleted = true,
+	-- API-key restrictions: the key's field scope refuses the request, or the key's own rate limit is exhausted.
+	scope_denied = true,
+	key_rate_limited = true,
 })
 --- Accept only bounded diagnostic coordinates and known machine codes, never server text/payloads.
 local function diagnostic(value: any): Types.OperationDiagnostic?

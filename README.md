@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, Platform, and Configs**.
 
-**367 typed endpoints, version 7.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations are covered.
+**367 typed endpoints, version 7.1.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,7 +16,7 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@7.0.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@7.1.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]

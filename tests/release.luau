@@ -29,7 +29,7 @@ return function(test: (string, () -> ()) -> ())
 	test("1.0 root surface excludes internal modules and has stable error codes", function()
 		local root: any = SDK
 		check(
-			SDK.version == "7.0.0"
+			SDK.version == "7.1.0"
 				and root.endpoints == nil
 				and root.Testing == nil
 				and root.Fields == nil
@@ -55,6 +55,34 @@ return function(test: (string, () -> ()) -> ())
 			end,
 			requestsPerMinute = 500,
 		}))
+	end)
+	test("API-key refusals keep their stable codes and the Retry-After delay", function()
+		local limited: any =
+			Errors.domain(429, "fields.schema", 1, { code = "key_rate_limited", message = "do not expose" })
+		check(
+			not limited.ok
+				and limited.error.kind == "RateLimited"
+				and limited.error.code == "key_rate_limited"
+		)
+		check(limited.error.message == "HTTP request failed")
+		local denied: any = Errors.domain(
+			403,
+			"fields.player.get",
+			1,
+			{ code = "scope_denied", field = "Secret.A", allowedPrefixes = { "Currency." } }
+		)
+		check(not denied.ok and denied.error.kind == "Forbidden" and denied.error.code == "scope_denied")
+		check(denied.error.message == "HTTP request failed" and denied.error.field == nil)
+		local configDenied: any =
+			Errors.domain(403, "config.get", 1, { code = "scope_denied", namespace = "secrets" })
+		check(configDenied.error.kind == "Forbidden" and configDenied.error.code == "scope_denied")
+		local perOp: any = Errors.domain(
+			409,
+			"fields.batch",
+			1,
+			{ errors = { { code = "scope_denied", opIndex = 2, field = "Secret.A", path = {} } } }
+		)
+		check(perOp.error.errors ~= nil and perOp.error.errors[1].code == "scope_denied")
 	end)
 	test("rolling minute cap includes bursts, retries, idle restarts and boundary eviction", function()
 		local bucket = Bucket.new(500, 500 / 60, 0, 0)

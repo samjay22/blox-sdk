@@ -27,6 +27,8 @@ reach Timeout. Retry only eligible keyed/idempotent operations within the origin
 Unauthorized/Forbidden need credential/grant correction; Validation needs input correction; Conflict
 needs authoritative reload/reconciliation, not a fresh key that duplicates an uncertain write.
 
+API keys can be restricted in the portal. `scope_denied` (403, Forbidden) means the key may not use that field, namespace or route: change the key scope, do not retry. `key_rate_limited` (429, RateLimited) means the key hit its own per-second or daily limit: `error.retryAfterSeconds` carries Retry-After, idempotent calls wait that long automatically within their deadline, and a daily limit can be hours long, so back off instead of looping.
+
 ## Domain codes
 
 The following allowlisted backend and local validation codes are collected from source.
@@ -125,6 +127,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `job_not_found` |
 | `job_not_reversible` |
 | `key_not_found` |
+| `key_rate_limited` |
 | `last_owner` |
 | `leaderboard_board_archived` |
 | `leaderboard_board_mismatch` |
@@ -186,6 +189,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `schedule_not_found` |
 | `schema_closed` |
 | `schema_unavailable` |
+| `scope_denied` |
 | `seq_conflict` |
 | `service_account_conflict` |
 | `service_account_not_found` |

@@ -1,5 +1,15 @@
 # BloxSDK changelog
 
+## 7.1.0 (local, not published)
+
+- API keys can be restricted to field prefixes or config namespaces and given per-key rate limits (set in the portal). The SDK
+  now recognises the two new backend codes: `scope_denied` (403, kind `Forbidden`; the key may not use that field, namespace or
+  route; not retried, fix the key's scope) and `key_rate_limited` (429, kind `RateLimited`; the key's own per-second or daily
+  limit). Both appear as `error.code`, and per-operation in batch diagnostics. 429 responses keep `error.retryAfterSeconds`
+  from `Retry-After`, and idempotent calls are already retried after that delay within the deadline; a daily limit can have a
+  long `retryAfterSeconds`, so treat it as "stop for now" rather than retrying in a loop.
+- Additive; no API changes. See [errors](docs/ERRORS.md).
+
 ## 7.0.0 (local, not published)
 
 - Breaking: rotations are rewritten around the task. A rotation is a named list of items that take turns on a fixed
