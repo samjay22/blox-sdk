@@ -23,16 +23,16 @@ Fields rotations are covered: `fields:currentRotation` and the `client.fields:ro
 | Service | SDK methods | Source parity |
 |---|---:|---|
 | audit | 13 | Available controllers covered |
-| auth | 62 | Available controllers covered |
+| auth | 59 | Available controllers covered |
 | codes | 14 | Available controllers covered |
 | config | 15 | Available controllers covered |
 | fields | 131 | Available controllers covered |
 | leaderboards | 28 | Available controllers covered |
 | matchmaking | 52 | Available controllers covered |
 | party | 16 | Unverified: source unavailable |
-| platform | 43 | Available controllers covered |
+| platform | 42 | Available controllers covered |
 
-Total: **374** typed HTTP methods across nine facades (including public/management APIs).
+Total: **370** typed HTTP methods across nine facades (including public/management APIs).
 
 ## Endpoint inventory
 
@@ -64,9 +64,6 @@ The endpoint column is the gateway route inventory; SDK 3.0 sends operations wit
 | `GET /auth-service/api/auth/accounts/me` | `client.auth:getCurrentAccount` | IDENTITY; identity/portal-only, no machine keys | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/AccountController.java` |
 | `PUT /auth-service/api/auth/accounts/me` | `client.auth:updateCurrentAccount` | IDENTITY; identity/portal-only, no machine keys | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/AccountController.java` |
 | `GET /auth-service/api/auth/health` | `client.auth:health` | public/authenticated (see source) | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/HealthController.java` |
-| `POST /auth-service/api/auth/internal/orgs/{org}/sandboxes` | `client.auth:provisionSandbox` | ADMIN; machine only | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java` |
-| `DELETE /auth-service/api/auth/internal/orgs/{org}/sandboxes/{id}` | `client.auth:cancelSandbox` | ADMIN; machine only | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java` |
-| `POST /auth-service/api/auth/internal/orgs/{org}/sandboxes/{id}/ready` | `client.auth:finalizeSandbox` | ADMIN; machine only | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java` |
 | `GET /auth-service/api/auth/internal/orgs/{org}/service-accounts/{id}` | `client.auth:lookupServiceAccount` | READ; machine only | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/PlatformKeyLookupController.java` |
 | `POST /auth-service/api/auth/invitations/accept` | `client.auth:acceptInvitation` | IDENTITY; identity/portal-only, no machine keys | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/OrganizationController.java` |
 | `POST /auth-service/api/auth/login` | `client.auth:login` | public/authenticated (see source) | `srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/AuthController.java` |
@@ -424,7 +421,6 @@ The endpoint column is the gateway route inventory; SDK 3.0 sends operations wit
 | `DELETE /platform-service/api/orgs/{org}/ratelimits` | `client.platform:resetRateLimits` | SUPER_ADMIN; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/ratelimit/RateLimitController.java` |
 | `GET /platform-service/api/orgs/{org}/ratelimits` | `client.platform:rateLimits` | IDENTITY; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/ratelimit/RateLimitController.java` |
 | `PUT /platform-service/api/orgs/{org}/ratelimits` | `client.platform:setRateLimits` | SUPER_ADMIN; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/ratelimit/RateLimitController.java` |
-| `POST /platform-service/api/orgs/{org}/sandbox` | `client.platform:sandbox` | IDENTITY; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/devx/SandboxController.java` |
 | `DELETE /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit` | `client.platform:resetKeyRateLimit` | SUPER_ADMIN; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/ratelimit/RateLimitController.java` |
 | `PUT /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit` | `client.platform:setKeyRateLimit` | SUPER_ADMIN; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/ratelimit/RateLimitController.java` |
 | `GET /platform-service/api/orgs/{org}/usage` | `client.platform:usage` | IDENTITY; identity/portal-only, no machine keys | `svc/platform-service/src/main/java/sam/tech/platform/metering/MeteringController.java` |

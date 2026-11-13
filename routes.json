@@ -166,21 +166,6 @@
   },
   {
     "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/internal/orgs/{org}/sandboxes"
-  },
-  {
-    "svc": "auth",
-    "method": "DELETE",
-    "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}"
-  },
-  {
-    "svc": "auth",
-    "method": "POST",
-    "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}/ready"
-  },
-  {
-    "svc": "auth",
     "method": "GET",
     "path": "/api/auth/internal/orgs/{org}/service-accounts/{id}"
   },
@@ -1603,11 +1588,6 @@
     "svc": "platform",
     "method": "PUT",
     "path": "/api/orgs/{org}/ratelimits"
-  },
-  {
-    "svc": "platform",
-    "method": "POST",
-    "path": "/api/orgs/{org}/sandbox"
   },
   {
     "svc": "platform",

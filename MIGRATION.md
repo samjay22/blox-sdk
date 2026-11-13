@@ -1,5 +1,12 @@
 # Migrating BloxSDK
 
+## 9.0.0 to 10.0.0 — sandboxes removed
+
+`client.platform.sandbox`, `client.auth.provisionSandbox`, `client.auth.finalizeSandbox` and `client.auth.cancelSandbox` are removed
+together with the backend routes (`/orgs/{org}/sandbox` and `/internal/orgs/{org}/sandboxes`). Replace a sandbox with the dev
+environment of a universe: create a `bsd_` key in the portal and use it with `BloxSDK.new` (see [ENVIRONMENTS.md](docs/ENVIRONMENTS.md)).
+`BloxSDK.version` is `10.0.0`, 370 endpoints. Universe limits now count active universes only; nothing changes in your code.
+
 ## 8.0.0 to 9.0.0 — dev and prod
 
 Keys now belong to an environment. Existing keys are prod and keep working unchanged on live servers; what changes is

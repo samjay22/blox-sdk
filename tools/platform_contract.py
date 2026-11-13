@@ -32,7 +32,6 @@ def extract(root: Path) -> tuple[list[dict], dict]:
         'WebhookController': {'list':'webhooks','create':'createWebhook','get':'webhook','put':'updateWebhook','delete':'deleteWebhook','deliveries':'webhookDeliveries','ping':'testWebhook','redeliver':'redeliverWebhook','publish':'publishEvent'},
         'AnalyticsController': {'summary':'analyticsSummary','series':'analyticsTimeseries','economy':'analyticsEconomy','backfill':'backfillAnalytics'},
         'DevxController': {'status':'status','openapi':'openapi','create':'createIncident','incidents':'incidents','put':'updateIncident','delete':'deleteIncident'},
-        'SandboxController': {'create':'sandbox'},
     }
     endpoints = java.endpoints_for('platform',root)
     for e in endpoints:
@@ -60,15 +59,13 @@ def extract(root: Path) -> tuple[list[dict], dict]:
                  errorStatusNote='Current Platform controllers and scope checks; server validation remains authoritative.')
         if name in ('createPlan','updatePlan','putPlan','deletePlan','createIncident','updateIncident','deleteIncident','incidents','setRateLimits','setKeyRateLimit','resetRateLimits','resetKeyRateLimit'):
             e.update(requiredRole='SUPER_ADMIN', minimumLevel=None, authKinds=['user','custom'])
-        elif name in ('orgPlan','setOrgPlan','usage','limits','invoices','rateLimits','sandbox'):
+        elif name in ('orgPlan','setOrgPlan','usage','limits','invoices','rateLimits'):
             e.update(requiredRole='IDENTITY', minimumLevel=None, authKinds=['user','custom'])
         elif name=='plans': e.update(minimumLevel=None,authKinds=['serviceAccount','user','custom','scoped'])
         elif name in ('publishEvent','ingestUsage','gatewayRateLimits'): e['authKinds']=['serviceAccount']
         elif name=='backfillAnalytics': e['minimumLevel']='ADMIN'
         if name=='status' or e['path'] in ('/health','/actuator/health/liveness','/actuator/health/readiness'):
             e.update(minimumLevel=None,authKinds=['none','serviceAccount','user','custom','scoped'])
-        if name=='sandbox':
-            e['queryParams'].append({'name':'universeId','type':'id','required':True}) # selected-universe filter uses exchange params
     health = next(e for e in endpoints if e['path']=='/health')
     for name in ('metrics','info'):
         endpoints.append(dict(health,id='platform.'+name,name=name,path='/'+name,

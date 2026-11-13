@@ -1,5 +1,13 @@
 # Changelog
 
+## 10.0.0 (local, not published)
+
+- Breaking: sandboxes are gone. The expiring seven-day sandbox universe was removed from the platform: `client.platform.sandbox`
+  and the internal `client.auth.provisionSandbox`, `finalizeSandbox` and `cancelSandbox` no longer exist. Use the dev environment
+  of your universe instead ([ENVIRONMENTS.md](ENVIRONMENTS.md)). 370 endpoints (4 removed).
+- Universe limits count ACTIVE (enabled) universes only. A disabled universe keeps its data and frees its slot; its keys are
+  refused, and re-enabling at the limit is refused with `universe_limit_reached` (409). No SDK call changed for this.
+
 ## 9.0.0 (local, not published)
 
 - Breaking: dev and prod environments. API keys are bound to one environment: `bsa_` is prod (all existing keys), `bsd_` is

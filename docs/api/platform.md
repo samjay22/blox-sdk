@@ -142,18 +142,6 @@ Service.setRateLimits(
 ): Core.Result<Types.SetRateLimitsResultValue>
 ```
 
-### `Service.sandbox`
-
-POST /platform-service/api/orgs/{org}/sandbox via gateway; access: IDENTITY.
-
-```luau
-Service.sandbox(
-	self: Service,
-	req: Types.SandboxCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.SandboxResultValue>
-```
-
 ### `Service.resetKeyRateLimit`
 
 DELETE /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit via gateway; access: SUPER_ADMIN.
@@ -643,10 +631,6 @@ export type RateLimitsResultValue = { [string]: Core.Json }
 export type SetRateLimitsCall = { path: { org: string }, body: RateLimit }
 
 export type SetRateLimitsResultValue = Core.Json
-
-export type SandboxCall = { path: { org: string }, query: { universeId: (string | number)? }? }
-
-export type SandboxResultValue = { [string]: Core.Json }
 
 export type ResetKeyRateLimitCall = { path: { org: string, id: string } }
 

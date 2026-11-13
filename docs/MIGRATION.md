@@ -1,4 +1,4 @@
-Current migration: [8.0.0 to 9.0.0, dev and prod](../MIGRATION.md#800-to-900--dev-and-prod) (earlier: [7.0.0 to 8.0.0, item lists](../MIGRATION.md#700-to-800--item-lists), [6.0.0 to 7.0.0, rotations simplified](../MIGRATION.md#600-to-700--rotations-simplified)).
+Current migration: [9.0.0 to 10.0.0, sandboxes removed](../MIGRATION.md#900-to-1000--sandboxes-removed) (earlier: [8.0.0 to 9.0.0, dev and prod](../MIGRATION.md#800-to-900--dev-and-prod), [7.0.0 to 8.0.0, item lists](../MIGRATION.md#700-to-800--item-lists), [6.0.0 to 7.0.0, rotations simplified](../MIGRATION.md#600-to-700--rotations-simplified)).
 
 # 3.0 leased profiles
 

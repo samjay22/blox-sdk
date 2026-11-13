@@ -1,6 +1,6 @@
 # Endpoint reference
 
-374 endpoints. `routes.json` coverage is checked independently.
+370 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -47,9 +47,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | GET | `/api/auth/accounts/me` | `auth.getCurrentAccount` | IDENTITY | 200 | yes | no |
 | PUT | `/api/auth/accounts/me` | `auth.updateCurrentAccount` | IDENTITY | 200 | no | no |
 | GET | `/api/auth/health` | `auth.health` | public / authenticated | 200 | yes | no |
-| POST | `/api/auth/internal/orgs/{org}/sandboxes` | `auth.provisionSandbox` | ADMIN | 200 | no | no |
-| DELETE | `/api/auth/internal/orgs/{org}/sandboxes/{id}` | `auth.cancelSandbox` | ADMIN | 200 | no | no |
-| POST | `/api/auth/internal/orgs/{org}/sandboxes/{id}/ready` | `auth.finalizeSandbox` | ADMIN | 200 | no | no |
 | GET | `/api/auth/internal/orgs/{org}/service-accounts/{id}` | `auth.lookupServiceAccount` | READ | 200, 404 | yes | no |
 | POST | `/api/auth/invitations/accept` | `auth.acceptInvitation` | IDENTITY | 200 | no | no |
 | POST | `/api/auth/login` | `auth.login` | public / authenticated | 200 | no | no |
@@ -372,7 +369,6 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | DELETE | `/api/orgs/{org}/ratelimits` | `platform.resetRateLimits` | SUPER_ADMIN | 204 | no | no |
 | GET | `/api/orgs/{org}/ratelimits` | `platform.rateLimits` | IDENTITY | 200 | yes | no |
 | PUT | `/api/orgs/{org}/ratelimits` | `platform.setRateLimits` | SUPER_ADMIN | 200 | no | no |
-| POST | `/api/orgs/{org}/sandbox` | `platform.sandbox` | IDENTITY | 201 | no | no |
 | DELETE | `/api/orgs/{org}/service-accounts/{id}/ratelimit` | `platform.resetKeyRateLimit` | SUPER_ADMIN | 204 | no | no |
 | PUT | `/api/orgs/{org}/service-accounts/{id}/ratelimit` | `platform.setKeyRateLimit` | SUPER_ADMIN | 200 | no | no |
 | GET | `/api/orgs/{org}/usage` | `platform.usage` | IDENTITY | 200 | yes | no |

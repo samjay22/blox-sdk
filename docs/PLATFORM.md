@@ -9,7 +9,7 @@ Permissions never substitute for org roles. See [coverage](../SDK_COVERAGE.md) f
 
 - Metering ingestion and machine event publication; org-bound internal effective rate-limit lookup.
 - Authenticated plan catalog; SUPER_ADMIN plan create/update/delete and org/key rate-limit reset/write.
-- Identity/org-role-gated plan assignment, usage, limits, invoice data and sandbox creation.
+- Identity/org-role-gated plan assignment, usage, limits, invoice data.
 - Universe-scoped webhook CRUD, delivery history, explicit test/redelivery; analytics summary,
   timeseries, optional field/date economy queries and ADMIN backfill.
 - OpenAPI, authenticated ping, public status, SUPER_ADMIN incident administration and operational probes.
@@ -22,7 +22,7 @@ Resetting org/key rate-limit overrides returns 204 and never resets usage counte
 
 Webhook lists return arrays with explicit `after`/`limit` selectors, not a `nextCursor` envelope.
 Tests/redelivery and other unkeyed mutations never automatically replay, including after 401/429/5xx.
-Webhook secrets and sandbox keys are one-time disclosures: never log them. Invoice endpoints are
+Webhook secrets are one-time disclosures: never log them. Invoice endpoints are
 data-only; the SDK does not initiate payments.
 
 Platform controllers retain `/platform-service/api/...` and `/platform-service/internal/...` on direct

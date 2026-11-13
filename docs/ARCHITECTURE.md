@@ -31,7 +31,7 @@ through the Fields outbox; configs are versioned in ConfigService and served to 
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 374 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 370 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
   Audit --> Spec[spec/endpoints.json: 374 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]

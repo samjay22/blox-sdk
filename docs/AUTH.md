@@ -217,7 +217,6 @@ These routes are not machine-key gameplay operations.
 
 `lookupServiceAccount({path={org=...,id=...}})` is machine-only, AuthService READ, org-bound safe metadata
 lookup for platform integrations; it never returns a key, digest or permission list. Backend machine/org
-checks remain authoritative. Existing sandbox provision/finalize/cancel APIs are internal machine controls,
-not ordinary game-server account administration.
+checks remain authoritative.
 
 In 1.0, SDK `error.code` is lowercase snake_case even when Auth wire errorCode is uppercase. For example, INVALID_TOKEN becomes `invalid_token`. Unknown wire codes use the stable SDK fallback.

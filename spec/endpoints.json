@@ -884,159 +884,6 @@
       "authKinds": [
         "serviceAccount"
       ],
-      "bodyRequired": true,
-      "bodyType": "SandboxService.Create",
-      "cacheable": false,
-      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "auth.provisionSandbox",
-      "idempotent": false,
-      "javaResponse": "Mono<SandboxService.Created>",
-      "method": "POST",
-      "minimumLevel": "ADMIN",
-      "name": "provisionSandbox",
-      "path": "/api/auth/internal/orgs/{org}/sandboxes",
-      "pathParams": [
-        {
-          "java": "UUID",
-          "name": "org",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "SandboxService.Created",
-      "responseType": "ProvisionSandboxResultValue",
-      "retryable": false,
-      "service": "auth",
-      "serviceName": "AuthService",
-      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount"
-      ],
-      "bodyRequired": true,
-      "bodyType": "SandboxService.ActorRequest",
-      "cacheable": false,
-      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "auth.cancelSandbox",
-      "idempotent": false,
-      "javaResponse": "Mono<Map<String,Object>>",
-      "method": "DELETE",
-      "minimumLevel": "ADMIN",
-      "name": "cancelSandbox",
-      "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}",
-      "pathParams": [
-        {
-          "java": "UUID",
-          "name": "org",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "java": "UUID",
-          "name": "id",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "Map<String,Object>",
-      "responseType": "CancelSandboxResultValue",
-      "retryable": false,
-      "service": "auth",
-      "serviceName": "AuthService",
-      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount"
-      ],
-      "bodyRequired": true,
-      "bodyType": "SandboxService.ActorRequest",
-      "cacheable": false,
-      "errorStatusNote": "GAS API_CONTRACT.md; identity and live tenant capability checks are authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        429,
-        500,
-        503
-      ],
-      "guard": "hasRole('SERVICE_ADMIN')",
-      "id": "auth.finalizeSandbox",
-      "idempotent": false,
-      "javaResponse": "Mono<Map<String,Object>>",
-      "method": "POST",
-      "minimumLevel": "ADMIN",
-      "name": "finalizeSandbox",
-      "path": "/api/auth/internal/orgs/{org}/sandboxes/{id}/ready",
-      "pathParams": [
-        {
-          "java": "UUID",
-          "name": "org",
-          "required": true,
-          "type": "string"
-        },
-        {
-          "java": "UUID",
-          "name": "id",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [],
-      "requiredRole": null,
-      "responseFormat": "json",
-      "responseJava": "Map<String,Object>",
-      "responseType": "FinalizeSandboxResultValue",
-      "retryable": false,
-      "service": "auth",
-      "serviceName": "AuthService",
-      "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java",
-      "statuses": [
-        200
-      ]
-    },
-    {
-      "authKinds": [
-        "serviceAccount"
-      ],
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
@@ -18416,61 +18263,6 @@
         503
       ],
       "guard": "",
-      "id": "platform.sandbox",
-      "idempotent": false,
-      "javaResponse": "Mono<Map<String,Object>>",
-      "method": "POST",
-      "minimumLevel": null,
-      "name": "sandbox",
-      "path": "/api/orgs/{org}/sandbox",
-      "pathParams": [
-        {
-          "java": "String",
-          "name": "org",
-          "required": true,
-          "type": "string"
-        }
-      ],
-      "queryParams": [
-        {
-          "name": "universeId",
-          "required": true,
-          "type": "id"
-        }
-      ],
-      "requiredRole": "IDENTITY",
-      "responseFormat": "json",
-      "responseJava": "Map<String,Object>",
-      "responseType": "SandboxResultValue",
-      "retryable": false,
-      "service": "platform",
-      "serviceName": "PlatformService",
-      "source": "svc/platform-service/src/main/java/sam/tech/platform/devx/SandboxController.java",
-      "statuses": [
-        201
-      ]
-    },
-    {
-      "authKinds": [
-        "user",
-        "custom"
-      ],
-      "bodyRequired": false,
-      "bodyType": null,
-      "cacheable": false,
-      "errorStatusNote": "Current Platform controllers and scope checks; server validation remains authoritative.",
-      "errorStatuses": [
-        400,
-        401,
-        403,
-        404,
-        409,
-        422,
-        429,
-        500,
-        503
-      ],
-      "guard": "",
       "id": "platform.resetKeyRateLimit",
       "idempotent": false,
       "javaResponse": "Mono<Void>",
@@ -20136,7 +19928,6 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/OrganizationController.java": "828702e5c07fc4597d9abf791d5448c331d3d356d30a27bc2b3be5f66f6202b5",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/PasswordController.java": "e838c2910fe413e993be4768ebf14bdb1e279734a7abab7f2fbffbd8a4bf3bcf",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/PlatformKeyLookupController.java": "d92a39193d7035b28a4ed9e29ef3fba046f68cce679a6c9e9ae082cb685c8f80",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/SandboxController.java": "2076effdb193335faa5a24410eb83822e6d4bdee427ee41e4cabb67a5e30175d",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceAccountController.java": "c699d686159e7ce76ef17a657e850a19ba3263678aa9b2093aab8f060b4a35a8",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/ServiceCatalogController.java": "705cdc8c0dd11d4ec49257a076501aa1a20ad1438272bf9240cdb3e6a735b3b0",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/controller/TokenController.java": "df65eb91f37976045fb108cf9002084134ae70518204d8fc2b1d2c92df22e657",
@@ -20192,8 +19983,6 @@
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/service/UniverseService.java": "852a8fb740e4fd9317b826246b2ac0793be3900f09680021242d80d85987cffb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/InvitationService.java": "7bf0c0b2086f053c9d89cdcad7a55e51ba883a3e2fae01c2add5ca8b65ef960c",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/NewMemberService.java": "d9da3ded733d6d76ca830ad1777e03d8c2c4bf1e0da3a5a730d5f18f412b0965",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java": "680b4cd4fa644f568915bb6659869ecc6535bca305e7fd4a686fd7ef475494f9",
-    "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxWorker.java": "f937daad6390d0d7263bff2c21658102cfbb92da315dde9d621a9c34205c7312",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantAuthorization.java": "5273536f6c99977d46d3cdfc8cece7609d107427e0be0270b6b57b17595b722e",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantKeyService.java": "8f3fe43bef8e965b8e9bd41fb4c4d70812085309a64cb1eec6ab32771e8e43eb",
     "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantMigration.java": "8e1198feac9c857278f225888a53d4f7e852d1b7181afc92688f31aa08674096",
@@ -20638,8 +20427,6 @@
     "svc/platform-service/src/main/java/sam/tech/platform/devx/DevxService.java": "6e12b8a94ea45c96af0830f70290ddd213742c5657bcb82509e51f7533e8ff9e",
     "svc/platform-service/src/main/java/sam/tech/platform/devx/HealthProber.java": "cf76ac9b8af2b049be91e31ebed42cf5b4bd2e5abf798ecf092de7209dfe416e",
     "svc/platform-service/src/main/java/sam/tech/platform/devx/OpenApiGenerator.java": "5fddb71c550c2fe46cd02ded722c8bc5ed28e14b3fc63b4adf0b4a4f766dea65",
-    "svc/platform-service/src/main/java/sam/tech/platform/devx/SandboxController.java": "ef9b308b46935a18c0484e17b511cf403951557e7c37e4ef6bc5d6435bde7333",
-    "svc/platform-service/src/main/java/sam/tech/platform/devx/SandboxService.java": "d6f7416a914efa6f4e186601b08f1d3351e899367dc4d1a9780bf75fbb1d534c",
     "svc/platform-service/src/main/java/sam/tech/platform/devx/package-info.java": "57cd72375144e925b229ddbc183b14997ad87856bc401fb8ba6cb02277e692b5",
     "svc/platform-service/src/main/java/sam/tech/platform/dto/ServicePermissionResponse.java": "97e8b73803c965b54c428dc335014223bc3f57f5863118f0b5ce39e53c91a499",
     "svc/platform-service/src/main/java/sam/tech/platform/dto/TokenValidateRequest.java": "bc45865747d34aecc0c0e29eb1b85be04e959a5b644373d36cc32e6e45d3f30b",
@@ -21363,16 +21150,6 @@
         "parent": null,
         "source": "srv/src-gas/global-auth-client/src/main/java/sam/tech/dto/AccountUpdateRequest.java"
       },
-      "ActorRequest": {
-        "fields": {
-          "actorId": {
-            "java": "UUID",
-            "notBlank": false,
-            "required": true
-          }
-        },
-        "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java"
-      },
       "AddMember": {
         "fields": {
           "overrides": {
@@ -21418,26 +21195,6 @@
         },
         "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java"
       },
-      "Create": {
-        "fields": {
-          "actorId": {
-            "java": "UUID",
-            "notBlank": false,
-            "required": true
-          },
-          "expiresAt": {
-            "java": "Instant",
-            "notBlank": false,
-            "required": true
-          },
-          "operationId": {
-            "java": "UUID",
-            "notBlank": false,
-            "required": true
-          }
-        },
-        "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java"
-      },
       "CreateOrg": {
         "fields": {
           "name": {
@@ -21462,40 +21219,6 @@
           }
         },
         "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/TenantRequests.java"
-      },
-      "Created": {
-        "fields": {
-          "expiresAt": {
-            "java": "Instant",
-            "notBlank": false,
-            "required": false,
-            "responseNullable": true
-          },
-          "id": {
-            "java": "UUID",
-            "notBlank": false,
-            "required": false,
-            "responseNullable": true
-          },
-          "key": {
-            "java": "String",
-            "notBlank": false,
-            "required": false,
-            "responseNullable": true
-          },
-          "serviceAccountId": {
-            "java": "UUID",
-            "notBlank": false,
-            "required": false,
-            "responseNullable": true
-          },
-          "universeId": {
-            "java": "long",
-            "notBlank": false,
-            "required": true
-          }
-        },
-        "source": "srv/src-gas/global-auth-service/src/main/java/sam/tech/tenant/SandboxService.java"
       },
       "CreatedMember": {
         "fields": {

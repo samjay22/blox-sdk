@@ -58,42 +58,6 @@ Service.health(
 ): Core.Result<Types.HealthResultValue>
 ```
 
-### `Service.provisionSandbox`
-
-POST /auth-service/api/auth/internal/orgs/{org}/sandboxes via gateway; access: ADMIN.
-
-```luau
-Service.provisionSandbox(
-	self: Service,
-	req: Types.ProvisionSandboxCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.ProvisionSandboxResultValue>
-```
-
-### `Service.cancelSandbox`
-
-DELETE /auth-service/api/auth/internal/orgs/{org}/sandboxes/{id} via gateway; access: ADMIN.
-
-```luau
-Service.cancelSandbox(
-	self: Service,
-	req: Types.CancelSandboxCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.CancelSandboxResultValue>
-```
-
-### `Service.finalizeSandbox`
-
-POST /auth-service/api/auth/internal/orgs/{org}/sandboxes/{id}/ready via gateway; access: ADMIN.
-
-```luau
-Service.finalizeSandbox(
-	self: Service,
-	req: Types.FinalizeSandboxCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.FinalizeSandboxResultValue>
-```
-
 ### `Service.lookupServiceAccount`
 
 GET /auth-service/api/auth/internal/orgs/{org}/service-accounts/{id} via gateway; access: READ.
@@ -838,8 +802,6 @@ export type AccountType = "SUPER_ADMIN" | "USER"
 
 export type AccountUpdateRequest = { email: string?, metadata: { [string]: Core.Json }? }
 
-export type ActorRequest = { actorId: string }
-
 export type AddMember = {
 	overrides: { ServicePermissionResponse }?,
 	role: TenantRole,
@@ -849,19 +811,9 @@ export type AddMember = {
 
 export type AssignOwner = { accountId: string?, email: string?, username: string? }
 
-export type Create = { actorId: string, expiresAt: string, operationId: string }
-
 export type CreateOrg = { name: string }
 
 export type CreateUniverse = { name: string, universeId: number }
-
-export type Created = {
-	expiresAt: (string | Core.Null)?,
-	id: (string | Core.Null)?,
-	key: (string | Core.Null)?,
-	serviceAccountId: (string | Core.Null)?,
-	universeId: number,
-}
 
 export type CreatedMember = {
 	account: AccountResponse | Core.Null,
@@ -1119,18 +1071,6 @@ export type UpdateCurrentAccountResultValue = AccountResponse
 export type HealthCall = {}
 
 export type HealthResultValue = { [string]: Core.Json }
-
-export type ProvisionSandboxCall = { path: { org: string }, body: Create }
-
-export type ProvisionSandboxResultValue = Created
-
-export type CancelSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
-
-export type CancelSandboxResultValue = { [string]: Core.Json }
-
-export type FinalizeSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
-
-export type FinalizeSandboxResultValue = { [string]: Core.Json }
 
 export type LookupServiceAccountCall = { path: { org: string, id: string } }
 

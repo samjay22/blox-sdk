@@ -101,14 +101,6 @@ function Service.setRateLimits(
 ): Core.Result<Types.SetRateLimitsResultValue>
 	return self._invoke(Endpoints["platform.setRateLimits"], req, opts, self._universe)
 end
---- POST /platform-service/api/orgs/{org}/sandbox via gateway; access: IDENTITY.
-function Service.sandbox(
-	self: Service,
-	req: Types.SandboxCall,
-	opts: Core.CallOptions?
-): Core.Result<Types.SandboxResultValue>
-	return self._invoke(Endpoints["platform.sandbox"], req, opts, self._universe)
-end
 --- DELETE /platform-service/api/orgs/{org}/service-accounts/{id}/ratelimit via gateway; access: SUPER_ADMIN.
 function Service.resetKeyRateLimit(
 	self: Service,

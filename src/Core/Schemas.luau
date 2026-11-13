@@ -615,16 +615,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["ActorRequest"] = {
-			["fields"] = {
-				["actorId"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
 		["AddMember"] = {
 			["fields"] = {
 				["overrides"] = {
@@ -678,26 +668,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
-		["Create"] = {
-			["fields"] = {
-				["actorId"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["expiresAt"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["operationId"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
 		["CreateOrg"] = {
 			["fields"] = {
 				["name"] = {
@@ -713,40 +683,6 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 				["name"] = {
 					["notBlank"] = true,
 					["required"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["universeId"] = {
-					["notBlank"] = false,
-					["required"] = true,
-					["schema"] = { ["kind"] = "number" } :: Core.Schema,
-				},
-			},
-			["kind"] = "object",
-		} :: Core.Schema,
-		["Created"] = {
-			["fields"] = {
-				["expiresAt"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["responseNullable"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["id"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["responseNullable"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["key"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["responseNullable"] = true,
-					["schema"] = { ["kind"] = "string" } :: Core.Schema,
-				},
-				["serviceAccountId"] = {
-					["notBlank"] = false,
-					["required"] = false,
-					["responseNullable"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["universeId"] = {
@@ -11056,11 +10992,6 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Member" } :: Core.Schema,
 		["service"] = "auth",
 	},
-	["auth.cancelSandbox"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "ActorRequest" } :: Core.Schema,
-		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
-		["service"] = "auth",
-	},
 	["auth.changePassword"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "PasswordChangeRequest" } :: Core.Schema,
 		["response"] = { ["item"] = { ["kind"] = "string" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
@@ -11112,11 +11043,6 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["auth.deleteService"] = { ["response"] = { ["kind"] = "nil" } :: Core.Schema, ["service"] = "auth" },
 	["auth.exchangeScopedToken"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Token" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.finalizeSandbox"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "ActorRequest" } :: Core.Schema,
-		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.getAccessLog"] = {
@@ -11256,11 +11182,6 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["auth.patchServiceAccount"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "ServiceAccountPatchRequest" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "ServiceAccountResponse" } :: Core.Schema,
-		["service"] = "auth",
-	},
-	["auth.provisionSandbox"] = {
-		["body"] = { ["kind"] = "ref", ["name"] = "Create" } :: Core.Schema,
-		["response"] = { ["kind"] = "ref", ["name"] = "Created" } :: Core.Schema,
 		["service"] = "auth",
 	},
 	["auth.refresh"] = {
@@ -12686,10 +12607,6 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	},
 	["platform.resetRateLimits"] = {
 		["response"] = { ["kind"] = "nil" } :: Core.Schema,
-		["service"] = "platform",
-	},
-	["platform.sandbox"] = {
-		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "platform",
 	},
 	["platform.setKeyRateLimit"] = {

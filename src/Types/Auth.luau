@@ -50,7 +50,6 @@ export type AccountResponse = {
 }
 export type AccountType = "SUPER_ADMIN" | "USER"
 export type AccountUpdateRequest = { email: string?, metadata: { [string]: Core.Json }? }
-export type ActorRequest = { actorId: string }
 export type AddMember = {
 	overrides: { ServicePermissionResponse }?,
 	role: TenantRole,
@@ -58,16 +57,8 @@ export type AddMember = {
 	username: string,
 }
 export type AssignOwner = { accountId: string?, email: string?, username: string? }
-export type Create = { actorId: string, expiresAt: string, operationId: string }
 export type CreateOrg = { name: string }
 export type CreateUniverse = { name: string, universeId: number }
-export type Created = {
-	expiresAt: (string | Core.Null)?,
-	id: (string | Core.Null)?,
-	key: (string | Core.Null)?,
-	serviceAccountId: (string | Core.Null)?,
-	universeId: number,
-}
 export type CreatedMember = {
 	account: AccountResponse | Core.Null,
 	member: Member | Core.Null,
@@ -271,12 +262,6 @@ export type UpdateCurrentAccountCall = AccountUpdateRequest
 export type UpdateCurrentAccountResultValue = AccountResponse
 export type HealthCall = {}
 export type HealthResultValue = { [string]: Core.Json }
-export type ProvisionSandboxCall = { path: { org: string }, body: Create }
-export type ProvisionSandboxResultValue = Created
-export type CancelSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
-export type CancelSandboxResultValue = { [string]: Core.Json }
-export type FinalizeSandboxCall = { path: { org: string, id: string }, body: ActorRequest }
-export type FinalizeSandboxResultValue = { [string]: Core.Json }
 export type LookupServiceAccountCall = { path: { org: string, id: string } }
 export type LookupServiceAccountResultValue = { [string]: Core.Json }
 export type AcceptInvitationCall = Accept

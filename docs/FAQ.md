@@ -12,7 +12,7 @@ players. Use a dev key, or pass `allowProdInStudio = true` if you really mean it
 
 **Can I use the SDK on the client?** No. It is server-only; keys must never reach a client.
 
-**Is it on Wally?** Not yet. Build with Rojo; the repository version is 9.0.0.
+**Is it on Wally?** Not yet. Build with Rojo; the repository version is 10.0.0.
 
 **Why does a `profile:add` not show in the portal at once?** Buffered writes are saved in the background, by default within
 about 5 seconds. Use `profile:immediate()` and check the Result when you must confirm.
