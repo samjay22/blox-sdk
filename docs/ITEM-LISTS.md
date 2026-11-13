@@ -7,7 +7,8 @@ Item lists are one idea with two halves:
 
 - **The list** lives in `client.configs`. A config namespace is either **Settings** (free-form keys with JSON values,
   see [CONFIGS.md](CONFIGS.md)) or an **Item list** (named members). You make a namespace an item list once.
-- **What a player holds** lives in a Fields field that points at the list, see [FIELDS.md](FIELDS.md).
+- **What a player holds** lives in a Fields field of type **Item set** (kind `bitmap`) that points at the list, see
+  [FIELDS.md](FIELDS.md).
 
 A member is `{ bit, label?, description?, meta?, retired? }`. The server assigns `bit` when the member is created. Bits
 are permanent: they never change and are never reused, even after the member is removed. A list has at most 512 members
@@ -108,6 +109,23 @@ server and one config poll (30 s by default) in the SDK. If the local cache is b
 local profile is corrected. Until the list has loaded, grants fail closed with `enum_source_unavailable` instead of
 guessing, and `has`, `members` and `usable` ask the server (`GET .../players/{userId}/members/{field}`) so they still
 return the truth. `usable` always needs the current list, so it is the one to use when "retired" matters.
+
+## Operations calls
+
+Most games only need the profile calls above. Operators also have these `client.fields` calls (HTTP routes in
+[ENDPOINTS.md](ENDPOINTS.md)): `itemListUsage` (the same data as `items:usage()`), `itemListHolders`, `itemListSource` (how fresh
+the Fields copy of the list is: `version`, `ageSeconds`, `lastError`), `itemListVerifyHolders` (ADMIN; compares and optionally
+repairs the holder counters) and `playerMembers` (what the profile reads fall back to). `itemListRemovalCheck` is called by
+ConfigService before a removal; game and admin code never need it. Per-player data usage, per-key usage and the right-to-erasure
+webhook are HTTP-only: the SDK has no wrapper for them.
+
+| Task | Key level |
+|---|---|
+| Create or edit a list (`setKind`, `addMember`, `retireMember`, `removeMember`, ...) | ConfigService ADMIN |
+| Read the list (`members`, `activeMembers`) | ConfigService READ |
+| `grant`, `revoke`, `replace` | FieldsService READ_WRITE |
+| `has`, `members`, `usable`, `usage()`, `holders()` | FieldsService READ |
+| `itemListVerifyHolders` | FieldsService ADMIN |
 
 ## Technical note
 

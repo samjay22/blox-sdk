@@ -47,6 +47,8 @@ Start with `result.error.code` and `result.error.kind`; branch on those, never o
 | `member_limit` | The field holds its `maxMembers` already; `revoke` first or use `replace` |
 | `enum_source_unavailable` | The list has not loaded yet; wait and retry, check ConfigService READ |
 | `member_in_use` | Players hold it: read `error.holders` and retire the member instead |
+| `holder_check_unavailable` | The holder check could not answer (the removal fails closed); retry later or retire the member |
+| `source_immutable` | A field keeps its item list for good; define a new field instead |
 | Granted member missing in `activeMembers()` | The list changed on the server; the SDK sees it after the next config poll |
 
 ## Leaderboards

@@ -1,7 +1,8 @@
 # Dynamic game configuration
 
 `client.configs` reads and writes **dynamic configuration**: JSON values grouped into named *namespaces* inside your
-universe, changeable without publishing a new place version. It is backed by ConfigService and is separate from
+universe, changeable without publishing a new place version. A namespace is either **Settings** (free-form keys with JSON
+values, this page) or an **Item list** (named things players can hold, see [Item lists](ITEM-LISTS.md)). It is backed by ConfigService and is separate from
 Fields (player data) and from flags/maintenance (the Fields runtime snapshot). You never pass a universe ID: it is the
 one given to `BloxSDK.new`.
 
@@ -80,7 +81,8 @@ fields hold per player. Make a namespace an item list once with `setKind("items"
 | `addMember`, `updateMember`, `retireMember`, `unretireMember`, `removeMember` | admin edits; bits are assigned by the server and never reused |
 | `usage()` / `holders(member)` | how many players hold each member / one member in detail |
 
-The concept, recipes and errors (`member_in_use`) are in [ITEM-LISTS.md](ITEM-LISTS.md).
+Writes need ConfigService ADMIN, reads READ. `usage()` and `holders(member)` call Fields, so they need FieldsService READ too.
+The concept, recipes and errors (`member_in_use`) are in [ITEM-LISTS.md](ITEM-LISTS.md); this page does not repeat them.
 
 ## Errors
 

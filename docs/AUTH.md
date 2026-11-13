@@ -55,6 +55,13 @@ contractor has no org role. Disabled org membership denies all scopes; disabled 
 active org grant. Suspended orgs and disabled universes deny scoped credentials. Universe moves revoke old
 keys/invitations and invalidate old scoped JWTs; re-enabling does not undo explicit revocation.
 
+**Item lists and key levels.** Item list edits on `client.configs` (`setKind`, `addMember`, `updateMember`, `retireMember`,
+`unretireMember`, `removeMember`) need ConfigService ADMIN. Granting and reading members on profiles is ordinary Fields access
+(READ_WRITE to write, READ to read). `usage()`, `holders()` and `client.fields:itemListSource` need FieldsService READ;
+`itemListVerifyHolders` needs FieldsService ADMIN. A key restricted to field prefixes or namespaces gets `scope_denied` on
+a list or route outside its scope, and the item list routes of Fields are not available to prefix-restricted keys. Keep ADMIN
+keys in operator tooling, never on game servers.
+
 Initial role templates (operators may replace them; query `listRoleTemplates` for current values):
 
 | Role | Initial service grants |

@@ -107,6 +107,6 @@ Ranks are recalculated every minute, so caching for a minute loses nothing. A `N
 
 ## Equipment and event-only items
 
-Keep what a player owns in one item-list field and what is equipped in a second field with `maxMembers = 1`; for event
+Keep what a player owns in one item set field and what is equipped in a second field with `maxMembers = 1`; for event
 items, give each event its own list and check `usable`. See [item lists](ITEM-LISTS.md), the
 [equipment](../examples/server/equipment.server.luau) and [event items](../examples/server/event-items.server.luau) examples.
