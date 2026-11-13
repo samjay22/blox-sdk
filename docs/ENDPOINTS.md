@@ -1,6 +1,6 @@
 # Endpoint reference
 
-367 endpoints. `routes.json` coverage is checked independently.
+374 endpoints. `routes.json` coverage is checked independently.
 
 Default gateway: `https://lb1.blox-api.com`. Override once with `gatewayUrl`.
 
@@ -130,6 +130,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | PUT | `/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}` | `config.putEntry` | ADMIN | 200 | no | no |
 | GET | `/api/config/universes/{universeId}/namespaces/{namespace}/history` | `config.history` | READ | 200 | yes | no |
 | GET | `/api/config/universes/{universeId}/namespaces/{namespace}/history/{version}` | `config.version` | READ | 200 | yes | no |
+| PUT | `/api/config/universes/{universeId}/namespaces/{namespace}/kind` | `config.setKind` | ADMIN | 200 | no | no |
 | POST | `/api/config/universes/{universeId}/namespaces/{namespace}/rollback` | `config.rollback` | ADMIN | 200 | no | no |
 | GET | `/api/config/universes/{universeId}/namespaces/{namespace}/snapshot` | `config.snapshot` | READ | 200, 304 | yes | no |
 | GET | `/health` | `config.healthProxy` | public / authenticated | 200 | yes | yes |
@@ -172,6 +173,11 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | PUT | `/api/fields/universes/{universeId}/flags/{key}` | `fields.updateFlag` | READ_WRITE | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/health/summary` | `fields.healthSummary` | READ | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/import` | `fields.import` | ADMIN | 200 | keyed apply / dry-run | no |
+| POST | `/api/fields/universes/{universeId}/item-lists/{namespace}/holders/verify` | `fields.itemListVerifyHolders` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders` | `fields.itemListHolders` | READ | 200 | yes | no |
+| POST | `/api/fields/universes/{universeId}/item-lists/{namespace}/removal-check` | `fields.itemListRemovalCheck` | ADMIN | 200 | no | no |
+| GET | `/api/fields/universes/{universeId}/item-lists/{namespace}/source` | `fields.itemListSource` | READ | 200 | yes | no |
+| GET | `/api/fields/universes/{universeId}/item-lists/{namespace}/usage` | `fields.itemListUsage` | READ | 200 | yes | no |
 | GET | `/api/fields/universes/{universeId}/jobs` | `fields.jobs` | ADMIN | 200 | yes | no |
 | GET | `/api/fields/universes/{universeId}/jobs/{id}` | `fields.job` | ADMIN | 200 | yes | no |
 | POST | `/api/fields/universes/{universeId}/jobs/{id}/cancel` | `fields.cancelJob` | ADMIN | 200 | no | no |
@@ -202,6 +208,7 @@ Fields imports accept raw NDJSON in `body` with `query={reason=...,dryRun=...}` 
 | POST | `/api/fields/universes/{universeId}/players/{userId}/fields/batch-get` | `fields.playerBatch` | READ | 200 | no | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/fields/{fieldId}` | `fields.field` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/ledger` | `fields.ledger` | READ | 200 | yes | yes |
+| GET | `/api/fields/universes/{universeId}/players/{userId}/members/{field}` | `fields.playerMembers` | READ | 200 | yes | no |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/overview` | `fields.playerOverview` | READ | 200 | yes | yes |
 | GET | `/api/fields/universes/{universeId}/players/{userId}/presence` | `fields.presence` | READ | 200 | yes | yes |
 | PUT | `/api/fields/universes/{universeId}/players/{userId}/presence` | `fields.putPresence` | READ_WRITE | 200 | no | no |

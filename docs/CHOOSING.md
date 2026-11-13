@@ -23,6 +23,12 @@ Ask whose value it is. A field belongs to a player; a config value belongs to th
 | Safety | Types, min/max, transactions, idempotency, history | Any JSON except null, 64 KiB per value, versions, rollback |
 | Scale | Millions of rows | 100 namespaces, 1000 keys, 1 MiB per namespace |
 
+## Settings or item list?
+
+A config namespace is **Settings** when its values are numbers, text and tables the game reads (prices, tuning). It is an
+**item list** when the game hands out named things that players hold (swords, hats, badges): pair it with a Fields field
+of kind `bitmap`. See [item lists](ITEM-LISTS.md).
+
 ## Configs or rotations?
 
 Use a rotation when content should change by itself on a schedule and every server must agree. Use a config when a person

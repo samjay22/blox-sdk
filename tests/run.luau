@@ -583,6 +583,8 @@ local function configCall(c: any, name: string, request: Core.Request): Core.Res
 		return handle:at(path.version)
 	elseif name == "rollback" then
 		return handle:rollback(1)
+	elseif name == "setKind" then
+		return handle:setKind("items")
 	end
 	error("Unhandled config route " .. name)
 end
@@ -1110,6 +1112,7 @@ require("./matchmaking")(test)
 require("./live_responses")(test)
 require("./codes_bulk")(test)
 require("./configs")(test)
+require("./item_lists")(test)
 require("./jobs")(test)
 require("./references")(test)
 require("./simulate")(test)

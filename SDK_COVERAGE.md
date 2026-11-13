@@ -25,14 +25,14 @@ Fields rotations are covered: `fields:currentRotation` and the `client.fields:ro
 | audit | 13 | Available controllers covered |
 | auth | 62 | Available controllers covered |
 | codes | 14 | Available controllers covered |
-| config | 14 | Available controllers covered |
-| fields | 125 | Available controllers covered |
+| config | 15 | Available controllers covered |
+| fields | 131 | Available controllers covered |
 | leaderboards | 28 | Available controllers covered |
 | matchmaking | 52 | Available controllers covered |
 | party | 16 | Unverified: source unavailable |
 | platform | 43 | Available controllers covered |
 
-Total: **367** typed HTTP methods across nine facades (including public/management APIs).
+Total: **374** typed HTTP methods across nine facades (including public/management APIs).
 
 ## Endpoint inventory
 
@@ -157,6 +157,7 @@ The endpoint column is the gateway route inventory; SDK 3.0 sends operations wit
 | `PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key}` | `client.configs:namespace(name):set` | ADMIN | `svc/config-service/src/main/java/sam/tech/controller/ConfigController.java` |
 | `GET /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/history` | `client.configs:namespace(name):history` | READ | `svc/config-service/src/main/java/sam/tech/controller/ConfigController.java` |
 | `GET /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/history/{version}` | `client.configs:namespace(name):at` | READ | `svc/config-service/src/main/java/sam/tech/controller/ConfigController.java` |
+| `PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/kind` | `client.configs:setKind` | ADMIN | `svc/config-service/src/main/java/sam/tech/controller/ConfigController.java` |
 | `POST /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/rollback` | `client.configs:namespace(name):rollback` | ADMIN | `svc/config-service/src/main/java/sam/tech/controller/ConfigController.java` |
 | `GET /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/snapshot` | `client.configs:namespace(name) (cached poll, :refresh)` | READ | `svc/config-service/src/main/java/sam/tech/controller/ConfigController.java` |
 | `GET /remote-config-service/health` | `client.configs:healthProxy` | public/authenticated (see source) | `svc/config-service/src/main/java/sam/tech/controller/HealthController.java` |
@@ -204,6 +205,11 @@ The endpoint column is the gateway route inventory; SDK 3.0 sends operations wit
 | `PUT /fields-service/api/fields/universes/{universeId}/flags/{key}` | `client.fields:updateFlag` | READ_WRITE | `svc/fields-service/src/main/java/sam/tech/controller/FlagsController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/health/summary` | `client.fields:healthSummary` | READ | `svc/fields-service/src/main/java/sam/tech/controller/JobsController.java` |
 | `POST /fields-service/api/fields/universes/{universeId}/import` | `client.fields:import` | ADMIN | `svc/fields-service/src/main/java/sam/tech/controller/JobsController.java` |
+| `POST /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/holders/verify` | `client.fields:itemListVerifyHolders` | ADMIN | `svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java` |
+| `GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders` | `client.fields:itemListHolders` | READ | `svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java` |
+| `POST /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/removal-check` | `client.fields:itemListRemovalCheck` | ADMIN | `svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java` |
+| `GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/source` | `client.fields:itemListSource` | READ | `svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java` |
+| `GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/usage` | `client.fields:itemListUsage` | READ | `svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/jobs` | `client.fields:jobs` | ADMIN | `svc/fields-service/src/main/java/sam/tech/controller/JobsController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/jobs/{id}` | `client.fields:job` | ADMIN | `svc/fields-service/src/main/java/sam/tech/controller/JobsController.java` |
 | `POST /fields-service/api/fields/universes/{universeId}/jobs/{id}/cancel` | `client.fields:cancelJob` | ADMIN | `svc/fields-service/src/main/java/sam/tech/controller/JobsController.java` |
@@ -234,6 +240,7 @@ The endpoint column is the gateway route inventory; SDK 3.0 sends operations wit
 | `POST /fields-service/api/fields/universes/{universeId}/players/{userId}/fields/batch-get` | `client.fields:playerBatch` | READ | `svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/players/{userId}/fields/{fieldId}` | `client.fields:field` | READ | `svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/players/{userId}/ledger` | `client.fields:ledger` | READ | `svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java` |
+| `GET /fields-service/api/fields/universes/{universeId}/players/{userId}/members/{field}` | `client.fields:playerMembers` | READ | `svc/fields-service-redis/src/main/java/sam/tech/controller/PlayerMembersController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/players/{userId}/overview` | `client.fields:playerOverview` | READ | `svc/fields-service/src/main/java/sam/tech/controller/PlayerAdminController.java` |
 | `GET /fields-service/api/fields/universes/{universeId}/players/{userId}/presence` | `client.fields:presence` | READ | `svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java` |
 | `PUT /fields-service/api/fields/universes/{universeId}/players/{userId}/presence` | `client.fields:putPresence` | READ_WRITE | `svc/fields-service/src/main/java/sam/tech/controller/SafetyController.java` |

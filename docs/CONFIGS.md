@@ -68,6 +68,20 @@ shop:rollback(5)  -- restores version 5 as a NEW version; history is never rewri
 Writes are never retried automatically. After a successful write the handle refreshes itself so this server sees its
 change quickly. Arguments are checked locally (key and namespace grammar, non-null value, size) before any request.
 
+## Item lists
+
+A namespace is either Settings (everything above) or an **item list**: named members with permanent bits that Fields
+fields hold per player. Make a namespace an item list once with `setKind("items")`. On the same handle:
+
+| Call | Does |
+|---|---|
+| `kind()` | `"settings"` or `"items"` (cached) |
+| `members()` / `activeMembers()` / `member(name)` | cached members `{ bit, label?, description?, meta?, retired? }` |
+| `addMember`, `updateMember`, `retireMember`, `unretireMember`, `removeMember` | admin edits; bits are assigned by the server and never reused |
+| `usage()` / `holders(member)` | how many players hold each member / one member in detail |
+
+The concept, recipes and errors (`member_in_use`) are in [ITEM-LISTS.md](ITEM-LISTS.md).
+
 ## Errors
 
 Failures are normal `Result` errors. ConfigService adds these `error.code` values: `namespace_not_found`,

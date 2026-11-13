@@ -31,7 +31,7 @@ local function client(
 end
 --- A snapshot response body.
 local function snapshot(s: Scheduler.Scheduler, version: number, entries: { [string]: unknown }): string
-	return s.json({ namespace = "Shop", version = version, entries = entries })
+	return s.json({ namespace = "Shop", version = version, kind = "settings", entries = entries })
 end
 --- A ConfigService error body.
 local function problem(s: Scheduler.Scheduler, code: string): string
@@ -157,6 +157,8 @@ return function(test: (string, () -> ()) -> ())
 				namespace = "Shop",
 				version = 2,
 				entryCount = 1,
+				kind = "settings",
+				nextBit = 0,
 				createdAt = "2026-11-12T00:00:00Z",
 				updatedAt = "2026-11-12T00:00:00Z",
 			}
@@ -243,10 +245,14 @@ return function(test: (string, () -> ()) -> ())
 	end)
 	test("Configs enforce access levels locally and validate names and options", function()
 		local s = Scheduler.new()
-		local c, f = client(s, { { body = s.json({ namespace = "Shop", version = 1, entries = {} }) } }, {
-			levels = { ConfigService = "READ" },
-			configs = { pollInterval = 600, jitter = 0 },
-		})
+		local c, f = client(
+			s,
+			{ { body = s.json({ namespace = "Shop", version = 1, kind = "settings", entries = {} }) } },
+			{
+				levels = { ConfigService = "READ" },
+				configs = { pollInterval = 600, jitter = 0 },
+			}
+		)
 		local shop = c.configs:namespace("Shop")
 		s.run(function()
 			check(shop:waitReady(5))

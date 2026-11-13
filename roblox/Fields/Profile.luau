@@ -12,6 +12,8 @@ local Errors = require(script.Parent.Parent.Core.Errors)
 local FieldTypes = require(script.Parent.Parent.Fields.Types)
 local ChangeSignal = require(script.Parent.Parent.Core.ChangeSignal)
 local Operations = require(script.Parent.Parent.Fields.Operations)
+local Bitmap = require(script.Parent.Parent.Fields.Bitmap)
+local Namespace = require(script.Parent.Parent.Configs.Namespace)
 local Profile = {}
 Profile.__index = Profile
 export type IO = {
@@ -19,6 +21,10 @@ export type IO = {
 	changes: (number, Core.CallOptions?) -> Core.Result<Wire.ChangesResponse>,
 	presence: (Wire.PresenceInput, Core.CallOptions?) -> Core.Result<Wire.Presence>,
 	transaction: ((Wire.Result) -> ()) -> Transaction.Transaction,
+	--- The cached live view of the item list a bitmap field points at (`client.configs:namespace(source)`).
+	itemList: (source: string) -> Namespace.Namespace?,
+	--- Server truth: the member names this player holds in a bitmap field (used while the list has not loaded).
+	members: (field: string, Core.CallOptions?) -> Core.Result<Wire.PlayerMembers>,
 }
 export type Profile = typeof(setmetatable(
 	{} :: {
@@ -38,6 +44,7 @@ export type Profile = typeof(setmetatable(
 		_schema: Schema.Schema,
 		_schemaVersion: number?,
 		_io: IO,
+		_lookup: FieldTypes.MemberLookup,
 		_user: number,
 		_data: { [string]: Core.Json },
 		versions: { [string]: number },
@@ -81,6 +88,14 @@ local function put(data: any, id: string, value: Core.Json)
 end
 --- Construct a profile only through a successful schema/document load.
 function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number, io: IO): Profile
+	--- The cached members of an item list, or nil until its live view has loaded (member changes then fail closed).
+	local function lookup(source: string): { [string]: FieldTypes.MemberInfo }?
+		local ok, handle = pcall(io.itemList, source)
+		if ok and handle and handle:isReady() then
+			return handle:members() :: any
+		end
+		return nil
+	end
 	return setmetatable({
 		Changed = ChangeSignal.new(runtime),
 		_base = {},
@@ -98,6 +113,7 @@ function Profile.new(runtime: Core.Runtime, schema: Schema.Schema, user: number,
 		_schemaVersion = nil,
 		_user = user,
 		_io = io,
+		_lookup = lookup,
 		_data = {},
 		versions = {},
 		_versionFloor = {},
@@ -162,7 +178,8 @@ function Profile._overlay(self: Profile, base: { [string]: Core.Json }): { [stri
 					definition.default,
 					op.op,
 					Operations.operands(op),
-					op.path
+					op.path,
+					self._lookup
 				)
 				if result.ok then
 					put(data, op.field, result.value)
@@ -195,7 +212,8 @@ function Profile.mutate(self: Profile, ops: { FieldTypes.PlayerOperation }): Cor
 			definition.default,
 			op.op,
 			Operations.operands(op),
-			op.path
+			op.path,
+			self._lookup
 		)
 		if not result.ok then
 			return result
@@ -227,6 +245,105 @@ function Profile.set(
 	path: FieldTypes.Path?
 ): Core.Result<boolean>
 	return self:mutate({ { field = field, op = "SET", value = value, path = path } })
+end
+--- Give the player members of an item list field. Idempotent; the members must exist and be active in the list.
+--- Needs the list's live view to have loaded (`profile:grant` fails with `enum_source_unavailable` until then);
+--- `unknown_member`, `member_retired` and `member_limit` are refused before anything is buffered, and the server
+--- applies the same checks authoritatively when the buffer is saved.
+function Profile.grant(self: Profile, field: string, members: { string }): Core.Result<boolean>
+	return self:mutate({ { field = field, op = "GRANT", members = members } :: any })
+end
+--- Take members away from the player. Idempotent; retired members may be taken away.
+function Profile.revoke(self: Profile, field: string, members: { string }): Core.Result<boolean>
+	return self:mutate({ { field = field, op = "REVOKE", members = members } :: any })
+end
+--- Make the player hold exactly these members of an item list field; an empty list clears the field.
+--- The result is checked like `grant`, so this fails when it would gain a retired member.
+function Profile.replace(self: Profile, field: string, members: { string }): Core.Result<boolean>
+	return self:mutate({ { field = field, op = "REPLACE", members = members } :: any })
+end
+type Held = { all: { string }, active: { string } }
+--- The members the player holds in a bitmap field, and which of them are active in the item list. Reads the
+--- cached list when it has loaded (never yields); otherwise asks the server, which yields.
+local function held(self: Profile, field: string, opts: Core.CallOptions?): Core.Result<Held>
+	local value = self:tryGet(field)
+	if not value.ok then
+		return value
+	end
+	local definition = self._schema:get(field)
+	local expression: any = if definition then definition.type else nil
+	if type(expression) ~= "table" or expression == Json.null or expression.kind ~= "bitmap" then
+		return System.failure("op_not_applicable", nil, field)
+	end
+	local ok, handle = pcall(self._io.itemList, expression.source :: string)
+	local all: { string } = {}
+	local active: { string } = {}
+	if ok and handle and handle:isReady() then
+		local members = handle:members()
+		local byBit: { [number]: string } = {}
+		for name, member in members do
+			byBit[member.bit] = name
+		end
+		local bits: { number } = Bitmap.decode(value.value) or {}
+		for _, bit in bits do
+			local name = byBit[bit]
+			table.insert(all, name or "#" .. tostring(bit))
+			if name and not members[name].retired then
+				table.insert(active, name)
+			end
+		end
+	else
+		local fetched = self._io.members(field, opts)
+		if not fetched.ok then
+			return fetched
+		end
+		local retired: { [string]: boolean } = {}
+		for _, name in fetched.value.retired do
+			retired[name] = true
+		end
+		for _, name in fetched.value.members do
+			table.insert(all, name)
+			if not retired[name] and string.sub(name, 1, 1) ~= "#" then
+				table.insert(active, name)
+			end
+		end
+	end
+	table.sort(all)
+	table.sort(active)
+	return { ok = true, value = { all = all, active = active } }
+end
+--- Whether the player holds `member` in a bitmap field (a retired member counts while it is held).
+--- Reads the cached list; yields only to ask the server while the list has not loaded.
+function Profile.has(
+	self: Profile,
+	field: string,
+	member: string,
+	opts: Core.CallOptions?
+): Core.Result<boolean>
+	local result = held(self, field, opts)
+	if not result.ok then
+		return result
+	end
+	return { ok = true, value = table.find(result.value.all, member) ~= nil }
+end
+--- The member names the player holds in a bitmap field, sorted. A bit the cached list does not know yet (a
+--- member added after its last refresh) shows as `#<bit>`.
+function Profile.members(self: Profile, field: string, opts: Core.CallOptions?): Core.Result<{ string }>
+	local result = held(self, field, opts)
+	if not result.ok then
+		return result
+	end
+	return { ok = true, value = result.value.all }
+end
+--- What the player can use here: the members they hold that are active in the item list, sorted. Retired
+--- members and members this server has not seen yet are left out. Reads the cached list; while the list has
+--- not loaded it asks the server instead (which yields).
+function Profile.usable(self: Profile, field: string, opts: Core.CallOptions?): Core.Result<{ string }>
+	local result = held(self, field, opts)
+	if not result.ok then
+		return result
+	end
+	return { ok = true, value = result.value.active }
 end
 --- Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
 function Profile.refresh(self: Profile, opts: Core.CallOptions?): Core.Result<boolean>

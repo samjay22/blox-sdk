@@ -38,6 +38,17 @@ Start with `result.error.code` and `result.error.kind`; branch on those, never o
 | `limit_exceeded` | Over 1000 keys, 1 MiB or 100 namespaces |
 | Slow edits | Lower `pollInterval` (minimum 1 s) or call `refresh()` |
 
+## Item lists
+
+| Symptom | Fix |
+|---|---|
+| `unknown_member` | The name is not in the list (`error.members`); check spelling and that the config poll has run |
+| `member_retired` | Retired members cannot be granted; `unretireMember` or use another member |
+| `member_limit` | The field holds its `maxMembers` already; `revoke` first or use `replace` |
+| `enum_source_unavailable` | The list has not loaded yet; wait and retry, check ConfigService READ |
+| `member_in_use` | Players hold it: read `error.holders` and retire the member instead |
+| Granted member missing in `activeMembers()` | The list changed on the server; the SDK sees it after the next config poll |
+
 ## Leaderboards
 
 | Symptom | Fix |

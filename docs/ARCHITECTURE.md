@@ -31,9 +31,9 @@ through the Fields outbox; configs are versioned in ConfigService and served to 
 
 ```mermaid
 flowchart TD
-  Routes[routes.json: 367 required routes] --> Audit[Controller / DTO / security audit]
+  Routes[routes.json: 374 required routes] --> Audit[Controller / DTO / security audit]
   Java[Local Java sources + RBAC contract] --> Audit
-  Audit --> Spec[spec/endpoints.json: 367 endpoints]
+  Audit --> Spec[spec/endpoints.json: 374 endpoints]
   Spec --> Generator[tools/gen.py: deterministic]
   Generator --> Services[Typed service facades + DTOs]
   Generator --> Schemas[Runtime schemas + frozen metadata]
@@ -79,6 +79,15 @@ is its own service, separate from Fields). A namespace handle owns one cached sn
 conditional `GET .../snapshot` through the ordinary Pipeline, so batching, access checks, retries and rate limits are shared.
 Polling reuses the runtime timer (`delay`/`cancel`) exactly as the Fields runtime snapshot does; a failed refresh keeps the last
 good snapshot, and `flush`/`destroy` stop every poller. Reads are memory-only. See [configs](CONFIGS.md).
+
+## Item lists
+
+An item list is a config namespace of kind `items`; the same cached handle also exposes its members. A Fields profile that
+has a `bitmap` field asks the client for the handle of the field's `source` and, once it has loaded, resolves member names
+to bits through it (`Profile` `MemberLookup`, `TypeSystem.apply`). The local check is fail-closed: until the list has
+loaded, writes return `enum_source_unavailable` and reads fall back to `GET .../players/{userId}/members/{field}`. The
+buffer merges adjacent grants or revokes of one field; the commit id keeps retries idempotent. The server stays
+authoritative. See [item lists](ITEM-LISTS.md).
 
 ## Shared operation templates
 

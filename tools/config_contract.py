@@ -58,10 +58,13 @@ def types() -> dict:
             'universeId': field('long'),
             'version': field('long'),
         }, **src},
+        'KindChange': {'fields': {'kind': field('String')}, **src},
         'Namespace': {'fields': {
             'createdAt': field('Instant'),
             'entryCount': field('int'),
+            'kind': field('String'),
             'namespace': field('String'),
+            'nextBit': field('int'),
             'universeId': field('long'),
             'updatedAt': field('Instant'),
             'updatedBy': field('String', False),
@@ -70,6 +73,7 @@ def types() -> dict:
         'Rollback': {'fields': {'toVersion': field('Long')}, **src},
         'Snapshot': {'fields': {
             'entries': field('Map<String, JsonNode>'),
+            'kind': field('String'),
             'namespace': field('String'),
             'version': field('long'),
         }, **src},
@@ -125,7 +129,7 @@ def route(name: str, method: str, suffix: str, response: str, *, level: str | No
 
 
 def endpoints() -> list[dict]:
-    """The eleven namespace routes plus the root health probes."""
+    """The twelve namespace routes plus the root health probes."""
     namespace = param('namespace')
     key = param('key')
     page = [param('cursor', required=False), param('limit', 'number', 'int', False, default='50')]
@@ -139,6 +143,7 @@ def endpoints() -> list[dict]:
         route('putEntry', 'PUT', '/{namespace}/entries/{key}', 'Entry', level='ADMIN', path_params=[namespace, key], body='EntryPut'),
         route('deleteEntry', 'DELETE', '/{namespace}/entries/{key}', 'Void', level='ADMIN', path_params=[namespace, key], statuses=[204]),
         route('changeEntries', 'PATCH', '/{namespace}/entries', 'Namespace', level='ADMIN', path_params=ns, body='ChangeSet'),
+        route('setKind', 'PUT', '/{namespace}/kind', 'Namespace', level='ADMIN', path_params=ns, body='KindChange'),
         route('history', 'GET', '/{namespace}/history', 'CursorPage<History>', path_params=ns, query=page),
         route('version', 'GET', '/{namespace}/history/{version}', 'VersionState', path_params=[namespace, param('version', 'id', 'long')]),
         route('rollback', 'POST', '/{namespace}/rollback', 'Namespace', level='ADMIN', path_params=ns, body='Rollback'),

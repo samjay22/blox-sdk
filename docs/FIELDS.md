@@ -372,6 +372,13 @@ reason, key, scope and conditions; `:commit()` still uses that full check. Multi
 because this endpoint is player-template-only. Neither validation method reserves or writes anything.
 The [Codes builder](CODES.md) composes the same operation builder and TypeSystem.
 
+## Item list fields
+
+A field of kind `bitmap` holds a set of members of an item list (`{"kind":"bitmap","source":"Items","maxMembers":64}`;
+`maxMembers = 1` is a single choice). Operations use names: `grant`, `revoke`, `replace` on profiles and transactions, with
+`has`, `members` and `usable` to read. They are buffered like every profile write and checked locally against the cached
+list. Everything else, including recipes and errors, is in [ITEM-LISTS.md](ITEM-LISTS.md).
+
 ## Rotations
 
 See [Rotations](ROTATIONS.md): a named list of items that take turns on a fixed clock, read with `rotations():current(name)`. It uses this SDK's shared Result/pipeline and universe/auth lifetime.

@@ -26,6 +26,7 @@ def typ(tree: dict[str, Any]) -> str:
     if kind == 'string': return 'string'
     if kind == 'enum': return ' | '.join(quote(v) for v in tree['values'])
     if kind == 'nullable': return '(' + typ(tree['of']) + ' | Core.Null)'
+    if kind == 'bitmap': return 'string'  # canonical hex of the member bits; names come from profile:members / usable
     if kind == 'list': return '{' + typ(tree['item']) + '}'
     if kind == 'set':
         if tree['item']['kind']=='enum': return '{'+', '.join('['+quote(v)+']: true?' for v in tree['item']['values'])+'}'
@@ -108,6 +109,9 @@ def generate(schema: dict[str, Any], sdk: str, roblox_root: str | None = None) -
             if kind in ('int','number'):
                 for method in ('add','min','max'):
                     a += [f'--- Queue a numeric {method.lower()} operation.',f'function Accessor.{method}(_self: unknown, tx: Transaction.Transaction, value: number): Transaction.Transaction return tx:{method}({quote(identifier)},value) end']
+            if kind=='bitmap':
+                for method,text in (('grant','Give members of the item list'),('revoke','Take members of the item list away'),('replace','Make the player hold exactly these members of the item list')):
+                    a += [f'--- Queue: {text} (names; the server refuses unknown and retired ones).',f'function Accessor.{method}(_self: unknown, tx: Transaction.Transaction, members: {{string}}): Transaction.Transaction return tx:{method}({quote(identifier)},members) end']
             if kind in ('list','set'):
                 item=expression['item']; item_type=typ(item)
                 methods=('append','insert','setAdd','setRemove') if kind=='list' else ('setAdd','setRemove')

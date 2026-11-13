@@ -1833,5 +1833,40 @@
     "svc": "config",
     "method": "GET",
     "path": "/health"
+  },
+  {
+    "svc": "config",
+    "method": "PUT",
+    "path": "/api/config/universes/{universeId}/namespaces/{namespace}/kind"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/holders/verify"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders"
+  },
+  {
+    "svc": "fields",
+    "method": "POST",
+    "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/removal-check"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/source"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/usage"
+  },
+  {
+    "svc": "fields",
+    "method": "GET",
+    "path": "/api/fields/universes/{universeId}/players/{userId}/members/{field}"
   }
 ]

@@ -24,7 +24,7 @@ PREFIXES={
 HANDWRITTEN={'codes.redeem':'redeem','codes.createCode':'create','codes.bulkCreateCodes':'createBatch','codes.exportBatch':'exportBatch',
     'codes.searchCodes':'list','codes.getCode':'get','codes.updateCode':'update','codes.deleteCode':'delete','codes.listRedemptions':'redemptions'}
 # ConfigService is hand-written too: its admin calls live on the namespace handle (src/Configs/Namespace.luau).
-CONFIG_METHODS={'config.namespaces':'Service.namespaces','config.namespace':'Namespace.info','config.snapshot':'Namespace.refresh',
+CONFIG_METHODS={'config.setKind':'Namespace.setKind','config.namespaces':'Service.namespaces','config.namespace':'Namespace.info','config.snapshot':'Namespace.refresh',
     'config.entries':'Namespace.entries','config.entry':'Namespace.entry','config.putEntry':'Namespace.set','config.deleteEntry':'Namespace.delete',
     'config.changeEntries':'Namespace.setMany','config.history':'Namespace.history','config.version':'Namespace.at','config.rollback':'Namespace.rollback'}
 BOOT_SERVICES = {'audit', 'leaderboards', 'fields', 'platform', 'codes'}
@@ -157,8 +157,16 @@ def assert_controller_coverage(actual: set[tuple[str,str,str]]) -> None:
     assert not missing, f'Missing controller routes: {sorted(missing)}'
     # Only documented framework endpoints and the explicitly unverified Party snapshot
     # may exist without a controller; stale speculative domain APIs must fail too.
-    # Routes that exist only in the current fields-service-redis tree (the scanned tree predates the rotations rewrite).
-    added = {('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/current'),
+    # Routes that exist only in the current fields-service-redis and config-service worktrees (the scanned trees predate them).
+    item_lists = '/api/fields/universes/{universeId}/item-lists/{namespace}'
+    added = {('fields', 'GET', item_lists + '/usage'),
+             ('fields', 'GET', item_lists + '/members/{member}/holders'),
+             ('fields', 'POST', item_lists + '/removal-check'),
+             ('fields', 'POST', item_lists + '/holders/verify'),
+             ('fields', 'GET', item_lists + '/source'),
+             ('fields', 'GET', '/api/fields/universes/{universeId}/players/{userId}/members/{field}'),
+             ('config', 'PUT', '/api/config/universes/{universeId}/namespaces/{namespace}/kind'),
+             ('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/current'),
              ('fields', 'GET', '/api/fields/universes/{universeId}/rotations/{key}/schedule'),
              ('fields', 'POST', '/api/fields/universes/{universeId}/rotations/preview')}
     extra = {r for r in actual - controller_routes() - SCALE_ROUTES - added

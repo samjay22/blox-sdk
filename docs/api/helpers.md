@@ -60,6 +60,67 @@ Profile.set(
 ): Core.Result<boolean>
 ```
 
+### `Profile.grant`
+
+Give the player members of an item list field. Idempotent; the members must exist and be active in the list.
+Needs the list's live view to have loaded (`profile:grant` fails with `enum_source_unavailable` until then);
+`unknown_member`, `member_retired` and `member_limit` are refused before anything is buffered, and the server
+applies the same checks authoritatively when the buffer is saved.
+
+```luau
+Profile.grant(self: Profile, field: string, members: { string }): Core.Result<boolean>
+```
+
+### `Profile.revoke`
+
+Take members away from the player. Idempotent; retired members may be taken away.
+
+```luau
+Profile.revoke(self: Profile, field: string, members: { string }): Core.Result<boolean>
+```
+
+### `Profile.replace`
+
+Make the player hold exactly these members of an item list field; an empty list clears the field.
+The result is checked like `grant`, so this fails when it would gain a retired member.
+
+```luau
+Profile.replace(self: Profile, field: string, members: { string }): Core.Result<boolean>
+```
+
+### `Profile.has`
+
+Whether the player holds `member` in a bitmap field (a retired member counts while it is held).
+Reads the cached list; yields only to ask the server while the list has not loaded.
+
+```luau
+Profile.has(
+	self: Profile,
+	field: string,
+	member: string,
+	opts: Core.CallOptions?
+): Core.Result<boolean>
+```
+
+### `Profile.members`
+
+The member names the player holds in a bitmap field, sorted. A bit the cached list does not know yet (a
+member added after its last refresh) shows as `#<bit>`.
+
+```luau
+Profile.members(self: Profile, field: string, opts: Core.CallOptions?): Core.Result<{ string }>
+```
+
+### `Profile.usable`
+
+What the player can use here: the members they hold that are active in the item list, sorted. Retired
+members and members this server has not seen yet are left out. Reads the cached list; while the list has
+not loaded it asks the server instead (which yields).
+
+```luau
+Profile.usable(self: Profile, field: string, opts: Core.CallOptions?): Core.Result<{ string }>
+```
+
 ### `Profile.refresh`
 
 Fetch and validate a complete snapshot; concurrent local commits cannot be overwritten by old reads.
@@ -185,6 +246,10 @@ export type IO = {
 	changes: (number, Core.CallOptions?) -> Core.Result<Wire.ChangesResponse>,
 	presence: (Wire.PresenceInput, Core.CallOptions?) -> Core.Result<Wire.Presence>,
 	transaction: ((Wire.Result) -> ()) -> Transaction.Transaction,
+	--- The cached live view of the item list a bitmap field points at (`client.configs:namespace(source)`).
+	itemList: (source: string) -> Namespace.Namespace?,
+	--- Server truth: the member names this player holds in a bitmap field (used while the list has not loaded).
+	members: (field: string, Core.CallOptions?) -> Core.Result<Wire.PlayerMembers>,
 }
 
 export type Profile = -- opaque handle; see methods below
@@ -320,6 +385,30 @@ Transaction.setRemove(
 	items: { Core.Json },
 	path: Types.Path?
 ): Transaction
+```
+
+### `Transaction.grant`
+
+Give item list members to the player (idempotent; unknown and retired members are refused).
+
+```luau
+Transaction.grant(self: Transaction, id: string, members: { string }): Transaction
+```
+
+### `Transaction.revoke`
+
+Take item list members away from the player (idempotent; retired members may be taken away).
+
+```luau
+Transaction.revoke(self: Transaction, id: string, members: { string }): Transaction
+```
+
+### `Transaction.replace`
+
+Make the player hold exactly these item list members; an empty list clears them.
+
+```luau
+Transaction.replace(self: Transaction, id: string, members: { string }): Transaction
 ```
 
 ### `Transaction.mapPut`
@@ -608,6 +697,30 @@ Remove matching set members, ignoring absent values.
 
 ```luau
 Builder.setRemove(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
+```
+
+### `Builder.grant`
+
+Give item list members to the player (idempotent; unknown and retired members are refused).
+
+```luau
+Builder.grant(self: Builder, id: string, members: { string }): Builder
+```
+
+### `Builder.revoke`
+
+Take item list members away from the player (idempotent; retired members may be taken away).
+
+```luau
+Builder.revoke(self: Builder, id: string, members: { string }): Builder
+```
+
+### `Builder.replace`
+
+Make the player hold exactly these item list members; an empty list clears them.
+
+```luau
+Builder.replace(self: Builder, id: string, members: { string }): Builder
 ```
 
 ### `Builder.mapPut`
@@ -1095,6 +1208,11 @@ export type TypeExpr =
 	| { kind: "set", item: TypeExpr, maxSize: number? }
 	| { kind: "map", key: TypeExpr, value: TypeExpr, maxSize: number?, pruneZero: boolean? }
 	| { kind: "nullable", of: TypeExpr }
+	| { kind: "bitmap", source: string, maxMembers: number? }
+
+export type MemberInfo = { bit: number, retired: boolean? }
+
+export type MemberLookup = (source: string) -> { [string]: MemberInfo }?
 
 export type Computed = { expression: string, returns: "int" | "number" }
 
@@ -1177,6 +1295,13 @@ type OperationShape<S> =
 		op: "MAP_ADD",
 		key: string,
 		delta: number,
+	}
+	| {
+		field: string,
+		subject: S?,
+		path: Path?,
+		op: "GRANT" | "REVOKE" | "REPLACE",
+		members: { string },
 	}
 
 export type PlayerOperation = OperationShape<nil>

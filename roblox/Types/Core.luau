@@ -18,6 +18,8 @@ export type ErrorKind =
 	| "Cancelled"
 	| "Local"
 export type OperationDiagnostic = { opIndex: number, field: string, path: { string | number }, code: string }
+--- Who still holds one item list member: how many players, and up to five of their ids.
+export type MemberHolders = { member: string, count: number, samplePlayers: { number } }
 export type BloxError = {
 	kind: ErrorKind,
 	message: string,
@@ -33,6 +35,13 @@ export type BloxError = {
 	errors: { OperationDiagnostic }?,
 	grantPending: boolean?,
 	retryAfterSeconds: number?,
+	--- `unknown_member` / `member_retired`: the offending member names (at most 20).
+	members: { string }?,
+	--- The item list a refused member belongs to, and `member_limit`'s cap.
+	source: string?,
+	maxMembers: number?,
+	--- `member_in_use`: the members that block a removal, with holder counts and sample player ids.
+	holders: { MemberHolders }?,
 }
 export type Result<T> =
 	{ ok: true, value: T, status: number?, stale: boolean?, etag: string? }

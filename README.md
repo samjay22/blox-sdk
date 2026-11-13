@@ -2,7 +2,7 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, Platform, and Configs**.
 
-**367 typed endpoints, version 7.1.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations are covered.
+**374 typed endpoints, version 8.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
@@ -16,11 +16,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@7.1.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@8.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@7.0.0"
+BloxSDK = "blox-api/blox-sdk@8.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -127,6 +127,7 @@ Current Platform methods and Fields-owned player administration are documented i
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
 - Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; health summary and schedule run history need READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
 
+- Item lists: a config namespace of named members (`client.configs:namespace("Items"):setKind("items")`) that players hold through Fields `bitmap` fields, with `profile:grant/revoke/replace/has/members/usable`. See [Item lists](docs/ITEM-LISTS.md) and the [equipment](examples/server/equipment.server.luau) and [event items](examples/server/event-items.server.luau) examples.
 - Fields `rotations()` is a named list of items that take turns on a fixed clock: `current(name)` returns the active items, when they change and the next ones (cached), with `secondsLeft`, `upcoming` and `watch`. See [Rotations](docs/ROTATIONS.md) and the [weather](examples/weather.luau) and [daily shop](examples/daily-shop.luau) examples.
 
 See [new-service guide](docs/NEW-SERVICES.md) and the Fields examples for lifecycle and safety details.
@@ -283,7 +284,7 @@ The root exports no internal module tables. `Types/*` and `Fields/Types` are pub
 - [Generated API and Luau types](docs/api/README.md) — regenerate with `tools/gen-docs`; CI rejects drift.
 - [Getting started in 10 minutes](docs/GETTING-STARTED.md), [which feature should I use](docs/CHOOSING.md), [recipes](docs/RECIPES.md), [FAQ](docs/FAQ.md), [troubleshooting](docs/TROUBLESHOOTING.md), [glossary](docs/GLOSSARY.md).
 - [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [dynamic configs](docs/CONFIGS.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
-- [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
+- [Item lists](docs/ITEM-LISTS.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
 - [Codes](docs/CODES.md), [party](docs/PARTY.md), [audit](docs/AUDIT.md), [platform](docs/PLATFORM.md), [authentication](docs/AUTH.md).
 - [Error codes](docs/ERRORS.md), [performance/limits](docs/PERFORMANCE.md), [0.x migration](MIGRATION.md), [1.0 changelog](CHANGELOG.md).
 - [Runnable Roblox server scripts](examples/README.md) — 16 opt-in scripts, type-checked by an import-only projection.

@@ -1,6 +1,6 @@
 # Runnable Roblox server examples
 
-`server/` contains 19 complete Roblox server scripts and one shared Client ModuleScript. They use the
+`server/` contains 21 complete Roblox server scripts and one shared Client ModuleScript. They use the
 real SDK, not fake backends. Root-level `.luau` modules are portable, composable/tested gameplay helpers;
 they are not standalone Scripts. Native scripts are strictly analyzed against the same SDK by replacing
 only Instance require expressions with equivalent portable imports (`tools/verify-examples.py`).
@@ -35,6 +35,8 @@ only Instance require expressions with equivalent portable imports (`tools/verif
 | codes-redemption | set Code attribute to a disposable code; redemption may grant rewards |
 | party | lists this universe's parties |
 | audit | enqueues one server-start event; drains on shutdown |
+| equipment | item list `Items`, fields `Equipment.Owned` (max 64) and `Equipment.Equipped` (max 1); child `Give` and `Equip` BindableFunctions |
+| event-items | item list `Event_Halloween`, field `Events.Halloween`; child `Reward` BindableFunction checks `usable` |
 | auth / platform | service health reads, not human login or billing |
 
 Pack/card BindableFunctions are server-only integration points, not public remotes. Pass an authenticated
@@ -47,3 +49,4 @@ No native Studio session or real purchase was executed by offline verification. 
 [opt-in gateway smoke runner](../docs/LIVE-SMOKE.md) and [API](../docs/api/README.md).
 
 - `profile-leaderstats.luau`: initialize leaderstats and refresh them from `Profile.Changed`, including live admin edits. Release the returned profile when no longer needed. The native `server/fields.server.luau` example keeps its profile loaded until PlayerRemoving.
+- `item-lists-admin.luau`: admin tooling for an item list (`setKind`, `addMember`, `updateMember`, `retireMember`, `usage`, and `removeMember` with the `member_in_use` holders). Needs ConfigService ADMIN; see [item lists](../docs/ITEM-LISTS.md).

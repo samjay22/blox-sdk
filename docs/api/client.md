@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "7.1.0"
+SDK.version = "8.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -456,6 +456,8 @@ export type ErrorKind =
 
 export type OperationDiagnostic = { opIndex: number, field: string, path: { string | number }, code: string }
 
+export type MemberHolders = { member: string, count: number, samplePlayers: { number } }
+
 export type BloxError = {
 	kind: ErrorKind,
 	message: string,
@@ -471,6 +473,13 @@ export type BloxError = {
 	errors: { OperationDiagnostic }?,
 	grantPending: boolean?,
 	retryAfterSeconds: number?,
+	--- `unknown_member` / `member_retired`: the offending member names (at most 20).
+	members: { string }?,
+	--- The item list a refused member belongs to, and `member_limit`'s cap.
+	source: string?,
+	maxMembers: number?,
+	--- `member_in_use`: the members that block a removal, with holder counts and sample player ids.
+	holders: { MemberHolders }?,
 }
 
 export type Result<T> =

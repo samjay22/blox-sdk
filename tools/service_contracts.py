@@ -170,6 +170,8 @@ def refresh(doc: dict) -> dict:
     import config_contract
     config_contract.retire_universe_scope(doc)
     config_contract.apply(doc, SOURCE_ROOT)
+    import item_list_contract
+    item_list_contract.apply(doc)
     for endpoint in doc['endpoints']:
         if endpoint['service'] != 'auth':
             # Legacy downstream global-ADMIN guards still exist, but GAS now gives

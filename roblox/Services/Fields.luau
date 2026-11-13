@@ -436,6 +436,46 @@ function Service.import(
 ): Core.Result<Types.ImportResultValue>
 	return self._invoke(Endpoints["fields.import"], req, opts, self._universe)
 end
+--- POST /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/holders/verify via gateway; access: ADMIN.
+function Service.itemListVerifyHolders(
+	self: Service,
+	req: Types.ItemListVerifyHoldersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListVerifyHoldersResultValue>
+	return self._invoke(Endpoints["fields.itemListVerifyHolders"], req, opts, self._universe)
+end
+--- GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders via gateway; access: READ.
+function Service.itemListHolders(
+	self: Service,
+	req: Types.ItemListHoldersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListHoldersResultValue>
+	return self._invoke(Endpoints["fields.itemListHolders"], req, opts, self._universe)
+end
+--- POST /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/removal-check via gateway; access: ADMIN.
+function Service.itemListRemovalCheck(
+	self: Service,
+	req: Types.ItemListRemovalCheckCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListRemovalCheckResultValue>
+	return self._invoke(Endpoints["fields.itemListRemovalCheck"], req, opts, self._universe)
+end
+--- GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/source via gateway; access: READ.
+function Service.itemListSource(
+	self: Service,
+	req: Types.ItemListSourceCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListSourceResultValue>
+	return self._invoke(Endpoints["fields.itemListSource"], req, opts, self._universe)
+end
+--- GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/usage via gateway; access: READ.
+function Service.itemListUsage(
+	self: Service,
+	req: Types.ItemListUsageCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListUsageResultValue>
+	return self._invoke(Endpoints["fields.itemListUsage"], req, opts, self._universe)
+end
 --- GET /fields-service/api/fields/universes/{universeId}/jobs via gateway; access: ADMIN.
 function Service.jobs(
 	self: Service,
@@ -748,6 +788,14 @@ function Service.ledgerPages(
 	end, function(page: Types.LedgerResultValue): (string | Core.Null)?
 		return page.nextCursor
 	end, maximum, query.cursor)
+end
+--- GET /fields-service/api/fields/universes/{universeId}/players/{userId}/members/{field} via gateway; access: READ.
+function Service.playerMembers(
+	self: Service,
+	req: Types.PlayerMembersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PlayerMembersResultValue>
+	return self._invoke(Endpoints["fields.playerMembers"], req, opts, self._universe)
 end
 --- GET /fields-service/api/fields/universes/{universeId}/players/{userId}/overview via gateway; access: READ.
 function Service.playerOverview(

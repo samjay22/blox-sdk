@@ -184,6 +184,18 @@ function Transaction.setRemove(
 ): Transaction
 	return push(self, id, "SET_REMOVE", { items = items }, path)
 end
+--- Give item list members to the player (idempotent; unknown and retired members are refused).
+function Transaction.grant(self: Transaction, id: string, members: { string }): Transaction
+	return push(self, id, "GRANT", { members = members }, nil)
+end
+--- Take item list members away from the player (idempotent; retired members may be taken away).
+function Transaction.revoke(self: Transaction, id: string, members: { string }): Transaction
+	return push(self, id, "REVOKE", { members = members }, nil)
+end
+--- Make the player hold exactly these item list members; an empty list clears them.
+function Transaction.replace(self: Transaction, id: string, members: { string }): Transaction
+	return push(self, id, "REPLACE", { members = members }, nil)
+end
 --- Merge/replace validated map entries.
 function Transaction.mapPut(
 	self: Transaction,

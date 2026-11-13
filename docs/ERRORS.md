@@ -51,6 +51,8 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `below_min` |
 | `below_min_length` |
 | `below_min_size` |
+| `bit_immutable` |
+| `bit_taken` |
 | `buffer_full` |
 | `bulk_definition_not_found` |
 | `cannot_change_own_role` |
@@ -71,6 +73,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `duplicate_element` |
 | `email_exists` |
 | `entry_not_found` |
+| `enum_source_unavailable` |
 | `environment_changed` |
 | `exactly_one_identifier_required` |
 | `export_schema_changed` |
@@ -88,6 +91,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `flag_not_found` |
 | `flag_version_conflict` |
 | `forbidden` |
+| `holder_check_unavailable` |
 | `idempotency_conflict` |
 | `idempotency_data_deleted` |
 | `incompatible_member` |
@@ -98,6 +102,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `internal_error` |
 | `internal_server_error` |
 | `invalid_award` |
+| `invalid_bitmap` |
 | `invalid_changes_cursor` |
 | `invalid_credentials` |
 | `invalid_cursor` |
@@ -108,6 +113,8 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `invalid_invitation_expiry` |
 | `invalid_job_input` |
 | `invalid_map_key` |
+| `invalid_member` |
+| `invalid_member_name` |
 | `invalid_ops` |
 | `invalid_page` |
 | `invalid_path` |
@@ -128,6 +135,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `job_not_reversible` |
 | `key_not_found` |
 | `key_rate_limited` |
+| `kind_immutable` |
 | `last_owner` |
 | `leaderboard_board_archived` |
 | `leaderboard_board_mismatch` |
@@ -139,7 +147,11 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `maintenance` |
 | `max_delta_exceeded` |
 | `member_exists` |
+| `member_in_use` |
+| `member_limit` |
+| `member_not_found` |
 | `member_removed` |
+| `member_retired` |
 | `migration_in_progress` |
 | `migration_not_complete` |
 | `migration_requires_active_stored_field` |
@@ -181,6 +193,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `resource_not_found` |
 | `reverse_conflict` |
 | `rollback_cannot_cancel` |
+| `rollback_invalid` |
 | `rotation_not_found` |
 | `rotation_version_conflict` |
 | `schedule_action_already_done` |
@@ -203,6 +216,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `snapshot_not_found` |
 | `snapshot_race` |
 | `snapshot_unavailable` |
+| `source_immutable` |
 | `stored_value_conflict` |
 | `token_expired` |
 | `transaction_busy` |
@@ -225,5 +239,19 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `wrong_type` |
 | `zero_delta` |
 
+## Item list codes
+
+| Code | Where | Recovery |
+|---|---|---|
+| `unknown_member` | Fields write | The name is not in the item list (`members` lists up to 20); fix the name or add the member |
+| `member_retired` | Fields write | Only active members can be granted or replaced; use `unretireMember` or another member |
+| `member_limit` | Fields write | The result would exceed the field `maxMembers`; revoke first |
+| `invalid_member_name` / `invalid_bitmap` | Fields write | Malformed name, or a `SET` value that is not canonical |
+| `enum_source_unavailable` | Fields write, status 503 | The item list has not loaded yet; retry (`usable`, `has` and `members` ask the server meanwhile) |
+| `source_immutable` | Fields definition | A field keeps its item list; define a new field |
+| `member_in_use` | Config removal, status 409 | Players hold the member; `error.holders` has counts and sample ids. Retire it instead |
+| `holder_check_unavailable` | Config removal, status 503 | The holder check could not answer; retry later or retire |
+| `kind_immutable`, `invalid_member`, `bit_immutable`, `bit_taken`, `rollback_invalid` | Config admin | The write is not a valid item list change; see [item lists](ITEM-LISTS.md) |
+
 See [fault tolerance](FAULT-TOLERANCE.md), [authentication](AUTH.md), [Fields](FIELDS.md),
-[rotations](ROTATIONS.md), and [matchmaking](MATCHMAKING.md) for service-specific recovery.
+[item lists](ITEM-LISTS.md), [rotations](ROTATIONS.md), and [matchmaking](MATCHMAKING.md) for service-specific recovery.

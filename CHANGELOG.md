@@ -1,5 +1,19 @@
 # BloxSDK changelog
 
+## 8.0.0 (local, not published)
+
+- Item lists: game configs and Fields bitmap fields are one concept. A config namespace is Settings or an item list of
+  named members (`{ bit, label?, description?, meta?, retired? }`, bits assigned by the server, permanent, never reused,
+  at most 512). Fields gets the `bitmap` field kind (`{ kind, source, maxMembers }`) with `GRANT`, `REVOKE`, `REPLACE`.
+- Profiles and transactions: `grant`, `revoke`, `replace`, `has`, `members`, `usable`. Buffered and saved like every
+  profile mutation; grant and revoke are idempotent and order-safe. Checked locally against the cached list when it has
+  loaded (fail-closed `enum_source_unavailable`), with a server fallback for reads.
+- `client.configs` handle: `kind`, `members`, `activeMembers`, `member`, `addMember`, `updateMember`, `retireMember`,
+  `unretireMember`, `removeMember`, `setKind`, `usage`, `holders`. `member_in_use` carries the holders.
+- New error codes (`unknown_member`, `member_retired`, `member_limit`, `member_in_use`, `holder_check_unavailable`, ...).
+- 374 endpoints (7 new), regenerated Roblox projection, [ITEM-LISTS.md](docs/ITEM-LISTS.md), equipment, event items and admin examples.
+- See [migration](MIGRATION.md).
+
 ## 7.1.0 (local, not published)
 
 - API keys can be restricted to field prefixes or config namespaces and given per-key rate limits (set in the portal). The SDK

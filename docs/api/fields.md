@@ -596,6 +596,66 @@ Service.import(
 ): Core.Result<Types.ImportResultValue>
 ```
 
+### `Service.itemListVerifyHolders`
+
+POST /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/holders/verify via gateway; access: ADMIN.
+
+```luau
+Service.itemListVerifyHolders(
+	self: Service,
+	req: Types.ItemListVerifyHoldersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListVerifyHoldersResultValue>
+```
+
+### `Service.itemListHolders`
+
+GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders via gateway; access: READ.
+
+```luau
+Service.itemListHolders(
+	self: Service,
+	req: Types.ItemListHoldersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListHoldersResultValue>
+```
+
+### `Service.itemListRemovalCheck`
+
+POST /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/removal-check via gateway; access: ADMIN.
+
+```luau
+Service.itemListRemovalCheck(
+	self: Service,
+	req: Types.ItemListRemovalCheckCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListRemovalCheckResultValue>
+```
+
+### `Service.itemListSource`
+
+GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/source via gateway; access: READ.
+
+```luau
+Service.itemListSource(
+	self: Service,
+	req: Types.ItemListSourceCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListSourceResultValue>
+```
+
+### `Service.itemListUsage`
+
+GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/usage via gateway; access: READ.
+
+```luau
+Service.itemListUsage(
+	self: Service,
+	req: Types.ItemListUsageCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.ItemListUsageResultValue>
+```
+
 ### `Service.jobs`
 
 GET /fields-service/api/fields/universes/{universeId}/jobs via gateway; access: ADMIN.
@@ -1006,6 +1066,18 @@ Service.ledgerPages(
 	opts: Core.CallOptions?,
 	maximum: number?
 ): () -> Core.Result<Types.LedgerResultValue>?
+```
+
+### `Service.playerMembers`
+
+GET /fields-service/api/fields/universes/{universeId}/players/{userId}/members/{field} via gateway; access: READ.
+
+```luau
+Service.playerMembers(
+	self: Service,
+	req: Types.PlayerMembersCall,
+	opts: Core.CallOptions?
+): Core.Result<Types.PlayerMembersResultValue>
 ```
 
 ### `Service.playerOverview`
@@ -2154,6 +2226,51 @@ export type Item = {
 	universeId: number,
 }
 
+export type ItemListDrift = { actual: number, bit: number, counted: number, field: string }
+
+export type ItemListHolder = { bit: number, count: number, member: string, samplePlayers: { number } }
+
+export type ItemListLink = { field: string, maxMembers: number, status: string }
+
+export type ItemListMemberHolders = {
+	bit: number,
+	byField: { [string]: number },
+	count: number,
+	member: string,
+	retired: boolean,
+	samplePlayers: { number },
+}
+
+export type ItemListMemberRef = { bit: number, name: string }
+
+export type ItemListRemovalCheck = { allowed: boolean, holders: ({ ItemListHolder } | Core.Null)? }
+
+export type ItemListRemovalInput = { members: { ItemListMemberRef } }
+
+export type ItemListSourceStatus = {
+	ageSeconds: (number | Core.Null)?,
+	lastError: (string | Core.Null)?,
+	loaded: boolean,
+	namespace: string,
+	universe: number,
+	version: (number | Core.Null)?,
+}
+
+export type ItemListUsage = {
+	configVersion: number,
+	fields: { ItemListLink },
+	holders: { [string]: number },
+	namespace: string,
+}
+
+export type ItemListVerify = {
+	consistent: boolean,
+	drift: { ItemListDrift },
+	fields: { string },
+	namespace: string,
+	repaired: boolean,
+}
+
 export type JobActionInput = { reason: string, universeId: number? }
 
 export type JobEvent = {
@@ -2297,6 +2414,17 @@ export type PlayerChangesItem = {
 export type PlayerEraseInput = { confirmUserId: number, reason: string }
 
 export type PlayerEraseResult = { erased: boolean, tombstoneId: string }
+
+export type PlayerMembers = {
+	bits: { number },
+	configVersion: number,
+	field: string,
+	members: { string },
+	retired: { string },
+	source: string,
+	value: string,
+	version: number,
+}
 
 export type PlayerRevertInput = { ledgerEntryIds: { string }, reason: string }
 
@@ -2834,6 +2962,34 @@ export type ImportCall = {
 
 export type ImportResultValue = ImportValidation | JobReceipt
 
+export type ItemListVerifyHoldersCall = {
+	path: { universeId: (string | number)?, namespace: string },
+	query: { repair: boolean? }?,
+}
+
+export type ItemListVerifyHoldersResultValue = ItemListVerify
+
+export type ItemListHoldersCall = {
+	path: { universeId: (string | number)?, namespace: string, member: string },
+}
+
+export type ItemListHoldersResultValue = ItemListMemberHolders
+
+export type ItemListRemovalCheckCall = {
+	path: { universeId: (string | number)?, namespace: string },
+	body: ItemListRemovalInput,
+}
+
+export type ItemListRemovalCheckResultValue = ItemListRemovalCheck
+
+export type ItemListSourceCall = { path: { universeId: (string | number)?, namespace: string } }
+
+export type ItemListSourceResultValue = { ItemListSourceStatus }
+
+export type ItemListUsageCall = { path: { universeId: (string | number)?, namespace: string } }
+
+export type ItemListUsageResultValue = ItemListUsage
+
 export type JobsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { limit: number?, offset: (string | number)? }?,
@@ -2996,6 +3152,12 @@ export type LedgerCall = {
 }
 
 export type LedgerResultValue = CursorPage<Entry>
+
+export type PlayerMembersCall = {
+	path: { universeId: (string | number)?, userId: string | number, field: string },
+}
+
+export type PlayerMembersResultValue = PlayerMembers
 
 export type PlayerOverviewCall = { path: { universeId: (string | number)?, userId: string | number } }
 

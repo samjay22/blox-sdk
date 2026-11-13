@@ -5,6 +5,7 @@
 -- every ConfigService route is reachable from `client.configs` (src/Services/Config.luau) or from this file.
 local Core = require("../Types/Core")
 local Types = require("../Types/Config")
+local FieldTypes = require("../Types/Fields")
 local Config = require("../Core/Config")
 local Endpoints = require("../Core/Endpoints")
 local Errors = require("../Core/Errors")
@@ -25,8 +26,22 @@ export type Change = {
 }
 export type Connection = { disconnect: (Connection) -> () }
 export type Changed = { connect: (Changed, (Change) -> ()) -> Connection }
+--- What a namespace holds: free-form `settings`, or an `items` list of named members with permanent bits.
+export type Kind = "settings" | "items"
 --- The whole namespace as of one version; frozen, so it is safe to keep and share.
-export type Snapshot = { namespace: string, version: number, entries: { [string]: Core.Json } }
+export type Snapshot = { namespace: string, version: number, kind: Kind, entries: { [string]: Core.Json } }
+--- One member of an item list. `bit` is permanent and assigned by the server; a `retired` member stays with the
+--- players who hold it but cannot be given to anyone new.
+export type Member = {
+	bit: number,
+	label: string?,
+	description: string?,
+	meta: { [string]: Core.Json }?,
+	retired: boolean,
+}
+--- The editable parts of a member; omitted properties are kept (`updateMember`) or left out (`addMember`).
+--- `meta` is a JSON object of your own (for example rarity or tier); the SDK and the server never read it.
+export type MemberInfo = { label: string?, description: string?, meta: { [string]: any }? }
 --- Polling policy. Seconds; `staleAfter` defaults to three poll intervals.
 export type Options = { pollInterval: number?, staleAfter: number?, jitter: number? }
 --- `description` and `expectedVersion` describe the write; the rest are the usual per-call options.
@@ -62,6 +77,8 @@ export type Namespace = typeof(setmetatable(
 		_staleAfter: number,
 		_entries: { [string]: Core.Json },
 		_snapshot: Snapshot,
+		_kind: Kind,
+		_members: { [string]: Member }?,
 		_version: number,
 		_etag: string?,
 		_ready: boolean,
@@ -200,7 +217,14 @@ function Namespace.new(
 		_jitter = jitter,
 		_staleAfter = staleAfter,
 		_entries = entries,
-		_snapshot = table.freeze({ namespace = name, version = 0, entries = entries }),
+		_snapshot = table.freeze({
+			namespace = name,
+			version = 0,
+			kind = "settings" :: Kind,
+			entries = entries,
+		}),
+		_kind = "settings" :: Kind,
+		_members = nil,
 		_version = 0,
 		_etag = nil,
 		_ready = false,
@@ -227,12 +251,21 @@ local function confirmed(self: Namespace)
 	self._checkedUnix = self._runtime.unix()
 end
 --- Install a new version and tell listeners which keys moved. Listener errors are isolated.
-local function apply(self: Namespace, version: number, values: { [string]: Core.Json }, etag: string?)
+local function apply(
+	self: Namespace,
+	version: number,
+	values: { [string]: Core.Json },
+	etag: string?,
+	kind: Kind
+)
 	local previous = self._version
 	local set, deleted = diff(self._entries, values)
 	local entries: { [string]: Core.Json } = Cache.freeze(values)
 	self._entries = entries
-	self._snapshot = table.freeze({ namespace = self.name, version = version, entries = entries })
+	self._snapshot =
+		table.freeze({ namespace = self.name, version = version, kind = kind, entries = entries })
+	self._kind = kind
+	self._members = nil
 	self._version = version
 	self._etag = etag
 	confirmed(self)
@@ -305,17 +338,18 @@ local function fetch(self: Namespace): boolean
 			self._failures += 1
 			return false
 		end
-		if self._ready and value.version == self._version then
+		local kind: Kind = if value.kind == "items" then "items" else "settings"
+		if self._ready and value.version == self._version and kind == self._kind then
 			confirmed(self)
 			return true
 		end
-		apply(self, value.version, value.entries, etagFor(reply, value.version))
+		apply(self, value.version, value.entries, etagFor(reply, value.version), kind)
 		return true
 	end
 	-- A namespace is created by its first write; until then it is simply empty (version 0).
 	if reply.error.code == "namespace_not_found" and self._version == 0 then
 		if not self._ready then
-			apply(self, 0, {}, nil)
+			apply(self, 0, {}, nil, "settings")
 		else
 			confirmed(self)
 		end
@@ -405,6 +439,51 @@ end
 --- The whole cached namespace. Before the first load this is version 0 with no entries.
 function Namespace.snapshot(self: Namespace): Snapshot
 	return self._snapshot
+end
+--- Whether the cached namespace is a list of `items` or plain `settings`; `settings` before the first load.
+function Namespace.kind(self: Namespace): Kind
+	return self._kind
+end
+--- The members of the cached item list by name, with `bit`, `label`, `description`, `meta` and `retired`.
+--- Empty for a `settings` namespace and before the first load. Never yields; the table is frozen and shared.
+--- Check `isReady()` first when an empty answer would be wrong: a list that has not loaded yet looks empty.
+function Namespace.members(self: Namespace): { [string]: Member }
+	local cached = self._members
+	if cached then
+		return cached
+	end
+	local members: { [string]: Member } = {}
+	if self._kind == "items" then
+		for name, value in self._entries do
+			local row: any = value
+			if type(row) == "table" and type(row.bit) == "number" and row.bit % 1 == 0 and row.bit >= 0 then
+				members[name] = {
+					bit = row.bit,
+					label = if type(row.label) == "string" then row.label else nil,
+					description = if type(row.description) == "string" then row.description else nil,
+					meta = if type(row.meta) == "table" then row.meta else nil,
+					retired = row.retired == true,
+				}
+			end
+		end
+	end
+	local frozen: { [string]: Member } = Cache.freeze(members)
+	self._members = frozen
+	return frozen
+end
+--- The members that can still be given to players: `members()` without the retired ones.
+function Namespace.activeMembers(self: Namespace): { [string]: Member }
+	local active: { [string]: Member } = {}
+	for name, member in Namespace.members(self) do
+		if not member.retired then
+			active[name] = member
+		end
+	end
+	return table.freeze(active)
+end
+--- One cached member, or nil when the list has no such member (or has not loaded).
+function Namespace.member(self: Namespace, name: string): Member?
+	return Namespace.members(self)[name]
 end
 --- The cached namespace version; 0 before the first load or while the namespace has never been written.
 function Namespace.version(self: Namespace): number
@@ -587,6 +666,183 @@ function Namespace.delete(self: Namespace, key: string, opts: Core.CallOptions?)
 		kick(self)
 	end
 	return result
+end
+--- Check the editable parts of a member against the server's limits.
+local function validInfo(info: unknown): boolean
+	if info == nil then
+		return true
+	end
+	if type(info) ~= "table" then
+		return false
+	end
+	for key, value in info :: { [unknown]: unknown } do
+		if key == "label" or key == "description" then
+			local limit = if key == "label" then 100 else 500
+			if type(value) ~= "string" or (utf8.len(value) or math.huge) > limit then
+				return false
+			end
+		elseif key == "meta" then
+			if type(value) ~= "table" or value == Json.null or Json.isArray(value) or #(value :: any) > 0 then
+				return false
+			end
+		else
+			return false
+		end
+	end
+	return true
+end
+--- The wire value of a member: its permanent bit when it has one, the editable parts, and `retired` when set.
+local function memberValue(bit: number?, info: MemberInfo?, retired: boolean): { [string]: any }
+	local value: { [string]: any } = {}
+	value.bit = bit
+	if info then
+		value.label = info.label
+		value.description = info.description
+		value.meta = if info.meta then Json.object(table.clone(info.meta)) else nil
+	end
+	if retired then
+		value.retired = true
+	end
+	return Json.object(value)
+end
+--- Add a member to an item list; the server assigns its permanent bit. Fails with `version_conflict` when the
+--- member already exists, `limit_exceeded` past 512 members (retired and removed members count: bits are never
+--- reused) and `kind_immutable`/`invalid_member` when the namespace is not an item list. Needs ConfigService ADMIN.
+--- PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key} via gateway; access: ADMIN.
+function Namespace.addMember(
+	self: Namespace,
+	name: string,
+	info: MemberInfo?,
+	opts: WriteOptions?
+): Core.Result<Types.Entry>
+	if not validKey(name) or not validInfo(info) then
+		return refuse("config.putEntry", "Invalid member name or properties")
+	end
+	local write: WriteOptions = table.clone(opts or {})
+	write.expectedVersion = 0
+	return Namespace.set(self, name, memberValue(nil, info, false), write)
+end
+--- Read a member fresh from the server, change it and write it back guarded by its version, so a concurrent
+--- edit fails with `version_conflict` instead of being overwritten. The bit never changes.
+local function changeMember(
+	self: Namespace,
+	name: string,
+	endpoint: string,
+	change: (Types.Entry) -> { [string]: any },
+	opts: WriteOptions?
+): Core.Result<Types.Entry>
+	if not validKey(name) then
+		return refuse(endpoint, "Invalid member name")
+	end
+	local current = Namespace.entry(self, name)
+	if not current.ok then
+		return current
+	end
+	local entry = current.value
+	local row: any = entry.value
+	if type(row) ~= "table" or type(row.bit) ~= "number" then
+		return refuse(endpoint, "Not an item list member")
+	end
+	local write: WriteOptions = table.clone(opts or {})
+	write.expectedVersion = entry.version
+	return Namespace.set(self, name, change(entry), write)
+end
+--- Change a member's label, description or meta; properties left out are kept, and so are its bit and `retired`.
+--- Needs ConfigService ADMIN.
+--- PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key} via gateway; access: ADMIN.
+function Namespace.updateMember(
+	self: Namespace,
+	name: string,
+	info: MemberInfo,
+	opts: WriteOptions?
+): Core.Result<Types.Entry>
+	if not validInfo(info) then
+		return refuse("config.putEntry", "Invalid member properties")
+	end
+	return changeMember(self, name, "config.putEntry", function(entry)
+		local row: any = entry.value
+		return memberValue(row.bit, {
+			label = if info.label ~= nil then info.label else row.label,
+			description = if info.description ~= nil then info.description else row.description,
+			meta = if info.meta ~= nil then info.meta else row.meta,
+		}, row.retired == true)
+	end, opts)
+end
+--- Retire a member: nobody new can be given it, players who hold it keep it, and its bit stays reserved.
+--- Always allowed, unlike `removeMember`. Retiring a retired member changes nothing. Needs ConfigService ADMIN.
+--- PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key} via gateway; access: ADMIN.
+function Namespace.retireMember(self: Namespace, name: string, opts: WriteOptions?): Core.Result<Types.Entry>
+	return changeMember(self, name, "config.putEntry", function(entry)
+		local row: any = entry.value
+		return memberValue(row.bit, row, true)
+	end, opts)
+end
+--- Make a retired member available again. Needs ConfigService ADMIN.
+--- PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key} via gateway; access: ADMIN.
+function Namespace.unretireMember(
+	self: Namespace,
+	name: string,
+	opts: WriteOptions?
+): Core.Result<Types.Entry>
+	return changeMember(self, name, "config.putEntry", function(entry)
+		local row: any = entry.value
+		return memberValue(row.bit, row, false)
+	end, opts)
+end
+--- Remove a member for good. Refused with `member_in_use` (see `error.holders`: how many players hold it and up
+--- to five of their ids) while any player holds it, and with `holder_check_unavailable` when Fields cannot say;
+--- retire the member instead. Its bit is never reused. Needs ConfigService ADMIN.
+--- DELETE /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/entries/{key} via gateway; access: ADMIN.
+function Namespace.removeMember(self: Namespace, name: string, opts: Core.CallOptions?): Core.Result<nil>
+	return Namespace.delete(self, name, opts)
+end
+--- Declare the namespace a list of `items` or plain `settings`. A settings namespace can become an item list
+--- (every entry must already be an object; each gets the next free bit); an item list can never go back
+--- (`kind_immutable`), because players may hold its members. Creates the namespace when missing. Needs ADMIN.
+--- PUT /remote-config-service/api/config/universes/{universeId}/namespaces/{namespace}/kind via gateway; access: ADMIN.
+function Namespace.setKind(self: Namespace, kind: Kind, opts: Core.CallOptions?): Core.Result<Types.Namespace>
+	if kind ~= "items" and kind ~= "settings" then
+		return refuse("config.setKind", "Kind must be items or settings")
+	end
+	local result = self._invoke(
+		Endpoints["config.setKind"],
+		{ path = { namespace = self.name }, body = { kind = kind } },
+		opts,
+		self._universe
+	)
+	if result.ok then
+		kick(self)
+	end
+	return result
+end
+--- How many players hold each member of this item list, and which Fields point at it (counters; may lag a
+--- crash, see `client.fields:itemListVerifyHolders`). Needs FieldsService READ.
+--- GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/usage via gateway; access: READ.
+function Namespace.usage(self: Namespace, opts: Core.CallOptions?): Core.Result<FieldTypes.ItemListUsage>
+	return self._invoke(
+		Endpoints["fields.itemListUsage"],
+		{ path = { namespace = self.name } },
+		opts,
+		self._universe
+	)
+end
+--- Who holds one member: the exact count, the count per Fields field and up to five player ids. Scans the
+--- stored values, so use it for a drill-down, not on a hot path. Needs FieldsService READ.
+--- GET /fields-service/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders via gateway; access: READ.
+function Namespace.holders(
+	self: Namespace,
+	member: string,
+	opts: Core.CallOptions?
+): Core.Result<FieldTypes.ItemListMemberHolders>
+	if not validKey(member) then
+		return refuse("fields.itemListHolders", "Invalid member name")
+	end
+	return self._invoke(
+		Endpoints["fields.itemListHolders"],
+		{ path = { namespace = self.name, member = member } },
+		opts,
+		self._universe
+	)
 end
 --- Check a change set before sending it; returns the wire body or the reason it is invalid.
 local function changeBody(changes: Changes): (Types.ChangeSet?, string?)

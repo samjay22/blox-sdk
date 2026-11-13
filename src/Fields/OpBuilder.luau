@@ -97,6 +97,18 @@ end
 function Builder.setRemove(self: Builder, id: string, items: { Core.Json }, path: Types.Path?): Builder
 	return push(self, id, "SET_REMOVE", { items = items }, path)
 end
+--- Give item list members to the player (idempotent; unknown and retired members are refused).
+function Builder.grant(self: Builder, id: string, members: { string }): Builder
+	return push(self, id, "GRANT", { members = members }, nil)
+end
+--- Take item list members away from the player (idempotent; retired members may be taken away).
+function Builder.revoke(self: Builder, id: string, members: { string }): Builder
+	return push(self, id, "REVOKE", { members = members }, nil)
+end
+--- Make the player hold exactly these item list members; an empty list clears them.
+function Builder.replace(self: Builder, id: string, members: { string }): Builder
+	return push(self, id, "REPLACE", { members = members }, nil)
+end
 --- Merge/replace validated map entries.
 function Builder.mapPut(
 	self: Builder,

@@ -2911,6 +2911,16 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["KindChange"] = {
+			["fields"] = {
+				["kind"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["Namespace"] = {
 			["fields"] = {
 				["createdAt"] = {
@@ -2923,10 +2933,20 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["required"] = true,
 					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
+				["kind"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
 				["namespace"] = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["nextBit"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 				["universeId"] = {
 					["notBlank"] = false,
@@ -2968,6 +2988,11 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
+				},
+				["kind"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
 				},
 				["namespace"] = {
 					["notBlank"] = false,
@@ -5004,6 +5029,276 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 			},
 			["kind"] = "object",
 		} :: Core.Schema,
+		["ItemListDrift"] = {
+			["fields"] = {
+				["actual"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["bit"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["counted"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["field"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListHolder"] = {
+			["fields"] = {
+				["bit"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["count"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["member"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["samplePlayers"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListLink"] = {
+			["fields"] = {
+				["field"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["maxMembers"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["status"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListMemberHolders"] = {
+			["fields"] = {
+				["bit"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["byField"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+				["count"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["member"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["retired"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["samplePlayers"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListMemberRef"] = {
+			["fields"] = {
+				["bit"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["name"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListRemovalCheck"] = {
+			["fields"] = {
+				["allowed"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["holders"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ItemListHolder" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListRemovalInput"] = {
+			["fields"] = {
+				["members"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ItemListMemberRef" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListSourceStatus"] = {
+			["fields"] = {
+				["ageSeconds"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["lastError"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["loaded"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["namespace"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["universe"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["version"] = {
+					["notBlank"] = false,
+					["required"] = false,
+					["responseNullable"] = true,
+					["responseRequired"] = false,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListUsage"] = {
+			["fields"] = {
+				["configVersion"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["fields"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ItemListLink" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["holders"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "map",
+					} :: Core.Schema,
+				},
+				["namespace"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["ItemListVerify"] = {
+			["fields"] = {
+				["consistent"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+				["drift"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "ref", ["name"] = "ItemListDrift" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["fields"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["namespace"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["repaired"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "boolean" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
 		["JobActionInput"] = {
 			["fields"] = {
 				["reason"] = {
@@ -5714,6 +6009,60 @@ local definitions: { [string]: { [string]: Core.Schema } } = {
 					["notBlank"] = false,
 					["required"] = true,
 					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+			},
+			["kind"] = "object",
+		} :: Core.Schema,
+		["PlayerMembers"] = {
+			["fields"] = {
+				["bits"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "number" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["configVersion"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
+				},
+				["field"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["members"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["retired"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = {
+						["item"] = { ["kind"] = "string" } :: Core.Schema,
+						["kind"] = "array",
+					} :: Core.Schema,
+				},
+				["source"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["value"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "string" } :: Core.Schema,
+				},
+				["version"] = {
+					["notBlank"] = false,
+					["required"] = true,
+					["schema"] = { ["kind"] = "number" } :: Core.Schema,
 				},
 			},
 			["kind"] = "object",
@@ -11099,6 +11448,11 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["kind"] = "ref", ["name"] = "Namespace" } :: Core.Schema,
 		["service"] = "config",
 	},
+	["config.setKind"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "KindChange" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "Namespace" } :: Core.Schema,
+		["service"] = "config",
+	},
 	["config.snapshot"] = {
 		["response"] = {
 			["items"] = {
@@ -11344,6 +11698,30 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 		["response"] = { ["item"] = { ["kind"] = "json" } :: Core.Schema, ["kind"] = "map" } :: Core.Schema,
 		["service"] = "fields",
 	},
+	["fields.itemListHolders"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "ItemListMemberHolders" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.itemListRemovalCheck"] = {
+		["body"] = { ["kind"] = "ref", ["name"] = "ItemListRemovalInput" } :: Core.Schema,
+		["response"] = { ["kind"] = "ref", ["name"] = "ItemListRemovalCheck" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.itemListSource"] = {
+		["response"] = {
+			["item"] = { ["kind"] = "ref", ["name"] = "ItemListSourceStatus" } :: Core.Schema,
+			["kind"] = "array",
+		} :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.itemListUsage"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "ItemListUsage" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.itemListVerifyHolders"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "ItemListVerify" } :: Core.Schema,
+		["service"] = "fields",
+	},
 	["fields.job"] = {
 		["response"] = { ["kind"] = "ref", ["name"] = "JobReceipt" } :: Core.Schema,
 		["service"] = "fields",
@@ -11434,6 +11812,10 @@ local endpoints: { [string]: Core.EndpointSchema } = {
 	["fields.playerBatch"] = {
 		["body"] = { ["kind"] = "ref", ["name"] = "Batch" } :: Core.Schema,
 		["response"] = { ["kind"] = "ref", ["name"] = "BatchResponse" } :: Core.Schema,
+		["service"] = "fields",
+	},
+	["fields.playerMembers"] = {
+		["response"] = { ["kind"] = "ref", ["name"] = "PlayerMembers" } :: Core.Schema,
 		["service"] = "fields",
 	},
 	["fields.playerOverview"] = {

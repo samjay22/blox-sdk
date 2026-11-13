@@ -1,5 +1,24 @@
 # Migrating BloxSDK
 
+## 7.0.0 to 8.0.0 — item lists
+
+Game configs and bitmap fields became one idea: a config namespace is either Settings or an **item list** that players
+hold through a Fields `bitmap` field. Nothing is renamed, so existing games keep working; the new surface is additive,
+except that the config namespace responses now carry `kind` and `nextBit`.
+
+| Before | After |
+|---|---|
+| A numeric bit mask in an `int` field, with your own bit-to-item table | An item list (`configs:namespace("Items"):setKind("items")`) plus a field `{ kind = "bitmap", source = "Items", maxMembers = 64 }` |
+| `profile:set("Owned", bits)` and bit arithmetic in game code | `profile:grant("Owned", { "Sword" })`, `revoke`, `replace` |
+| Reading the number and testing bits yourself | `profile:has("Owned", "Sword")`, `members("Owned")`, `usable("Owned", "Sword")` |
+| Deleting an item from a config table and hoping nobody holds it | `items:retireMember("Sword")`, or `removeMember` (refused with `member_in_use` while held) |
+| A hand-kept "single choice" value | A `bitmap` field with `maxMembers = 1` |
+| 367 endpoints | 374: item list admin routes (`setKind`, usage, holders, removal check, verify, source, player members) |
+
+New error codes: `unknown_member`, `member_retired`, `member_limit`, `member_in_use`, `holder_check_unavailable`,
+`enum_source_unavailable`, `kind_immutable` and friends (see [ERRORS.md](docs/ERRORS.md)). `BloxSDK.version` is `8.0.0`.
+Existing data does not need converting. Start with [ITEM-LISTS.md](docs/ITEM-LISTS.md).
+
 ## 6.0.0 to 7.0.0 — rotations simplified
 
 Rotations are now one idea: a named list of items that take turns on a fixed clock. Tables, generators, rolls, stock and
@@ -17,7 +36,7 @@ claims are gone, with no aliases. If a game needs gacha rolls or limited stock, 
 | Cadence `INTERVAL { everySeconds }` / `ENTRY_DURATION` | `every = "30m"` (`m`, `h`, `d`, `w`); every item lasts the same time |
 | Error codes `rotation_definition_not_found`, `rotation_out_of_stock`, ... | `rotation_not_found`, `rotation_version_conflict`; definition problems are `invalid_definition` with a message |
 
-`BloxSDK.version` is `7.0.0` and the SDK has 367 endpoints. Existing rotation data was empty, so nothing needed converting.
+`BloxSDK.version` is `7.0.0` and the SDK had 367 endpoints. Existing rotation data was empty, so nothing needed converting.
 
 ## 5.0.0 to 6.0.0 — configs split out of Fields
 

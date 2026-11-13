@@ -20,6 +20,9 @@ local arguments: { [string]: { string } } = {
 	REMOVE_VALUE = { "value" },
 	SET_ADD = { "items" },
 	SET_REMOVE = { "items" },
+	GRANT = { "members" },
+	REVOKE = { "members" },
+	REPLACE = { "members" },
 	MAP_PUT = { "entries" },
 	MAP_REMOVE = { "keys" },
 	MAP_ADD = { "key", "delta" },
@@ -134,6 +137,16 @@ function Operations.wire(value: unknown): boolean
 		end
 		for _, key in op.keys do
 			if type(key) ~= "string" then
+				return false
+			end
+		end
+	end
+	if op.members ~= nil then
+		if not array(op.members, 512) then
+			return false
+		end
+		for _, name in op.members do
+			if type(name) ~= "string" then
 				return false
 			end
 		end

@@ -154,10 +154,14 @@ export type History = {
 	version: number,
 }
 
+export type KindChange = { kind: string }
+
 export type Namespace = {
 	createdAt: string,
 	entryCount: number,
+	kind: string,
 	namespace: string,
+	nextBit: number,
 	universeId: number,
 	updatedAt: string,
 	updatedBy: (string | Core.Null)?,
@@ -166,7 +170,7 @@ export type Namespace = {
 
 export type Rollback = { toVersion: number }
 
-export type Snapshot = { entries: { [string]: Core.Json }, namespace: string, version: number }
+export type Snapshot = { entries: { [string]: Core.Json }, kind: string, namespace: string, version: number }
 
 export type StoredEntry = { description: (string | Core.Null)?, value: Core.Json }
 

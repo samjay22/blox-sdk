@@ -88,6 +88,14 @@ local configCodes: { [string]: boolean } = table.freeze({
 	version_conflict = true,
 	validation_failed = true,
 	limit_exceeded = true,
+	-- Item lists (namespaces of kind `items`).
+	invalid_member = true,
+	bit_immutable = true,
+	bit_taken = true,
+	kind_immutable = true,
+	member_in_use = true,
+	holder_check_unavailable = true,
+	rollback_invalid = true,
 })
 local codes = table.freeze({
 	rotation_not_found = true,
@@ -200,6 +208,13 @@ local codes = table.freeze({
 	wrong_type = true,
 	missing_member = true,
 	unknown_member = true,
+	member_retired = true,
+	member_limit = true,
+	member_not_found = true,
+	invalid_member_name = true,
+	invalid_bitmap = true,
+	enum_source_unavailable = true,
+	source_immutable = true,
 	invalid_enum = true,
 	not_found = true,
 	invalid_path = true,
@@ -257,6 +272,63 @@ local redeemRefusals = table.freeze({
 	["Code is not active"] = "code_inactive",
 	["Code redemption limit reached (including pending grants)"] = "code_exhausted",
 })
+--- Copy at most `limit` strings of a decoded array; anything else yields nil.
+local function strings(value: unknown, limit: number): { string }?
+	if type(value) ~= "table" then
+		return nil
+	end
+	local list: { string } = {}
+	for index, item in value :: { unknown } do
+		if type(index) ~= "number" or index > limit or type(item) ~= "string" or #item > 200 then
+			return nil
+		end
+		list[index] = item
+	end
+	return list
+end
+--- Copy the holders that block removing an item list member (`details.holders`), bounded and validated.
+local function holders(value: unknown): { Types.MemberHolders }?
+	if type(value) ~= "table" then
+		return nil
+	end
+	local list: { Types.MemberHolders } = {}
+	for index, item in value :: { unknown } do
+		if type(index) ~= "number" or index > 512 or type(item) ~= "table" then
+			return nil
+		end
+		local row = item :: { [string]: unknown }
+		local samples: { number } = {}
+		if
+			type(row.member) ~= "string"
+			or type(row.count) ~= "number"
+			or type(row.samplePlayers) ~= "table"
+		then
+			return nil
+		end
+		for position, id in row.samplePlayers :: { unknown } do
+			if type(position) ~= "number" or position > 5 or type(id) ~= "number" then
+				return nil
+			end
+			samples[position] = id
+		end
+		list[index] = { member = row.member, count = row.count, samplePlayers = samples }
+	end
+	return list
+end
+--- Item list details: the member names behind `unknown_member`/`member_retired`, the list, the cap, the holders.
+local function memberDetails(error: Types.BloxError, body: { [string]: unknown })
+	error.members = strings(body.members, 20)
+	if type(body.source) == "string" and #body.source <= 64 then
+		error.source = body.source
+	end
+	if type(body.maxMembers) == "number" then
+		error.maxMembers = body.maxMembers
+	end
+	local details = body.details
+	if type(details) == "table" then
+		error.holders = holders((details :: { [string]: unknown }).holders)
+	end
+end
 --- Preserve only allowlisted machine codes, never backend messages or raw error bodies.
 function Errors.domain(status: number, endpoint: string, attempts: number, value: unknown): Types.Result<any>
 	local result = Errors.http(status, endpoint, attempts)
@@ -294,6 +366,9 @@ function Errors.domain(status: number, endpoint: string, attempts: number, value
 		end
 		if endpoint == "codes.redeem" and status == 409 and type(body.message) == "string" then
 			result.error.code = redeemRefusals[body.message] or result.error.code
+		end
+		if string.sub(endpoint, 1, 7) == "fields." or string.sub(endpoint, 1, 7) == "config." then
+			memberDetails(result.error, body)
 		end
 		if type(body.grantPending) == "boolean" then
 			result.error.grantPending = body.grantPending

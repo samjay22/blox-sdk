@@ -24,3 +24,6 @@
 | Batch | Up to 100 operations sent together every 0.5 s through BatchService; `op.service` names the target (`fields`, `config`, ...) |
 | Result | `{ ok = true, value }` or `{ ok = false, error }`; `codes:redeem` is the one call returning an outcome |
 | Data usage | Raw value bytes per player and successful data requests per API key |
+| Item list | A config namespace of named members (`{ bit, label?, description?, meta?, retired? }`) that players can hold through a Fields field. The other kind of namespace is Settings |
+| Member | One entry of an item list. Its name is what game code uses; its bit is permanent and never reused |
+| Retired member | A member nobody new can get; players who hold it keep it, and `usable` is false for it |

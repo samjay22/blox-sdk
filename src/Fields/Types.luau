@@ -13,6 +13,11 @@ export type TypeExpr =
 	| { kind: "set", item: TypeExpr, maxSize: number? }
 	| { kind: "map", key: TypeExpr, value: TypeExpr, maxSize: number?, pruneZero: boolean? }
 	| { kind: "nullable", of: TypeExpr }
+	| { kind: "bitmap", source: string, maxMembers: number? }
+--- One member of an item list as the local checks need it. `retired` members stay held but cannot be newly given.
+export type MemberInfo = { bit: number, retired: boolean? }
+--- The members of the item list named `source`, or nil while that list has not loaded (checks then fail closed).
+export type MemberLookup = (source: string) -> { [string]: MemberInfo }?
 export type Computed = { expression: string, returns: "int" | "number" }
 export type LeaderboardOrder = "DESC" | "ASC"
 export type LeaderboardReset = "NONE" | "DAILY" | "WEEKLY" | "MONTHLY" | "SEASONAL"
@@ -90,6 +95,13 @@ type OperationShape<S> =
 		op: "MAP_ADD",
 		key: string,
 		delta: number,
+	}
+	| {
+		field: string,
+		subject: S?,
+		path: Path?,
+		op: "GRANT" | "REVOKE" | "REPLACE",
+		members: { string },
 	}
 export type PlayerOperation = OperationShape<nil>
 export type Operation = OperationShape<number>

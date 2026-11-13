@@ -14,6 +14,7 @@ local Types = require(script.Parent.Parent.Fields.Types)
 local Snapshot = require(script.Parent.Parent.Core.SnapshotCache)
 local ProfileSync = require(script.Parent.Parent.Fields.ProfileSync)
 local Sessions = require(script.Parent.Parent.Fields.Sessions)
+local Namespace = require(script.Parent.Parent.Configs.Namespace)
 local Helpers = {}
 export type State = {
 	runtime: Core.Runtime,
@@ -28,6 +29,8 @@ export type State = {
 	snapshotListeners: { [(string, Snapshot.Snapshot?) -> ()]: boolean },
 	cleanups: { [() -> ()]: boolean },
 	onUse: () -> (),
+	--- The shared live view of an item list (`client.configs:namespace(source)`), set by the owning client.
+	itemList: ((universe: string | number, source: string) -> Namespace.Namespace)?,
 }
 --- Create shared helper ownership without starting a poll or issuing any HTTP.
 function Helpers.new(
@@ -50,6 +53,7 @@ function Helpers.new(
 		snapshotListeners = {},
 		cleanups = {},
 		onUse = onUse,
+		itemList = nil,
 	}
 end
 --- Publish snapshot ownership changes so existing watches can switch modes without polling.
@@ -163,6 +167,41 @@ local function snapshotOptions(options: Core.CallOptions?): Core.CallOptions
 	fresh.signal = fresh.signal or { cancelled = false }
 	return fresh
 end
+--- How long a profile load waits for the item lists its fields point at (seconds, shared by all of them).
+local ITEM_LIST_WAIT = 5
+--- Start the live view of every item list a bitmap field points at and wait briefly for them to load, so the
+--- first `grant` or `usable` of a joining player does not find an unloaded list. Best effort: a list that is
+--- slow or unreachable is simply not ready yet, and the profile's item list calls then fail closed or ask the server.
+local function warmItemLists(
+	state: State,
+	universeId: string | number,
+	schema: Schema.Schema,
+	signal: Core.Signal
+)
+	local open = state.itemList
+	if not open then
+		return
+	end
+	local deadline = state.runtime.now() + ITEM_LIST_WAIT
+	local sources: { [string]: boolean } = {}
+	for _, definition in schema:definitions() do
+		local expression: any = definition.type
+		if
+			definition.status == "ACTIVE"
+			and type(expression) == "table"
+			and expression.kind == "bitmap"
+			and type(expression.source) == "string"
+		then
+			sources[expression.source] = true
+		end
+	end
+	for source in sources do
+		local ok, handle = pcall(open, universeId, source)
+		if ok and not signal.cancelled then
+			handle:waitReady(math.max(0, deadline - state.runtime.now()))
+		end
+	end
+end
 --- Load schema plus a coherent player document and register profile lifecycle ownership.
 local function loadProfile(
 	state: State,
@@ -231,9 +270,24 @@ local function loadProfile(
 		transaction = function(callback)
 			return Helpers.transaction(state, universeId, userId, callback)
 		end,
+		itemList = function(source)
+			local open = state.itemList
+			return if open and not state.closed then open(universeId, source) else nil
+		end,
+		members = function(field, options)
+			return state.invoke(
+				Endpoints["fields.playerMembers"],
+				{ path = { universeId = universeId, userId = userId, field = field } },
+				options,
+				universeId
+			)
+		end,
 	})
 	state.sessions:attach(lease, profile)
 	local result = profile:refresh({ signal = ticket })
+	if result.ok then
+		warmItemLists(state, universeId, schema, ticket)
+	end
 	state.sync:endLoad(ticket)
 	if not result.ok then
 		state.sessions:removePlayer(userId)

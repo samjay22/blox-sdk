@@ -5088,6 +5088,62 @@
         "scoped"
       ],
       "bodyRequired": true,
+      "bodyType": "KindChange",
+      "cacheable": false,
+      "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        429,
+        500,
+        503
+      ],
+      "guard": "",
+      "id": "config.setKind",
+      "idempotent": false,
+      "javaResponse": "Namespace",
+      "method": "PUT",
+      "minimumLevel": "ADMIN",
+      "name": "setKind",
+      "path": "/api/config/universes/{universeId}/namespaces/{namespace}/kind",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "Namespace",
+      "responseType": "SetKindResultValue",
+      "retryable": false,
+      "service": "config",
+      "serviceName": "ConfigService",
+      "source": "svc/config-service/src/main/java/sam/tech/controller/ConfigController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
       "bodyType": "Rollback",
       "cacheable": false,
       "errorStatusNote": "ConfigService API.md; server validation, limits and version checks are authoritative.",
@@ -7487,6 +7543,309 @@
       "bodyRequired": false,
       "bodyType": null,
       "cacheable": false,
+      "errorStatusNote": "Fields item list contract; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.itemListVerifyHolders",
+      "idempotent": false,
+      "javaResponse": "ItemListVerify",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "itemListVerifyHolders",
+      "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/holders/verify",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [
+        {
+          "java": "boolean",
+          "name": "repair",
+          "required": false,
+          "type": "boolean"
+        }
+      ],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "ItemListVerify",
+      "responseType": "ItemListVerifyHoldersResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields item list contract; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.itemListHolders",
+      "idempotent": true,
+      "javaResponse": "ItemListMemberHolders",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "itemListHolders",
+      "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/members/{member}/holders",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "java": "String",
+          "name": "member",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "ItemListMemberHolders",
+      "responseType": "ItemListHoldersResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": true,
+      "bodyType": "ItemListRemovalInput",
+      "cacheable": false,
+      "errorStatusNote": "Fields item list contract; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_ADMIN')",
+      "id": "fields.itemListRemovalCheck",
+      "idempotent": false,
+      "javaResponse": "ItemListRemovalCheck",
+      "method": "POST",
+      "minimumLevel": "ADMIN",
+      "name": "itemListRemovalCheck",
+      "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/removal-check",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "ItemListRemovalCheck",
+      "responseType": "ItemListRemovalCheckResultValue",
+      "retryable": false,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields item list contract; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.itemListSource",
+      "idempotent": true,
+      "javaResponse": "List<ItemListSourceStatus>",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "itemListSource",
+      "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/source",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "List<ItemListSourceStatus>",
+      "responseType": "ItemListSourceResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields item list contract; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.itemListUsage",
+      "idempotent": true,
+      "javaResponse": "ItemListUsage",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "itemListUsage",
+      "path": "/api/fields/universes/{universeId}/item-lists/{namespace}/usage",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "namespace",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "ItemListUsage",
+      "responseType": "ItemListUsageResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
       "errorStatusNote": "Fields API_CONTRACT.md; server validation is authoritative.",
       "errorStatuses": [
         400,
@@ -9354,6 +9713,70 @@
       "service": "fields",
       "serviceName": "FieldsService",
       "source": "svc/fields-service/src/main/java/sam/tech/controller/FieldsController.java",
+      "statuses": [
+        200
+      ]
+    },
+    {
+      "authKinds": [
+        "serviceAccount",
+        "user",
+        "custom",
+        "scoped"
+      ],
+      "bodyRequired": false,
+      "bodyType": null,
+      "cacheable": false,
+      "errorStatusNote": "Fields item list contract; server validation is authoritative.",
+      "errorStatuses": [
+        400,
+        401,
+        403,
+        404,
+        409,
+        422,
+        423,
+        429,
+        500,
+        503
+      ],
+      "guard": "hasRole('SERVICE_READ')",
+      "id": "fields.playerMembers",
+      "idempotent": true,
+      "javaResponse": "PlayerMembers",
+      "method": "GET",
+      "minimumLevel": "READ",
+      "name": "playerMembers",
+      "path": "/api/fields/universes/{universeId}/players/{userId}/members/{field}",
+      "pathParams": [
+        {
+          "java": "long",
+          "name": "universeId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "long",
+          "name": "userId",
+          "required": true,
+          "type": "id"
+        },
+        {
+          "java": "String",
+          "name": "field",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "queryParams": [],
+      "requiredRole": null,
+      "responseFormat": "json",
+      "responseJava": "PlayerMembers",
+      "responseType": "PlayerMembersResultValue",
+      "retryable": true,
+      "service": "fields",
+      "serviceName": "FieldsService",
+      "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/PlayerMembersController.java",
       "statuses": [
         200
       ]
@@ -23131,6 +23554,16 @@
         },
         "source": "svc/config-service/docs/API.md"
       },
+      "KindChange": {
+        "fields": {
+          "kind": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/config-service/docs/API.md"
+      },
       "Namespace": {
         "fields": {
           "createdAt": {
@@ -23143,8 +23576,18 @@
             "notBlank": false,
             "required": true
           },
+          "kind": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
           "namespace": {
             "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "nextBit": {
+            "java": "int",
             "notBlank": false,
             "required": true
           },
@@ -23186,6 +23629,11 @@
         "fields": {
           "entries": {
             "java": "Map<String, JsonNode>",
+            "notBlank": false,
+            "required": true
+          },
+          "kind": {
+            "java": "String",
             "notBlank": false,
             "required": true
           },
@@ -25441,6 +25889,249 @@
           }
         }
       },
+      "ItemListDrift": {
+        "fields": {
+          "actual": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "bit": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "counted": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "field": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListHolder": {
+        "fields": {
+          "bit": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "count": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "member": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "samplePlayers": {
+            "java": "List<Long>",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListLink": {
+        "fields": {
+          "field": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "maxMembers": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "status": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListMemberHolders": {
+        "fields": {
+          "bit": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "byField": {
+            "java": "Map<String, Long>",
+            "notBlank": false,
+            "required": true
+          },
+          "count": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "member": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "retired": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          },
+          "samplePlayers": {
+            "java": "List<Long>",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListMemberRef": {
+        "fields": {
+          "bit": {
+            "java": "int",
+            "notBlank": false,
+            "required": true
+          },
+          "name": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListRemovalCheck": {
+        "fields": {
+          "allowed": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          },
+          "holders": {
+            "java": "List<ItemListHolder>",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true,
+            "responseRequired": false
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListRemovalInput": {
+        "fields": {
+          "members": {
+            "java": "List<ItemListMemberRef>",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListSourceStatus": {
+        "fields": {
+          "ageSeconds": {
+            "java": "long",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true,
+            "responseRequired": false
+          },
+          "lastError": {
+            "java": "String",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true,
+            "responseRequired": false
+          },
+          "loaded": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "universe": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "version": {
+            "java": "long",
+            "notBlank": false,
+            "required": false,
+            "responseNullable": true,
+            "responseRequired": false
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListUsage": {
+        "fields": {
+          "configVersion": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "fields": {
+            "java": "List<ItemListLink>",
+            "notBlank": false,
+            "required": true
+          },
+          "holders": {
+            "java": "Map<String, Long>",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
+      "ItemListVerify": {
+        "fields": {
+          "consistent": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          },
+          "drift": {
+            "java": "List<ItemListDrift>",
+            "notBlank": false,
+            "required": true
+          },
+          "fields": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": true
+          },
+          "namespace": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "repaired": {
+            "java": "boolean",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/ItemListsController.java"
+      },
       "Job": {
         "fields": {
           "actor": {
@@ -26362,6 +27053,51 @@
             "required": true
           }
         }
+      },
+      "PlayerMembers": {
+        "fields": {
+          "bits": {
+            "java": "List<Integer>",
+            "notBlank": false,
+            "required": true
+          },
+          "configVersion": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          },
+          "field": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "members": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": true
+          },
+          "retired": {
+            "java": "List<String>",
+            "notBlank": false,
+            "required": true
+          },
+          "source": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "value": {
+            "java": "String",
+            "notBlank": false,
+            "required": true
+          },
+          "version": {
+            "java": "long",
+            "notBlank": false,
+            "required": true
+          }
+        },
+        "source": "svc/fields-service-redis/src/main/java/sam/tech/controller/PlayerMembersController.java"
       },
       "PlayerRevertInput": {
         "fields": {

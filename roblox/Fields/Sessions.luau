@@ -190,6 +190,21 @@ local function expiration(self: Sessions, value: string?): number?
 	local unix = if type(value) == "string" then Instant.unix(value) else nil
 	return if unix then self._runtime.now() + unix - self._runtime.unix() else nil
 end
+--- The sorted distinct members of two member lists.
+local function union(first: { string }, second: { string }): { string }
+	local seen: { [string]: boolean } = {}
+	local out: { string } = {}
+	for _, list in { first, second } do
+		for _, name in list do
+			if not seen[name] then
+				seen[name] = true
+				table.insert(out, name)
+			end
+		end
+	end
+	table.sort(out)
+	return out
+end
 --- Attach the only writable handle and bound its buffer to transport-safe sizes.
 function Sessions.attach(self: Sessions, lease: Lease, profile: Profile.Profile)
 	lease.profile = profile
@@ -228,6 +243,15 @@ function Sessions.attach(self: Sessions, lease: Lease, profile: Profile.Profile)
 				else
 					table.insert(combined, Copy.copy(op))
 				end
+			elseif
+				previous
+				and (op.op == "GRANT" or op.op == "REVOKE")
+				and previous.op == op.op
+				and previous.field == op.field
+				and #union(previous.members :: { string }, op.members :: { string }) <= 512
+			then
+				-- Adjacent GRANTs (or REVOKEs) of one field are one set union; their order against other ops is kept.
+				previous.members = union(previous.members :: { string }, op.members :: { string })
 			else
 				table.insert(combined, Copy.copy(op))
 			end

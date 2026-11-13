@@ -36,6 +36,20 @@ class FieldCodegenTests(unittest.TestCase):
         self.assertIn('function Accessor.mapAdd',files['Accessors/Field_Inventory_D_Items.luau'])
         self.assertIn('function Accessor.append',files['Accessors/Field_Characters.luau'])
 
+    def test_item_list_field(self) -> None:
+        """A bitmap field is a stored hex string with grant/revoke/replace accessors, and no list accessors."""
+        schema=copy.deepcopy(self.schema)
+        schema['definitions'].append({'id':'Gear.Owned','status':'ACTIVE','type':{'kind':'bitmap','source':'Equipment','maxMembers':64}})
+        files=generate(schema,'../../../src')
+        self.assertIn('export type Field_Gear_D_Owned = string',files['FieldTypes.luau'])
+        accessor=files['Accessors/Field_Gear_D_Owned.luau']
+        for method in ('grant','revoke','replace'):
+            self.assertIn(f'function Accessor.{method}(_self: unknown, tx: Transaction.Transaction, members: {{string}})',accessor)
+            self.assertIn(f'tx:{method}("Gear.Owned",members)',accessor)
+        for absent in ('append','setAdd','mapAdd','add'):
+            self.assertNotIn(f'function Accessor.{absent}(',accessor)
+        self.assertEqual(generate(schema,'../../../src'),generate(copy.deepcopy(schema),'../../../src'))
+
     def test_bindings_do_not_change_field_value_types(self) -> None:
         """Binding DTO metadata does not alter schema-specialized value/accessor declarations."""
         original=generate(self.schema,'../../../src')

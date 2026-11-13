@@ -4,7 +4,7 @@
 
 **Can I use the SDK on the client?** No. It is server-only; keys must never reach a client.
 
-**Is it on Wally?** Not yet. Build with Rojo; the repository version is 7.1.0.
+**Is it on Wally?** Not yet. Build with Rojo; the repository version is 8.0.0.
 
 **Why does a `profile:add` not show in the portal at once?** Buffered writes are saved in the background, by default within
 about 5 seconds. Use `profile:immediate()` and check the Result when you must confirm.
@@ -41,3 +41,9 @@ board backfills saved values when linked; a Total gained board starts from zero.
 The SDK has no wrapper for them yet.
 
 See also [troubleshooting](TROUBLESHOOTING.md), [errors](ERRORS.md) and the [glossary](GLOSSARY.md).
+
+**Can I remove an item list member?** Only while nobody holds it (`member_in_use` otherwise). Retire it to stop new grants
+while players keep it. See [item lists](ITEM-LISTS.md#retire-or-remove).
+
+**Why does `grant` fail with `enum_source_unavailable`?** The item list has not loaded yet; retry. `has`, `members` and
+`usable` ask the server meanwhile.

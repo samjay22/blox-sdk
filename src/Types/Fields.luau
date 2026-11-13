@@ -324,6 +324,41 @@ export type Item = {
 	status: string,
 	universeId: number,
 }
+export type ItemListDrift = { actual: number, bit: number, counted: number, field: string }
+export type ItemListHolder = { bit: number, count: number, member: string, samplePlayers: { number } }
+export type ItemListLink = { field: string, maxMembers: number, status: string }
+export type ItemListMemberHolders = {
+	bit: number,
+	byField: { [string]: number },
+	count: number,
+	member: string,
+	retired: boolean,
+	samplePlayers: { number },
+}
+export type ItemListMemberRef = { bit: number, name: string }
+export type ItemListRemovalCheck = { allowed: boolean, holders: ({ ItemListHolder } | Core.Null)? }
+export type ItemListRemovalInput = { members: { ItemListMemberRef } }
+export type ItemListSourceStatus = {
+	ageSeconds: (number | Core.Null)?,
+	lastError: (string | Core.Null)?,
+	loaded: boolean,
+	namespace: string,
+	universe: number,
+	version: (number | Core.Null)?,
+}
+export type ItemListUsage = {
+	configVersion: number,
+	fields: { ItemListLink },
+	holders: { [string]: number },
+	namespace: string,
+}
+export type ItemListVerify = {
+	consistent: boolean,
+	drift: { ItemListDrift },
+	fields: { string },
+	namespace: string,
+	repaired: boolean,
+}
 export type JobActionInput = { reason: string, universeId: number? }
 export type JobEvent = {
 	actor: string,
@@ -443,6 +478,16 @@ export type PlayerChangesItem = {
 }
 export type PlayerEraseInput = { confirmUserId: number, reason: string }
 export type PlayerEraseResult = { erased: boolean, tombstoneId: string }
+export type PlayerMembers = {
+	bits: { number },
+	configVersion: number,
+	field: string,
+	members: { string },
+	retired: { string },
+	source: string,
+	value: string,
+	version: number,
+}
 export type PlayerRevertInput = { ledgerEntryIds: { string }, reason: string }
 export type PlayerSample = { userId: number, values: { [string]: number } }
 export type PlayerSampleResponse = { players: { PlayerSample }, sampled: number, universeId: number }
@@ -833,6 +878,24 @@ export type ImportCall = {
 	body: string,
 }
 export type ImportResultValue = ImportValidation | JobReceipt
+export type ItemListVerifyHoldersCall = {
+	path: { universeId: (string | number)?, namespace: string },
+	query: { repair: boolean? }?,
+}
+export type ItemListVerifyHoldersResultValue = ItemListVerify
+export type ItemListHoldersCall = {
+	path: { universeId: (string | number)?, namespace: string, member: string },
+}
+export type ItemListHoldersResultValue = ItemListMemberHolders
+export type ItemListRemovalCheckCall = {
+	path: { universeId: (string | number)?, namespace: string },
+	body: ItemListRemovalInput,
+}
+export type ItemListRemovalCheckResultValue = ItemListRemovalCheck
+export type ItemListSourceCall = { path: { universeId: (string | number)?, namespace: string } }
+export type ItemListSourceResultValue = { ItemListSourceStatus }
+export type ItemListUsageCall = { path: { universeId: (string | number)?, namespace: string } }
+export type ItemListUsageResultValue = ItemListUsage
 export type JobsCall = {
 	path: { universeId: (string | number)? }?,
 	query: { limit: number?, offset: (string | number)? }?,
@@ -936,6 +999,10 @@ export type LedgerCall = {
 	query: { cursor: string?, field: string?, from: string?, limit: number?, to: string? }?,
 }
 export type LedgerResultValue = CursorPage<Entry>
+export type PlayerMembersCall = {
+	path: { universeId: (string | number)?, userId: string | number, field: string },
+}
+export type PlayerMembersResultValue = PlayerMembers
 export type PlayerOverviewCall = { path: { universeId: (string | number)?, userId: string | number } }
 export type PlayerOverviewResultValue = { [string]: Core.Json }
 export type PresenceCall = { path: { universeId: (string | number)?, userId: string | number } }

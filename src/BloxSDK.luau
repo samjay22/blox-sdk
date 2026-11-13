@@ -215,6 +215,12 @@ local function facade(
 		configs = ConfigService.new(invoke, universe, host),
 	}, Client)
 	created = client
+	if helpers.fields then
+		-- Profiles read item lists through the same shared handles as `client.configs`.
+		helpers.fields.itemList = function(universeId, source)
+			return ConfigService.new(invoke, universeId, host):namespace(source)
+		end
+	end
 	return client
 end
 --- Create one server-side SDK client; invalid configuration fails before any network activity.
@@ -592,7 +598,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "7.1.0"
+SDK.version = "8.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

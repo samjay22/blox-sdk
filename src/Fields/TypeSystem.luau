@@ -5,6 +5,7 @@ local Json = require("../Core/Json")
 local Cache = require("../Core/Cache")
 local Copy = require("../Core/Idempotency")
 local Pattern = require("./Pattern")
+local Bitmap = require("./Bitmap")
 local System = {}
 export type TypeExpr = Types.TypeExpr
 export type Validator = {
@@ -17,15 +18,33 @@ local SAFE = 9007199254740991
 local function fail(code: string): never
 	error(code, 0)
 end
+--- Raise a machine code with the member names (at most 20) or limit that explain it.
+local function failMembers(code: string, members: { string }?, maxMembers: number?): never
+	local listed: { string }? = nil
+	if members then
+		listed = {}
+		for index, name in members do
+			if index > 20 then
+				break
+			end
+			table.insert(listed :: { string }, name)
+		end
+	end
+	error({ code = code, members = listed, maxMembers = maxMembers }, 0)
+end
 --- Return a typed validation error with the original operation path (server convention).
 function System.failure(code: string, path: Types.Path?, field: string?, opIndex: number?): Core.Result<any>
+	local unavailable = code == "enum_source_unavailable"
 	return {
 		ok = false,
 		error = {
-			kind = "Validation",
+			kind = if unavailable then "Server" else "Validation",
 			message = code,
 			code = code,
-			status = if code == "invalid_definition" or code == "invalid_request" then 400 else 422,
+			status = if unavailable
+				then 503
+				elseif code == "invalid_definition" or code == "invalid_request" then 400
+				else 422,
 			endpoint = "fields",
 			attempts = 0,
 			path = path or {},
@@ -39,6 +58,14 @@ local function protect(callback: () -> any, path: Types.Path?): Core.Result<any>
 	local ok, value = pcall(callback)
 	if ok then
 		return { ok = true, value = value }
+	end
+	if type(value) == "table" and type(value.code) == "string" then
+		local result = System.failure(value.code, path)
+		if not result.ok then
+			result.error.members = value.members
+			result.error.maxMembers = value.maxMembers
+		end
+		return result
 	end
 	local code = if type(value) == "string" and string.match(value, "^[a-z][a-z0-9_]+$")
 		then value
@@ -184,6 +211,19 @@ check = function(t: any, v: any, depth: number): any
 		return v
 	elseif k == "nullable" then
 		return if v == Json.null then Json.null else check(t.of, v, depth + 1)
+	elseif k == "bitmap" then
+		if type(v) ~= "string" then
+			fail("wrong_type")
+		end
+		local bits = Bitmap.decode(v)
+		if not bits then
+			fail("invalid_bitmap")
+		end
+		local limit = t.maxMembers or Bitmap.MAX_MEMBERS
+		if #(bits :: { number }) > limit then
+			failMembers("member_limit", nil, limit)
+		end
+		return v
 	elseif k == "object" then
 		if not object(v) then
 			fail("wrong_type")
@@ -270,6 +310,9 @@ local function natural(t: any): any
 	end
 	if k == "nullable" then
 		return Json.null
+	end
+	if k == "bitmap" then
+		return ""
 	end
 	if k == "list" or k == "set" then
 		return Json.array({})
@@ -403,6 +446,24 @@ local function compile(t: any, depth: number)
 	elseif k == "nullable" then
 		only(t, { "kind", "of" }, "invalid_definition")
 		compile(t.of, depth + 1)
+	elseif k == "bitmap" then
+		-- An item list field is a whole field: never nested in a container or a nullable.
+		only(t, { "kind", "source", "maxMembers" }, "invalid_definition")
+		if
+			depth > 1
+			or type(t.source) ~= "string"
+			or #t.source > 64
+			or not string.match(t.source, "^[A-Za-z0-9][A-Za-z0-9_%-]*$")
+		then
+			fail("invalid_definition")
+		end
+		local limit = t.maxMembers
+		if
+			limit ~= nil
+			and (type(limit) ~= "number" or limit % 1 ~= 0 or limit < 1 or limit > Bitmap.MAX_MEMBERS)
+		then
+			fail("invalid_definition")
+		end
 	else
 		fail("invalid_definition")
 	end
@@ -532,6 +593,34 @@ local function delta(t: any, v: any)
 		fail("max_delta_exceeded")
 	end
 end
+--- The distinct member names of a GRANT/REVOKE/REPLACE argument. Shape only: whether they exist is a lookup.
+local function memberNames(value: any, op: string): { string }
+	if not array(value) then
+		fail("wrong_type")
+	end
+	if op ~= "REPLACE" and #value == 0 then
+		fail("below_min_size")
+	end
+	if #value > Bitmap.MAX_MEMBERS then
+		fail("above_max_size")
+	end
+	local seen: { [string]: boolean } = {}
+	local names: { string } = {}
+	for _, name in value do
+		if
+			type(name) ~= "string"
+			or #name > 100
+			or not string.match(name, "^[A-Za-z0-9_][A-Za-z0-9_%.%-]*$")
+		then
+			fail("invalid_member_name")
+		end
+		if not seen[name] then
+			seen[name] = true
+			table.insert(names, name)
+		end
+	end
+	return names
+end
 --- Check an exact nonnegative Java int list index.
 local function index(v: any)
 	if type(v) ~= "number" or v % 1 ~= 0 or v < 0 or v > 2147483647 then
@@ -550,6 +639,9 @@ local arguments = {
 	REMOVE_VALUE = { "value" },
 	SET_ADD = { "items" },
 	SET_REMOVE = { "items" },
+	GRANT = { "members" },
+	REVOKE = { "members" },
+	REPLACE = { "members" },
 	MAP_PUT = { "entries" },
 	MAP_REMOVE = { "keys" },
 	MAP_ADD = { "key", "delta" },
@@ -625,6 +717,11 @@ local function operation(t: any, op: string, a: any, static: boolean?)
 		else
 			validate(t.item, a.value)
 		end
+	elseif op == "GRANT" or op == "REVOKE" or op == "REPLACE" then
+		if k ~= "bitmap" then
+			fail("op_not_applicable")
+		end
+		memberNames(a.members, op)
 	elseif op == "SET_ADD" or op == "SET_REMOVE" then
 		if k ~= "set" then
 			fail("op_not_applicable")
@@ -716,6 +813,8 @@ function System.prepareOperation(
 			end
 		elseif op == "MAP_REMOVE" then
 			out.keys = Json.array(table.clone(args.keys))
+		elseif args.members ~= nil then
+			out.members = Json.array(memberNames(args.members, op))
 		end
 		return out
 	end, path)
@@ -751,14 +850,96 @@ local function replace(t: any, v: any, path: Types.Path, at: number, replacement
 	v[key] = replace(child, v[key], path, at + 1, replacement)
 	return v
 end
+--- The set bits of a stored bitmap value, ascending (empty for the unset value).
+local function bitsOf(value: string): { number }
+	local bits: { number } = Bitmap.decode(value) or {}
+	return bits
+end
+--- Refuse a bitmap that gains a bit that is not an active member of its item list: unknown first, then retired.
+local function guardGained(before: string, after: string, members: { [string]: Types.MemberInfo })
+	local byBit: { [number]: string } = {}
+	local retired: { [number]: boolean } = {}
+	for name, info in members do
+		byBit[info.bit] = name
+		retired[info.bit] = info.retired == true
+	end
+	local had: { [number]: boolean } = {}
+	for _, bit in bitsOf(before) do
+		had[bit] = true
+	end
+	local unknown: { string } = {}
+	local gone: { string } = {}
+	for _, bit in bitsOf(after) do
+		if not had[bit] then
+			if byBit[bit] == nil then
+				table.insert(unknown, "#" .. tostring(bit))
+			elseif retired[bit] then
+				table.insert(gone, byBit[bit])
+			end
+		end
+	end
+	if #unknown > 0 then
+		failMembers("unknown_member", unknown)
+	end
+	if #gone > 0 then
+		table.sort(gone)
+		failMembers("member_retired", gone)
+	end
+end
+--- GRANT, REVOKE or REPLACE by member name, resolved through the item list's permanent bits.
+local function applyMembers(
+	t: any,
+	current: string,
+	op: string,
+	value: any,
+	lookup: Types.MemberLookup?
+): string
+	local names = memberNames(value, op)
+	local members = if lookup then lookup(t.source) else nil
+	if not members then
+		failMembers("enum_source_unavailable")
+	end
+	local resolved: { [number]: boolean } = {}
+	local unknown: { string } = {}
+	for _, name in names do
+		local info = (members :: { [string]: Types.MemberInfo })[name]
+		if info then
+			resolved[info.bit] = true
+		else
+			table.insert(unknown, name)
+		end
+	end
+	if #unknown > 0 then
+		failMembers("unknown_member", unknown)
+	end
+	local result: { [number]: boolean } = {}
+	if op ~= "REPLACE" then
+		for _, bit in bitsOf(current) do
+			result[bit] = true
+		end
+	end
+	for bit in resolved do
+		if op == "REVOKE" then
+			result[bit] = nil
+		else
+			result[bit] = true
+		end
+	end
+	local encoded = validate(t, Bitmap.encode(result))
+	guardGained(current, encoded, members :: { [string]: Types.MemberInfo })
+	return encoded
+end
 --- Evaluate one checked operation and revalidate both the target and full field.
+--- Bitmap member operations (and a bitmap SET) are checked against `lookup`, the item list's members; a
+--- GRANT, REVOKE or REPLACE needs it (`enum_source_unavailable` without), a SET is only checked when it is given.
 function System.apply(
 	t: TypeExpr,
 	value: Core.Json,
 	default: Core.Json?,
 	op: string,
 	args: { [string]: any },
-	path: Types.Path?
+	path: Types.Path?,
+	lookup: Types.MemberLookup?
 ): Core.Result<Core.Json>
 	local p = path or {}
 	return protect(function()
@@ -766,8 +947,14 @@ function System.apply(
 		local sub, current, def = target(t, value, default, p)
 		operation(sub, op, args)
 		local result: any
-		if op == "SET" then
+		if op == "GRANT" or op == "REVOKE" or op == "REPLACE" then
+			result = applyMembers(sub, current, op, args.members, lookup)
+		elseif op == "SET" then
 			result = validate(sub, args.value)
+			local members = if sub.kind == "bitmap" and lookup then lookup(sub.source) else nil
+			if members then
+				guardGained(current, result, members)
+			end
 		elseif op == "RESET" then
 			local d = System.default(sub, def)
 			if not d.ok then
