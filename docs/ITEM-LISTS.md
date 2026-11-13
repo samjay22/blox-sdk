@@ -36,13 +36,15 @@ members one player may hold in this field (1 to 512, and `1` means "exactly one 
 Use it in game code, with names only:
 
 ```luau
-local profile = client.fields:profile(player.UserId)
+local loaded = client.fields:loadProfile(player) -- Result<Profile>, check loaded.ok
+local profile = loaded.value
 profile:grant("Owned", { "Sword" })        -- gain
 profile:revoke("Owned", { "Sword" })       -- lose; revoking something not held does nothing
 profile:replace("Equipped", { "Shield" })  -- the whole set, may be {}
 if profile:has("Owned", "Sword").value then ... end
 local all = profile:members("Owned")        -- Result<{ string }>, sorted
-local ok = profile:usable("Events.Halloween", "Pumpkin_Hat") -- held and still active
+local usable = profile:usable("Events.Halloween")   -- Result<{ string }>: held and still active, sorted
+-- "Is Pumpkin_Hat usable?" is table.find(usable.value, "Pumpkin_Hat") ~= nil
 ```
 
 Everything on the profile behaves like any other profile mutation: changes are applied locally at once, buffered, and
@@ -62,7 +64,7 @@ retired ones) and `member(name)`. Fields reads those cached members to check a g
 - **Equipment slot.** An `Owned` field (`maxMembers = 64`) and an `Equipped` field (`maxMembers = 1`) over the same list.
   `replace("Equipped", { name })` swaps the item; `replace("Equipped", {})` unequips. Require `has("Owned", name)` first.
 - **Event-only items.** Put the items in their own list (`Event_Halloween`). When the event ends, retire the members
-  you no longer want to give out. `usable` is `false` for a retired member, so players keep it but cannot use it any more.
+  you no longer want to give out. `usable("Events.Halloween")` leaves a retired member out, so players keep it (`has` stays true) but it is no longer usable.
 - **Badges and unlocks.** One list, one field with `maxMembers = 512`, `grant` once, `has` to check.
 - **Retire a seasonal item.** `items:retireMember("Pumpkin_Hat")`; nothing is lost and nobody new can get it.
 
@@ -71,7 +73,7 @@ retired ones) and `member(name)`. Fields reads those cached members to check a g
 | | `retireMember` | `removeMember` |
 |---|---|---|
 | New grants | refused (`member_retired`) | refused (`unknown_member`) |
-| Players who hold it | keep it, `has` stays true, `usable` is false | not allowed while anyone holds it |
+| Players who hold it | keep it, `has` stays true, `usable` leaves it out | not allowed while anyone holds it |
 | Bit | kept | kept forever, never reused |
 | Undo | `unretireMember` | create it again: it gets its old bit |
 | Held by players | always allowed | `409 member_in_use` |

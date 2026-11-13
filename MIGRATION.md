@@ -10,7 +10,7 @@ except that the config namespace responses now carry `kind` and `nextBit`.
 |---|---|
 | A numeric bit mask in an `int` field, with your own bit-to-item table | An item list (`configs:namespace("Items"):setKind("items")`) plus a field `{ kind = "bitmap", source = "Items", maxMembers = 64 }` |
 | `profile:set("Owned", bits)` and bit arithmetic in game code | `profile:grant("Owned", { "Sword" })`, `revoke`, `replace` |
-| Reading the number and testing bits yourself | `profile:has("Owned", "Sword")`, `members("Owned")`, `usable("Owned", "Sword")` |
+| Reading the number and testing bits yourself | `profile:has("Owned", "Sword")`, `members("Owned")`, `usable("Owned")` (the held members that are still active) |
 | Deleting an item from a config table and hoping nobody holds it | `items:retireMember("Sword")`, or `removeMember` (refused with `member_in_use` while held) |
 | A hand-kept "single choice" value | A `bitmap` field with `maxMembers = 1` |
 | 367 endpoints | 374: item list admin routes (`setKind`, usage, holders, removal check, verify, source, player members) |

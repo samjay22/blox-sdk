@@ -26,7 +26,7 @@
 | Data usage | Raw value bytes per player and successful data requests per API key |
 | Item list | A config namespace of named members (`{ bit, label?, description?, meta?, retired? }`) that players can hold through a Fields field. The other kind of namespace is Settings |
 | Member | One entry of an item list. Its name is what game code uses; its bit is permanent and never reused |
-| Retired member | A member nobody new can get; players who hold it keep it, and `usable` is false for it |
+| Retired member | A member nobody new can get; players who hold it keep it, and `usable` leaves it out |
 | Item set field | A Fields field of type Item set (kind `bitmap`) that holds members of one item list per player. Its `source` list can never change |
 | Single choice | An item set field with `maxMembers = 1`: the player holds at most one member, like an equipped slot |
-| Usable | `profile:usable(field, name)`: the player holds the member and it is still active (not retired) |
+| Usable | `profile:usable(field)` returns the members the player holds that are still active (not retired), sorted |
