@@ -29,6 +29,18 @@ needs authoritative reload/reconciliation, not a fresh key that duplicates an un
 
 API keys can be restricted in the portal. `scope_denied` (403, Forbidden) means the key may not use that field, namespace or route: change the key scope, do not retry. `key_rate_limited` (429, RateLimited) means the key hit its own per-second or daily limit: `error.retryAfterSeconds` carries Retry-After, idempotent calls wait that long automatically within their deadline, and a daily limit can be hours long, so back off instead of looping.
 
+## Environment codes (dev and prod)
+
+Retry follows the HTTP kind, as for every other code: none of these is retried automatically, and none succeeds on a plain retry.
+
+| Code | Where | Kind | Retry | Recovery |
+|---|---|---|---|---|
+| `dev_limit_exceeded` | Fields definitions or Config entries, status 409 | `Conflict` | no | The dev environment is over its small cap (100 definitions, 200 entries per namespace); remove something in dev or reset dev in the portal |
+| `environment_mismatch` | any service, status 403 | `Forbidden` | no | The request named an environment that is not the key's own; the SDK never sends one, so this means a proxy or custom header |
+| `environment_invalid` | portal routes, status 400 | `Validation` | no | The environment header was neither `dev` nor `prod` (portal and HTTP only) |
+| `environment_required` | portal routes, status 400 | `Validation` | no | The environment header is missing (portal and HTTP only) |
+| `prod_key_in_studio` | `BloxSDK.new`, local, raised as an error, no request is made | none (assertion) | no | Use a `bsd_` key in Studio, or pass `allowProdInStudio = true` deliberately; see [dev and prod](ENVIRONMENTS.md) |
+
 ## Domain codes
 
 The following allowlisted backend and local validation codes are collected from source.
@@ -70,11 +82,15 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `criteria_field_invalid` |
 | `default_required` |
 | `definition_version_conflict` |
+| `dev_limit_exceeded` |
 | `duplicate_element` |
 | `email_exists` |
 | `entry_not_found` |
 | `enum_source_unavailable` |
 | `environment_changed` |
+| `environment_invalid` |
+| `environment_mismatch` |
+| `environment_required` |
 | `exactly_one_identifier_required` |
 | `export_schema_changed` |
 | `export_size_limit` |
@@ -179,6 +195,7 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `platform_admin_cannot_join_org` |
 | `precondition_failed` |
 | `presence_not_started` |
+| `prod_key_in_studio` |
 | `product_disabled` |
 | `product_not_found` |
 | `profile_already_loaded` |
@@ -254,4 +271,4 @@ Diagnostic path/field/opIndex are bounded; service HTTP rules and the backend re
 | `kind_immutable`, `invalid_member`, `bit_immutable`, `bit_taken`, `rollback_invalid` | Config admin | The write is not a valid item list change; see [item lists](ITEM-LISTS.md) |
 
 See [fault tolerance](FAULT-TOLERANCE.md), [authentication](AUTH.md), [Fields](FIELDS.md),
-[item lists](ITEM-LISTS.md), [rotations](ROTATIONS.md), and [matchmaking](MATCHMAKING.md) for service-specific recovery.
+[dev and prod](ENVIRONMENTS.md), [item lists](ITEM-LISTS.md), [rotations](ROTATIONS.md), and [matchmaking](MATCHMAKING.md) for service-specific recovery.

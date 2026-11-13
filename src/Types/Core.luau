@@ -72,6 +72,7 @@ export type Runtime = {
 	encode: (unknown, Schema?, { [string]: Schema }?) -> string,
 	decode: (string) -> unknown,
 }
+export type Environment = "dev" | "prod"
 export type Level = "READ" | "READ_WRITE" | "ADMIN"
 export type ServiceLevels = {
 	AuthService: Level?,
@@ -88,6 +89,7 @@ export type ServiceLevels = {
 export type AuthProvider = {
 	kind: string,
 	universeId: (string | number)?,
+	environment: Environment?,
 	levels: { [string]: Level }?,
 	role: string?,
 	apply: (Headers) -> (),

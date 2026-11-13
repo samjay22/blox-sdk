@@ -13,6 +13,12 @@ Start with `result.error.code` and `result.error.kind`; branch on those, never o
 | `sdk_local` naming a permission | `levels` in `BloxSDK.new` omit what the call needs | Add the level or drop the call |
 | `sdk_rate_limited` | Local budget or gateway quota | Reduce calls, back off with jitter |
 | `sdk_timeout` / `sdk_network` | Backend or network | Retry safe calls with jitter; keep the same idempotency key |
+| `BloxSDK.new` fails with `prod_key_in_studio` | A prod (`bsa_`) key in Roblox Studio | Use a `bsd_` dev key in Studio, or pass `allowProdInStudio = true` on purpose |
+| `Unknown API key prefix` | The key does not start with `bsa_` or `bsd_` | Copy the key again from the portal; keys are never edited |
+| `secretName requires environment` | `secretName` without `environment` | Pass `environment = "dev"` or `"prod"` to match the secret's key |
+| `sdk_forbidden` with code `environment_mismatch` | A request named another environment than the key's | Remove custom environment headers; the key decides |
+| `sdk_forbidden` from a service other than Fields, Config or Gateway with a dev key | Dev keys only work on services that have environments | Use a prod key for that service, or leave it out of the test place |
+| `dev_limit_exceeded` (409) | The dev environment hit its cap (100 definitions, 200 entries per namespace) | Remove items in dev, or reset dev in the portal |
 | `sdk_circuit_open` | Repeated failures opened the breaker (10 s) | Wait; the SDK probes again |
 
 ## Fields

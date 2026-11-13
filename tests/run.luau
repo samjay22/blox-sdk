@@ -155,7 +155,9 @@ test("key validation, fixed offsets, redaction and opaque Secret AddPrefix", fun
 			return fakeSecret
 		end,
 	}
-	local auth = ServiceAccount.new(fakeSecret, 123, nil)
+	local auth = ServiceAccount.new(fakeSecret, 123, nil, "dev")
+	check(auth.environment == "dev")
+	check(not pcall(ServiceAccount.new, fakeSecret, 123, nil, nil))
 	local headers: Core.Headers = {}
 	auth.apply(headers)
 	check(prefixed and headers.Authorization == fakeSecret)
@@ -1121,6 +1123,7 @@ require("./service_contracts")(test)
 require("./rotations")(test)
 require("./batching")(test)
 require("./universe")(test)
+require("./environments")(test)
 GatewayTests.register(test)
 require("./release")(test)
 print("PASS " .. tostring(passed) .. " test groups")

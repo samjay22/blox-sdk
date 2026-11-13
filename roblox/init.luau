@@ -56,6 +56,7 @@ export type Result<T> = Types.Result<T>
 export type BloxError = Types.BloxError
 export type ErrorKind = Types.ErrorKind
 export type Json = Types.Json
+export type Environment = Types.Environment
 export type Signal = Types.Signal
 export type Logger = Types.Logger
 export type Hooks = Types.Hooks
@@ -131,6 +132,7 @@ type Helpers = {
 }
 export type Client = typeof(setmetatable(
 	{} :: {
+		environment: Types.Environment?,
 		ProfileChanged: ChangeSignal.Signal,
 		LeaseLost: SessionSignal.Signal,
 		CommitRejected: SessionSignal.Signal,
@@ -197,6 +199,7 @@ local function facade(
 		end,
 	}
 	local client: Client = setmetatable({
+		environment = (provider or state.config.auth).environment,
 		ProfileChanged = helpers.sync.Changed,
 		LeaseLost = helpers.sessions.LeaseLost,
 		CommitRejected = helpers.sessions.CommitRejected,
@@ -223,6 +226,24 @@ local function facade(
 		end
 	end
 	return client
+end
+--- Refuse a prod key in Roblox Studio unless the developer opted in; dev keys work anywhere.
+local function guardStudio(environment: Types.Environment?, config: Config.Config)
+	if environment ~= "prod" or config.allowProdInStudio == true then
+		return
+	end
+	-- Injected runtimes are offline/test clients: only an explicit isStudio can make them Studio.
+	local studio = if config.isStudio
+		then config.isStudio()
+		elseif config.runtime then false
+		else Roblox.isStudio()
+	if studio then
+		error(
+			Errors.prodKeyInStudio
+				.. ": a prod (bsa_) key is not used in Roblox Studio; use a dev (bsd_) key or pass allowProdInStudio = true",
+			0
+		)
+	end
 end
 --- Create one server-side SDK client; invalid configuration fails before any network activity.
 function SDK.new(config: Config): Client
@@ -252,14 +273,17 @@ function SDK.new(config: Config): Client
 	end
 	if config.key or config.secretName then
 		assert(universeId ~= nil, "Service accounts require universeId")
+		-- Studio protection runs before the secret is fetched or any request exists.
+		guardStudio(if config.key then ServiceAccount.environment(config.key) else config.environment, config)
 		local key: string | Types.Secret = config.key
 			or (http :: Roblox.HttpService):GetSecret(config.secretName :: string)
-		auth = ServiceAccount.new(key, universeId, config.levels)
+		auth = ServiceAccount.new(key, universeId, config.levels, config.environment)
 	elseif config.userSession then
 		session = UserSession.new(runtime, config.userSession.store, config.userSession.role)
 		auth = session :: UserSession.Session
 	elseif config.authProvider then
 		auth = config.authProvider
+		guardStudio(auth.environment, config)
 	else
 		auth = {
 			kind = "none",
@@ -599,7 +623,7 @@ function Client.runtimeSnapshot(self: Client, interval: number?): SnapshotCache.
 	table.insert(self._helpers.snapshots, snapshot)
 	return snapshot
 end
-SDK.version = "8.0.0"
+SDK.version = "9.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore

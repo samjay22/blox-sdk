@@ -1,5 +1,7 @@
 # Which feature should I use?
 
+Trying something out first? Use a `bsd_` dev key in Studio and test places: dev is a separate copy of Fields and Configs. See [dev and prod](ENVIRONMENTS.md).
+
 | If the thing is... | Use | Why |
 |---|---|---|
 | Different for every player and kept between sessions (balance, level, inventory) | **Fields** | Typed, validated, transactional, with history and backups |

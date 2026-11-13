@@ -401,6 +401,7 @@ are grouped into separate operations; incompatible credentials use separate tick
 ```luau
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
+    environment = "prod",
     universeId = game.GameId,
     batch = { intervalSeconds = 0.5 },
     profileSync = {

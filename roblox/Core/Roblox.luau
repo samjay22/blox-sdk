@@ -61,6 +61,10 @@ function Roblox.playerRemoving(callback: (number) -> ()): () -> ()
 		connection:Disconnect()
 	end
 end
+--- Whether this is Roblox Studio (edit, play-solo or test server); false outside Roblox.
+function Roblox.isStudio(): boolean
+	return game ~= nil and game:GetService("RunService"):IsStudio()
+end
 --- The running experience's universe, or nil outside Roblox and in unpublished places.
 function Roblox.universe(): number?
 	if game == nil or type(game.GameId) ~= "number" or game.GameId <= 0 then

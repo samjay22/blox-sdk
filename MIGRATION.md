@@ -1,5 +1,23 @@
 # Migrating BloxSDK
 
+## 8.0.0 to 9.0.0 — dev and prod
+
+Keys now belong to an environment. Existing keys are prod and keep working unchanged on live servers; what changes is
+construction, in three places.
+
+| Before | After |
+|---|---|
+| Only `bsa_` keys were accepted | `bsa_` (prod) and `bsd_` (dev) are accepted; any other prefix fails locally |
+| No environment on the client | `client.environment` is `"prod"` or `"dev"` (nil for user sessions) |
+| A prod key in Studio wrote to live data | `BloxSDK.new` fails with `prod_key_in_studio`; use a `bsd_` key, or pass `allowProdInStudio = true` |
+| `BloxSDK.new({ secretName = s })` | `BloxSDK.new({ secretName = s, environment = "prod" })` (required: Secrets are opaque; rejected together with `key`) |
+| A dev scope id in a `universeId` response member would have failed decoding | Decoded exactly and returned as the logical universe id |
+| No codes for environments | `dev_limit_exceeded`, `environment_mismatch`, `environment_invalid`, `environment_required`, `prod_key_in_studio` |
+
+To adopt: create a dev key in the portal, store it in a second Roblox Secret, and pick the secret by `RunService:IsStudio()`
+or by place. Transfer, compare and dev reset stay in the portal. `BloxSDK.version` is `9.0.0`, still 374 endpoints.
+Start with [ENVIRONMENTS.md](docs/ENVIRONMENTS.md).
+
 ## 7.0.0 to 8.0.0 — item lists
 
 Game configs and bitmap fields became one idea: a config namespace is either Settings or an **item list** that players

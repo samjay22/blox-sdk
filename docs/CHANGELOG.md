@@ -1,5 +1,21 @@
 # Changelog
 
+## 9.0.0 (local, not published)
+
+- Breaking: dev and prod environments. API keys are bound to one environment: `bsa_` is prod (all existing keys), `bsd_` is
+  dev (Fields, Config and Gateway grants only). `BloxSDK.new` accepts both prefixes and rejects any other with a clear error;
+  `client.environment` is `"dev"` or `"prod"` (nil for user sessions). No SDK call has an environment parameter.
+- Breaking: Studio protection. In Roblox Studio a prod key is refused with `prod_key_in_studio` unless you pass
+  `allowProdInStudio = true`. Dev keys work anywhere. Injectable through `isStudio`; injected runtimes are not Studio.
+- Breaking: `secretName` requires `environment = "dev" | "prod"`, because a Roblox Secret cannot be inspected locally;
+  `environment` is rejected together with a readable `key`.
+- New error codes: `dev_limit_exceeded` (409), `environment_mismatch` (403), `environment_invalid` (400),
+  `environment_required` (400), and the local `prod_key_in_studio`. None is retried.
+- Dev responses may echo the scope id (universe + 2^60) in `universeId`/`robloxUniverseId`: the decoder no longer fails on it
+  and returns the logical universe id.
+- Transfer, compare and dev reset are portal-only (user tokens), not SDK features. 374 endpoints, unchanged.
+- New [ENVIRONMENTS.md](ENVIRONMENTS.md). See [migration](../MIGRATION.md).
+
 ## 8.0.0 (local, not published)
 
 - Item lists: game configs and Fields bitmap fields are one concept. A config namespace is Settings or an item list of

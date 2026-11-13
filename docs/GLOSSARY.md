@@ -3,7 +3,10 @@
 | Term | Meaning |
 |---|---|
 | Organization / universe / place | Studio tenant / one Roblox experience and its isolated data / one destination inside it. `game.GameId` is the universe |
-| `bsa_` key | Universe-bound service-account credential for servers, with explicit service levels |
+| `bsa_` key | Universe-bound service-account credential for servers, with explicit service levels; bound to the prod environment |
+| `bsd_` key | The same for the dev environment; holds only Fields, Config and Gateway grants |
+| Environment | `dev` or `prod`, the two fixed copies of a universe's data; the key decides, `client.environment` shows it |
+| Transfer | Portal-only promotion of reviewed dev changes to prod; not an SDK feature |
 | READ / READ_WRITE / ADMIN | Cumulative service levels; ADMIN adds administration. Config writes need ConfigService ADMIN |
 | Gateway | Extra permission required to call through `lb1`, in addition to the service level |
 | Field | A named, typed per-player value such as `Currency.Gems`, with limits and write rules |

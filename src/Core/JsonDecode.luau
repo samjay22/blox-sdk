@@ -1,6 +1,7 @@
 --!strict
 local Core = require("../Types/Core")
 local Json = require("./Json")
+local Universe = require("./Universe")
 local Decode = {}
 --- Decode service JSON without dropping present null members or rounding unsafe integer tokens.
 function Decode.decode(text: string): Core.Json
@@ -68,14 +69,17 @@ function Decode.decode(text: string): Core.Json
 		end
 		error("Unterminated JSON string")
 	end
-	local parse: (number) -> any
+	local parse: (number, string?) -> any
 	--- Parse one bounded JSON value, preserving arrays and explicit null identity.
-	parse = function(depth: number): any
+	parse = function(depth: number, member: string?): any
 		assert(depth <= 64, "JSON depth exceeded")
 		space()
 		local char = string.sub(text, at, at)
+		-- Dev responses may echo a scope id (universe + 2^60) in a universe member: expose the logical id.
+		local universeMember = member == "universeId" or member == "robloxUniverseId"
 		if char == '"' then
-			return quoted()
+			local value = quoted()
+			return if universeMember then Universe.logical(value) else value
 		end
 		if char == "{" or char == "[" then
 			local list = char == "["
@@ -99,7 +103,7 @@ function Decode.decode(text: string): Core.Json
 					assert(string.sub(text, at, at) == ":", "Expected JSON colon")
 					at += 1
 				end
-				out[key] = parse(depth + 1)
+				out[key] = parse(depth + 1, if list then nil else key)
 				space()
 				local nextChar = string.sub(text, at, at)
 				at += 1
@@ -151,8 +155,12 @@ function Decode.decode(text: string): Core.Json
 		end
 		local value = tonumber(string.sub(text, start, at - 1))
 		assert(value and value == value and math.abs(value) < math.huge, "Invalid JSON number")
-		if integral then
-			assert(math.abs(value) <= 9007199254740991, "Unsafe integer JSON token")
+		if integral and math.abs(value) > 9007199254740991 then
+			local digits = if universeMember
+				then Universe.logicalDigits(string.sub(text, start, at - 1))
+				else nil
+			assert(digits, "Unsafe integer JSON token")
+			return tonumber(digits) :: number
 		end
 		return value
 	end

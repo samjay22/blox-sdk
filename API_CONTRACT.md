@@ -1,4 +1,4 @@
-# BloxSDK 8.0.0 session contract
+# BloxSDK 9.0.0 session contract
 
 Binding wire authority: `../scale/CONTRACT.md` v1, sections 1, 2 and 6. No compatibility aliases or wire extensions. Four new Fields POST operations use the existing BatchService envelope and internal paths `/api/fields/universes/{universeId}/…`:
 

@@ -33,7 +33,7 @@ put the ModuleScript in ServerScriptService, then:
 
 ```luau
 local BloxSDK = require(game.ServerScriptService.BloxSDK)
-local client = BloxSDK.new({ secretName = "BLOX_SERVICE_ACCOUNT" })
+local client = BloxSDK.new({ secretName = "BLOX_SERVICE_ACCOUNT", environment = "prod" })
 
 game:BindToClose(function()
 	client:flush(20) -- saves buffered writes, releases players, closes admission

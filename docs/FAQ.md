@@ -2,9 +2,17 @@
 
 **Which ID is the universe?** `game.GameId`, not `game.PlaceId`. State it once in `BloxSDK.new` (default on Roblox).
 
+**Can I test without touching live data?** Yes: use a `bsd_` dev key in Studio and test places. Dev is a separate copy of
+Fields definitions, player data and configs. See [dev and prod](docs/ENVIRONMENTS.md).
+
+**Why does `BloxSDK.new` fail with `prod_key_in_studio`?** A prod key is refused in Studio so a playtest cannot write to live
+players. Use a dev key, or pass `allowProdInStudio = true` if you really mean it.
+
+**How do I move changes from dev to prod?** In the portal, on the Transfer page. The SDK never promotes, compares or resets.
+
 **Can I use the SDK on the client?** No. It is server-only; keys must never reach a client.
 
-**Is it on Wally?** Not yet. Build with Rojo; the repository version is 8.0.0.
+**Is it on Wally?** Not yet. Build with Rojo; the repository version is 9.0.0.
 
 **Why does a `profile:add` not show in the portal at once?** Buffered writes are saved in the background, by default within
 about 5 seconds. Use `profile:immediate()` and check the Result when you must confirm.

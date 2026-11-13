@@ -13,7 +13,7 @@ Source: [src/BloxSDK.luau](../../src/BloxSDK.luau)
 ### Root values and utility functions
 
 ```luau
-SDK.version = "8.0.0"
+SDK.version = "9.0.0"
 SDK.serviceAccount = ServiceAccount.new
 SDK.userSession = UserSession.new
 SDK.memoryTokenStore = UserSession.memoryStore
@@ -34,7 +34,8 @@ Capture the credential privately; provider tables and errors never contain it.
 SDK.serviceAccount(
 	key: string | Types.Secret,
 	universeId: string | number,
-	levels: Types.ServiceLevels?
+	levels: Types.ServiceLevels?,
+	environment: Types.Environment?
 ): Types.AuthProvider
 ```
 
@@ -203,6 +204,8 @@ export type BloxError = Types.BloxError
 export type ErrorKind = Types.ErrorKind
 
 export type Json = Types.Json
+
+export type Environment = Types.Environment
 
 export type Signal = Types.Signal
 
@@ -409,6 +412,9 @@ export type Config = {
 	secretName: string?,
 	universeId: (string | number)?,
 	levels: Types.ServiceLevels?,
+	environment: Types.Environment?,
+	allowProdInStudio: boolean?,
+	isStudio: (() -> boolean)?,
 	userSession: { store: Session.TokenStore?, role: Auth.AccountType? }?,
 	gatewayUrl: string?,
 	services: { [string]: ServiceConfig }?,
@@ -521,6 +527,8 @@ export type Runtime = {
 	decode: (string) -> unknown,
 }
 
+export type Environment = "dev" | "prod"
+
 export type Level = "READ" | "READ_WRITE" | "ADMIN"
 
 export type ServiceLevels = {
@@ -539,6 +547,7 @@ export type ServiceLevels = {
 export type AuthProvider = {
 	kind: string,
 	universeId: (string | number)?,
+	environment: Environment?,
 	levels: { [string]: Level }?,
 	role: string?,
 	apply: (Headers) -> (),

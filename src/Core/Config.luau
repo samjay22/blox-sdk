@@ -37,6 +37,9 @@ export type Config = {
 	secretName: string?,
 	universeId: (string | number)?,
 	levels: Types.ServiceLevels?,
+	environment: Types.Environment?,
+	allowProdInStudio: boolean?,
+	isStudio: (() -> boolean)?,
 	userSession: { store: Session.TokenStore?, role: Auth.AccountType? }?,
 	gatewayUrl: string?,
 	services: { [string]: ServiceConfig }?,
@@ -65,6 +68,9 @@ local known = table.freeze({
 	secretName = true,
 	universeId = true,
 	levels = true,
+	environment = true,
+	allowProdInStudio = true,
+	isStudio = true,
 	userSession = true,
 	gatewayUrl = true,
 	services = true,
@@ -154,9 +160,26 @@ function Config.validate(config: Config)
 			type(config.secretName) == "string" and #config.secretName > 0,
 			"secretName must be a nonempty string"
 		)
+		assert(
+			config.environment == "dev" or config.environment == "prod",
+			'secretName requires environment = "dev" or "prod"'
+		)
 	end
 	if config.universeId ~= nil then
 		assert(Universe.valid(config.universeId), "Invalid universeId")
+	end
+	if config.environment ~= nil then
+		assert(
+			config.environment == "dev" or config.environment == "prod",
+			'environment must be "dev" or "prod"'
+		)
+		assert(config.key == nil, "environment is derived from the key prefix; pass it only with secretName")
+	end
+	if config.allowProdInStudio ~= nil then
+		assert(type(config.allowProdInStudio) == "boolean", "allowProdInStudio must be a boolean")
+	end
+	if config.isStudio ~= nil then
+		assert(type(config.isStudio) == "function", "isStudio must be callable")
 	end
 	if config.backend then
 		assert(type(config.backend) == "function", "backend must be callable")

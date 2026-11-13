@@ -96,7 +96,19 @@ local configCodes: { [string]: boolean } = table.freeze({
 	member_in_use = true,
 	holder_check_unavailable = true,
 	rollback_invalid = true,
+	-- Environments: a dev namespace is over its cap (409, never retried).
+	dev_limit_exceeded = true,
 })
+-- Raised locally before any request; a backend body can never produce them.
+local localCodes = table.freeze({
+	prod_key_in_studio = true,
+})
+--- The stable code of the local refusal raised when a prod key is used in Roblox Studio.
+Errors.prodKeyInStudio = "prod_key_in_studio"
+--- True for codes the SDK raises itself, never from a backend body.
+function Errors.isLocalCode(code: string): boolean
+	return localCodes[code] == true
+end
 local codes = table.freeze({
 	rotation_not_found = true,
 	rotation_version_conflict = true,
@@ -230,6 +242,11 @@ local codes = table.freeze({
 	-- API-key restrictions: the key's field scope refuses the request, or the key's own rate limit is exhausted.
 	scope_denied = true,
 	key_rate_limited = true,
+	-- Environments (dev/prod): the key's environment disagrees with the request, or an environment header is bad.
+	dev_limit_exceeded = true,
+	environment_mismatch = true,
+	environment_invalid = true,
+	environment_required = true,
 })
 --- Accept only bounded diagnostic coordinates and known machine codes, never server text/payloads.
 local function diagnostic(value: any): Types.OperationDiagnostic?

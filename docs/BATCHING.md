@@ -8,6 +8,7 @@ followers need no new operation. Requiring or constructing the SDK sends nothing
 ```luau
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
+    environment = "prod",
     universeId = game.GameId,
     batch = { intervalSeconds = 0.5 }, -- minimum 0.25 seconds
 })

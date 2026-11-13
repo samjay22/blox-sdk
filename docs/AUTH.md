@@ -1,6 +1,6 @@
 # Authentication: organizations, identities and scoped credentials
 
-**Game servers should use `bsa_` service-account keys. They are universe-bound and need the case-sensitive
+**Game servers should use service-account keys: `bsa_` (prod) in live servers, `bsd_` (dev) in Studio and test places. They are universe-bound and need the case-sensitive
 `Gateway` permission in addition to target service permissions when using lb1.** Store keys in Roblox Secrets,
 never ReplicatedStorage, attributes, source strings or client remotes. SDK `levels` are hints, not grants.
 
@@ -150,7 +150,10 @@ The SDK does not validate keys on its own or cache successful authentication gra
 The shared `CONTRACT.md` F6 surface is curated in `tools/auth_contract.py` while independent GAS worktrees
 converge; it supersedes the older non-org rotate route in the local GAS source snapshot. No legacy route alias exists.
 
-Readable format is exactly `bsa_[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]{43}` (56 bytes). For opaque Roblox Secrets,
+Readable format is exactly `bsa_[A-Za-z0-9_-]{8}_[A-Za-z0-9_-]{43}` (production) or `bsd_...` (development), 56 bytes either way;
+any other prefix is rejected locally with `Unknown API key prefix`. The prefix is the key's environment and is exposed as
+`client.environment` (`"prod"` or `"dev"`); see [dev and prod](ENVIRONMENTS.md). A Roblox Secret cannot be read, so with
+`secretName` you must also pass `environment = "dev"` or `"prod"` (it is not accepted together with a readable `key`). For opaque Roblox Secrets,
 `secret:AddPrefix("Bearer ")` is preserved directly in the header; never concatenate or stringify it.
 Service keys use no login, token refresh, JWT parsing or scoped exchange. `withUniverse` cannot expand scope.
 

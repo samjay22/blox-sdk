@@ -2,11 +2,15 @@
 
 One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, Leaderboards, Fields, Platform, and Configs**.
 
-**374 typed endpoints, version 8.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations are covered.
+**374 typed endpoints, version 9.0.0 (not published):** every route in `routes.json`, including Fields runtime config/flags/maintenance, recurring schedules and run history, rating-scope discovery/labels, tenant Auth, and source-backed Platform APIs. No runtime dependencies or client-side credentials. See [endpoint coverage and evidence](SDK_COVERAGE.md): current Party source parity is unverified; Fields Rotations are covered.
 
 > **Credentials:** game servers should use **`bsa_` service-account keys**, never human logins.
 > Humans/tools use **identity login for management, then `client:scoped(universeId)` for downstream calls**.
 > See [tenant authentication, role templates and error codes](docs/AUTH.md).
+>
+> **Dev and prod:** every universe has a `dev` and a `prod` environment, and the key decides which one a client talks to:
+> **`bsd_` keys are dev, `bsa_` keys are prod** (`client.environment`). Use a dev key in Studio and test places; a prod key
+> in Studio is refused unless you pass `allowProdInStudio = true`. See [dev and prod](docs/ENVIRONMENTS.md).
 >
 > **Gateway permissions:** callers using `lb1` need **`Gateway` in addition to the target service
 > permission**. Code redemption also needs Fields write access; Matchmaking enrichment needs Fields
@@ -16,11 +20,11 @@ One server-side, strict Luau SDK for **Auth, Matchmaking, Party, Codes, Audit, L
 
 ### Wally
 
-After `blox-api/blox-sdk@8.0.0` is published to the Wally index, add this to your game's `wally.toml`:
+After `blox-api/blox-sdk@9.0.0` is published to the Wally index, add this to your game's `wally.toml`:
 
 ```toml
 [server-dependencies]
-BloxSDK = "blox-api/blox-sdk@8.0.0"
+BloxSDK = "blox-api/blox-sdk@9.0.0"
 ```
 
 Run `wally install`, map `ServerPackages` into **ServerScriptService** with Rojo, then require
@@ -39,6 +43,7 @@ Enable outbound HTTP and configure a Roblox secret permitted for `lb1.blox-api.c
 local BloxSDK = require(game.ServerScriptService.BloxSDK)
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
+    environment = "prod",
     levels = { -- Optional deployment metadata, not an authorization grant.
         FieldsService = "READ_WRITE",
         MatchmakingService = "READ_WRITE",
@@ -220,6 +225,7 @@ tick. There is no direct fallback or service-host override.
 ```luau
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
+    environment = "prod",
     universeId = game.GameId,
     gatewayUrl = "https://gateway.example", -- Optional HTTPS origin, no path/credentials/query.
     batch = { intervalSeconds = 0.5 },      -- Minimum 0.25 seconds.
@@ -284,7 +290,7 @@ The root exports no internal module tables. `Types/*` and `Fields/Types` are pub
 - [Generated API and Luau types](docs/api/README.md) — regenerate with `tools/gen-docs`; CI rejects drift.
 - [Getting started in 10 minutes](docs/GETTING-STARTED.md), [which feature should I use](docs/CHOOSING.md), [recipes](docs/RECIPES.md), [FAQ](docs/FAQ.md), [troubleshooting](docs/TROUBLESHOOTING.md), [glossary](docs/GLOSSARY.md).
 - [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [dynamic configs](docs/CONFIGS.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
-- [Item lists](docs/ITEM-LISTS.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
+- [Dev and prod](docs/ENVIRONMENTS.md), [Item lists](docs/ITEM-LISTS.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
 - [Codes](docs/CODES.md), [party](docs/PARTY.md), [audit](docs/AUDIT.md), [platform](docs/PLATFORM.md), [authentication](docs/AUTH.md).
 - [Error codes](docs/ERRORS.md), [performance/limits](docs/PERFORMANCE.md), [0.x migration](MIGRATION.md), [1.0 changelog](CHANGELOG.md).
 - [Runnable Roblox server scripts](examples/README.md) — 16 opt-in scripts, type-checked by an import-only projection.
@@ -295,6 +301,7 @@ The root exports no internal module tables. `Types/*` and `Fields/Types` are pub
 ```luau
 local client = BloxSDK.new({
     secretName = "BLOX_SERVICE_ACCOUNT",
+    environment = "prod",
     universeId = game.GameId,
     logger = function(eventName, event)
         print(eventName, event.endpoint, event.status) -- metadata only

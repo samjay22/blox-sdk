@@ -138,15 +138,16 @@ local players = {GetPlayers=function() return {} end,GetPlayerByUserId=function(
  removingListeners[callback]=true
  return {Disconnect=function() removingListeners[callback]=nil; removalConnections-=1 end}
 end}}
+local studio=false
 base.game={JobId="native-job",BindToClose=function(_,callback) table.insert(closeCallbacks,callback) end,GetService=function(_,name)
- if name=="RunService" then return {IsServer=function() return server end} end
+ if name=="RunService" then return {IsServer=function() return server end,IsStudio=function() return studio end} end
  if name=="Players" then return players end
  assert(name=="HttpService","Unexpected service lookup")
  return http
 end}
 base.task={wait=scheduler.runtime.wait,spawn=scheduler.runtime.spawn,delay=scheduler.runtime.delay,cancel=scheduler.runtime.cancel}
 local sdk=loadModule("src/BloxSDK")
-local client=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
+local client=sdk.new({secretName="SYNTHETIC_SECRET_NAME",environment="prod",universeId=123})
 scheduler.run(function() assert(client.fields:schema().ok,"Default adapter request failed") end)
 assert(requests==1,"Unexpected HTTP request count")
 local writer=client:auditWriter({batchSize=10})
@@ -161,7 +162,7 @@ assert(requests==2 and writer:pending()==0 and client._state.destroyed,"BindToCl
 client:destroy()
 assert(removalConnections==0,"Client destroy leaked removal connection")
 fieldsMode=true
-local fieldsClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
+local fieldsClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",environment="prod",universeId=123})
 scheduler.run(function()
  local loaded=fieldsClient.fields:loadProfile(7)
  assert(loaded.ok,"Native profile load failed")
@@ -173,7 +174,7 @@ end)
 assert(#presenceStates==2 and presenceStates[1] and not presenceStates[2],"Fields BindToClose must release presence")
 assert(fieldsClient._state.destroyed and scheduler.pending()==0,"Fields tasks survived shutdown")
 assert(removalConnections==0,"Fields close leaked player connection")
-local leavingClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",universeId=123})
+local leavingClient=sdk.new({secretName="SYNTHETIC_SECRET_NAME",environment="prod",universeId=123})
 scheduler.run(function()
  local a=leavingClient.fields:loadProfile(7)
  local b=leavingClient.fields:loadProfile(7)
@@ -187,6 +188,16 @@ scheduler.run(function()
 end)
 assert(removalConnections==0 and scheduler.pending()==0,"PlayerRemoving cleanup leaked work")
 print("PASS projected Fields BindToClose flush, session release, PlayerRemoving and profile lifecycle")
+studio=true
+local studioProd,studioError=pcall(sdk.new,{secretName="SYNTHETIC_SECRET_NAME",environment="prod",universeId=123})
+assert(not studioProd and string.find(tostring(studioError),"prod_key_in_studio",1,true),"Native Studio must refuse a prod secret")
+local studioDev=sdk.new({secretName="SYNTHETIC_SECRET_NAME",environment="dev",universeId=123})
+assert(studioDev.environment=="dev","Native Studio must accept a dev secret")
+studioDev:destroy()
+local studioOptIn=sdk.new({secretName="SYNTHETIC_SECRET_NAME",environment="prod",allowProdInStudio=true,universeId=123})
+studioOptIn:destroy()
+studio=false
+print("PASS projected Studio protection for prod and dev secrets")
 server=false
 local ok=pcall(sdk.new,{key="bsa_"..string.rep("a",8).."_"..string.rep("b",43),universeId=123})
 assert(not ok,"Client-side construction must fail")

@@ -5,6 +5,7 @@ local SDK = require("../src/BloxSDK")
 return function(secretName: string, universeId: number, gatewayUrl: string?): SDK.Client
 	return SDK.new({
 		secretName = secretName,
+		environment = "prod",
 		universeId = universeId,
 		gatewayUrl = gatewayUrl, -- HTTPS origin only; no service prefix or direct-service override.
 		batch = { intervalSeconds = 0.5 },
