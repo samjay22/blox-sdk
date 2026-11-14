@@ -291,7 +291,7 @@ The root exports no internal module tables. `Types/*` and `Fields/Types` are pub
 - [Generated API and Luau types](docs/api/README.md) — regenerate with `tools/gen-docs`; CI rejects drift.
 - [Getting started in 10 minutes](docs/GETTING-STARTED.md), [which feature should I use](docs/CHOOSING.md), [recipes](docs/RECIPES.md), [FAQ](docs/FAQ.md), [troubleshooting](docs/TROUBLESHOOTING.md), [glossary](docs/GLOSSARY.md).
 - [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [dynamic configs](docs/CONFIGS.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
-- [Dev and prod](docs/ENVIRONMENTS.md), [Item lists](docs/ITEM-LISTS.md), [player trading](docs/TRADING.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
+- [Dev and prod](docs/ENVIRONMENTS.md), [Item lists](docs/ITEM-LISTS.md), [player trading](docs/TRADING.md), [RPG inventory guide](docs/INVENTORY.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
 - [Codes](docs/CODES.md), [party](docs/PARTY.md), [audit](docs/AUDIT.md), [platform](docs/PLATFORM.md), [authentication](docs/AUTH.md).
 - [Error codes](docs/ERRORS.md), [performance/limits](docs/PERFORMANCE.md), [0.x migration](MIGRATION.md), [1.0 changelog](CHANGELOG.md).
 - [Runnable Roblox server scripts](examples/README.md) — 16 opt-in scripts, type-checked by an import-only projection.

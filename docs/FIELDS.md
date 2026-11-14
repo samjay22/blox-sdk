@@ -377,7 +377,7 @@ The [Codes builder](CODES.md) composes the same operation builder and TypeSystem
 A field of type **Item set** (kind `bitmap`) holds a set of members of an item list (`{"kind":"bitmap","source":"Items","maxMembers":64}`;
 `maxMembers = 1` is a single choice). Operations use names: `grant`, `revoke`, `replace` on profiles and transactions, with
 `has`, `members` and `usable` to read. They are buffered like every profile write and checked locally against the cached
-list. Everything else, including recipes and errors, is in [ITEM-LISTS.md](ITEM-LISTS.md).
+list. Everything else, including recipes and errors, is in [ITEM-LISTS.md](ITEM-LISTS.md). For a full inventory (stacks, gear, equipped slots, gold) see [INVENTORY.md](INVENTORY.md).
 
 ## Rotations
 
