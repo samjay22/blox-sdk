@@ -67,6 +67,8 @@ retired ones) and `member(name)`. Fields reads those cached members to check a g
   you no longer want to give out. `usable("Events.Halloween")` leaves a retired member out, so players keep it (`has` stays true) but it is no longer usable.
 - **Badges and unlocks.** One list, one field with `maxMembers = 512`, `grant` once, `has` to check.
 - **Retire a seasonal item.** `items:retireMember("Pumpkin_Hat")`; nothing is lost and nobody new can get it.
+- **Trade items between players.** `revoke` of an item that is not held does nothing, so a trade needs an `expect` version
+  condition on the item set of every player whose items move. See [player trading](TRADING.md).
 
 ## Retire or remove
 

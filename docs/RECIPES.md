@@ -110,3 +110,62 @@ Ranks are recalculated every minute, so caching for a minute loses nothing. A `N
 Keep what a player owns in one item set field and what is equipped in a second field with `maxMembers = 1`; for event
 items, give each event its own list and check `usable`. See [item lists](ITEM-LISTS.md), the
 [equipment](../examples/server/equipment.server.luau) and [event items](../examples/server/event-items.server.luau) examples.
+
+## Player trade
+
+(No runnable example script; the code below is type-checked against the SDK.)
+
+Fields `Items.Owned` (Item set over an `Items` list, limit 64) and `Currency.Gems` (int, minimum 0). Key: `FieldsService READ_WRITE`.
+Load the field list once (`client.fields:schemaCache():load()`, or load a profile).
+
+```luau
+local client = require(script.Parent.Client) -- your shared BloxSDK client
+local OWNED, GEMS = "Items.Owned", "Currency.Gems"
+
+-- The buyer pays gems, the seller hands over one item. Returns "traded", "changed", "refused",
+-- "retry" (nothing was sent) or "unknown" (sent, outcome not known: ask again with the same tradeId).
+local function swap(tradeId: string, buyer: number, seller: number, gems: number, item: string): string
+    local sellerItems = client.fields:playerMembers({ path = { userId = seller, field = OWNED } })
+    local buyerItems = client.fields:playerMembers({ path = { userId = buyer, field = OWNED } })
+    if not sellerItems.ok or not buyerItems.ok then
+        return "retry"
+    end
+    if not table.find(sellerItems.value.members, item) or table.find(sellerItems.value.retired, item) then
+        return "refused" -- the seller does not own it, or it was retired
+    end
+
+    local tx = client.fields:multiTransactionBuilder()
+    tx:subject(seller)
+    tx:expect(OWNED, { version = sellerItems.value.version }) -- stops the item being sold twice
+    tx:revoke(OWNED, { item })
+    tx:add(GEMS, gems)
+    tx:subject(buyer)
+    tx:expect(OWNED, { version = buyerItems.value.version })
+    tx:grant(OWNED, { item })
+    tx:add(GEMS, -gems) -- the field's minimum 0 refuses this when the buyer cannot pay
+    tx:key("trade-" .. tradeId) -- save the id before this call; the same id always means the same trade
+    tx:reason("Player trade " .. tradeId)
+
+    for attempt = 1, 3 do
+        local result = tx:commit() -- a repeat call sends the same sealed body with the same key
+        if result.ok then
+            return "traded"
+        end
+        local err = result.error
+        if err.code == "precondition_failed" then
+            return "changed" -- someone's items changed since the check: nothing moved, start again
+        end
+        if err.kind ~= "Timeout" and err.kind ~= "Network" and err.kind ~= "Server" and err.kind ~= "CircuitOpen" then
+            return "refused" -- below_min, member_limit, member_retired and the like: nothing moved
+        end
+        task.wait(attempt)
+    end
+    return "unknown"
+end
+```
+
+The `expect` lines stop duplication: `revoke` of an item the seller no longer holds does nothing, so without them the
+buyer could receive an item the seller never lost. The buyer's minimum 0 on `Currency.Gems` is the payment guard
+(`below_min`). Calling `commit` again on the same builder resends the same sealed body with the same key, so a retry
+cannot charge twice. After a restart you cannot rebuild the body from fresh reads (the versions have moved on), so save
+the inputs with the trade: see [player trading](TRADING.md) for the full flow, crash recovery, history and the errors.

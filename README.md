@@ -132,6 +132,7 @@ Current Platform methods and Fields-owned player administration are documented i
 - Fields includes a strict TypeSystem, schema cache, validated transactions, profile/presence lifecycle and offline schema-specialized typed accessor codegen. Unsafe int64 values fail closed, never round. See [Fields guide](docs/FIELDS.md).
 - Fields `Bulk`, `Schedules`, and `Jobs` helpers add typed request validation and bounded `Jobs:waitFor` polling. **Server/admin-key usage only**, including previews, job reads and export/downloads; health summary and schedule run history need READ. Never expose an ADMIN key or these controls to game clients. See [durable jobs guide](docs/JOBS.md) and [game-server example](examples/fields-jobs.luau).
 
+- Player trading: a multi-player Fields transaction swaps gems and items between players all or nothing; see [Player trading](docs/TRADING.md).
 - Item lists: a config namespace of named members (`client.configs:namespace("Items"):setKind("items")`) that players hold through Fields `bitmap` fields, with `profile:grant/revoke/replace/has/members/usable`. See [Item lists](docs/ITEM-LISTS.md) and the [equipment](examples/server/equipment.server.luau) and [event items](examples/server/event-items.server.luau) examples.
 - Fields `rotations()` is a named list of items that take turns on a fixed clock: `current(name)` returns the active items, when they change and the next ones (cached), with `secondsLeft`, `upcoming` and `watch`. See [Rotations](docs/ROTATIONS.md) and the [weather](examples/weather.luau) and [daily shop](examples/daily-shop.luau) examples.
 
@@ -290,7 +291,7 @@ The root exports no internal module tables. `Types/*` and `Fields/Types` are pub
 - [Generated API and Luau types](docs/api/README.md) — regenerate with `tools/gen-docs`; CI rejects drift.
 - [Getting started in 10 minutes](docs/GETTING-STARTED.md), [which feature should I use](docs/CHOOSING.md), [recipes](docs/RECIPES.md), [FAQ](docs/FAQ.md), [troubleshooting](docs/TROUBLESHOOTING.md), [glossary](docs/GLOSSARY.md).
 - [Fields](docs/FIELDS.md), [transactions/products](docs/TRANSACTIONS.md), [dynamic configs](docs/CONFIGS.md), [flags](docs/FLAGS.md), [live events](docs/LIVE-EVENTS.md).
-- [Dev and prod](docs/ENVIRONMENTS.md), [Item lists](docs/ITEM-LISTS.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
+- [Dev and prod](docs/ENVIRONMENTS.md), [Item lists](docs/ITEM-LISTS.md), [player trading](docs/TRADING.md), [Rotations](docs/ROTATIONS.md), [leaderboards/ratings](docs/LEADERBOARDS.md), [matchmaking](docs/MATCHMAKING.md).
 - [Codes](docs/CODES.md), [party](docs/PARTY.md), [audit](docs/AUDIT.md), [platform](docs/PLATFORM.md), [authentication](docs/AUTH.md).
 - [Error codes](docs/ERRORS.md), [performance/limits](docs/PERFORMANCE.md), [0.x migration](MIGRATION.md), [1.0 changelog](CHANGELOG.md).
 - [Runnable Roblox server scripts](examples/README.md) — 16 opt-in scripts, type-checked by an import-only projection.

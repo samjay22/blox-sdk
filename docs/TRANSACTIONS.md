@@ -13,5 +13,6 @@ Developer-product grants belong in Fields product definitions. In the experience
 `MarketplaceService.ProcessReceipt` handler, call `fields:processReceipt` with PurchaseId, PlayerId,
 ProductId and CurrencySpent from Roblox. Return PurchaseGranted **only** on result.ok; otherwise
 NotProcessedYet. The purchaseId is the durable deduplication boundary. Do not regrant the response.
+Trades between players are one multi-player transaction: see [Player trading](TRADING.md).
 See [native purchases script](../examples/server/purchases.server.luau), [Fields](FIELDS.md),
 and [wire/API types](api/fields.md). Refund/reversal and product administration require server-side authorization.

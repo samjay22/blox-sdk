@@ -30,7 +30,8 @@ Ask whose value it is. A field belongs to a player; a config value belongs to th
 A config namespace is **Settings** when its values are numbers, text and tables the game reads (prices, tuning). It is an
 **item list** when the game hands out named things that players hold (swords, hats, badges): pair it with a Fields field
 of type Item set (kind `bitmap`; `maxMembers = 1` for a single choice such as an equipped slot). Use plain Fields values for
-counts and balances, and a rotation when the choice changes on a clock. See [item lists](ITEM-LISTS.md).
+counts and balances, and a rotation when the choice changes on a clock. See [item lists](ITEM-LISTS.md). For players swapping
+things with each other, use one multi-player transaction: see [player trading](TRADING.md).
 
 ## Configs or rotations?
 

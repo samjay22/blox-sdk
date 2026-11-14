@@ -31,5 +31,6 @@
 | Member | One entry of an item list. Its name is what game code uses; its bit is permanent and never reused |
 | Retired member | A member nobody new can get; players who hold it keep it, and `usable` leaves it out |
 | Item set field | A Fields field of type Item set (kind `bitmap`) that holds members of one item list per player. Its `source` list can never change |
+| Trade | One multi-player transaction that changes two or more players together, all or nothing, with conditions and one idempotency key. The offer flow, escrow rules and trade log are built by the game. See [player trading](TRADING.md) |
 | Single choice | An item set field with `maxMembers = 1`: the player holds at most one member, like an equipped slot |
 | Usable | `profile:usable(field)` returns the members the player holds that are still active (not retired), sorted |

@@ -136,7 +136,7 @@ local transfer = client.fields:multiTransactionBuilder()
     :commit()
 ```
 
-The limit of ten subjects includes conditions. At most 100 ops and 100 conditions. Every op and condition needs a selected positive subject; Fields has no universe-wide values (see [configs](CONFIGS.md)).
+The limit of ten subjects includes conditions. At most 100 ops and 100 conditions. Every op and condition needs a selected positive subject; Fields has no universe-wide values (see [configs](CONFIGS.md)). The multi-subject builder does not update loaded profiles: apply the result with `profile:apply(result.value)`. A complete player-to-player swap, with conditions, a saved key and crash recovery, is in [Player trading](TRADING.md).
 
 ## Profile and presence
 
